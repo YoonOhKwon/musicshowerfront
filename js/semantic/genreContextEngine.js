@@ -18,6 +18,34 @@ const GenreContext = (() => {
   const RELATION_SONIC_ROOTS = new Set(["rhythmicGrammar", "productionEvidence", "instrumentationEvidence"]);
   const FAMILY_BY_CATEGORY = Object.freeze({ genre: "PRIMARY_GENRE", lineage: "LINEAGE", era: "ERA",
     scene: "SCENE", culture: "CULTURE", association: "AESTHETIC_ASSOCIATION" });
+  // Shared fallback for the mismatch between the Discogs-EffNet classifier's own label spelling
+  // ("Nu-Disco", "Drum n Bass") and hand-authored knowledge keys ("Nu Disco", "Drum & Bass"):
+  // fold ONLY cosmetic punctuation/connector spelling (hyphen vs space, "&"/" n "/" and ", case),
+  // never strip a substring -- "Disco", "Nu-Disco" and "Italo-Disco" must still normalize to three
+  // distinct strings, so genuinely different genres are never merged by this. The primary fix for
+  // a known spelling variant is still an explicit data/genreAliases.json entry (it also fixes
+  // genre.primary for every OTHER consumer, not just this lookup); this is a second-line safety
+  // net so a knowledge entry never goes silently unreachable just because someone typed its key
+  // with different spacing than the classifier uses.
+  function normalizeGenreLabel(label) {
+    return String(label || "").toLowerCase()
+      .replace(/\s+and\s+/g, "&")
+      .replace(/\s+n\s+/g, "&")
+      .replace(/[\s-]+/g, "")
+      .trim();
+  }
+  // The exact matching logic used both by the live lookup (Engine.evaluate) and by
+  // scripts/knowledge-coverage.cjs's reachability report -- kept as one function so the two can
+  // never silently disagree about which knowledge entries are reachable (the same class of bug
+  // fixed for the primitive-classification report in an earlier round).
+  function resolveGenreEntry(data, primaryLabel) {
+    const key = String(primaryLabel || "").toLowerCase();
+    const normalizedKey = normalizeGenreLabel(primaryLabel);
+    const found = Object.entries(data.genres || {}).find(([label, item]) =>
+      label.toLowerCase() === key || normalizeGenreLabel(label) === normalizedKey ||
+      (item.aliases || []).some(alias => alias.toLowerCase() === key || normalizeGenreLabel(alias) === normalizedKey));
+    return found ? found[0] : null;
+  }
   function instrumentEvidence(state) {
     const evidence = {};
     for (const item of Instruments.normalize((state.instruments || []).filter(x => x.source !== "dsp"))) {
@@ -36,9 +64,8 @@ const GenreContext = (() => {
       const view = { measurements: state.expressionFeatures || {}, rhythmicGrammar: state.rhythmicGrammar || {},
         productionEvidence: state.productionEvidence || {}, instrumentationEvidence: instrumentEvidence(state),
         moodDimensions: state.moodDimensions || {}, aestheticEvidence: result.aestheticEvidence };
-      const key = String(genre.primary).toLowerCase();
-      const entry = Object.entries(this.data.genres || {}).find(([label, item]) =>
-        label.toLowerCase() === key || item.aliases?.some(alias => alias.toLowerCase() === key))?.[1];
+      const resolvedKey = resolveGenreEntry(this.data, genre.primary);
+      const entry = resolvedKey ? this.data.genres[resolvedKey] : null;
       const rules = [...(entry?.candidates || []), ...(this.data.families?.[genre.family]?.candidates || [])];
       for (const rule of rules.slice(0, 60)) {
         const tests = rule.requires || [];
@@ -79,7 +106,9 @@ const GenreContext = (() => {
     // two independent current measurements back them, and the wording weakens as the link weakens.
     relationCandidates(genre, view) {
       const key = String(genre.primary || "").toLowerCase();
-      const entry = Object.entries(this.data.relations || {}).find(([label]) => label.toLowerCase() === key)?.[1];
+      const normalizedKey = normalizeGenreLabel(genre.primary);
+      const entry = Object.entries(this.data.relations || {}).find(([label]) =>
+        label.toLowerCase() === key || normalizeGenreLabel(label) === normalizedKey)?.[1];
       // Same confidence boundary the hand-written rules use: relations broaden COVERAGE,
       // they do not lower the bar for claiming a history or a scene.
       if (!entry || !(genre.confidence >= 0.75)) return [];
@@ -144,6 +173,6 @@ const GenreContext = (() => {
       return list.slice(0, 14);
     }
   }
-  return { Engine, instrumentEvidence };
+  return { Engine, instrumentEvidence, normalizeGenreLabel, resolveGenreEntry };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = GenreContext;

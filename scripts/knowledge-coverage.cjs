@@ -6,10 +6,35 @@ const Impressions = require("../js/semantic/impressionSynthesizer");
 const Grammar = require("../js/semantic/rhythmicGrammar");
 const Pipeline = require("../js/semantic/semanticCandidatePipeline");
 const Validator = require("../js/semantic/knowledgeConsistencyValidator");
+const GenreContext = require("../js/semantic/genreContextEngine");
 const { profile, RICH_KINDS } = require("../test/fixtures/languageProfiles");
 const lexicon = require("../data/musicalLexicon.json");
 const taxonomy = require("../data/genreTaxonomy.json");
 const contextKnowledge = require("../data/genreContextKnowledge.json");
+const genreAliases = require("../data/genreAliases.json");
+const discogsModel = require("../models/music-shower/assets/discogs-effnet-bsdynamic-1.json");
+
+// Section-0 regression line: what fraction of data/genreContextKnowledge.json's genre entries
+// can an actual Discogs-EffNet classifier output ever reach? Mirrors semanticEngine.js's own
+// canonicalGenre() (split "parent---specific", then resolve through data/genreAliases.json)
+// followed by the SAME resolveGenreEntry() the live lookup uses, so this can never silently
+// disagree with runtime behavior the way the primitive-classification report once did.
+function genreReachability() {
+  const aliasLookup = new Map(Object.entries(genreAliases).map(([key, value]) => [key.toLowerCase(), value]));
+  const canonicalLabels = (discogsModel.classes || []).map(rawClass => {
+    const specific = rawClass.includes("---") ? rawClass.split("---", 2)[1] : rawClass;
+    return aliasLookup.get(specific.toLowerCase()) || specific;
+  });
+  const genreKeys = Object.keys(contextKnowledge.genres || {});
+  const reachable = new Set();
+  for (const label of canonicalLabels) {
+    const found = GenreContext.resolveGenreEntry(contextKnowledge, label);
+    if (found) reachable.add(found);
+  }
+  const unreachable = genreKeys.filter(key => !reachable.has(key));
+  return { totalGenreKeys: genreKeys.length, reachableCount: reachable.size,
+    reachabilityRatio: genreKeys.length ? reachable.size / genreKeys.length : 1, unreachable };
+}
 
 const schema = Primitives.schema();
 const sampleKinds = [...RICH_KINDS, "cold", "warm", "jazz"];
@@ -40,7 +65,12 @@ const genreRealizationCount = lexicon.entries.reduce((sum, entry) =>
 const genreMultiplierCount = lexicon.entries.reduce((sum, entry) =>
   sum + (entry.contextMultipliers || []).length, 0);
 
+const reachability = genreReachability();
+
 const summary = {
+  genreKnowledgeReachabilityRatio: Number(reachability.reachabilityRatio.toFixed(3)),
+  genreKnowledgeReachableCount: reachability.reachableCount,
+  genreKnowledgeTotalCount: reachability.totalGenreKeys,
   primitiveSchemaCount: report.stats.primitivePaths,
   primitiveDetectorSupportedCount: classificationSummary.REAL_DETECTOR,
   primitiveDerivedCount: classificationSummary.DERIVED,
@@ -69,13 +99,15 @@ const topPrimitivesByIdiomCount = Object.entries(coverage.byPrimitive).slice(0, 
 const genreCoverage = Object.entries(coverage.byGenre).sort((a, b) => b[1] - a[1]);
 
 const output = { summary, warningsByCode, declaredOnlyPaths, topPrimitivesByIdiomCount, genreCoverage,
-  orphanPrimitives: coverage.orphanPrimitives.slice(0, 30) };
+  orphanPrimitives: coverage.orphanPrimitives.slice(0, 30), unreachableGenreKeys: reachability.unreachable };
 
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(output, null, 2));
 } else {
   console.log("=== Primitive coverage ===");
   console.log(JSON.stringify(summary, null, 1));
+  console.log("\n=== Genre knowledge reachability (" + reachability.reachableCount + "/" + reachability.totalGenreKeys + ") ===");
+  console.log("Unreachable from the 400-class model:", reachability.unreachable.join(", ") || "(none)");
   console.log("\n=== DECLARED_ONLY primitives (" + declaredOnlyPaths.length + ") ===");
   console.log(declaredOnlyPaths.join(", "));
   console.log("\n=== Top primitives by idiom count ===");

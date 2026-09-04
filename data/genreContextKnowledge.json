@@ -635,7 +635,28 @@
     },
     "Metal": {
       "sources": [],
-      "aliases": [],
+      "aliases": [
+        "Atmospheric Black Metal",
+        "Black Metal",
+        "Death Metal",
+        "Depressive Black Metal",
+        "Doom Metal",
+        "Folk Metal",
+        "Funeral Doom Metal",
+        "Funk Metal",
+        "Gothic Metal",
+        "Heavy Metal",
+        "Melodic Death Metal",
+        "Metalcore",
+        "Nu Metal",
+        "Post-Metal",
+        "Power Metal",
+        "Progressive Metal",
+        "Sludge Metal",
+        "Speed Metal",
+        "Technical Death Metal",
+        "Viking Metal"
+      ],
       "candidates": [
         {
           "text": "강한 기타 어택",
