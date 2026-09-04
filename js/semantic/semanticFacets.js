@@ -48,11 +48,23 @@ const SemanticFacets = (() => {
     // this file already pulls in with the typeof-then-require pattern above.
     try { setApprovedCoreTerms(require("../../data/approvedCoreTerms.json")?.entries); } catch { /* browser: no require, keep the safe default above */ }
   }
+  // The open layer (association/AESTHETIC, mood/IMPRESSION) is where impression-style language
+  // lives -- confident poetic compression, not measurement. Its structural limits (word count)
+  // are looser than the strict/context layers', but this is still real-text hygiene, not content
+  // moderation: control characters, run-on narrative-length text and the song-identification /
+  // *core whitelist checks below apply identically everywhere.
+  const OPEN_LAYERS = new Set(["AESTHETIC", "IMPRESSION"]);
   function safeText(text, category) {
+    const openLayer = OPEN_LAYERS.has(Layers.facetLayers[category]);
     if (!names.includes(category) || typeof text !== "string" || !text.trim() || text.length > 60 ||
         /[\r\n<>\[\]{};!?]|https?:|분석.*(?:중|대기)|준비 완료|재생해주세요|미확정|불확실|unknown/i.test(text)) return false;
-    if (!/^[\p{L}\p{N}\s&/+'().,:\-]+$/u.test(text) || text.trim().split(/\s+/).length > 7) return false;
-    if (/과열된|냉각된|저중력|무중력|분홍빛|보랏빛|유리.*(?:기억|고독|슬픔)|압축된 고독|금속성 황홀|차가운 황홀|purple memory|glass loneliness|heated tension|weightless sadness/i.test(text)) return false;
+    if (!/^[\p{L}\p{N}\s&/+'().,:\-]+$/u.test(text) || text.trim().split(/\s+/).length > (openLayer ? 10 : 7)) return false;
+    // The generic AI-poetry blocklist stays an instant veto in every strict/context facet --
+    // measurement and style-hypothesis language must never wear it. In the open layer it is no
+    // longer a hard reject: js/semantic/clicheScore.js + phraseSelection.js's clichePenalty grade
+    // it down (and grade it down further on recent reuse) instead of discarding it outright,
+    // since a played-out phrase used sparingly still reads as a legitimate impression.
+    if (!openLayer && /과열된|냉각된|저중력|무중력|분홍빛|보랏빛|유리.*(?:기억|고독|슬픔)|압축된 고독|금속성 황홀|차가운 황홀|purple memory|glass loneliness|heated tension|weightless sadness/i.test(text)) return false;
     if (/이 곡은|제작한|작곡한|발매된|의 곡|made by|composed by|released in/i.test(text)) return false;
     const coreTerms = text.match(/[가-힣A-Za-z]+코어/gu) || [];
     if (coreTerms.some(term => !approvedCoreTerms.has(term))) return false;

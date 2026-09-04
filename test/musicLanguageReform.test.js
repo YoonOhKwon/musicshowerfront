@@ -304,8 +304,11 @@ test("safeText rejects arbitrary invented '-코어' coinages that are not regist
   assert.equal(Facets.safeText("글리치코어 유리코어 계열", "genre"), false, "one invented term must fail the whole phrase");
 });
 
-test("safeText's other filters (AI-poetry blocklist, song identification, era year) are unaffected by the whitelist externalization", () => {
-  assert.equal(Facets.safeText("과열된 긴장", "mood"), false);
+test("safeText's other filters (AI-poetry blocklist in strict facets, song identification, era year) are unaffected by the whitelist externalization", () => {
+  // "mood" moved into the open layer in a later round (test/clicheScore.test.js) -- the
+  // AI-poetry blocklist there is now a graded cliche penalty, not an instant veto, so this
+  // check moved to a strict-layer facet ("rhythm") to keep testing what it originally meant.
+  assert.equal(Facets.safeText("과열된 긴장", "rhythm"), false);
   assert.equal(Facets.safeText("이 곡은 재즈입니다", "genre"), false);
   assert.equal(Facets.safeText("1987", "era"), false);
   assert.ok(Facets.safeText("1980년대", "era"));

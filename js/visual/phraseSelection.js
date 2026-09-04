@@ -3,7 +3,9 @@ const PhraseSelection = (() => {
   const Layers = typeof LanguageLayerPolicy !== "undefined" ? LanguageLayerPolicy : require("../semantic/languageLayerPolicy");
   const Quality = typeof PhraseQuality !== "undefined" ? PhraseQuality : require("../semantic/phraseQuality");
   const Genome = typeof PhraseGenome !== "undefined" ? PhraseGenome : require("../semantic/phraseGenome");
+  const Cliche = typeof ClicheScore !== "undefined" ? ClicheScore : require("../semantic/clicheScore");
   const typeFactor = { single: 1.1, fragment: 1, nominal: 0.8, micro: 0.42 };
+  const OPEN_LAYERS = new Set(["AESTHETIC", "IMPRESSION"]);
   function weight(candidate, recent = [], options = {}) {
     const item = Layers.decorate(candidate);
     const samePerspective = recent.filter(previous => previous.perspective === item.perspective).length;
@@ -44,9 +46,14 @@ const PhraseSelection = (() => {
     const exhaustionPenalty = item.exhausted || (item.exhaustedUntil || 0) > (options.now || Date.now()) ? 0.04 : 1;
     const facetNeed = 0.55 + 0.45 * (item.facetNeed ?? 1);
     const evidenceReservoir = 0.55 + 0.45 * (item.reservoirScore ?? 1);
+    // Open layer only (safeText() no longer hard-rejects the generic-poetry family there): grade
+    // it down instead of vetoing it, and grade it down further the more it (or its cliche family)
+    // has actually been shown recently -- never all the way to zero, a stock phrase used sparingly
+    // is still a legitimate impression.
+    const clichePenalty = OPEN_LAYERS.has(item.layer) ? Math.max(0.25, 1 - Cliche.score(item.text, recent) * 0.75) : 1;
     return Math.max(0.005, (item.weight || item.score || 0.6) * quality * temporal * primitivePenalty * sourcePriority *
       tierFactor * familyPenalty * semanticFamilyPenalty * reservoirFitness * genericAncestorPenalty *
-      songUsePenalty * exhaustionPenalty * facetNeed * evidenceReservoir * (typeFactor[item.type] || 1) /
+      songUsePenalty * exhaustionPenalty * facetNeed * evidenceReservoir * clichePenalty * (typeFactor[item.type] || 1) /
       (1 + samePerspective * 0.22 + sameType * 0.08 + sameLayer * 0.13 + sameDistance * 0.08 + sameSource * 0.07));
   }
   function layerRatios(observationSeconds, changing) {
