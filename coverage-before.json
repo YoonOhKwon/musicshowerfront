@@ -1,0 +1,422 @@
+﻿{
+  "summary": {
+    "primitiveSchemaCount": 191,
+    "primitiveDetectorSupportedCount": 67,
+    "primitiveDerivedCount": 41,
+    "primitiveDeclaredOnlyCount": 83,
+    "primitiveFixtureAvailabilityCount": 108,
+    "canonicalIdiomCount": 207,
+    "idiomRealizationCount": 40,
+    "genreConfidenceMultiplierCount": 50,
+    "genreSpecializedIdiomCount": 84,
+    "impressionRuleCount": 51,
+    "graphNodes": 810,
+    "graphEdges": 978,
+    "validatorErrors": 0,
+    "validatorWarnings": 77,
+    "detectorWarningCount": 3,
+    "unreachableRuleCount": 0,
+    "missingDetectorReferenceCount": 35,
+    "unusedPrimitiveCount": 76,
+    "orphanPrimitiveCount": 76
+  },
+  "warningsByCode": {
+    "narrow-detector-headroom": 1,
+    "optional-detector-disabled": 2,
+    "unused-primitive": 76,
+    "idiom-requires-declared-only": 35
+  },
+  "declaredOnlyPaths": [
+    "pulse.densityPerPulse",
+    "pulse.snarePeriodicity",
+    "pulse.ghostNoteLikelihood",
+    "harmony.tonalCenter",
+    "harmony.keyConfidence",
+    "harmony.majorMinorLikelihood",
+    "harmony.modality",
+    "harmony.modeConfidence",
+    "harmony.chordChangeRate",
+    "harmony.modalMixture",
+    "harmony.cadenceStrength",
+    "harmony.harmonicMotionDirection",
+    "harmony.harmonicDensity",
+    "melody.melodicContour",
+    "melody.melodicRange",
+    "melody.averageInterval",
+    "melody.intervalVariance",
+    "melody.stepwiseMotion",
+    "melody.leapLikelihood",
+    "melody.motifStrength",
+    "melody.motifRecurrence",
+    "melody.phraseLength",
+    "melody.phraseRegularity",
+    "melody.sequenceLikelihood",
+    "melody.ornamentDensity",
+    "melody.callResponseLikelihood",
+    "melody.melodicRepetition",
+    "melody.melodicDirection",
+    "melody.melodicDensity",
+    "bass.rootFollowing",
+    "bass.articulation",
+    "texture.onsetAlignment",
+    "texture.registerSpread",
+    "role.leadStability",
+    "role.leadTransitionRate",
+    "role.foregroundInstrument",
+    "role.foregroundLikelihood",
+    "role.harmonicRole",
+    "role.rhythmicRole",
+    "role.compingLikelihood",
+    "role.callResponse",
+    "instrument.entryLikelihood",
+    "instrument.exitLikelihood",
+    "instrument.compingLikelihood",
+    "instrument.rhythmicRole",
+    "instrument.harmonicRole",
+    "instrument.melodicRole",
+    "instrument.foregroundBackground",
+    "instrument.callResponse",
+    "instrument.articulation",
+    "instrument.vibrato",
+    "instrument.humanization",
+    "instrument.expressiveTiming",
+    "tonal.pitchSetBreadth",
+    "tonal.melodicContourRange",
+    "tonal.ornamentDensity",
+    "tonal.microtonalActivity",
+    "articulation.vibratoLikelihood",
+    "articulation.humanization",
+    "articulation.expressiveTiming",
+    "form.dropLikelihood",
+    "form.cyclicLength",
+    "form.densityDelta",
+    "form.layerEntry",
+    "form.layerExit",
+    "form.foregroundChange",
+    "form.instrumentRoleChange",
+    "form.energyTrajectory",
+    "production.spectralFlux",
+    "production.stereoWidth",
+    "production.monoFocus",
+    "production.roomSize",
+    "production.delayDensity",
+    "production.lowPassLikelihood",
+    "production.highPassLikelihood",
+    "arrangement.densityDelta",
+    "arrangement.layerEntry",
+    "arrangement.layerExit",
+    "arrangement.dropLikelihood",
+    "arrangement.foregroundChange",
+    "arrangement.instrumentRoleChange",
+    "arrangement.energyTrajectory",
+    "arrangement.verifiedEnsembleSize"
+  ],
+  "topPrimitivesByIdiomCount": [
+    [
+      "pulse.kickPeriodicity",
+      17
+    ],
+    [
+      "pulse.pulsePresence",
+      14
+    ],
+    [
+      "texture.voiceCount",
+      13
+    ],
+    [
+      "pulse.metricStability",
+      13
+    ],
+    [
+      "pulse.onsetDensity",
+      12
+    ],
+    [
+      "texture.sustainRatio",
+      11
+    ],
+    [
+      "bass.bassPresence",
+      11
+    ],
+    [
+      "pulse.breakDensity",
+      10
+    ],
+    [
+      "pulse.rhythmicEntropy",
+      10
+    ],
+    [
+      "instrument.presenceConfidence",
+      10
+    ],
+    [
+      "tonal.tonalFocus",
+      9
+    ],
+    [
+      "pulse.groovePushPull",
+      9
+    ],
+    [
+      "texture.textureClass",
+      8
+    ],
+    [
+      "role.leadPresence",
+      8
+    ],
+    [
+      "pulse.tempo",
+      8
+    ]
+  ],
+  "genreCoverage": [
+    [
+      "Jazz",
+      12
+    ],
+    [
+      "Ambient",
+      8
+    ],
+    [
+      "Techno",
+      8
+    ],
+    [
+      "Electronic",
+      7
+    ],
+    [
+      "Funk",
+      7
+    ],
+    [
+      "City Pop",
+      7
+    ],
+    [
+      "Classical",
+      6
+    ],
+    [
+      "House",
+      6
+    ],
+    [
+      "Blues",
+      6
+    ],
+    [
+      "Traditional",
+      5
+    ],
+    [
+      "Future Funk",
+      5
+    ],
+    [
+      "Jazz Funk",
+      5
+    ],
+    [
+      "AOR",
+      5
+    ],
+    [
+      "Hip-Hop",
+      4
+    ],
+    [
+      "Vaporwave",
+      4
+    ],
+    [
+      "Drum & Bass",
+      4
+    ],
+    [
+      "Drone",
+      4
+    ],
+    [
+      "Shoegaze",
+      4
+    ],
+    [
+      "Dixieland",
+      3
+    ],
+    [
+      "New Orleans",
+      3
+    ],
+    [
+      "Baroque",
+      3
+    ],
+    [
+      "Disco",
+      3
+    ],
+    [
+      "Swing",
+      3
+    ],
+    [
+      "Gospel",
+      3
+    ],
+    [
+      "UK Garage",
+      3
+    ],
+    [
+      "Future Garage",
+      3
+    ],
+    [
+      "Bebop",
+      3
+    ],
+    [
+      "Jungle",
+      3
+    ],
+    [
+      "Liquid DnB",
+      3
+    ],
+    [
+      "Fusion Jazz",
+      3
+    ],
+    [
+      "French House",
+      3
+    ],
+    [
+      "Glitchcore",
+      3
+    ],
+    [
+      "Trance",
+      3
+    ],
+    [
+      "Soul",
+      3
+    ],
+    [
+      "Choral",
+      2
+    ],
+    [
+      "Rock",
+      2
+    ],
+    [
+      "Garage",
+      2
+    ],
+    [
+      "Folk",
+      2
+    ],
+    [
+      "Lo-Fi",
+      2
+    ],
+    [
+      "Breakcore",
+      2
+    ],
+    [
+      "Glitch",
+      2
+    ],
+    [
+      "IDM",
+      2
+    ],
+    [
+      "Post-Rock",
+      2
+    ],
+    [
+      "Dream Pop",
+      2
+    ],
+    [
+      "Cool Jazz",
+      2
+    ],
+    [
+      "Jazz Fusion",
+      2
+    ],
+    [
+      "Synthwave",
+      2
+    ],
+    [
+      "R&B",
+      2
+    ],
+    [
+      "Indie Rock",
+      2
+    ],
+    [
+      "Metal",
+      2
+    ],
+    [
+      "Pop",
+      2
+    ],
+    [
+      "Bass",
+      1
+    ],
+    [
+      "Minimal",
+      1
+    ]
+  ],
+  "orphanPrimitives": [
+    "pulse.tempoClass",
+    "pulse.subdivision",
+    "pulse.swingRatio",
+    "pulse.accentDisplacement",
+    "pulse.densityPerPulse",
+    "pulse.snarePeriodicity",
+    "pulse.ghostNoteLikelihood",
+    "harmony.tonalCenter",
+    "harmony.keyConfidence",
+    "harmony.majorMinorLikelihood",
+    "harmony.modality",
+    "harmony.modeConfidence",
+    "harmony.chordChangeRate",
+    "harmony.harmonicTension",
+    "harmony.modalMixture",
+    "harmony.cadenceStrength",
+    "harmony.harmonicMotionDirection",
+    "harmony.harmonicDensity",
+    "melody.melodicContour",
+    "melody.averageInterval",
+    "melody.intervalVariance",
+    "melody.motifStrength",
+    "melody.phraseLength",
+    "melody.sequenceLikelihood",
+    "melody.ornamentDensity",
+    "melody.melodicRepetition",
+    "bass.bassRegister",
+    "bass.articulation",
+    "texture.onsetAlignment",
+    "texture.registerSpread"
+  ]
+}

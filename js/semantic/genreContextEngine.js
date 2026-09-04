@@ -1,0 +1,149 @@
+const GenreContext = (() => {
+  const Facets = typeof SemanticFacets !== "undefined" ? SemanticFacets : require("./semanticFacets");
+  const Instruments = typeof InstrumentationEvents !== "undefined" ? InstrumentationEvents : require("./instrumentationEventEngine");
+  // Default evidence pool PER EDGE TYPE, used only when an individual edge in the data doesn't
+  // specify its own `requires`. Different edge types lean on different axes so that, even with
+  // defaults, a genre's parents/adjacencies/aesthetics don't all light up from the same measurement.
+  const RELATION_TYPE_DEFAULTS = {
+    parents: ["rhythmicGrammar.fourOnFloor", "rhythmicGrammar.swing", "rhythmicGrammar.brokenBeat", "productionEvidence.sampleBased"],
+    lineage: ["rhythmicGrammar.fourOnFloor", "rhythmicGrammar.swing", "productionEvidence.sampleBased"],
+    adjacent: ["instrumentationEvidence.synthesizer", "instrumentationEvidence.bass", "instrumentationEvidence.piano", "instrumentationEvidence.drums"],
+    eras: ["productionEvidence.sampleBased", "instrumentationEvidence.synthesizer"],
+    scenes: ["rhythmicGrammar.brokenBeat", "instrumentationEvidence.drums"],
+    culture: ["moodDimensions.warmth", "productionEvidence.sampleBased"],
+    aesthetics: ["moodDimensions.brightness", "moodDimensions.warmth", "productionEvidence.sampleBased"]
+  };
+  // Sonic evidence (rhythm/production/instrumentation) is mandatory for any relation: mood alone
+  // must never unlock a cultural claim, no matter what an edge's own `requires` list contains.
+  const RELATION_SONIC_ROOTS = new Set(["rhythmicGrammar", "productionEvidence", "instrumentationEvidence"]);
+  const FAMILY_BY_CATEGORY = Object.freeze({ genre: "PRIMARY_GENRE", lineage: "LINEAGE", era: "ERA",
+    scene: "SCENE", culture: "CULTURE", association: "AESTHETIC_ASSOCIATION" });
+  function instrumentEvidence(state) {
+    const evidence = {};
+    for (const item of Instruments.normalize((state.instruments || []).filter(x => x.source !== "dsp"))) {
+      if (item.source !== "dsp") evidence[item.id] = item.confidence;
+    }
+    return evidence;
+  }
+  class Engine {
+    constructor(data = {}, aestheticAxisEngine = null) { this.data = data; this.aestheticAxisEngine = aestheticAxisEngine; }
+    evaluate(state = {}) {
+      const genre = state.genre || {};
+      const result = { genre: genre.uncertain ? null : genre.primary || null, confidence: 0,
+        basis: "style association, not origin or identification", matchedPriors: [], candidates: [],
+        aestheticEvidence: state.aestheticEvidence || {} };
+      if (genre.uncertain || genre.confidence < 0.75 || state.expressionFeatures?.audible === false) return result;
+      const view = { measurements: state.expressionFeatures || {}, rhythmicGrammar: state.rhythmicGrammar || {},
+        productionEvidence: state.productionEvidence || {}, instrumentationEvidence: instrumentEvidence(state),
+        moodDimensions: state.moodDimensions || {}, aestheticEvidence: result.aestheticEvidence };
+      const key = String(genre.primary).toLowerCase();
+      const entry = Object.entries(this.data.genres || {}).find(([label, item]) =>
+        label.toLowerCase() === key || item.aliases?.some(alias => alias.toLowerCase() === key))?.[1];
+      const rules = [...(entry?.candidates || []), ...(this.data.families?.[genre.family]?.candidates || [])];
+      for (const rule of rules.slice(0, 60)) {
+        const tests = rule.requires || [];
+        const groups = new Set(tests.map(test => test.path.split(".")[0]));
+        if (tests.length < 2 || groups.size < 2) continue;
+        const matched = tests.every(test => {
+          const value = Facets.read(view, test.path);
+          return typeof value === "number" && Number.isFinite(value) && value >= (test.min ?? 0) && value <= (test.max ?? 1);
+        });
+        if (!matched || !Facets.safeText(rule.text, rule.category)) continue;
+        const confidence = Math.min(genre.confidence, rule.confidenceCap || 0.84);
+        result.candidates.push(Facets.token(rule.text, rule.category, confidence,
+          ["primaryGenre", ...tests.map(test => test.path === "aestheticEvidence.magicalGirl"
+            ? "genreContextEvidence.aestheticEvidence.magicalGirl" : test.path)].slice(0, 6),
+          { source: "evidence-gated-prior", kind: rule.kind || "style", sources: entry?.sources || [],
+            relationFamily: rule.relationFamily || FAMILY_BY_CATEGORY[rule.category] || null,
+            relationScore: confidence }));
+      }
+      result.candidates.push(...this.relationCandidates(genre, view));
+      // Open, data-driven aesthetic vocabulary (data/aestheticRegions.json): unlike the rule/
+      // relation candidates above, these are not keyed to a fixed genre name at all -- they
+      // speak from continuous axis evidence (data/aestheticAxes.json) so two tracks in the same
+      // genre with different production/mood values can surface different aesthetic words.
+      if (this.aestheticAxisEngine) result.candidates.push(...this.aestheticAxisEngine.evaluate(view, genre).candidates);
+      // A rule and a relation can name the same thing; keep the better-evidenced one only.
+      const best = new Map();
+      for (const candidate of result.candidates) {
+        const key = `${candidate.category}:${candidate.text}`;
+        if (!best.has(key) || best.get(key).confidence < candidate.confidence) best.set(key, candidate);
+      }
+      result.candidates = [...best.values()].slice(0, 24);
+      result.matchedPriors = result.candidates.map(x => x.text);
+      result.confidence = result.candidates.length ? Math.min(genre.confidence, 0.84) : 0;
+      return result;
+    }
+    // Relations describe where a style sits (parents/lineage/adjacency/era/scene/culture/aesthetic/
+    // artist). They are priors, so they only speak when the live genre is confident AND at least
+    // two independent current measurements back them, and the wording weakens as the link weakens.
+    relationCandidates(genre, view) {
+      const key = String(genre.primary || "").toLowerCase();
+      const entry = Object.entries(this.data.relations || {}).find(([label]) => label.toLowerCase() === key)?.[1];
+      // Same confidence boundary the hand-written rules use: relations broaden COVERAGE,
+      // they do not lower the bar for claiming a history or a scene.
+      if (!entry || !(genre.confidence >= 0.75)) return [];
+      const resolvedValue = path => {
+        const value = Facets.read(view, path);
+        return Number.isFinite(value) ? value : null;
+      };
+      // Genre-level gate (checked ONCE, same bar as before edges were split out): the track needs
+      // at least 2 independent sonic families resolved somewhere before ANY relation may open at
+      // all. This is a track-wide "is there enough grounding to say anything historical/cultural",
+      // separate from which SPECIFIC edge below best fits what was actually measured.
+      const allSonicPaths = [...new Set(Object.values(RELATION_TYPE_DEFAULTS).flat()
+        .filter(path => RELATION_SONIC_ROOTS.has(path.split(".")[0])))];
+      const resolvedSonicFamilies = new Set(allSonicPaths
+        .map(path => ({ path, value: resolvedValue(path) }))
+        .filter(x => x.value !== null && x.value >= 0.4)
+        .map(x => x.path.split(".")[0]));
+      if (resolvedSonicFamilies.size < 2) return [];
+      // Each edge is THEN scored from ITS OWN requires (or its type's default pool) — a genre's
+      // parent, an adjacency and an aesthetic association no longer all cite the same two anchors,
+      // and an edge needs at least one of its own paths to actually resolve to be offered at all.
+      const evaluateEdge = (rawEdge, edgeType) => {
+        const name = typeof rawEdge === "string" ? rawEdge : rawEdge?.name;
+        if (!name) return null;
+        const pool = (typeof rawEdge === "object" && Array.isArray(rawEdge.requires) && rawEdge.requires.length
+          ? rawEdge.requires : RELATION_TYPE_DEFAULTS[edgeType] || []);
+        const resolved = pool.map(path => ({ path, value: resolvedValue(path) })).filter(x => x.value !== null && x.value >= 0.4);
+        if (resolved.length < 1) return null;
+        // Confidence scales with how completely THIS edge's own evidence pool was satisfied, not
+        // a flat per-type constant — a fully-supported edge outranks a barely-qualifying one.
+        const completeness = resolved.length / Math.max(2, pool.length || resolved.length);
+        return { name, anchors: ["primaryGenre", ...resolved.map(x => x.path)], completeness: Math.min(1, completeness) };
+      };
+      const build = (edge, category, baseScale, kind = "style", relationFamily = null, relationDepth = 0) => text => {
+        if (!edge || !text) return null;
+        const confidence = Math.min(genre.confidence * baseScale * (0.75 + edge.completeness * 0.25), 0.84);
+        if (confidence < 0.45 || !Facets.safeText(text, category)) return null;
+        return Facets.token(text, category, confidence, edge.anchors, { source: "genre-relation", kind,
+          relationFamily, relationScore: confidence, relationCompleteness: edge.completeness, relationDepth });
+      };
+      const edgesOf = (list, edgeType) => (list || []).map(raw => evaluateEdge(raw, edgeType)).filter(Boolean);
+      const list = [
+        ...edgesOf(entry.parents, "parents").map(edge => build(edge, "lineage", 0.92, "style", "PARENT", 1)(`${edge.name} 계열`)),
+        ...edgesOf(entry.lineage, "lineage").map(edge => build(edge, "lineage", 0.84, "style", "LINEAGE", 2)(`${edge.name} 계열`)),
+        ...edgesOf(entry.adjacent, "adjacent").map(edge => build(edge, "association", 0.68, "style", "ADJACENCY", 3)(`${edge.name} 인접성`)),
+        ...edgesOf(entry.eras, "eras").map(edge => build(edge, "era", 0.86, "style", "ERA", 2)(edge.name)),
+        ...edgesOf(entry.scenes, "scenes").map(edge => build(edge, "scene", 0.84, "style", "SCENE", 2)(edge.name)),
+        ...edgesOf(entry.culture, "culture").map(edge => build(edge, "culture", 0.8, "style", "CULTURE", 2)(edge.name)),
+        ...edgesOf(entry.aesthetics, "aesthetics").map(edge => build(edge, "association", 0.72, "aesthetic", "AESTHETIC_ASSOCIATION", 3)(edge.name)),
+        // An artist link is a style comparison, never identification: it needs the strongest genre
+        // AND both an instrumentation-family and a production-family support (stricter than any
+        // other edge type, matching the existing artist-specific check in semanticFacets.support()).
+        ...(genre.confidence >= 0.78 ? (entry.artists || []).map(name => {
+          const edge = evaluateEdge({ name, requires: ["instrumentationEvidence.synthesizer", "instrumentationEvidence.bass",
+            "productionEvidence.sampleBased", "productionEvidence.sidechain"] }, "adjacent");
+          if (!edge) return null;
+          const families = new Set(edge.anchors.filter(p => p !== "primaryGenre").map(p => p.split(".")[0]));
+          if (!families.has("instrumentationEvidence") || !families.has("productionEvidence")) return null;
+          return build(edge, "association", 0.8, "artist", "ARTIST", 3)(`${name} 연상`);
+        }) : [])
+      ].filter(Boolean);
+      return list.slice(0, 14);
+    }
+  }
+  return { Engine, instrumentEvidence };
+})();
+if (typeof module !== "undefined" && module.exports) module.exports = GenreContext;

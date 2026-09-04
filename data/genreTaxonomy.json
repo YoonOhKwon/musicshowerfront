@@ -1,0 +1,12 @@
+{
+  "Electronic / Club": ["House", "Deep House", "Acid House", "Tech House", "UK Garage", "Jungle", "Drum & Bass", "Liquid DnB", "Atmospheric DnB", "Juke", "Footwork", "Jersey Club", "Baltimore Club", "Techno", "Trance", "Hardstyle", "Rawstyle", "Frenchcore", "Speedcore", "Extratone", "Electroclash", "Blog House", "Deconstructed Club"],
+  "Electronic / Experimental": ["IDM", "Glitch", "Glitchcore", "Breakcore", "Mashcore", "Future Garage", "Hardwave", "Wave", "Vaporwave", "Vaportrap", "Dungeon Synth", "HexD", "Sigilkore"],
+  "Pop / Internet": ["Pop", "Hyperpop", "Digicore", "Future Funk", "Futurecore", "Internet Rap", "PluggnB"],
+  "Hip-Hop / Rap": ["Hip-Hop", "Trap", "Boom Bap", "Phonk", "Drift Phonk", "Cloud Rap", "Alternative Hip-Hop"],
+  "Rock / Metal": ["Rock", "Alternative Rock", "Punk", "Post-Punk", "Metal", "Shoegaze", "Neo-Psychedelia"],
+  "Jazz / Soul": ["Jazz", "Bebop", "Fusion Jazz", "Soul", "R&B", "Funk", "Disco", "Gospel"],
+  "Acoustic / Traditional": ["Folk", "Country", "Bluegrass", "Classical", "Contemporary Classical", "World", "Traditional"],
+  "Latin / Brazilian": ["Latin", "Salsa", "Reggaeton", "Brazilian Funk", "Baile Funk", "Bossa Nova"],
+  "Ambient / Cinematic": ["Ambient", "New Age", "Soundtrack", "Drone", "Cinematic"],
+  "Unknown": ["Unknown", "Hybrid", "Uncertain", "Experimental"]
+}

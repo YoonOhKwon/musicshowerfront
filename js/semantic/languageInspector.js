@@ -1,0 +1,160 @@
+const LanguageInspector = (() => {
+  const STORAGE_KEY = "music-shower-language-feedback-v1";
+  let panel = null;
+  let timer = null;
+  let signature = "";
+  let feedback = [];
+
+  function readFeedback() {
+    try { feedback = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").slice(-200); }
+    catch { feedback = []; }
+  }
+
+  function element(tag, text, className) {
+    const node = document.createElement(tag);
+    if (text !== undefined) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+
+  function saveFeedback(candidate, vote, snapshot) {
+    const existing = feedback.find(item => item.text === candidate.text && item.fingerprint === snapshot?.fingerprint);
+    feedback = feedback.filter(item => !(item.text === candidate.text && item.fingerprint === snapshot?.fingerprint));
+    if (existing?.vote !== vote) feedback.push({
+      text: candidate.text, vote, fingerprint: snapshot?.fingerprint || "", at: new Date().toISOString(),
+      score: candidate.score, type: candidate.type, perspective: candidate.perspective,
+      snapshot
+    });
+    feedback = feedback.slice(-200);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(feedback)); }
+    catch { /* Evaluation storage must never affect playback. */ }
+    signature = "";
+    render();
+  }
+
+  function exportFeedback() {
+    const blob = new Blob([JSON.stringify(feedback, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = element("a");
+    link.href = url;
+    link.download = "music-shower-language-feedback.json";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function createPanel() {
+    readFeedback();
+    panel = element("section", undefined, "languageInspector");
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", "언어 생성 평가");
+    panel.tabIndex = -1;
+    const header = element("header");
+    header.append(element("h2", "언어 생성 평가"));
+    const exportButton = element("button", "평가 저장");
+    exportButton.addEventListener("click", exportFeedback);
+    const close = element("button", "닫기 · L");
+    close.addEventListener("click", toggle);
+    header.append(exportButton, close);
+    const status = element("pre", "", "languageInspectorStatus");
+    const tokenDetails = element("details");
+    tokenDetails.open = true;
+    tokenDetails.append(element("summary", "LLM 토큰 추적"), element("pre", "", "languageInspectorTokens"));
+    const details = element("details");
+    details.append(element("summary", "전송한 의미 스냅샷"), element("pre", "", "languageInspectorSnapshot"));
+    panel.append(header, status, tokenDetails, details, element("p", "점수는 음악 관련성·현재 상태·명료성·자연스러움 기준입니다. 음압은 디지털 신호 세기이며 압축·분위기는 추정입니다. 👍/👎는 이 기기에만 저장됩니다.", "languageInspectorNote"), element("div", undefined, "languageInspectorCandidates"));
+    panel.addEventListener("keydown", event => { if (event.key === "Escape") toggle(); });
+    document.body.append(panel);
+  }
+
+  function render() {
+    if (!panel || panel.hidden) return;
+    const inspection = getLanguageInspectionState();
+    const state = inspection.state || {};
+    const tokens = state.tokenUsage || {};
+    const requestTokens = tokens.request || {};
+    const projectTokens = tokens.projectSession || tokens.languageSession || {};
+    const count = value => Math.max(0, Number(value) || 0).toLocaleString("ko-KR");
+    const percent = value => `${Math.round(Math.max(0, Number(value) || 0) * 100)}%`;
+    panel.querySelector(".languageInspectorStatus").textContent = [
+      `Provider: ${state.provider || "--"} · ${state.model || "--"}`,
+      `State: ${state.status || "idle"} · epoch ${getSemanticState().semanticEpoch || 0} · fingerprint ${state.fingerprint || "--"}`,
+      `Facets: ${SemanticFacets.names.join(" / ")}`,
+      `Candidates ${state.candidateCount || 0} → selected ${state.selectedCount || 0} · remaining ${state.remaining || 0}`,
+      `Layer survival: ${JSON.stringify(state.survival?.layers || {})}`,
+      `FACT sources: ${JSON.stringify(state.survival?.factSources || {})}`,
+      `Context families: ${JSON.stringify(state.survival?.relationFamilies || {})}`,
+      `Latency ${state.latencyMs || 0} ms · reason ${state.reason || "--"} · cache ${state.cache || "--"}`,
+      `Last LLM tokens: input ${count(requestTokens.inputTokens)} (cached ${count(requestTokens.cachedInputTokens)}) · output ${count(requestTokens.outputTokens)} (reasoning ${count(requestTokens.reasoningTokens)}) · total ${count(requestTokens.totalTokens)}`,
+      `Project tokens: calls ${count(projectTokens.requests)} · input ${count(projectTokens.inputTokens)} · output ${count(projectTokens.outputTokens)} · total ${count(projectTokens.totalTokens)} · input cache ${percent(projectTokens.cacheHitRate)}`,
+      `Error: ${state.error || "none"}`
+    ].join("\n");
+    panel.querySelector(".languageInspectorTokens").textContent = JSON.stringify({
+      lastRequest: requestTokens,
+      languageSession: tokens.languageSession || {},
+      projectSession: projectTokens,
+      note: state.cache === "server" || state.cache === "hit"
+        ? "캐시에서 재사용한 결과는 새 LLM 토큰으로 계산하지 않습니다." : "Responses API가 반환한 usage 기준입니다."
+    }, null, 2);
+    panel.querySelector(".languageInspectorSnapshot").textContent = JSON.stringify(inspection.snapshot, null, 2);
+    const nextSignature = JSON.stringify([state.fingerprint, state.provider, inspection.selected?.map(item => item.text), feedback.length, feedback.at(-1)?.at]);
+    if (nextSignature === signature) return;
+    signature = nextSignature;
+    panel.querySelector(".languageInspectorSnapshot").textContent = JSON.stringify(inspection.snapshot, null, 2);
+    const list = panel.querySelector(".languageInspectorCandidates");
+    list.replaceChildren();
+    const selected = new Set((inspection.selected || []).map(item => item.text));
+    const unique = new Map();
+    for (const candidate of inspection.candidates || []) {
+      const previous = unique.get(candidate.text);
+      if (previous) previous.duplicateCount += 1;
+      else unique.set(candidate.text, { ...candidate, duplicateCount: 1 });
+    }
+    const candidates = [...unique.values()].sort((a, b) => Number(selected.has(b.text)) - Number(selected.has(a.text)) || b.score - a.score);
+    for (const candidate of candidates) {
+      const row = element("article", undefined, "languageInspectorCandidate");
+      row.dataset.selected = String(selected.has(candidate.text));
+      const description = element("div");
+      const diagnostics = candidate.diagnostics || {};
+      // Why a phrase is on screen — or why it is not — must be readable without opening a tooltip:
+      // layer/distance, the quality scores that decided it, and the specific rejection cause.
+      const stage = selected.has(candidate.text) ? "선택"
+        : candidate.valid === false ? `탈락(${diagnostics.rejectionReason || "?"})` : "후보";
+      const contradiction = diagnostics.contradiction > 0 ? ` · 모순 ${diagnostics.contradiction.toFixed(2)}` : "";
+      const axes = (diagnostics.evidenceAxes || []).length;
+      const gateSummary = Object.entries(diagnostics.gates || {}).map(([key, pass]) => `${key}:${pass ? "✓" : "✗"}`).join(" ");
+      description.append(element("strong", candidate.text), element("small",
+        `${stage} · ${candidate.layer || "?"}/d${candidate.semanticDistance ?? "?"} · ${candidate.perspective}` +
+        ` · 확신 ${Math.round((candidate.confidence || 0) * 100)}% · 근거 ${(candidate.evidenceScore || 0).toFixed(2)}/${(diagnostics.evidenceThreshold || 0).toFixed(2)}` +
+        ` · 축 ${axes} · 특이 ${(candidate.specificity || 0).toFixed(2)} · 신선 ${(candidate.novelty || 0).toFixed(2)}` +
+        ` · 대비 ${(diagnostics.contrastiveness || 0).toFixed(2)} · 점수 ${(candidate.score || 0).toFixed(2)}` +
+        ` · ${candidate.source || diagnostics.source || "local"} · ${candidate.relationFamily || "NONE"}` +
+        `${diagnostics.genome ? ` · ${diagnostics.genome}` : ""}${diagnostics.operator ? ` · ${diagnostics.operator}` : ""}` +
+        `${(diagnostics.claimsUsed || []).length ? ` · claims ${(diagnostics.claimsUsed || []).join("+")}` : ""}` +
+        `${diagnostics.primitive ? " · 원시" : ""}${contradiction}` +
+        `${gateSummary ? ` · ${gateSummary}` : ""}` +
+        `${candidate.duplicateCount > 1 ? ` · 원본 중복 ${candidate.duplicateCount}개` : ""}`));
+      description.title = JSON.stringify({ anchors: candidate.anchors, ...candidate.diagnostics }, null, 2);
+      row.append(description);
+      for (const [vote, label] of [["keep", "👍"], ["reject", "👎"]]) {
+        const button = element("button", label);
+        button.setAttribute("aria-label", `${candidate.text} ${vote === "keep" ? "유지" : "제외"}`);
+        const previous = feedback.find(item => item.text === candidate.text && item.fingerprint === inspection.snapshot?.fingerprint);
+        button.setAttribute("aria-pressed", String(previous?.vote === vote));
+        button.addEventListener("click", () => saveFeedback(candidate, vote, inspection.snapshot));
+        row.append(button);
+      }
+      list.append(row);
+    }
+  }
+
+  function toggle() {
+    if (!panel) { createPanel(); panel.hidden = true; }
+    panel.hidden = !panel.hidden;
+    if (panel.hidden) { clearInterval(timer); timer = null; return; }
+    signature = "";
+    render();
+    panel.focus();
+    timer = setInterval(render, 1500);
+  }
+  return { toggle };
+})();

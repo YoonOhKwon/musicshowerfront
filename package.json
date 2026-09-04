@@ -1,0 +1,41 @@
+{
+  "name": "music-shower",
+  "version": "1.0.0",
+  "description": "AI Music Synesthesia visualizer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "smoke:model": "node scripts/model-smoke.mjs",
+    "test:model": "node scripts/model-smoke.mjs",
+    "profile:semantic": "node scripts/profile-semantic.cjs",
+    "validate:knowledge": "node scripts/validate-knowledge.cjs",
+    "test:language:live": "node scripts/language-smoke.cjs --live",
+    "test:language:diversity": "node scripts/language-diversity.cjs",
+    "test": "node --test test/*.test.js",
+    "check": "node scripts/check-syntax.cjs && node scripts/validate-knowledge.cjs && node --test test/*.test.js"
+  },
+  "keywords": [
+    "music",
+    "visualizer",
+    "synesthesia",
+    "ai",
+    "p5",
+    "meyda"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "audio-decode": "^3.12.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "essentia.js": "^0.1.3",
+    "express": "^5.2.1",
+    "onnxruntime-node": "^1.29.0",
+    "onnxruntime-web": "^1.29.0",
+    "openai": "^7.8.0"
+  }
+}

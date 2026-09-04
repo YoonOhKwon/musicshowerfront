@@ -1,0 +1,3503 @@
+{
+  "generatedAt": "2026-09-04T17:40:10.232Z",
+  "projectVersion": "Music Shower V16 Music-to-Language Reform",
+  "buildVersion": "2026.09.05.music-language-reform-v16",
+  "fixtureVersion": 2,
+  "basis": "controlled measurements through the shared production SemanticCandidatePipeline, PhrasePool, Critic and PhraseSelection",
+  "model": "gpt-5.6-sol",
+  "architecture": "LIVE/FACT/CONTEXT/AESTHETIC/IMPRESSION via production semantic candidate and phrase pipeline",
+  "results": [
+    {
+      "name": "futurefunk",
+      "state": {
+        "primaryGenre": "Future Funk",
+        "genreConfidence": 0.88
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 71,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 48,
+          "CONTEXT": 13,
+          "AESTHETIC": 3,
+          "IMPRESSION": 7
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 48,
+          "CONTEXT": 13,
+          "AESTHETIC": 3,
+          "IMPRESSION": 7
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 19,
+          "CONTEXT": 12,
+          "AESTHETIC": 3,
+          "IMPRESSION": 2
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 3,
+          "AESTHETIC": 3,
+          "IMPRESSION": 2
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 3,
+          "idiom": 38,
+          "rhythm": 1,
+          "instrument": 4,
+          "production": 2,
+          "arrangement": 0
+        },
+        "criticAccepted": {
+          "primitive": 3,
+          "idiom": 38,
+          "rhythm": 1,
+          "instrument": 4,
+          "production": 2,
+          "arrangement": 0
+        },
+        "pooled": {
+          "primitive": 0,
+          "idiom": 17,
+          "rhythm": 1,
+          "instrument": 0,
+          "production": 1,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 4,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 2,
+          "CULTURE": 1,
+          "ARTIST": 1,
+          "AESTHETIC_ASSOCIATION": 3
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 2,
+          "CULTURE": 1,
+          "ARTIST": 1,
+          "AESTHETIC_ASSOCIATION": 3
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 4,
+          "ADJACENCY": 1,
+          "ERA": 1,
+          "SCENE": 2,
+          "CULTURE": 1,
+          "ARTIST": 1,
+          "AESTHETIC_ASSOCIATION": 3
+        },
+        "selected": {
+          "PRIMARY_GENRE": 0,
+          "PARENT": 0,
+          "LINEAGE": 1,
+          "ADJACENCY": 0,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 3
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "신스웨이브 아르페지오 레이어",
+        "Future Funk",
+        "규칙적인 킥 패턴",
+        "정박 4박",
+        "French House 계열",
+        "안정된 템포 확신",
+        "펌핑 그루브",
+        "4/4 플로어",
+        "리듬처럼 쓰인 보컬 샘플",
+        "인터넷 리바이벌 씬",
+        "샘플 루프",
+        "집단적 추진감",
+        "인터넷 노스탤지어",
+        "디스코 스트링 레이어",
+        "Disco 계열",
+        "밝은 훅 프로덕션",
+        "Nu Disco 계열",
+        "샘플 기반",
+        "간결한 훅 구조",
+        "다성적 짜임새",
+        "성부 혼합 텍스처",
+        "House 계열",
+        "Daft Punk 연상",
+        "Vaporwave 인접성"
+      ],
+      "rejected": [
+        {
+          "text": "반복되는 펄스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "밝은 음색",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "밝음",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "경쾌함",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "신스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "보컬",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "신스 리드",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "사이드체인 펌핑",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "City Pop 인접성",
+          "layer": "CONTEXT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "즉흥 앙상블 짜임새",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "클랩 백비트",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "순환 형식",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "반복 리듬 셀",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 3,
+          "AESTHETIC": 3,
+          "IMPRESSION": 2
+        },
+        "layersPresent": 4,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 3,
+        "aestheticCount": 3,
+        "impressionCount": 2,
+        "meanSpecificity": 0.7651795,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8325803499999999
+      },
+      "selected": [
+        "IMPRESSION:mood:압축된 낙관",
+        "CONTEXT:lineage:Vaporwave 계열",
+        "AESTHETIC:association:Kawaii 미학",
+        "FACT:production:French House 계보 프로덕션",
+        "CONTEXT:scene:인터넷 리믹스 씬",
+        "FACT:rhythm:스트레이트 서브디비전",
+        "CONTEXT:era:2010년대 인터넷 스타일",
+        "AESTHETIC:association:레트로 광고 미학",
+        "IMPRESSION:mood:샘플의 잔열",
+        "AESTHETIC:association:애니 리믹스 미학",
+        "FACT:production:밝고 매끈한 프로덕션",
+        "FACT:rhythm:디스코 기반 하우스 그루브"
+      ]
+    },
+    {
+      "name": "futurefunkb",
+      "state": {
+        "primaryGenre": "Future Funk",
+        "genreConfidence": 0.85
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 55,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 36,
+          "CONTEXT": 12,
+          "AESTHETIC": 2,
+          "IMPRESSION": 5
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 35,
+          "CONTEXT": 11,
+          "AESTHETIC": 2,
+          "IMPRESSION": 5
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 22,
+          "CONTEXT": 11,
+          "AESTHETIC": 2,
+          "IMPRESSION": 1
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 5,
+          "AESTHETIC": 2,
+          "IMPRESSION": 1
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 1,
+          "idiom": 31,
+          "rhythm": 0,
+          "instrument": 3,
+          "production": 1,
+          "arrangement": 0
+        },
+        "criticAccepted": {
+          "primitive": 1,
+          "idiom": 30,
+          "rhythm": 0,
+          "instrument": 3,
+          "production": 1,
+          "arrangement": 0
+        },
+        "pooled": {
+          "primitive": 0,
+          "idiom": 21,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 1,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 3,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 1,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 2,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 1,
+          "AESTHETIC_ASSOCIATION": 2
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 2,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 2
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 2,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 2
+        },
+        "selected": {
+          "PRIMARY_GENRE": 0,
+          "PARENT": 1,
+          "LINEAGE": 1,
+          "ADJACENCY": 0,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 2
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "기타 컴핑",
+        "Future Funk",
+        "선율적 베이스",
+        "따뜻한 소울 포켓",
+        "Vaporwave 계열",
+        "이완된 템포감",
+        "세션 연주 그루브",
+        "City Pop 샘플링 계보",
+        "리듬처럼 쓰인 보컬 샘플",
+        "샘플 루프",
+        "베이스 주도 화성 진행",
+        "집단적 추진감",
+        "선율적 베이스 라인",
+        "절제된 리드 톤",
+        "장식적으로 조밀한 선율",
+        "House 계열",
+        "도시적 스튜디오 프로덕션",
+        "French House 계열",
+        "성부 혼합 텍스처",
+        "즉흥 앙상블 짜임새",
+        "부드러운 화성 이동",
+        "보컬 개러지 텍스처",
+        "Vaporwave 인접성",
+        "City Pop 인접성"
+      ],
+      "rejected": [
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "따뜻함",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "피아노",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "일렉트릭 기타",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "Daft Punk 연상",
+          "layer": "CONTEXT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "느려진 향수적 질감",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "명확한 조성 중심",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "레이드백 타이밍",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "깨끗한 스튜디오 프로덕션",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "레이드백 프레이징",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "소프트 클리핑 질감",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "안정된 템포 확신",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "클랩 백비트",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "테이프 새추레이션",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 5,
+          "AESTHETIC": 2,
+          "IMPRESSION": 1
+        },
+        "layersPresent": 4,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 5,
+        "aestheticCount": 2,
+        "impressionCount": 1,
+        "meanSpecificity": 0.7799943333333332,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8395772166666665
+      },
+      "selected": [
+        "IMPRESSION:mood:평온함",
+        "CONTEXT:culture:인터넷 노스탤지어",
+        "CONTEXT:scene:인터넷 리믹스 씬",
+        "FACT:performance:선율적인 베이스",
+        "CONTEXT:lineage:Disco 계열",
+        "FACT:production:샘플 기반",
+        "CONTEXT:era:2010년대 인터넷 스타일",
+        "AESTHETIC:association:레트로 광고 미학",
+        "AESTHETIC:association:애니 리믹스 미학",
+        "CONTEXT:lineage:Nu Disco 계열",
+        "FACT:production:어쿠스틱 포크 질감",
+        "FACT:arrangement:다성적 짜임새"
+      ]
+    },
+    {
+      "name": "citypop",
+      "state": {
+        "primaryGenre": "City Pop",
+        "genreConfidence": 0.82
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 46,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 30,
+          "CONTEXT": 10,
+          "AESTHETIC": 1,
+          "IMPRESSION": 5
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 30,
+          "CONTEXT": 10,
+          "AESTHETIC": 1,
+          "IMPRESSION": 5
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 24,
+          "CONTEXT": 10,
+          "AESTHETIC": 1,
+          "IMPRESSION": 1
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 6,
+          "AESTHETIC": 1,
+          "IMPRESSION": 1
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 2,
+          "idiom": 24,
+          "rhythm": 1,
+          "instrument": 3,
+          "production": 0,
+          "arrangement": 0
+        },
+        "criticAccepted": {
+          "primitive": 2,
+          "idiom": 24,
+          "rhythm": 1,
+          "instrument": 3,
+          "production": 0,
+          "arrangement": 0
+        },
+        "pooled": {
+          "primitive": 1,
+          "idiom": 22,
+          "rhythm": 1,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 4,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 4,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        },
+        "selected": {
+          "PRIMARY_GENRE": 0,
+          "PARENT": 0,
+          "LINEAGE": 2,
+          "ADJACENCY": 1,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "리듬 기타 컴핑",
+        "City Pop",
+        "기타 컴핑",
+        "싱코페이션 그루브",
+        "따뜻한 소울 포켓",
+        "이완된 템포감",
+        "세션 연주 그루브",
+        "도시적 스튜디오 프로덕션",
+        "어쿠스틱 포크 질감",
+        "집단적 추진감",
+        "다성적 짜임새",
+        "절제된 리드 톤",
+        "Jazz Funk 계열",
+        "안정된 템포 확신",
+        "싱코페이션",
+        "Soul 계열",
+        "포켓 그루브",
+        "반복되는 펄스",
+        "후행 스네어",
+        "깨끗한 스튜디오 프로덕션",
+        "즉흥 앙상블 짜임새",
+        "보컬 개러지 텍스처",
+        "반음계적 모호함",
+        "Vaporwave 인접성"
+      ],
+      "rejected": [
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "따뜻함",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "피아노",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "일렉트릭 기타",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "셔플링 하이햇",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "소프트 클리핑 질감",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "절제된 고양감",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "미끄러지는 활공",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "느슨한 유기적 느낌",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 6,
+          "AESTHETIC": 1,
+          "IMPRESSION": 1
+        },
+        "layersPresent": 4,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 6,
+        "aestheticCount": 1,
+        "impressionCount": 1,
+        "meanSpecificity": 0.7908854166666667,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8444770208333331
+      },
+      "selected": [
+        "IMPRESSION:mood:당김음의 온기",
+        "CONTEXT:culture:도시 낭만 문화",
+        "CONTEXT:era:1970s-1980s 스타일",
+        "FACT:rhythm:복합 박자 경향",
+        "CONTEXT:lineage:Disco 계열",
+        "FACT:rhythm:오프비트 그루브",
+        "CONTEXT:lineage:AOR 계열",
+        "AESTHETIC:association:버블기 도시 미학",
+        "CONTEXT:scene:일본 City Pop 씬",
+        "CONTEXT:association:Future Funk 인접성",
+        "FACT:production:테이프 새추레이션",
+        "FACT:arrangement:성부 혼합 텍스처"
+      ]
+    },
+    {
+      "name": "ukgarage",
+      "state": {
+        "primaryGenre": "UK Garage",
+        "genreConfidence": 0.85
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 51,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 35,
+          "CONTEXT": 13,
+          "AESTHETIC": 1,
+          "IMPRESSION": 3
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 35,
+          "CONTEXT": 12,
+          "AESTHETIC": 1,
+          "IMPRESSION": 3
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 24,
+          "CONTEXT": 10,
+          "AESTHETIC": 1,
+          "IMPRESSION": 1
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 6,
+          "AESTHETIC": 1,
+          "IMPRESSION": 1
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 1,
+          "idiom": 27,
+          "rhythm": 3,
+          "instrument": 3,
+          "production": 0,
+          "arrangement": 1
+        },
+        "criticAccepted": {
+          "primitive": 1,
+          "idiom": 27,
+          "rhythm": 3,
+          "instrument": 3,
+          "production": 0,
+          "arrangement": 1
+        },
+        "pooled": {
+          "primitive": 0,
+          "idiom": 23,
+          "rhythm": 1,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 4,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 3,
+          "ADJACENCY": 2,
+          "ERA": 2,
+          "SCENE": 2,
+          "CULTURE": 2,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 3,
+          "ADJACENCY": 2,
+          "ERA": 2,
+          "SCENE": 1,
+          "CULTURE": 2,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 3,
+          "ADJACENCY": 0,
+          "ERA": 2,
+          "SCENE": 1,
+          "CULTURE": 2,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 2,
+          "ADJACENCY": 0,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 1
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "기타 컴핑",
+        "컴핑 엇박 배치",
+        "빅밴드 스윙 펄스",
+        "2-Step 스윙",
+        "라이드 중심 스윙",
+        "셔플링 하이햇",
+        "밝은 훅 프로덕션",
+        "도시적 스튜디오 프로덕션",
+        "보컬 개러지 텍스처",
+        "다성적 짜임새",
+        "리듬 기타 컴핑",
+        "Speed Garage 계열",
+        "교차 리듬 긴장",
+        "스윙 필",
+        "Jungle 계열",
+        "후행 스네어",
+        "1990년대 후반 UK 스타일",
+        "레이드백 타이밍",
+        "어쿠스틱 포크 질감",
+        "런던 클럽 문법",
+        "성부 혼합 텍스처",
+        "즉흥 앙상블 짜임새",
+        "집단적 추진감",
+        "층위가 두꺼운 편성"
+      ],
+      "rejected": [
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "보컬",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "드럼",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "브레이크비트",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "2-Step",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "Future Garage 인접성",
+          "layer": "CONTEXT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "Grime 인접성",
+          "layer": "CONTEXT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "리듬 섹션 중심",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "반음계적 모호함",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "세션 연주 그루브",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "소프트 클리핑 질감",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "킥-스네어 분절",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "튀어오르는 탄력",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "조각난 움직임",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 6,
+          "AESTHETIC": 1,
+          "IMPRESSION": 1
+        },
+        "layersPresent": 4,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 6,
+        "aestheticCount": 1,
+        "impressionCount": 1,
+        "meanSpecificity": 0.7910166666666666,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8454049583333331
+      },
+      "selected": [
+        "IMPRESSION:mood:끊어 걷는 긴장",
+        "CONTEXT:culture:Pirate Radio 문화",
+        "CONTEXT:era:1990년대 UK 스타일",
+        "FACT:rhythm:복합 박자 경향",
+        "CONTEXT:lineage:House 계열",
+        "FACT:rhythm:오프비트 그루브",
+        "CONTEXT:lineage:2-Step 계열",
+        "AESTHETIC:association:Y2K 클럽 미학",
+        "CONTEXT:genre:UK Garage",
+        "CONTEXT:scene:UK 클럽 씬",
+        "FACT:production:깨끗한 스튜디오 프로덕션",
+        "FACT:performance:레이드백 프레이징"
+      ]
+    },
+    {
+      "name": "jungle",
+      "state": {
+        "primaryGenre": "Jungle",
+        "genreConfidence": 0.87
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 69,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 54,
+          "CONTEXT": 9,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 54,
+          "CONTEXT": 9,
+          "AESTHETIC": 0,
+          "IMPRESSION": 5
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 26,
+          "CONTEXT": 7,
+          "AESTHETIC": 0,
+          "IMPRESSION": 3
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 6,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 4,
+          "idiom": 42,
+          "rhythm": 2,
+          "instrument": 3,
+          "production": 1,
+          "arrangement": 1
+        },
+        "criticAccepted": {
+          "primitive": 4,
+          "idiom": 42,
+          "rhythm": 2,
+          "instrument": 3,
+          "production": 1,
+          "arrangement": 1
+        },
+        "pooled": {
+          "primitive": 2,
+          "idiom": 22,
+          "rhythm": 1,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 4,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 2,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 2,
+          "ADJACENCY": 2,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 2,
+          "ADJACENCY": 0,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 1,
+          "LINEAGE": 1,
+          "ADJACENCY": 0,
+          "ERA": 1,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "기타 컴핑",
+        "컴핑 엇박 배치",
+        "조밀한 서브디비전",
+        "싱코페이션 그루브",
+        "촘촘한 리듬",
+        "쪼개진 드럼 리듬",
+        "리듬처럼 쓰인 보컬 샘플",
+        "서브베이스 중심 믹스",
+        "조밀한 레이어",
+        "집단적 추진감",
+        "리듬 기타 컴핑",
+        "Hardcore 계열",
+        "브레이크비트 추진력",
+        "아멘형 브레이크",
+        "싱코페이트 브레이크",
+        "샘플 루프",
+        "다성적 짜임새",
+        "성부 혼합 텍스처",
+        "롤링 브레이크",
+        "브로큰 개러지 그루브",
+        "킥 공백형 패턴",
+        "브레이크비트",
+        "잘게 쪼개진 비트",
+        "긴장감"
+      ],
+      "rejected": [
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "높은 밀도",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "무거움",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "드럼",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "보컬",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "싱코페이션",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "샘플 기반",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "Drum & Bass 인접성",
+          "layer": "CONTEXT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "UK Garage 인접성",
+          "layer": "CONTEXT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "리듬 섹션 중심",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "셔플링 하이햇",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "즉흥 앙상블 짜임새",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "층위가 두꺼운 편성",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "촙된 브레이크",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 4,
+          "CONTEXT": 6,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "layersPresent": 3,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 6,
+        "aestheticCount": 0,
+        "impressionCount": 2,
+        "meanSpecificity": 0.7815588333333333,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8404744416666666
+      },
+      "selected": [
+        "IMPRESSION:mood:엇박의 추진력",
+        "CONTEXT:scene:UK 레이브 씬",
+        "CONTEXT:lineage:Breakbeat Hardcore 계열",
+        "FACT:rhythm:싱코페이트 베이스 그루브",
+        "CONTEXT:culture:사운드시스템 문화",
+        "FACT:rhythm:교차 리듬 긴장",
+        "CONTEXT:genre:Jungle",
+        "IMPRESSION:mood:격렬함",
+        "CONTEXT:era:1990년대 UK 스타일",
+        "CONTEXT:lineage:Reggae 계열",
+        "FACT:performance:반복 베이스",
+        "FACT:performance:싱코페이션 베이스"
+      ]
+    },
+    {
+      "name": "liquiddnb",
+      "state": {
+        "primaryGenre": "Liquid DnB",
+        "genreConfidence": 0.86
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 57,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 47,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 9
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 47,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 9
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 30,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 5
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 6,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 5
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 5,
+          "idiom": 35,
+          "rhythm": 1,
+          "instrument": 4,
+          "production": 1,
+          "arrangement": 1
+        },
+        "criticAccepted": {
+          "primitive": 5,
+          "idiom": 35,
+          "rhythm": 1,
+          "instrument": 4,
+          "production": 1,
+          "arrangement": 1
+        },
+        "pooled": {
+          "primitive": 3,
+          "idiom": 25,
+          "rhythm": 1,
+          "instrument": 1,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 6,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "기타 컴핑",
+        "리듬 기타 컴핑",
+        "Synth Pad",
+        "빠른 리듬",
+        "촘촘한 리듬",
+        "롤링 브레이크",
+        "atmospheric 개러지 공간감",
+        "긴 잔향 공간",
+        "레이어드 편성",
+        "집단적 추진감",
+        "고속 브레이크 위 하프타임 베이스",
+        "브로큰 비트",
+        "잘게 쪼개진 비트",
+        "롤링 리퀴드 브레이크",
+        "아멘형 브레이크",
+        "브레이크비트",
+        "브로큰 개러지 그루브",
+        "복합 박자 경향",
+        "안정된 템포 확신",
+        "어쿠스틱 포크 질감",
+        "풍성한 화성 베드",
+        "성부 혼합 텍스처",
+        "층위가 두꺼운 편성",
+        "패드 레이어"
+      ],
+      "rejected": [
+        {
+          "text": "반복되는 펄스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "드럼",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "보컬",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "리버브 중심",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "리듬 섹션 중심",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "셔플링 하이햇",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "교차 리듬 긴장",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "오프비트 그루브",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "세션 연주 그루브",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "킥 공백형 패턴",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "레가토 연주",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "깨끗한 스튜디오 프로덕션",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "반음계적 모호함",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 6,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 5
+        },
+        "layersPresent": 3,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 1,
+        "aestheticCount": 0,
+        "impressionCount": 5,
+        "meanSpecificity": 0.7579864166666664,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8227076958333331
+      },
+      "selected": [
+        "IMPRESSION:mood:먼 곳의 메아리",
+        "CONTEXT:genre:Liquid DnB",
+        "FACT:rhythm:조밀한 서브디비전",
+        "FACT:production:도시적 스튜디오 프로덕션",
+        "FACT:arrangement:지속음 층",
+        "FACT:production:깊은 공간감",
+        "IMPRESSION:mood:고속의 평온",
+        "IMPRESSION:mood:깊게 쌓인 공간",
+        "IMPRESSION:mood:고속의 정적",
+        "IMPRESSION:mood:미끄러지는 활공",
+        "FACT:arrangement:스트링 레이어",
+        "FACT:rhythm:싱코페이트 브레이크"
+      ]
+    },
+    {
+      "name": "funk",
+      "state": {
+        "primaryGenre": "Funk",
+        "genreConfidence": 0.86
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 60,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 53,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 53,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 33,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 9,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 3,
+          "idiom": 43,
+          "rhythm": 2,
+          "instrument": 4,
+          "production": 0,
+          "arrangement": 1
+        },
+        "criticAccepted": {
+          "primitive": 3,
+          "idiom": 43,
+          "rhythm": 2,
+          "instrument": 4,
+          "production": 0,
+          "arrangement": 1
+        },
+        "pooled": {
+          "primitive": 1,
+          "idiom": 30,
+          "rhythm": 1,
+          "instrument": 1,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 8,
+          "rhythm": 0,
+          "instrument": 1,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "기타 컴핑",
+        "리듬 기타 컴핑",
+        "펑키한 싱코페이션",
+        "싱코페이트 베이스 그루브",
+        "빅밴드 스윙 펄스",
+        "밝은 훅 프로덕션",
+        "집단적 추진감",
+        "선율적 베이스 라인",
+        "선율적 베이스",
+        "절제된 리드 톤",
+        "펑키 베이스",
+        "촘촘한 리듬",
+        "싱코페이션",
+        "따뜻한 소울 포켓",
+        "셔플링 하이햇",
+        "베이스 주도 화성 진행",
+        "다성적 짜임새",
+        "이완된 템포감",
+        "세션 연주 그루브",
+        "안정된 템포 확신",
+        "디스코 기반 하우스 그루브",
+        "보컬 개러지 텍스처",
+        "복합 박자 경향",
+        "포켓 그루브"
+      ],
+      "rejected": [
+        {
+          "text": "반복되는 펄스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "따뜻함",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "경쾌함",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "드럼",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "일렉트릭 기타",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "브라스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "스윙 필",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "리듬 섹션 중심",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "층위가 두꺼운 편성",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "오프비트 그루브",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "후행 스네어",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "어쿠스틱 포크 질감",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "클랩 백비트",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "레이드백 타이밍",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 9,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "layersPresent": 3,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 1,
+        "aestheticCount": 0,
+        "impressionCount": 2,
+        "meanSpecificity": 0.7964457499999998,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8450385374999998
+      },
+      "selected": [
+        "IMPRESSION:mood:당김음의 온기",
+        "CONTEXT:genre:Funk",
+        "FACT:arrangement:보컬 중심 온기",
+        "FACT:arrangement:즉흥 앙상블 짜임새",
+        "FACT:rhythm:드럼-베이스 락",
+        "FACT:performance:선율적인 베이스",
+        "IMPRESSION:mood:뒤로 눕는 온기",
+        "FACT:rhythm:셔플 그루브",
+        "FACT:instrumentation:베이스",
+        "FACT:production:도시적 스튜디오 프로덕션",
+        "FACT:arrangement:성부 혼합 텍스처",
+        "FACT:rhythm:라이드 중심 스윙"
+      ]
+    },
+    {
+      "name": "jazztrio",
+      "state": {
+        "primaryGenre": "Jazz",
+        "genreConfidence": 0.8
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 48,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 39,
+          "CONTEXT": 4,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 38,
+          "CONTEXT": 4,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 30,
+          "CONTEXT": 4,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 6,
+          "CONTEXT": 4,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 1,
+          "idiom": 30,
+          "rhythm": 1,
+          "instrument": 7,
+          "production": 0,
+          "arrangement": 0
+        },
+        "criticAccepted": {
+          "primitive": 1,
+          "idiom": 29,
+          "rhythm": 1,
+          "instrument": 7,
+          "production": 0,
+          "arrangement": 0
+        },
+        "pooled": {
+          "primitive": 0,
+          "idiom": 27,
+          "rhythm": 1,
+          "instrument": 2,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 0,
+          "idiom": 5,
+          "rhythm": 1,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 1,
+          "ERA": 0,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 1,
+          "ERA": 0,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 1,
+          "ERA": 0,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 1,
+          "ERA": 0,
+          "SCENE": 1,
+          "CULTURE": 1,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "워킹 베이스",
+        "선율적 베이스 라인",
+        "빅밴드 스윙 펄스",
+        "따뜻한 소울 포켓",
+        "라이드 중심 스윙",
+        "셔플링 하이햇",
+        "도시적 스튜디오 프로덕션",
+        "어쿠스틱 포크 질감",
+        "즉흥 앙상블 짜임새",
+        "색소폰 솔로",
+        "장식적으로 조밀한 선율",
+        "선율적인 베이스",
+        "스윙 그루브",
+        "레이드백 스윙",
+        "복합 박자 경향",
+        "깨끗한 스튜디오 프로덕션",
+        "명확한 조성 중심",
+        "후행 스네어",
+        "세션 연주 그루브",
+        "킥-스네어 분절",
+        "성부 혼합 텍스처",
+        "집단 즉흥",
+        "집단적 추진감",
+        "보컬 개러지 텍스처"
+      ],
+      "rejected": [
+        {
+          "text": "강한 저역",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "따뜻함",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "색소폰",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "베이스",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "피아노",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "드럼",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "색소폰 리드",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "소프트 클리핑 질감",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "컴핑 엇박 배치",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "뒤로 끌리는 표류",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "미끄러지는 활공",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "느슨한 유기적 느낌",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 6,
+          "CONTEXT": 4,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "layersPresent": 3,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 4,
+        "aestheticCount": 0,
+        "impressionCount": 2,
+        "meanSpecificity": 0.7895060833333334,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8418464291666665
+      },
+      "selected": [
+        "IMPRESSION:mood:뒤로 눕는 온기",
+        "CONTEXT:scene:재즈 소편성 씬",
+        "CONTEXT:genre:Jazz",
+        "FACT:production:테이프 새추레이션",
+        "CONTEXT:genre:Hard Bop",
+        "FACT:arrangement:부드러운 화성 이동",
+        "CONTEXT:culture:재즈 클럽 문화",
+        "IMPRESSION:mood:튀어오르는 탄력",
+        "FACT:arrangement:베이스 주도 화성 진행",
+        "FACT:performance:기타 컴핑",
+        "FACT:rhythm:스윙 필",
+        "FACT:performance:레이드백 프레이징"
+      ]
+    },
+    {
+      "name": "shoegaze",
+      "state": {
+        "primaryGenre": "Shoegaze",
+        "genreConfidence": 0.84
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 38,
+        "accepted": 36,
+        "pool": 36,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 34,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 3
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 33,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 3
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 33,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 9,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 3,
+          "idiom": 25,
+          "rhythm": 0,
+          "instrument": 5,
+          "production": 1,
+          "arrangement": 0
+        },
+        "criticAccepted": {
+          "primitive": 3,
+          "idiom": 24,
+          "rhythm": 0,
+          "instrument": 5,
+          "production": 1,
+          "arrangement": 0
+        },
+        "pooled": {
+          "primitive": 3,
+          "idiom": 24,
+          "rhythm": 0,
+          "instrument": 5,
+          "production": 1,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 2,
+          "idiom": 5,
+          "rhythm": 0,
+          "instrument": 2,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "레가토 연주",
+        "절제된 리드 톤",
+        "Distorted Guitar",
+        "스트레이트 서브디비전",
+        "긴 잔향 공간",
+        "몽롱한 레이어링",
+        "레이어드 편성",
+        "드럼",
+        "Synth Pad",
+        "16비트 그루브",
+        "디스토션 레이어",
+        "리버브 중심",
+        "지속음 층",
+        "강한 저역",
+        "도시적 스튜디오 프로덕션",
+        "소프트 클리핑 질감",
+        "집단적 추진감",
+        "보컬 중심 온기",
+        "풍성한 화성 베드",
+        "성부 혼합 텍스처",
+        "층위가 두꺼운 편성",
+        "패드 레이어",
+        "보컬 주도 텍스처",
+        "반음계적 모호함"
+      ],
+      "rejected": [
+        {
+          "text": "무거움",
+          "layer": "IMPRESSION",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        },
+        {
+          "text": "신스 리드",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 9,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 2
+        },
+        "layersPresent": 3,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0.08333333333333333,
+        "genericRatio": 0,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 1,
+        "aestheticCount": 0,
+        "impressionCount": 2,
+        "meanSpecificity": 0.7706372499999999,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8310622375
+      },
+      "selected": [
+        "IMPRESSION:mood:깊게 쌓인 공간",
+        "CONTEXT:genre:Shoegaze",
+        "FACT:arrangement:겹겹의 사운드 월",
+        "FACT:arrangement:스트링 레이어",
+        "FACT:production:슈게이즈식 월 오브 사운드",
+        "FACT:instrumentation:보컬",
+        "IMPRESSION:mood:소음 속의 온기",
+        "FACT:production:고밀도 디스토션 벽",
+        "FACT:instrumentation:베이스",
+        "FACT:rhythm:드라이빙 백비트",
+        "FACT:dynamics:높은 밀도",
+        "FACT:dynamics:긴 서스테인"
+      ]
+    },
+    {
+      "name": "ambient",
+      "state": {
+        "primaryGenre": "Ambient",
+        "genreConfidence": 0.8
+      },
+      "engineState": {
+        "status": "fallback",
+        "provider": "live-expression",
+        "reason": "initial-generation",
+        "error": "429 You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.",
+        "model": null,
+        "latencyMs": 0,
+        "cache": "miss"
+      },
+      "tokenUsage": {
+        "request": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "languageSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        },
+        "projectSession": {
+          "requests": 0,
+          "inputTokens": 0,
+          "cachedInputTokens": 0,
+          "cacheWriteTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "cacheHitRate": 0
+        }
+      },
+      "funnel": {
+        "generated": 34,
+        "accepted": 33,
+        "pool": 33,
+        "selected": 12
+      },
+      "survival": {
+        "generated": {
+          "LIVE": 0,
+          "FACT": 27,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "criticAccepted": {
+          "LIVE": 0,
+          "FACT": 26,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "pooled": {
+          "LIVE": 0,
+          "FACT": 26,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 6
+        },
+        "selected": {
+          "LIVE": 0,
+          "FACT": 6,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 5
+        }
+      },
+      "factSources": {
+        "generated": {
+          "primitive": 5,
+          "idiom": 21,
+          "rhythm": 0,
+          "instrument": 1,
+          "production": 0,
+          "arrangement": 0
+        },
+        "criticAccepted": {
+          "primitive": 5,
+          "idiom": 20,
+          "rhythm": 0,
+          "instrument": 1,
+          "production": 0,
+          "arrangement": 0
+        },
+        "pooled": {
+          "primitive": 5,
+          "idiom": 20,
+          "rhythm": 0,
+          "instrument": 1,
+          "production": 0,
+          "arrangement": 0
+        },
+        "selected": {
+          "primitive": 1,
+          "idiom": 5,
+          "rhythm": 0,
+          "instrument": 0,
+          "production": 0,
+          "arrangement": 0
+        }
+      },
+      "contextRelations": {
+        "generated": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "criticAccepted": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "pooled": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        },
+        "selected": {
+          "PRIMARY_GENRE": 1,
+          "PARENT": 0,
+          "LINEAGE": 0,
+          "ADJACENCY": 0,
+          "ERA": 0,
+          "SCENE": 0,
+          "CULTURE": 0,
+          "ARTIST": 0,
+          "AESTHETIC_ASSOCIATION": 0
+        }
+      },
+      "duplicates": {
+        "exactDuplicateCount": 0,
+        "semanticDuplicateCount": 0,
+        "crossLanguageDuplicateCount": 0
+      },
+      "acceptedButNeverSelected": [
+        "느린 화성 변화",
+        "레가토 연주",
+        "Synth Pad",
+        "긴 잔향 공간",
+        "느린 화성 진행",
+        "여백이 큰 편성",
+        "긴 서스테인",
+        "안정된 화성",
+        "절제된 리드 톤",
+        "소프트 클리핑 질감",
+        "질감 중심 편성",
+        "얇고 성긴 편성",
+        "명확한 조성 중심",
+        "드론 하모니",
+        "유니즌 짜임새",
+        "페달 톤 중심",
+        "낮은 밀도",
+        "강한 저역",
+        "드론 기반",
+        "보컬 주도 텍스처",
+        "차분함"
+      ],
+      "rejected": [
+        {
+          "text": "장식적으로 조밀한 선율",
+          "layer": "FACT",
+          "reasons": [
+            null
+          ],
+          "evidenceScore": 0,
+          "contradiction": 0,
+          "contradicted": []
+        }
+      ],
+      "metrics": {
+        "layerCounts": {
+          "LIVE": 0,
+          "FACT": 6,
+          "CONTEXT": 1,
+          "AESTHETIC": 0,
+          "IMPRESSION": 5
+        },
+        "layersPresent": 3,
+        "distanceDiversity": 3,
+        "primitiveRatio": 0,
+        "genericRatio": 0.08333333333333333,
+        "genericPoetryRatio": 0,
+        "duplicateConceptRatio": 0,
+        "contextCount": 1,
+        "aestheticCount": 0,
+        "impressionCount": 5,
+        "meanSpecificity": 0.7286083333333334,
+        "meanNovelty": 0.9160000000000003,
+        "meanContrastiveness": 0.8062680416666667
+      },
+      "selected": [
+        "IMPRESSION:mood:가라앉은 평정",
+        "CONTEXT:genre:Ambient",
+        "FACT:production:깨끗한 스튜디오 프로덕션",
+        "FACT:arrangement:드론 화성",
+        "FACT:arrangement:단일 성부 집중",
+        "FACT:production:어쿠스틱 포크 질감",
+        "IMPRESSION:mood:잔향 속의 공백",
+        "IMPRESSION:mood:몽환적",
+        "IMPRESSION:mood:정지된 부유",
+        "IMPRESSION:mood:평온함",
+        "FACT:rhythm:적은 트랜지언트",
+        "FACT:rhythm:자유 리듬"
+      ]
+    }
+  ],
+  "usageSummary": {
+    "calls": 10,
+    "cacheHits": 0,
+    "tokenUsage": {
+      "requests": 0,
+      "inputTokens": 0,
+      "cachedInputTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 0,
+      "reasoningTokens": 0,
+      "totalTokens": 0,
+      "cacheHitRate": 0
+    },
+    "projectTokenUsage": {
+      "requests": 0,
+      "inputTokens": 0,
+      "cachedInputTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 0,
+      "reasoningTokens": 0,
+      "totalTokens": 0,
+      "cacheHitRate": 0
+    }
+  },
+  "warnings": []
+}

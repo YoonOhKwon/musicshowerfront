@@ -1,0 +1,1173 @@
+{
+  "version": 1,
+  "policy": "Priors are optional style hypotheses, never evidence. Every rule needs current evidence on two independent axes plus a confident genre. Unknown genres use the same open AI contract; no cultural fallback is invented.",
+  "sources": {
+    "citypop": "https://lightintheattic.net/products/pacific-breeze-2-japanese-city-pop-aor-boogie-1972-1986",
+    "futurefunk": "https://coraspect.bandcamp.com/album/this-is-future-funk-vol-1",
+    "garage": "https://www.redbullmusicacademy.com/lectures/plastician-plasticman-grime-virtuoso/"
+  },
+  "genres": {
+    "Future Funk": {
+      "sources": [
+        "futurefunk"
+      ],
+      "aliases": [
+        "Futurefunk"
+      ],
+      "candidates": [
+        {
+          "text": "French House 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            },
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            }
+          ]
+        },
+        {
+          "text": "Disco 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            }
+          ]
+        },
+        {
+          "text": "Vaporwave 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "productionEvidence.sampleBased",
+              "min": 0.75
+            },
+            {
+              "path": "moodDimensions.warmth",
+              "min": 0.6
+            }
+          ]
+        },
+        {
+          "text": "인터넷 리바이벌 씬",
+          "category": "scene",
+          "requires": [
+            {
+              "path": "productionEvidence.sampleBased",
+              "min": 0.75
+            },
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            }
+          ]
+        },
+        {
+          "text": "인터넷 노스탤지어",
+          "category": "culture",
+          "requires": [
+            {
+              "path": "productionEvidence.sampleBased",
+              "min": 0.75
+            },
+            {
+              "path": "moodDimensions.warmth",
+              "min": 0.6
+            }
+          ]
+        },
+        {
+          "text": "Kawaii 미학",
+          "category": "association",
+          "requires": [
+            {
+              "path": "aestheticEvidence.kawaii",
+              "min": 0.8
+            },
+            {
+              "path": "moodDimensions.brightness",
+              "min": 0.55
+            }
+          ]
+        },
+        {
+          "text": "마법소녀 미학",
+          "category": "association",
+          "requires": [
+            {
+              "path": "aestheticEvidence.magicalGirl",
+              "min": 0.85
+            },
+            {
+              "path": "moodDimensions.brightness",
+              "min": 0.55
+            }
+          ]
+        }
+      ]
+    },
+    "City Pop": {
+      "sources": [
+        "citypop"
+      ],
+      "aliases": [
+        "Citypop"
+      ],
+      "candidates": [
+        {
+          "text": "AOR 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.piano",
+              "min": 0.5
+            },
+            {
+              "path": "moodDimensions.warmth",
+              "min": 0.6
+            }
+          ]
+        },
+        {
+          "text": "Jazz Funk 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.piano",
+              "min": 0.5
+            },
+            {
+              "path": "rhythmicGrammar.syncopation",
+              "min": 0.65
+            }
+          ]
+        },
+        {
+          "text": "Disco 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            },
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            }
+          ]
+        },
+        {
+          "text": "1970s-1980s 스타일",
+          "category": "era",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.piano",
+              "min": 0.5
+            },
+            {
+              "path": "moodDimensions.warmth",
+              "min": 0.6
+            }
+          ]
+        },
+        {
+          "text": "일본 City Pop 씬",
+          "category": "scene",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            },
+            {
+              "path": "rhythmicGrammar.syncopation",
+              "min": 0.65
+            }
+          ]
+        }
+      ]
+    },
+    "UK Garage": {
+      "sources": [
+        "garage"
+      ],
+      "aliases": [
+        "UKG",
+        "2-Step",
+        "2 Step"
+      ],
+      "candidates": [
+        {
+          "text": "2-Step 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.bass",
+              "min": 0.4
+            }
+          ]
+        },
+        {
+          "text": "1990년대 UK 스타일",
+          "category": "era",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.bass",
+              "min": 0.4
+            }
+          ]
+        },
+        {
+          "text": "UK 클럽 씬",
+          "category": "scene",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            }
+          ]
+        },
+        {
+          "text": "Pirate Radio 문화",
+          "category": "culture",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.bass",
+              "min": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    "French House": {
+      "sources": [
+        "futurefunk"
+      ],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "Disco 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    "Nu Disco": {
+      "sources": [
+        "futurefunk"
+      ],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "Disco 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    "Vaporwave": {
+      "sources": [
+        "citypop"
+      ],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "City Pop 연상",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "productionEvidence.sampleBased",
+              "min": 0.75
+            },
+            {
+              "path": "instrumentationEvidence.piano",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Jazz Funk": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "펑크 그루브",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.syncopation",
+              "min": 0.65
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    "Jazz Fusion": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "재즈 화성 질감",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.piano",
+              "min": 0.5
+            },
+            {
+              "path": "measurements.harmonicMovement",
+              "min": 0.65
+            }
+          ]
+        }
+      ]
+    },
+    "Neo Soul": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "스윙 그루브",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.65
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    "House": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "반복적 댄스 그루브",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            },
+            {
+              "path": "measurements.tempoStability",
+              "min": 0.7
+            }
+          ]
+        }
+      ]
+    },
+    "Techno": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "기계적 펄스",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.72
+            },
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "IDM": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "불규칙한 전자 리듬",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Drum & Bass": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "빠른 브레이크비트",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.bpm",
+              "min": 155,
+              "max": 210
+            }
+          ]
+        }
+      ]
+    },
+    "Jungle": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "쪼개진 드럼 리듬",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "instrumentationEvidence.drums",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Footwork": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "잘게 나뉜 리듬",
+          "category": "rhythm",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.onsetRate",
+              "min": 3,
+              "max": 20
+            }
+          ]
+        }
+      ]
+    },
+    "Trap": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "서브베이스 중심",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "measurements.bass",
+              "min": 0.4
+            },
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Dubstep": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "저역 중심 전자 편성",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "measurements.bass",
+              "min": 0.4
+            },
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Ambient": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "지속음 중심",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            },
+            {
+              "path": "measurements.transientDensity",
+              "min": 0,
+              "max": 0.2
+            }
+          ]
+        }
+      ]
+    },
+    "Synthpop": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "신스 중심 편성",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.synthesizer",
+              "min": 0.5
+            },
+            {
+              "path": "moodDimensions.brightness",
+              "min": 0.55
+            }
+          ]
+        }
+      ]
+    },
+    "Shoegaze": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "기타 레이어",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.electricguitar",
+              "min": 0.55
+            },
+            {
+              "path": "measurements.flatness",
+              "min": 0.3
+            }
+          ]
+        }
+      ]
+    },
+    "Folk": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "어쿠스틱 기타 중심",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.acousticguitar",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.transientDensity",
+              "min": 0.2,
+              "max": 0.6
+            }
+          ]
+        }
+      ]
+    },
+    "Metal": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "강한 기타 어택",
+          "category": "performance",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.electricguitar",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.transientDensity",
+              "min": 0.65
+            }
+          ]
+        }
+      ]
+    },
+    "Bossa Nova": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "싱코페이션 기타",
+          "category": "performance",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.syncopation",
+              "min": 0.65
+            },
+            {
+              "path": "instrumentationEvidence.acousticguitar",
+              "min": 0.65
+            }
+          ]
+        }
+      ]
+    },
+    "Classical": {
+      "sources": [],
+      "aliases": [],
+      "candidates": [
+        {
+          "text": "스트링 중심 편성",
+          "category": "arrangement",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.strings",
+              "min": 0.7
+            },
+            {
+              "path": "measurements.transientDensity",
+              "min": 0,
+              "max": 0.3
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "families": {
+    "Jazz / Soul": {
+      "candidates": [
+        {
+          "text": "Swing 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.6
+            },
+            {
+              "path": "measurements.tonalFocus",
+              "min": 0.5
+            }
+          ]
+        },
+        {
+          "text": "Bebop 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.55
+            },
+            {
+              "path": "measurements.harmonicMovement",
+              "min": 0.55
+            }
+          ]
+        },
+        {
+          "text": "재즈 소편성 씬",
+          "category": "scene",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.piano",
+              "min": 0.4
+            },
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.5
+            }
+          ]
+        },
+        {
+          "text": "재즈 클럽 문화",
+          "category": "culture",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.saxophone",
+              "min": 0.4
+            },
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.6
+            }
+          ]
+        }
+      ]
+    },
+    "Electronic / Club": {
+      "candidates": [
+        {
+          "text": "댄스 씬 계열",
+          "category": "scene",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.7
+            },
+            {
+              "path": "measurements.tempoStability",
+              "min": 0.6
+            }
+          ]
+        },
+        {
+          "text": "일렉트로닉 클럽 문화",
+          "category": "culture",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.7
+            },
+            {
+              "path": "productionEvidence.sidechain",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Hip-Hop / Rap": {
+      "candidates": [
+        {
+          "text": "붐뱁 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.55
+            },
+            {
+              "path": "instrumentationEvidence.bass",
+              "min": 0.4
+            }
+          ]
+        },
+        {
+          "text": "트랩 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.brokenBeat",
+              "min": 0.4
+            },
+            {
+              "path": "measurements.bass",
+              "min": 0.5
+            }
+          ]
+        },
+        {
+          "text": "힙합 씬",
+          "category": "scene",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.voice",
+              "min": 0.4
+            },
+            {
+              "path": "rhythmicGrammar.swing",
+              "min": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    "Rock / Metal": {
+      "candidates": [
+        {
+          "text": "밴드 편성 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "instrumentationEvidence.guitar",
+              "min": 0.45
+            },
+            {
+              "path": "moodDimensions.aggression",
+              "min": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    "Ambient / Cinematic": {
+      "candidates": [
+        {
+          "text": "앰비언트 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "moodDimensions.spaciousness",
+              "min": 0.65
+            },
+            {
+              "path": "measurements.onsetRate",
+              "min": 0,
+              "max": 0.15
+            }
+          ]
+        }
+      ]
+    },
+    "Latin / Brazilian": {
+      "candidates": [
+        {
+          "text": "라틴 그루브 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.syncopation",
+              "min": 0.6
+            },
+            {
+              "path": "instrumentationEvidence.percussion",
+              "min": 0.4
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "relationPolicy": "Relations are conditional priors describing where a style sits, never observations. They only become candidates when the live genre is confident and independent current evidence supports them. Confidence decreases from parents to lineage to adjacency.",
+  "relations": {
+    "Future Funk": {
+      "parents": [
+        {
+          "name": "French House",
+          "requires": [
+            "rhythmicGrammar.fourOnFloor",
+            "productionEvidence.sidechain"
+          ]
+        },
+        {
+          "name": "Nu Disco",
+          "requires": [
+            "rhythmicGrammar.fourOnFloor",
+            "instrumentationEvidence.bass"
+          ]
+        }
+      ],
+      "lineage": [
+        {
+          "name": "Disco",
+          "requires": [
+            "rhythmicGrammar.fourOnFloor",
+            "instrumentationEvidence.bass"
+          ]
+        },
+        {
+          "name": "House",
+          "requires": [
+            "rhythmicGrammar.fourOnFloor",
+            "productionEvidence.sampleBased"
+          ]
+        }
+      ],
+      "adjacent": [
+        {
+          "name": "City Pop",
+          "requires": [
+            "instrumentationEvidence.piano",
+            "instrumentationEvidence.bass"
+          ]
+        },
+        {
+          "name": "Vaporwave",
+          "requires": [
+            "productionEvidence.sampleBased",
+            "moodDimensions.warmth"
+          ]
+        }
+      ],
+      "eras": [
+        {
+          "name": "2010년대 인터넷 스타일",
+          "requires": [
+            "productionEvidence.sampleBased",
+            "moodDimensions.brightness"
+          ]
+        }
+      ],
+      "scenes": [
+        {
+          "name": "인터넷 리믹스 씬",
+          "requires": [
+            "productionEvidence.sampleBased",
+            "rhythmicGrammar.fourOnFloor"
+          ]
+        }
+      ],
+      "culture": [
+        {
+          "name": "인터넷 노스탤지어",
+          "requires": [
+            "productionEvidence.sampleBased",
+            "moodDimensions.warmth"
+          ]
+        }
+      ],
+      "aesthetics": [
+        {
+          "name": "애니 리믹스 미학",
+          "requires": [
+            "moodDimensions.brightness",
+            "productionEvidence.sampleBased"
+          ]
+        },
+        {
+          "name": "레트로 광고 미학",
+          "requires": [
+            "productionEvidence.sampleBased",
+            "moodDimensions.warmth"
+          ]
+        }
+      ],
+      "artists": [
+        "Daft Punk"
+      ]
+    },
+    "City Pop": {
+      "parents": [
+        "AOR",
+        "Jazz Funk"
+      ],
+      "lineage": [
+        "Soul",
+        "Disco"
+      ],
+      "adjacent": [
+        "Future Funk",
+        "Vaporwave"
+      ],
+      "eras": [
+        "1980년대 일본 스타일"
+      ],
+      "scenes": [
+        "일본 시티팝 씬"
+      ],
+      "culture": [
+        "도시 낭만 문화"
+      ],
+      "aesthetics": [
+        "버블기 도시 미학"
+      ],
+      "artists": [
+        "Tatsuro Yamashita",
+        "Mariya Takeuchi"
+      ]
+    },
+    "UK Garage": {
+      "parents": [
+        "2-Step",
+        "Speed Garage"
+      ],
+      "lineage": [
+        "House",
+        "Jungle"
+      ],
+      "adjacent": [
+        "Future Garage",
+        "Grime"
+      ],
+      "eras": [
+        "1990년대 후반 UK 스타일"
+      ],
+      "scenes": [
+        "UK 클럽 씬",
+        "Pirate Radio 문화"
+      ],
+      "culture": [
+        "런던 클럽 문법"
+      ],
+      "aesthetics": [
+        "Y2K 클럽 미학"
+      ],
+      "artists": []
+    },
+    "House": {
+      "parents": [
+        "Disco"
+      ],
+      "lineage": [
+        "Disco",
+        "Soul"
+      ],
+      "adjacent": [
+        "Techno",
+        "Nu Disco"
+      ],
+      "eras": [
+        "1980년대 시카고 스타일"
+      ],
+      "scenes": [
+        "시카고 하우스 씬"
+      ],
+      "culture": [
+        "클럽 댄스 문화"
+      ],
+      "aesthetics": [],
+      "artists": []
+    },
+    "Techno": {
+      "parents": [
+        "Detroit Techno"
+      ],
+      "lineage": [
+        "House",
+        "Electro"
+      ],
+      "adjacent": [
+        "Trance",
+        "Industrial"
+      ],
+      "eras": [
+        "1990년대 디트로이트 스타일"
+      ],
+      "scenes": [
+        "디트로이트 테크노 씬"
+      ],
+      "culture": [
+        "웨어하우스 문화"
+      ],
+      "aesthetics": [
+        "산업적 미학"
+      ],
+      "artists": []
+    },
+    "Jungle": {
+      "parents": [
+        "Breakbeat Hardcore"
+      ],
+      "lineage": [
+        "Reggae",
+        "Hardcore"
+      ],
+      "adjacent": [
+        "Drum & Bass",
+        "UK Garage"
+      ],
+      "eras": [
+        "1990년대 UK 스타일"
+      ],
+      "scenes": [
+        "UK 레이브 씬"
+      ],
+      "culture": [
+        "사운드시스템 문화"
+      ],
+      "aesthetics": [],
+      "artists": []
+    },
+    "Ambient": {
+      "parents": [],
+      "lineage": [
+        "Minimalism",
+        "Drone"
+      ],
+      "adjacent": [
+        "New Age",
+        "Soundtrack"
+      ],
+      "eras": [
+        "1970년대 환경음악 스타일"
+      ],
+      "scenes": [
+        "환경음악 씬"
+      ],
+      "culture": [],
+      "aesthetics": [
+        "정적 미학"
+      ],
+      "artists": []
+    },
+    "Vaporwave": {
+      "parents": [
+        "Chillwave"
+      ],
+      "lineage": [
+        "Ambient",
+        "Funk"
+      ],
+      "adjacent": [
+        "Future Funk",
+        "Mallsoft"
+      ],
+      "eras": [
+        "2010년대 인터넷 스타일"
+      ],
+      "scenes": [
+        "인터넷 리믹스 씬"
+      ],
+      "culture": [
+        "인터넷 노스탤지어"
+      ],
+      "aesthetics": [
+        "몰소프트 미학",
+        "레트로 광고 미학"
+      ],
+      "artists": []
+    }
+  }
+}

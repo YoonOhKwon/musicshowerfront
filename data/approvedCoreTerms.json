@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "entries": [
+    { "term": "브레이크코어", "aliases": ["breakcore"], "genreFamily": "Breakcore" },
+    { "term": "하드코어", "aliases": ["hardcore", "hardcore techno"], "genreFamily": "Hardcore" },
+    { "term": "데스코어", "aliases": ["deathcore"], "genreFamily": "Deathcore" },
+    { "term": "매스코어", "aliases": ["mathcore"], "genreFamily": "Mathcore" },
+    { "term": "글리치코어", "aliases": ["glitchcore"], "genreFamily": "Glitchcore" },
+    { "term": "디지코어", "aliases": ["digicore"], "genreFamily": "Digicore" },
+    { "term": "시길코어", "aliases": ["sigilkid", "sigilcore"], "genreFamily": "Digicore" },
+    { "term": "프렌치코어", "aliases": ["frenchcore"], "genreFamily": "Frenchcore" },
+    { "term": "스피드코어", "aliases": ["speedcore"], "genreFamily": "Speedcore" },
+    { "term": "니트로코어", "aliases": ["nitrocore"], "genreFamily": "Nitrocore" },
+    { "term": "로파이코어", "aliases": ["lofi core", "lo-fi core"], "genreFamily": "Lo-Fi" }
+  ]
+}

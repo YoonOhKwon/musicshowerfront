@@ -1,0 +1,195 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, Pretendard, "Noto Sans KR", Arial, sans-serif;
+  background: #08080e;
+  color: #fff;
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #08080e;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+.launcher {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 10;
+  width: min(620px, calc(100vw - 32px));
+  padding: 42px 36px 34px;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 30px;
+  background: linear-gradient(145deg, rgba(20, 18, 42, 0.82), rgba(8, 8, 18, 0.72));
+  box-shadow: 0 28px 90px rgba(37, 24, 110, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(22px);
+}
+
+.launcher[hidden] { display: none; }
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #ac9dff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(36px, 7vw, 68px);
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  background: linear-gradient(105deg, #fff 20%, #cfbcff 52%, #74d7ff 90%);
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  margin: 22px 0 28px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.qualityControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+}
+
+.qualityControl select {
+  padding: 8px 28px 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.075);
+  font: inherit;
+}
+
+.qualityControl option { color: #111; }
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+button {
+  padding: 14px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+button:hover { transform: translateY(-2px); }
+button:focus-visible { outline: 2px solid #8edfff; outline-offset: 3px; }
+button:disabled { cursor: wait; opacity: 0.65; }
+
+.primaryButton {
+  border-color: rgba(201, 174, 255, 0.55);
+  background: linear-gradient(110deg, rgba(139, 93, 255, 0.95), rgba(255, 73, 165, 0.9));
+  box-shadow: 0 10px 30px rgba(124, 72, 255, 0.28);
+}
+
+.secondaryButton { background: rgba(255, 255, 255, 0.075); }
+.secondaryButton:hover { background: rgba(255, 255, 255, 0.13); }
+
+.hint {
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 12px;
+}
+
+.audioStatus {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  z-index: 11;
+  max-width: calc(100vw - 210px);
+  margin: 0;
+  padding: 9px 14px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(8, 8, 18, 0.58);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11px;
+  backdrop-filter: blur(12px);
+}
+
+.audioStatus[data-state="active"] { color: #a5f4ff; border-color: rgba(94, 223, 255, 0.22); }
+.audioStatus[data-state="error"] { color: #ffb2c7; border-color: rgba(255, 100, 145, 0.28); }
+
+.stopButton {
+  position: fixed;
+  right: 22px;
+  bottom: 20px;
+  z-index: 12;
+  padding: 10px 16px;
+  background: rgba(24, 20, 40, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.stopButton[hidden] { display: none; }
+
+@media (max-width: 620px) {
+  .launcher { padding: 34px 20px 28px; border-radius: 24px; }
+  .actions { flex-direction: column; }
+  .description br { display: none; }
+  .audioStatus { left: 14px; right: 100px; max-width: none; transform: none; text-align: left; }
+  .stopButton { right: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+}
+
+.languageInspector {
+  position: fixed; z-index: 30; inset: 20px 20px 20px auto;
+  width: min(760px, calc(100vw - 40px)); overflow: auto;
+  padding: 22px; border: 1px solid #5e4366; border-radius: 18px;
+  background: rgba(13, 10, 22, 0.98); color: #e6dfeb; box-shadow: 0 20px 80px #0009;
+}
+.languageInspector[hidden] { display: none; }
+.languageInspector header { display: flex; align-items: center; gap: 8px; }
+.languageInspector h2 { margin: 0 auto 0 0; font-size: 19px; }
+.languageInspector button { padding: 8px 11px; background: #302039; font-size: 12px; }
+.languageInspector button[aria-pressed="true"] { background: #683778; border-color: #d8a3e6; }
+.languageInspector pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; line-height: 1.6; }
+.languageInspector summary { cursor: pointer; padding: 10px 0; color: #d2b2ef; }
+.languageInspectorNote { font-size: 11px; color: #a798ad; line-height: 1.5; }
+.languageInspectorCandidate { display: flex; align-items: center; gap: 8px; padding: 11px 0; border-bottom: 1px solid #ffffff12; }
+.languageInspectorCandidate > div { flex: 1; min-width: 0; }
+.languageInspectorCandidate strong { display: block; font-size: 16px; font-weight: 500; }
+.languageInspectorCandidate small { display: block; margin-top: 4px; color: #a395ad; font-size: 10px; }
+.languageInspectorCandidate[data-selected="true"] strong { color: #f3c5dd; }
+/* Immersive playback: no status overlay; keyboard/focus keeps stop discoverable. */
+body:not(.semanticDebug) .audioStatus[data-state="active"] {
+  clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden;
+}
+.stopButton:not(:hover):not(:focus-visible) { opacity: 0.12; }
+.stopButton:hover, .stopButton:focus-visible { opacity: 1; }
+@media (hover: none) { .stopButton:not(:hover):not(:focus-visible) { opacity: 0.65; } }

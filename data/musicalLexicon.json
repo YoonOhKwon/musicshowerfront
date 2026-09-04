@@ -1,0 +1,6283 @@
+{
+  "version": 2,
+  "entries": [
+    {
+      "id": "polyphonic_texture",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "texture.textureClass",
+          "equals": "polyphonic"
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 3
+        },
+        {
+          "path": "texture.dominanceDispersion",
+          "min": 0.6
+        }
+      ],
+      "excludes": [
+        {
+          "path": "role.leadPresence",
+          "min": 0.7
+        }
+      ],
+      "neutralText": "다성적 짜임새",
+      "specializations": [
+        {
+          "text": "집단 즉흥",
+          "genreFamilies": [
+            "Jazz",
+            "Dixieland",
+            "New Orleans"
+          ],
+          "minGenreConfidence": 0.6
+        },
+        {
+          "text": "대위법적 짜임새",
+          "genreFamilies": [
+            "Classical",
+            "Baroque",
+            "Choral"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "texture.textureClass",
+        "texture.voiceCount",
+        "texture.dominanceDispersion"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "homophonic_texture",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "texture.textureClass",
+          "equals": "homophonic"
+        },
+        {
+          "path": "role.leadPresence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "선율과 반주",
+      "specializations": [],
+      "anchors": [
+        "texture.textureClass",
+        "role.leadPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "heterophonic_texture",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "texture.textureClass",
+          "equals": "heterophonic"
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 2
+        }
+      ],
+      "neutralText": "헤테로포니",
+      "specializations": [],
+      "anchors": [
+        "texture.textureClass",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "layered_texture",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "texture.textureClass",
+          "equals": "layered"
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.65
+        }
+      ],
+      "neutralText": "지속음 층",
+      "specializations": [
+        {
+          "text": "패드 레이어",
+          "genreFamilies": [
+            "Electronic",
+            "Ambient"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "texture.textureClass",
+        "texture.sustainRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "free_rhythm",
+      "facet": "rhythm",
+      "match": [
+        {
+          "path": "pulse.pulsePresence",
+          "max": 0.38
+        }
+      ],
+      "neutralText": "자유 리듬",
+      "specializations": [
+        {
+          "text": "루바토",
+          "genreFamilies": [
+            "Classical",
+            "Jazz"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "pulse.pulsePresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "steady_pulse",
+      "facet": "rhythm",
+      "match": [
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.68
+        },
+        {
+          "path": "pulse.pulseRegularity",
+          "min": 0.72
+        }
+      ],
+      "neutralText": "안정된 박",
+      "specializations": [],
+      "anchors": [
+        "pulse.pulsePresence",
+        "pulse.pulseRegularity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "straight_four",
+      "facet": "rhythm",
+      "match": [
+        {
+          "path": "pulse.accentPeriodicity",
+          "equals": 4
+        },
+        {
+          "path": "pulse.accentPlacement",
+          "max": 0.2
+        },
+        {
+          "path": "pulse.pulseRegularity",
+          "min": 0.72
+        },
+        {
+          "path": "pulse.subdivisionRatio",
+          "max": 1.25
+        }
+      ],
+      "neutralText": "정박 4박",
+      "specializations": [
+        {
+          "text": "4/4 플로어",
+          "genreFamilies": [
+            "House",
+            "Techno",
+            "Disco"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.accentPeriodicity",
+        "pulse.accentPlacement",
+        "pulse.pulseRegularity",
+        "pulse.subdivisionRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "asymmetric_meter",
+      "facet": "rhythm",
+      "match": [
+        {
+          "path": "pulse.accentPeriodicity",
+          "oneOf": [
+            5,
+            7,
+            9
+          ]
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "비대칭 박자",
+      "specializations": [],
+      "anchors": [
+        "pulse.accentPeriodicity",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "uneven_subdivision",
+      "facet": "rhythm",
+      "match": [
+        {
+          "path": "pulse.subdivisionRatio",
+          "min": 1.4,
+          "max": 2.1
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "불균등 분할",
+      "specializations": [
+        {
+          "text": "스윙 필",
+          "genreFamilies": [
+            "Jazz",
+            "Swing"
+          ],
+          "minGenreConfidence": 0.6
+        },
+        {
+          "text": "셔플",
+          "genreFamilies": [
+            "Blues",
+            "Rock"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.subdivisionRatio",
+        "pulse.pulsePresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "offbeat_accent",
+      "facet": "rhythm",
+      "match": [
+        {
+          "path": "pulse.accentPlacement",
+          "min": 0.48
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "오프비트 강세",
+      "specializations": [
+        {
+          "text": "싱코페이션",
+          "genreFamilies": [
+            "Funk",
+            "Jazz",
+            "Garage"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.accentPlacement",
+        "pulse.pulsePresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "walking_bass",
+      "facet": "performance",
+      "match": [
+        {
+          "path": "role.bassFunction",
+          "equals": "walking"
+        },
+        {
+          "path": "role.foundationLayer",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "순차 진행 베이스",
+      "specializations": [
+        {
+          "text": "워킹 베이스",
+          "genreFamilies": [
+            "Jazz",
+            "Blues"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "role.bassFunction",
+        "role.foundationLayer"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "ostinato_bass",
+      "facet": "performance",
+      "match": [
+        {
+          "path": "role.bassFunction",
+          "equals": "ostinato"
+        },
+        {
+          "path": "role.foundationLayer",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "반복 베이스",
+      "specializations": [
+        {
+          "text": "바소 오스티나토",
+          "genreFamilies": [
+            "Classical",
+            "Baroque"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "role.bassFunction",
+        "role.foundationLayer"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "static_foundation",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "role.foundationLayer",
+          "min": 0.68
+        },
+        {
+          "path": "role.bassFunction",
+          "equals": "static"
+        }
+      ],
+      "neutralText": "지속 저역 기반",
+      "specializations": [
+        {
+          "text": "드론",
+          "genreFamilies": [
+            "Ambient",
+            "Traditional"
+          ],
+          "minGenreConfidence": 0.6
+        },
+        {
+          "text": "페달 포인트",
+          "genreFamilies": [
+            "Classical"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "role.foundationLayer",
+        "role.bassFunction"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "lead_exchange",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "role.leadTransitionRate",
+          "min": 0.22
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 2
+        }
+      ],
+      "neutralText": "교대 응답",
+      "specializations": [
+        {
+          "text": "콜 앤 리스폰스",
+          "genreFamilies": [
+            "Jazz",
+            "Gospel",
+            "Funk",
+            "Blues"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "role.leadTransitionRate",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "tonal_focus",
+      "facet": "performance",
+      "match": [
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.65
+        },
+        {
+          "path": "tonal.pitchSetBreadth",
+          "max": 8
+        }
+      ],
+      "neutralText": "조성 중심 선율",
+      "specializations": [],
+      "anchors": [
+        "tonal.tonalFocus",
+        "tonal.pitchSetBreadth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "pentatonic_set",
+      "facet": "performance",
+      "match": [
+        {
+          "path": "tonal.pitchSetBreadth",
+          "min": 4,
+          "max": 6
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "5음 음계 경향",
+      "specializations": [
+        {
+          "text": "펜타토닉",
+          "genreFamilies": [
+            "Blues",
+            "Folk",
+            "Traditional"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "tonal.pitchSetBreadth",
+        "tonal.tonalFocus"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "drone_harmony",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "tonal.drone",
+          "min": 0.62
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.65
+        }
+      ],
+      "neutralText": "모달 지속",
+      "specializations": [
+        {
+          "text": "드론 하모니",
+          "genreFamilies": [
+            "Ambient",
+            "Traditional"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "tonal.drone",
+        "texture.sustainRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "sharp_articulation",
+      "facet": "performance",
+      "match": [
+        {
+          "path": "articulation.attackSharpness",
+          "min": 0.7
+        },
+        {
+          "path": "articulation.noteLengthRatio",
+          "max": 0.45
+        }
+      ],
+      "neutralText": "스타카토 어택",
+      "specializations": [],
+      "anchors": [
+        "articulation.attackSharpness",
+        "articulation.noteLengthRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 6000
+    },
+    {
+      "id": "repetitive_form",
+      "facet": "arrangement",
+      "match": [
+        {
+          "path": "form.repetitionDepth",
+          "min": 0.7
+        },
+        {
+          "path": "form.sectionNovelty",
+          "max": 0.45
+        }
+      ],
+      "neutralText": "순환 형식",
+      "specializations": [],
+      "anchors": [
+        "form.repetitionDepth",
+        "form.sectionNovelty"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "buildup_release",
+      "facet": "live",
+      "match": [
+        {
+          "path": "form.buildupSlope",
+          "min": 0.72
+        },
+        {
+          "path": "form.releaseDepth",
+          "min": 0.68
+        },
+        {
+          "path": "form.sectionNovelty",
+          "min": 0.6
+        }
+      ],
+      "neutralText": "전개와 해소",
+      "specializations": [
+        {
+          "text": "드롭",
+          "genreFamilies": [
+            "Electronic",
+            "House",
+            "Techno",
+            "Bass"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "form.buildupSlope",
+        "form.releaseDepth",
+        "form.sectionNovelty"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 4500
+    },
+    {
+      "id": "periodic_ducking",
+      "facet": "production",
+      "match": [
+        {
+          "path": "production.periodicDucking",
+          "min": 0.72
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.65
+        }
+      ],
+      "neutralText": "주기적 음량 감쇠",
+      "specializations": [
+        {
+          "text": "사이드체인 펌핑",
+          "genreFamilies": [
+            "House",
+            "Electronic",
+            "Future Funk"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "production.periodicDucking",
+        "pulse.pulsePresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "dark_saturation",
+      "facet": "production",
+      "match": [
+        {
+          "path": "production.spectralTilt",
+          "min": 0.18
+        },
+        {
+          "path": "production.saturationAmount",
+          "min": 0.62
+        }
+      ],
+      "neutralText": "어두운 포화 질감",
+      "specializations": [
+        {
+          "text": "로파이 질감",
+          "genreFamilies": [
+            "Lo-Fi",
+            "Hip-Hop",
+            "Vaporwave"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "production.spectralTilt",
+        "production.saturationAmount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "rhythm_syncopated_grid",
+      "facet": "rhythm",
+      "semanticFamily": "syncopated-groove",
+      "required": [
+        {
+          "path": "pulse.syncopation",
+          "min": 0.62
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.45
+        }
+      ],
+      "supporting": [
+        {
+          "path": "pulse.offbeatActivity",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "싱코페이션 그루브",
+      "specializations": [
+        {
+          "text": "엇갈린 그루브",
+          "genreFamilies": [
+            "UK Garage",
+            "Future Garage"
+          ],
+          "minGenreConfidence": 0.62
+        },
+        {
+          "text": "펑키한 싱코페이션",
+          "genreFamilies": [
+            "Funk",
+            "Jazz Funk"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "pulse.syncopation",
+        "pulse.metricStability"
+      ],
+      "persistenceMs": 8500
+    },
+    {
+      "id": "rhythm_shuffled_grid",
+      "facet": "rhythm",
+      "semanticFamily": "swing-shuffle",
+      "required": [
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.62
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.45
+        }
+      ],
+      "contradicting": [
+        {
+          "path": "pulse.pulsePresence",
+          "max": 0.18
+        }
+      ],
+      "neutralText": "셔플 그루브",
+      "specializations": [
+        {
+          "text": "스윙 그루브",
+          "genreFamilies": [
+            "Jazz",
+            "Bebop",
+            "Swing"
+          ],
+          "minGenreConfidence": 0.6
+        },
+        {
+          "text": "2-Step 스윙",
+          "genreFamilies": [
+            "UK Garage",
+            "Future Garage"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "pulse.shuffleStrength",
+        "pulse.metricStability"
+      ],
+      "persistenceMs": 8500
+    },
+    {
+      "id": "rhythm_broken_drive",
+      "facet": "rhythm",
+      "semanticFamily": "broken-beat",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.58
+        },
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.52
+        }
+      ],
+      "supporting": [
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "브로큰 비트",
+      "specializations": [
+        {
+          "text": "브레이크비트 추진력",
+          "genreFamilies": [
+            "Jungle",
+            "Drum & Bass",
+            "Breakcore"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.rhythmicEntropy"
+      ],
+      "persistenceMs": 8000
+    },
+    {
+      "id": "rhythm_dense_breaks",
+      "facet": "rhythm",
+      "semanticFamily": "rolling-breaks",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.7
+        },
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.68
+        },
+        {
+          "path": "pulse.tempo",
+          "min": 150
+        }
+      ],
+      "supporting": [
+        {
+          "path": "pulse.rhythmicVariation",
+          "min": 0.42
+        }
+      ],
+      "neutralText": "고밀도 브레이크",
+      "specializations": [
+        {
+          "text": "롤링 브레이크",
+          "genreFamilies": [
+            "Jungle",
+            "Drum & Bass",
+            "Liquid DnB"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.onsetDensity",
+        "pulse.tempo"
+      ],
+      "persistenceMs": 7500
+    },
+    {
+      "id": "rhythm_half_time",
+      "facet": "rhythm",
+      "semanticFamily": "metric-feel",
+      "required": [
+        {
+          "path": "pulse.halfTimeLikelihood",
+          "min": 0.72
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "하프타임 필",
+      "specializations": [],
+      "anchors": [
+        "pulse.halfTimeLikelihood",
+        "pulse.pulsePresence"
+      ],
+      "persistenceMs": 8000
+    },
+    {
+      "id": "rhythm_double_time",
+      "facet": "rhythm",
+      "semanticFamily": "metric-feel",
+      "required": [
+        {
+          "path": "pulse.doubleTimeLikelihood",
+          "min": 0.72
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "더블타임 필",
+      "specializations": [],
+      "anchors": [
+        "pulse.doubleTimeLikelihood",
+        "pulse.pulsePresence"
+      ],
+      "persistenceMs": 8000
+    },
+    {
+      "id": "rhythm_repeating_cell",
+      "facet": "rhythm",
+      "semanticFamily": "rhythmic-repetition",
+      "required": [
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.72
+        },
+        {
+          "path": "pulse.grooveStability",
+          "min": 0.58
+        }
+      ],
+      "neutralText": "반복 리듬 셀",
+      "specializations": [],
+      "anchors": [
+        "pulse.rhythmicRepetition",
+        "pulse.grooveStability"
+      ],
+      "persistenceMs": 9500
+    },
+    {
+      "id": "harmony_slow_motion",
+      "facet": "performance",
+      "semanticFamily": "harmonic-motion",
+      "required": [
+        {
+          "path": "harmony.harmonicRhythm",
+          "max": 0.3
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "느린 화성 변화",
+      "specializations": [],
+      "anchors": [
+        "harmony.harmonicRhythm",
+        "tonal.tonalFocus"
+      ],
+      "persistenceMs": 11000
+    },
+    {
+      "id": "harmony_active_motion",
+      "supporting": [
+        {
+          "path": "harmony.harmonicMotionDirection",
+          "min": 0.15
+        }
+      ],
+      "facet": "performance",
+      "semanticFamily": "harmonic-motion",
+      "required": [
+        {
+          "path": "harmony.harmonicRhythm",
+          "min": 0.7
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "빠른 화성 이동",
+      "specializations": [
+        {
+          "text": "복잡한 화성 이동",
+          "genreFamilies": [
+            "Jazz",
+            "Bebop",
+            "Fusion Jazz"
+          ],
+          "minGenreConfidence": 0.66
+        }
+      ],
+      "anchors": [
+        "harmony.harmonicRhythm",
+        "tonal.tonalFocus"
+      ],
+      "persistenceMs": 10000
+    },
+    {
+      "id": "harmony_tonal_ambiguity",
+      "facet": "performance",
+      "semanticFamily": "tonal-ambiguity",
+      "required": [
+        {
+          "path": "harmony.tonalAmbiguity",
+          "min": 0.72
+        },
+        {
+          "path": "harmony.chromaticity",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "모호한 조성 중심",
+      "specializations": [],
+      "anchors": [
+        "harmony.tonalAmbiguity",
+        "harmony.chromaticity"
+      ],
+      "persistenceMs": 10000
+    },
+    {
+      "id": "harmony_pedal_foundation",
+      "facet": "arrangement",
+      "semanticFamily": "pedal-drone",
+      "required": [
+        {
+          "path": "harmony.pedalToneLikelihood",
+          "min": 0.68
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.62
+        }
+      ],
+      "neutralText": "페달 톤 기반",
+      "specializations": [
+        {
+          "text": "드론 기반",
+          "genreFamilies": [
+            "Ambient",
+            "Drone"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "harmony.pedalToneLikelihood",
+        "texture.sustainRatio"
+      ],
+      "persistenceMs": 12000
+    },
+    {
+      "id": "harmony_repeating_cycle",
+      "facet": "arrangement",
+      "semanticFamily": "harmonic-repetition",
+      "required": [
+        {
+          "path": "harmony.harmonicRepetition",
+          "min": 0.72
+        },
+        {
+          "path": "form.repetitionDepth",
+          "min": 0.62
+        }
+      ],
+      "neutralText": "반복 화성 사이클",
+      "specializations": [],
+      "anchors": [
+        "harmony.harmonicRepetition",
+        "form.repetitionDepth"
+      ],
+      "persistenceMs": 12000
+    },
+    {
+      "id": "melody_ascending_contour",
+      "supporting": [
+        {
+          "path": "melody.contourSlope",
+          "min": 0.25
+        }
+      ],
+      "facet": "performance",
+      "semanticFamily": "melodic-contour",
+      "required": [
+        {
+          "path": "melody.melodicDirection",
+          "equals": "ascending"
+        },
+        {
+          "path": "melody.melodicRange",
+          "min": 0.38
+        }
+      ],
+      "neutralText": "상행 선율",
+      "specializations": [],
+      "anchors": [
+        "melody.melodicDirection",
+        "melody.melodicRange"
+      ],
+      "persistenceMs": 7500
+    },
+    {
+      "id": "melody_descending_contour",
+      "supporting": [
+        {
+          "path": "melody.contourSlope",
+          "max": -0.25
+        }
+      ],
+      "facet": "performance",
+      "semanticFamily": "melodic-contour",
+      "required": [
+        {
+          "path": "melody.melodicDirection",
+          "equals": "descending"
+        },
+        {
+          "path": "melody.melodicRange",
+          "min": 0.38
+        }
+      ],
+      "neutralText": "하행 선율",
+      "specializations": [],
+      "anchors": [
+        "melody.melodicDirection",
+        "melody.melodicRange"
+      ],
+      "persistenceMs": 7500
+    },
+    {
+      "id": "melody_stepwise",
+      "facet": "performance",
+      "semanticFamily": "melodic-motion",
+      "required": [
+        {
+          "path": "melody.stepwiseMotion",
+          "min": 0.72
+        },
+        {
+          "path": "melody.melodicDensity",
+          "min": 0.35
+        }
+      ],
+      "neutralText": "순차 진행 선율",
+      "specializations": [],
+      "anchors": [
+        "melody.stepwiseMotion",
+        "melody.melodicDensity"
+      ],
+      "persistenceMs": 8500
+    },
+    {
+      "id": "melody_leaping",
+      "supporting": [
+        {
+          "path": "tonal.melodicContourRange",
+          "min": 0.4
+        }
+      ],
+      "facet": "performance",
+      "semanticFamily": "melodic-motion",
+      "required": [
+        {
+          "path": "melody.leapLikelihood",
+          "min": 0.72
+        },
+        {
+          "path": "melody.melodicRange",
+          "min": 0.58
+        }
+      ],
+      "neutralText": "도약 선율",
+      "specializations": [],
+      "anchors": [
+        "melody.leapLikelihood",
+        "melody.melodicRange"
+      ],
+      "persistenceMs": 8500
+    },
+    {
+      "id": "melody_recurring_motif",
+      "facet": "performance",
+      "semanticFamily": "motif",
+      "required": [
+        {
+          "path": "melody.motifRecurrence",
+          "min": 0.7
+        },
+        {
+          "path": "melody.phraseRegularity",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "되풀이되는 모티프",
+      "specializations": [],
+      "anchors": [
+        "melody.motifRecurrence",
+        "melody.phraseRegularity"
+      ],
+      "persistenceMs": 10500
+    },
+    {
+      "id": "melody_call_response",
+      "facet": "arrangement",
+      "semanticFamily": "call-response",
+      "required": [
+        {
+          "path": "melody.callResponseLikelihood",
+          "min": 0.7
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 2
+        }
+      ],
+      "neutralText": "주고받는 선율",
+      "specializations": [
+        {
+          "text": "콜 앤 리스폰스",
+          "genreFamilies": [
+            "Funk",
+            "Jazz",
+            "Gospel",
+            "Blues"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "melody.callResponseLikelihood",
+        "texture.voiceCount"
+      ],
+      "persistenceMs": 9000
+    },
+    {
+      "id": "bass_root_anchor",
+      "facet": "performance",
+      "semanticFamily": "bass-role",
+      "required": [
+        {
+          "path": "bass.rootFollowing",
+          "min": 0.72
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "근음 중심 베이스",
+      "specializations": [],
+      "anchors": [
+        "bass.rootFollowing",
+        "bass.bassPresence"
+      ],
+      "persistenceMs": 9500
+    },
+    {
+      "id": "bass_melodic_motion",
+      "facet": "performance",
+      "semanticFamily": "bass-role",
+      "required": [
+        {
+          "path": "bass.bassMotion",
+          "min": 0.65
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.58
+        }
+      ],
+      "supporting": [
+        {
+          "path": "bass.rootFollowing",
+          "max": 0.48
+        }
+      ],
+      "neutralText": "선율적인 베이스",
+      "specializations": [],
+      "anchors": [
+        "bass.bassMotion",
+        "bass.bassPresence"
+      ],
+      "persistenceMs": 9500
+    },
+    {
+      "id": "bass_syncopated",
+      "facet": "performance",
+      "semanticFamily": "bass-rhythm",
+      "required": [
+        {
+          "path": "bass.syncopation",
+          "min": 0.68
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.58
+        }
+      ],
+      "neutralText": "싱코페이션 베이스",
+      "specializations": [
+        {
+          "text": "펑키 베이스",
+          "genreFamilies": [
+            "Funk",
+            "City Pop",
+            "Disco"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "bass.syncopation",
+        "bass.bassPresence"
+      ],
+      "persistenceMs": 9000
+    },
+    {
+      "id": "bass_ostinato",
+      "facet": "performance",
+      "semanticFamily": "bass-repetition",
+      "required": [
+        {
+          "path": "bass.ostinatoLikelihood",
+          "min": 0.7
+        },
+        {
+          "path": "bass.repetition",
+          "min": 0.68
+        }
+      ],
+      "neutralText": "베이스 오스티나토",
+      "specializations": [
+        {
+          "text": "반복 베이스",
+          "genreFamilies": [
+            "Electronic",
+            "Techno",
+            "Funk"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "bass.ostinatoLikelihood",
+        "bass.repetition"
+      ],
+      "persistenceMs": 10000
+    },
+    {
+      "id": "bass_kick_lock",
+      "facet": "rhythm",
+      "semanticFamily": "kick-bass-lock",
+      "required": [
+        {
+          "path": "bass.bassKickInteraction",
+          "min": 0.74
+        },
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.62
+        }
+      ],
+      "neutralText": "킥과 베이스의 맞물림",
+      "specializations": [],
+      "anchors": [
+        "bass.bassKickInteraction",
+        "pulse.kickPeriodicity"
+      ],
+      "persistenceMs": 8000
+    },
+    {
+      "id": "production_bright_polish",
+      "facet": "production",
+      "semanticFamily": "bright-production",
+      "required": [
+        {
+          "path": "production.brightness",
+          "min": 0.72
+        },
+        {
+          "path": "production.roughness",
+          "max": 0.45
+        }
+      ],
+      "supporting": [
+        {
+          "path": "production.compressionLikelihood",
+          "min": 0.45
+        }
+      ],
+      "neutralText": "밝고 매끈한 프로덕션",
+      "specializations": [],
+      "anchors": [
+        "production.brightness",
+        "production.roughness"
+      ],
+      "persistenceMs": 11000
+    },
+    {
+      "id": "production_dense_compression",
+      "facet": "production",
+      "semanticFamily": "compression",
+      "required": [
+        {
+          "path": "production.compressionLikelihood",
+          "min": 0.75
+        },
+        {
+          "path": "articulation.dynamicAccentRange",
+          "max": 0.45
+        }
+      ],
+      "neutralText": "압축된 다이내믹",
+      "specializations": [],
+      "anchors": [
+        "production.compressionLikelihood",
+        "articulation.dynamicAccentRange"
+      ],
+      "persistenceMs": 10000
+    },
+    {
+      "id": "production_filter_motion",
+      "facet": "production",
+      "semanticFamily": "filter-motion",
+      "required": [
+        {
+          "path": "production.filterMotion",
+          "min": 0.7
+        },
+        {
+          "path": "production.brightness",
+          "min": 0.35
+        }
+      ],
+      "neutralText": "움직이는 필터",
+      "specializations": [
+        {
+          "text": "필터 스윕",
+          "genreFamilies": [
+            "House",
+            "Techno",
+            "Electronic"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "production.filterMotion",
+        "production.brightness"
+      ],
+      "persistenceMs": 7000
+    },
+    {
+      "id": "production_sample_loop",
+      "facet": "production",
+      "semanticFamily": "sample-loop",
+      "required": [
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.7
+        },
+        {
+          "path": "production.sampleRepetition",
+          "min": 0.55
+        }
+      ],
+      "supporting": [
+        {
+          "path": "form.repetitionDepth",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "반복 샘플 구조",
+      "specializations": [
+        {
+          "text": "샘플 루프",
+          "genreFamilies": [
+            "Future Funk",
+            "French House",
+            "Hip-Hop"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "production.sampleBasedLikelihood",
+        "production.sampleRepetition"
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Future Funk",
+            "French House"
+          ],
+          "minGenreConfidence": 0.65,
+          "multiplier": 1.08
+        }
+      ],
+      "persistenceMs": 11000,
+      "contextMode": "MULTIPLIER"
+    },
+    {
+      "id": "production_deep_space",
+      "facet": "production",
+      "semanticFamily": "spatial-depth",
+      "required": [
+        {
+          "path": "production.spatialDepth",
+          "min": 0.75
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.62
+        }
+      ],
+      "neutralText": "깊은 공간감",
+      "specializations": [
+        {
+          "text": "긴 잔향 공간",
+          "genreFamilies": [
+            "Ambient",
+            "Shoegaze",
+            "Drone"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "production.spatialDepth",
+        "texture.sustainRatio"
+      ],
+      "persistenceMs": 12000
+    },
+    {
+      "id": "production_granular_surface",
+      "facet": "production",
+      "semanticFamily": "granular-texture",
+      "required": [
+        {
+          "path": "production.granularity",
+          "min": 0.7
+        },
+        {
+          "path": "production.noisiness",
+          "min": 0.42
+        }
+      ],
+      "neutralText": "입자성 표면",
+      "specializations": [
+        {
+          "text": "글리치 질감",
+          "genreFamilies": [
+            "Glitch",
+            "IDM",
+            "Glitchcore"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "production.granularity",
+        "production.noisiness"
+      ],
+      "persistenceMs": 10000
+    },
+    {
+      "id": "arrangement_sparse_field",
+      "facet": "arrangement",
+      "semanticFamily": "arrangement-density",
+      "required": [
+        {
+          "path": "arrangement.density",
+          "max": 0.28
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "성긴 편성",
+      "specializations": [
+        {
+          "text": "여백이 큰 편성",
+          "genreFamilies": [
+            "Ambient",
+            "Jazz"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "arrangement.density",
+        "texture.sustainRatio"
+      ],
+      "persistenceMs": 11000
+    },
+    {
+      "id": "arrangement_dense_layers",
+      "facet": "arrangement",
+      "semanticFamily": "arrangement-density",
+      "required": [
+        {
+          "path": "arrangement.density",
+          "min": 0.75
+        },
+        {
+          "path": "arrangement.layerCount",
+          "min": 3
+        }
+      ],
+      "neutralText": "조밀한 레이어",
+      "specializations": [
+        {
+          "text": "겹겹의 사운드 월",
+          "genreFamilies": [
+            "Shoegaze",
+            "Post-Rock"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "arrangement.density",
+        "arrangement.layerCount"
+      ],
+      "persistenceMs": 11000
+    },
+    {
+      "id": "arrangement_layer_entry",
+      "facet": "live",
+      "semanticFamily": "layer-change",
+      "required": [
+        {
+          "path": "arrangement.layerEntry",
+          "min": 0.66
+        },
+        {
+          "path": "arrangement.densityDelta",
+          "min": 0.2
+        }
+      ],
+      "neutralText": "새 레이어 유입",
+      "specializations": [],
+      "anchors": [
+        "arrangement.layerEntry",
+        "arrangement.densityDelta"
+      ],
+      "persistenceMs": 4500
+    },
+    {
+      "id": "arrangement_layer_exit",
+      "facet": "live",
+      "semanticFamily": "layer-change",
+      "required": [
+        {
+          "path": "arrangement.layerExit",
+          "min": 0.66
+        },
+        {
+          "path": "arrangement.densityDelta",
+          "max": -0.15
+        }
+      ],
+      "neutralText": "레이어 이탈",
+      "specializations": [],
+      "anchors": [
+        "arrangement.layerExit",
+        "arrangement.densityDelta"
+      ],
+      "persistenceMs": 4500
+    },
+    {
+      "id": "arrangement_breakdown",
+      "facet": "live",
+      "semanticFamily": "section-change",
+      "required": [
+        {
+          "path": "arrangement.breakdownLikelihood",
+          "min": 0.72
+        },
+        {
+          "path": "arrangement.transitionLikelihood",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "편성이 비워지는 구간",
+      "specializations": [
+        {
+          "text": "브레이크다운",
+          "genreFamilies": [
+            "House",
+            "Techno",
+            "Trance",
+            "Electronic"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "arrangement.breakdownLikelihood",
+        "arrangement.transitionLikelihood"
+      ],
+      "persistenceMs": 5000
+    },
+    {
+      "id": "arrangement_build",
+      "facet": "live",
+      "semanticFamily": "section-change",
+      "required": [
+        {
+          "path": "arrangement.buildLikelihood",
+          "min": 0.72
+        },
+        {
+          "path": "arrangement.energyTrajectory",
+          "min": 0.18
+        }
+      ],
+      "neutralText": "밀도가 쌓이는 전개",
+      "specializations": [
+        {
+          "text": "빌드업",
+          "genreFamilies": [
+            "House",
+            "Techno",
+            "Trance",
+            "Electronic"
+          ],
+          "minGenreConfidence": 0.62
+        }
+      ],
+      "anchors": [
+        "arrangement.buildLikelihood",
+        "arrangement.energyTrajectory"
+      ],
+      "persistenceMs": 5000
+    },
+    {
+      "id": "arrangement_foreground_shift",
+      "facet": "live",
+      "semanticFamily": "foreground-change",
+      "required": [
+        {
+          "path": "arrangement.foregroundChange",
+          "min": 0.65
+        },
+        {
+          "path": "arrangement.transitionLikelihood",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "전면 악기 교체",
+      "specializations": [],
+      "anchors": [
+        "arrangement.foregroundChange",
+        "arrangement.transitionLikelihood"
+      ],
+      "persistenceMs": 5000
+    },
+    {
+      "id": "instrument_comping_role",
+      "facet": "performance",
+      "semanticFamily": "comping-role",
+      "required": [
+        {
+          "path": "role.compingLikelihood",
+          "min": 0.62
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.55
+        }
+      ],
+      "neutralText": "코드 반주 패턴",
+      "specializations": [
+        {
+          "text": "컴핑 중심 반주",
+          "genreFamilies": [
+            "Jazz",
+            "Bebop",
+            "Cool Jazz",
+            "Swing",
+            "Jazz Funk",
+            "Fusion Jazz",
+            "City Pop",
+            "AOR"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ],
+      "anchors": [
+        "role.compingLikelihood",
+        "instrument.presenceConfidence"
+      ],
+      "persistenceMs": 8500
+    },
+    {
+      "id": "instrument_solo_structure",
+      "facet": "arrangement",
+      "semanticFamily": "solo-accompaniment",
+      "required": [
+        {
+          "path": "instrument.soloLikelihood",
+          "min": 0.8
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.6
+        },
+        {
+          "path": "instrument.foregroundBackground",
+          "equals": "foreground"
+        }
+      ],
+      "neutralText": "솔로-반주 구조",
+      "specializations": [],
+      "anchors": [
+        "instrument.soloLikelihood",
+        "instrument.presenceConfidence",
+        "instrument.foregroundBackground"
+      ],
+      "persistenceMs": 7000
+    },
+    {
+      "id": "instrument_foreground_entry",
+      "facet": "live",
+      "semanticFamily": "instrument-entry",
+      "required": [
+        {
+          "path": "instrument.entryLikelihood",
+          "min": 0.7
+        },
+        {
+          "path": "instrument.dominanceConfidence",
+          "min": 0.48
+        }
+      ],
+      "neutralText": "전면 악기 진입",
+      "specializations": [],
+      "anchors": [
+        "instrument.entryLikelihood",
+        "instrument.dominanceConfidence"
+      ],
+      "persistenceMs": 4500
+    },
+    {
+      "id": "instrument_detached_attack",
+      "facet": "performance",
+      "semanticFamily": "performance-articulation",
+      "required": [
+        {
+          "path": "instrument.staccato",
+          "min": 0.68
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.5
+        }
+      ],
+      "neutralText": "짧게 끊기는 연주",
+      "specializations": [],
+      "anchors": [
+        "instrument.staccato",
+        "instrument.presenceConfidence"
+      ],
+      "persistenceMs": 7500
+    },
+    {
+      "id": "half_time_feel",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "하프타임 필",
+      "required": [
+        {
+          "path": "pulse.halfTimeLikelihood",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.5
+        }
+      ],
+      "supporting": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "pulse.halfTimeLikelihood",
+        "pulse.tempo"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "double_time_feel",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "더블타임 추진감",
+      "required": [
+        {
+          "path": "pulse.doubleTimeLikelihood",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "pulse.doubleTimeLikelihood",
+        "pulse.onsetDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "pushed_timing",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "당겨진 타이밍",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "max": -0.25
+        },
+        {
+          "path": "pulse.microTimingDeviation",
+          "min": 0.2
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "pulse.microTimingDeviation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "laid_back_timing",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "레이드백 타이밍",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.18
+        },
+        {
+          "path": "pulse.microTimingDeviation",
+          "min": 0.18
+        }
+      ],
+      "specializations": [
+        {
+          "text": "레이드백 스윙",
+          "genreFamilies": [
+            "Jazz",
+            "Blues",
+            "Soul"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "pulse.microTimingDeviation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "tight_pocket_timing",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "타이트한 포켓",
+      "required": [
+        {
+          "path": "pulse.microTimingDeviation",
+          "max": 0.16
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.68
+        }
+      ],
+      "anchors": [
+        "pulse.microTimingDeviation",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "dense_subdivision",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "조밀한 서브디비전",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.72
+        },
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity",
+        "pulse.rhythmicEntropy"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "sparse_beat",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "성긴 비트",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "max": 0.22
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.2
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "rhythmic_entropy_high",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "예측 어려운 리듬 분포",
+      "required": [
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.68
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.35
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicEntropy"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "rhythmic_repetition_high",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "고정 리듬 셀",
+      "required": [
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.75
+        },
+        {
+          "path": "pulse.rhythmicEntropy",
+          "max": 0.35
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicRepetition"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "kick_regularity_high",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "규칙적인 킥 패턴",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.7
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "pulse.onsetDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "kick_irregularity",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "불규칙한 킥 배치",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "max": 0.25
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "offbeat_groove",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "오프비트 그루브",
+      "required": [
+        {
+          "path": "pulse.offbeatActivity",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.accentPlacement",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "pulse.offbeatActivity",
+        "pulse.accentPlacement"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "triplet_feel",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "트리플렛 느낌",
+      "required": [
+        {
+          "path": "pulse.subdivisionRatio",
+          "min": 1.7,
+          "max": 2.3
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "pulse.subdivisionRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "straight_subdivision",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "스트레이트 서브디비전",
+      "required": [
+        {
+          "path": "pulse.subdivisionRatio",
+          "max": 1.2
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.subdivisionRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "stop_time_break",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "정지형 브레이크",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "max": 0.18
+        },
+        {
+          "path": "form.transitionLikelihood",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity",
+        "form.transitionLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 6000
+    },
+    {
+      "id": "cross_rhythm_tension",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "교차 리듬 긴장",
+      "required": [
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.syncopation",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicEntropy",
+        "pulse.syncopation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "house_offbeat_hat",
+      "facet": "rhythm",
+      "semanticFamily": "house-rhythm",
+      "neutralText": "오프비트 하이햇",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.offbeatActivity",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "pulse.offbeatActivity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "House",
+          "Techno",
+          "Disco"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "house_clap_backbeat",
+      "facet": "rhythm",
+      "semanticFamily": "house-rhythm",
+      "neutralText": "클랩 백비트",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.accentPeriodicity",
+          "equals": 4
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "pulse.accentPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "House",
+          "Techno",
+          "Disco"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "pumping_groove",
+      "facet": "rhythm",
+      "semanticFamily": "house-rhythm",
+      "neutralText": "펌핑 그루브",
+      "required": [
+        {
+          "path": "production.pumpingLikelihood",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "production.pumpingLikelihood",
+        "pulse.kickPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "filter_loop_motion",
+      "facet": "production",
+      "semanticFamily": "house-production",
+      "neutralText": "필터 루프",
+      "required": [
+        {
+          "path": "production.filterMotion",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "production.filterMotion",
+        "pulse.rhythmicRepetition"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "disco_house_lineage_groove",
+      "facet": "rhythm",
+      "semanticFamily": "house-rhythm",
+      "neutralText": "디스코 기반 하우스 그루브",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.55
+        },
+        {
+          "path": "production.warmth",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "production.warmth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "House",
+          "Disco",
+          "Nu Disco"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "garage_two_step",
+      "facet": "rhythm",
+      "semanticFamily": "garage-rhythm",
+      "neutralText": "2-Step 스윙",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.4
+        }
+      ],
+      "contradicting": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.shuffleStrength"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "UK Garage",
+          "Garage",
+          "2-Step"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "garage_kick_gap_pattern",
+      "facet": "rhythm",
+      "semanticFamily": "garage-rhythm",
+      "neutralText": "킥 공백형 패턴",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "max": 0.35
+        },
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "pulse.breakDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "shuffling_hat_pattern",
+      "facet": "rhythm",
+      "semanticFamily": "garage-rhythm",
+      "neutralText": "셔플링 하이햇",
+      "required": [
+        {
+          "path": "pulse.subdivisionRatio",
+          "min": 1.4,
+          "max": 2.2
+        },
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "pulse.subdivisionRatio",
+        "pulse.onsetDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "trailing_snare",
+      "facet": "rhythm",
+      "semanticFamily": "garage-rhythm",
+      "neutralText": "후행 스네어",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.15
+        },
+        {
+          "path": "pulse.accentPlacement",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "pulse.accentPlacement"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "UK Garage",
+          "Garage"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "broken_garage_groove",
+      "facet": "rhythm",
+      "semanticFamily": "garage-rhythm",
+      "neutralText": "브로큰 개러지 그루브",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.rhythmicEntropy"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "UK Garage",
+          "Garage",
+          "Future Garage"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "amen_style_break",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "아멘형 브레이크",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.75
+        },
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.65
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Jungle",
+            "Drum & Bass"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.onsetDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Jungle",
+          "Drum & Bass"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "rolling_break",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "롤링 브레이크",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.65
+        },
+        {
+          "path": "pulse.tempo",
+          "min": 150
+        }
+      ],
+      "specializations": [
+        {
+          "text": "롤링 리퀴드 브레이크",
+          "genreFamilies": [
+            "Liquid DnB"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.tempo"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "chopped_break",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "촙된 브레이크",
+      "required": [
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.65
+        },
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicEntropy",
+        "pulse.breakDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "double_time_propulsion",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "더블타임 추진",
+      "required": [
+        {
+          "path": "pulse.doubleTimeLikelihood",
+          "min": 0.4
+        },
+        {
+          "path": "pulse.tempo",
+          "min": 150
+        }
+      ],
+      "anchors": [
+        "pulse.doubleTimeLikelihood",
+        "pulse.tempo"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "syncopated_break",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "싱코페이트 브레이크",
+      "required": [
+        {
+          "path": "pulse.syncopation",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "pulse.syncopation",
+        "pulse.breakDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "kick_snare_fragmentation",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "킥-스네어 분절",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "max": 0.3
+        },
+        {
+          "path": "pulse.microTimingDeviation",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "pulse.microTimingDeviation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "half_time_bassline_over_fast_break",
+      "facet": "rhythm",
+      "semanticFamily": "breakbeat-rhythm",
+      "neutralText": "고속 브레이크 위 하프타임 베이스",
+      "required": [
+        {
+          "path": "pulse.halfTimeLikelihood",
+          "min": 0.35
+        },
+        {
+          "path": "pulse.tempo",
+          "min": 150
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.35
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Liquid DnB",
+            "Drum & Bass"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.halfTimeLikelihood",
+        "pulse.tempo",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "contextMode": "MULTIPLIER"
+    },
+    {
+      "id": "in_the_pocket",
+      "facet": "rhythm",
+      "semanticFamily": "funk-rhythm",
+      "neutralText": "포켓 그루브",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.12
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.syncopation",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "pulse.syncopation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "sixteenth_note_groove",
+      "facet": "rhythm",
+      "semanticFamily": "funk-rhythm",
+      "neutralText": "16비트 그루브",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.6
+        },
+        {
+          "path": "pulse.subdivisionRatio",
+          "max": 1.3
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity",
+        "pulse.subdivisionRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "syncopated_bass_groove",
+      "facet": "rhythm",
+      "semanticFamily": "funk-rhythm",
+      "neutralText": "싱코페이트 베이스 그루브",
+      "required": [
+        {
+          "path": "bass.syncopation",
+          "min": 0.5
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "bass.syncopation",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "tight_drum_bass_lock",
+      "facet": "rhythm",
+      "semanticFamily": "funk-rhythm",
+      "neutralText": "드럼-베이스 락",
+      "required": [
+        {
+          "path": "bass.bassKickInteraction",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "bass.bassKickInteraction",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "ride_led_swing",
+      "facet": "rhythm",
+      "semanticFamily": "jazz-rhythm",
+      "neutralText": "라이드 중심 스윙",
+      "required": [
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.35
+        }
+      ],
+      "anchors": [
+        "pulse.shuffleStrength",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Jazz",
+          "Bebop",
+          "Cool Jazz",
+          "Swing"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "comping_displacement",
+      "facet": "performance",
+      "semanticFamily": "jazz-performance",
+      "neutralText": "컴핑 엇박 배치",
+      "required": [
+        {
+          "path": "pulse.accentPlacement",
+          "min": 0.5
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.35
+        }
+      ],
+      "anchors": [
+        "pulse.accentPlacement",
+        "instrument.presenceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Jazz",
+          "Bebop",
+          "Cool Jazz",
+          "Fusion Jazz"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "laid_back_phrasing",
+      "facet": "performance",
+      "semanticFamily": "jazz-performance",
+      "neutralText": "레이드백 프레이징",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.18
+        },
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.35
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "pulse.shuffleStrength"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Jazz",
+          "Bebop",
+          "Cool Jazz",
+          "Blues",
+          "Soul"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "pedal_tone_center",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "페달 톤 중심",
+      "required": [
+        {
+          "path": "tonal.drone",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "tonal.drone",
+        "tonal.tonalFocus"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "drone_harmony_field",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "드론 화성",
+      "required": [
+        {
+          "path": "tonal.drone",
+          "min": 0.6
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.6
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Ambient",
+            "Drone",
+            "Traditional"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "tonal.drone",
+        "texture.sustainRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 14000,
+      "contextMode": "MULTIPLIER"
+    },
+    {
+      "id": "slow_harmonic_rhythm",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "느린 화성 진행",
+      "required": [
+        {
+          "path": "tonal.harmonicRhythm",
+          "max": 0.3
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "tonal.harmonicRhythm"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "rapid_harmonic_rhythm",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "빠른 화성 변화",
+      "required": [
+        {
+          "path": "tonal.harmonicRhythm",
+          "min": 0.65
+        }
+      ],
+      "anchors": [
+        "tonal.harmonicRhythm"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "cyclical_progression",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "순환 진행",
+      "required": [
+        {
+          "path": "form.repetitionDepth",
+          "min": 0.65
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "form.repetitionDepth",
+        "tonal.tonalFocus"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "chromatic_ambiguity",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "반음계적 모호함",
+      "required": [
+        {
+          "path": "harmony.chromaticity",
+          "min": 0.6
+        },
+        {
+          "path": "harmony.tonalAmbiguity",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "harmony.chromaticity",
+        "harmony.tonalAmbiguity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "clear_tonal_center",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "명확한 조성 중심",
+      "required": [
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.68
+        },
+        {
+          "path": "harmony.tonalAmbiguity",
+          "max": 0.35
+        }
+      ],
+      "anchors": [
+        "tonal.tonalFocus",
+        "harmony.tonalAmbiguity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "bass_led_harmonic_motion",
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "베이스 주도 화성 진행",
+      "required": [
+        {
+          "path": "harmony.bassMotion",
+          "min": 0.5
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "harmony.bassMotion",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "extended_harmony_tendency",
+      "supporting": [
+        {
+          "path": "harmony.harmonicDensity",
+          "min": 0.6
+        }
+      ],
+      "facet": "arrangement",
+      "semanticFamily": "harmony-general",
+      "neutralText": "확장화음 경향",
+      "required": [
+        {
+          "path": "harmony.chromaticity",
+          "min": 0.45
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.5
+        },
+        {
+          "path": "harmony.harmonicRhythm",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "harmony.chromaticity",
+        "tonal.tonalFocus"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "melodic_bass_role",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "선율적 베이스",
+      "required": [
+        {
+          "path": "bass.bassMelodicRole",
+          "equals": "melodic"
+        },
+        {
+          "path": "bass.bassMotion",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "bass.bassMelodicRole",
+        "bass.bassMotion"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "bass_ostinato_cell",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "베이스 오스티나토",
+      "required": [
+        {
+          "path": "bass.repetition",
+          "min": 0.68
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "bass.repetition",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000
+    },
+    {
+      "id": "root_anchored_bass",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "루트 중심 베이스",
+      "required": [
+        {
+          "path": "bass.bassMotion",
+          "max": 0.25
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "bass.bassMotion",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "synth_lead_presence",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "신스 리드",
+      "required": [
+        {
+          "path": "role.leadPresence",
+          "min": 0.55
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "role.leadPresence",
+        "instrument.presenceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "pad_sustain_layer",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "지속되는 화성 층",
+      "required": [
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.65
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 2
+        }
+      ],
+      "anchors": [
+        "texture.sustainRatio",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "ensemble_improvisation_texture",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "번갈아 앞서는 앙상블",
+      "required": [
+        {
+          "path": "texture.textureClass",
+          "equals": "polyphonic"
+        },
+        {
+          "path": "texture.dominanceDispersion",
+          "min": 0.55
+        },
+        {
+          "path": "role.leadTransitionRate",
+          "min": 0.12
+        }
+      ],
+      "anchors": [
+        "texture.textureClass",
+        "texture.dominanceDispersion",
+        "role.leadTransitionRate"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "contextMode": "MULTIPLIER",
+      "specializations": [
+        {
+          "text": "즉흥 앙상블 짜임새",
+          "genreFamilies": [
+            "Jazz",
+            "Dixieland",
+            "New Orleans",
+            "Bebop",
+            "Fusion Jazz"
+          ],
+          "minGenreConfidence": 0.65
+        }
+      ]
+    },
+    {
+      "id": "unison_texture",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "유니즌 짜임새",
+      "required": [
+        {
+          "path": "texture.textureClass",
+          "equals": "monophonic"
+        },
+        {
+          "path": "texture.voiceCount",
+          "equals": 1
+        }
+      ],
+      "anchors": [
+        "texture.textureClass"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "trio_ensemble_texture",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "트리오 편성 짜임새",
+      "required": [
+        {
+          "path": "arrangement.verifiedEnsembleSize",
+          "equals": 3
+        }
+      ],
+      "anchors": [
+        "arrangement.verifiedEnsembleSize"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 14000
+    },
+    {
+      "id": "foreground_instrument_dominance",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "전경 악기 지배",
+      "required": [
+        {
+          "path": "instrument.dominanceConfidence",
+          "min": 0.6
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "instrument.dominanceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "sub_heavy_mix",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "서브베이스 중심 믹스",
+      "required": [
+        {
+          "path": "production.lowEndWeight",
+          "min": 0.68
+        }
+      ],
+      "anchors": [
+        "production.lowEndWeight"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "airy_high_mix",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "에어리한 고역 믹스",
+      "required": [
+        {
+          "path": "production.airiness",
+          "min": 0.65
+        }
+      ],
+      "anchors": [
+        "production.airiness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "distortion_layer_present",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "디스토션 레이어",
+      "required": [
+        {
+          "path": "production.distortionLikelihood",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "production.distortionLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "long_reverb_tail",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "긴 잔향 공간",
+      "required": [
+        {
+          "path": "production.reverbTail",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "production.reverbTail"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "wall_of_sound_density",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "겹겹의 사운드 월",
+      "required": [
+        {
+          "path": "production.reverbTail",
+          "min": 0.55
+        },
+        {
+          "path": "production.distortionLikelihood",
+          "min": 0.5
+        },
+        {
+          "path": "form.density",
+          "min": 0.6
+        }
+      ],
+      "specializations": [
+        {
+          "text": "슈게이즈식 월 오브 사운드",
+          "genreFamilies": [
+            "Shoegaze",
+            "Dream Pop"
+          ],
+          "minGenreConfidence": 0.6
+        }
+      ],
+      "anchors": [
+        "production.reverbTail",
+        "production.distortionLikelihood",
+        "form.density"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000
+    },
+    {
+      "id": "clean_studio_production",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "깨끗한 스튜디오 프로덕션",
+      "required": [
+        {
+          "path": "production.noisiness",
+          "max": 0.3
+        },
+        {
+          "path": "production.roughness",
+          "max": 0.3
+        }
+      ],
+      "anchors": [
+        "production.noisiness",
+        "production.roughness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "granular_texture_layer",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "그래뉼러 텍스처",
+      "required": [
+        {
+          "path": "production.granularity",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "production.granularity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "sample_loop_repetition",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "샘플 루프",
+      "required": [
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.65
+        },
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "production.sampleBasedLikelihood",
+        "pulse.rhythmicRepetition"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "spacious_stereo_field",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "넓은 스테레오 공간",
+      "required": [
+        {
+          "path": "production.stereoWidth",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "production.stereoWidth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000
+    },
+    {
+      "id": "mono_centered_mix",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "모노 중심 믹스",
+      "required": [
+        {
+          "path": "production.monoFocus",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "production.monoFocus"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000
+    },
+    {
+      "id": "sharp_transient_mix",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "선명한 트랜지언트 믹스",
+      "required": [
+        {
+          "path": "production.transientSharpness",
+          "min": 0.65
+        }
+      ],
+      "anchors": [
+        "production.transientSharpness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "softened_transient_mix",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "부드러운 트랜지언트 믹스",
+      "required": [
+        {
+          "path": "production.transientSoftness",
+          "min": 0.65
+        }
+      ],
+      "anchors": [
+        "production.transientSoftness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "citypop_rhythm_guitar_comping",
+      "facet": "performance",
+      "semanticFamily": "citypop-idiom",
+      "neutralText": "리듬 기타 컴핑",
+      "required": [
+        {
+          "path": "pulse.syncopation",
+          "min": 0.5
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.4
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "City Pop",
+            "AOR",
+            "Jazz Funk"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.syncopation",
+        "instrument.presenceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "City Pop",
+          "AOR",
+          "Jazz Funk"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "citypop_smooth_harmonic_motion",
+      "facet": "arrangement",
+      "semanticFamily": "citypop-idiom",
+      "neutralText": "부드러운 화성 이동",
+      "required": [
+        {
+          "path": "tonal.harmonicRhythm",
+          "min": 0.35,
+          "max": 0.7
+        },
+        {
+          "path": "harmony.tonalAmbiguity",
+          "max": 0.45
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "City Pop",
+            "AOR",
+            "Jazz Funk",
+            "Fusion Jazz"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "tonal.harmonicRhythm",
+        "harmony.tonalAmbiguity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "City Pop",
+          "AOR",
+          "Jazz Funk",
+          "Fusion Jazz"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "citypop_melodic_bassline",
+      "facet": "performance",
+      "semanticFamily": "citypop-idiom",
+      "neutralText": "선율적 베이스 라인",
+      "required": [
+        {
+          "path": "bass.bassMotion",
+          "min": 0.5
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.45
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "City Pop",
+            "AOR",
+            "Jazz Funk"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "bass.bassMotion",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "City Pop",
+          "AOR",
+          "Jazz Funk"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "citypop_studio_sheen",
+      "facet": "production",
+      "semanticFamily": "citypop-idiom",
+      "neutralText": "도시적 스튜디오 프로덕션",
+      "required": [
+        {
+          "path": "production.noisiness",
+          "max": 0.35
+        },
+        {
+          "path": "production.brightness",
+          "min": 0.4,
+          "max": 0.75
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "City Pop",
+            "AOR"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "production.noisiness",
+        "production.brightness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000,
+      "requiredContext": {
+        "genreFamilies": [
+          "City Pop",
+          "AOR"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "citypop_ensemble_pocket",
+      "facet": "rhythm",
+      "semanticFamily": "citypop-idiom",
+      "neutralText": "세션 연주 그루브",
+      "required": [
+        {
+          "path": "pulse.metricStability",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.05
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "City Pop",
+            "AOR",
+            "Jazz Funk",
+            "Funk"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.metricStability",
+        "pulse.groovePushPull"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "City Pop",
+          "AOR",
+          "Jazz Funk",
+          "Funk"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "futurefunk_french_house_lineage",
+      "facet": "production",
+      "semanticFamily": "futurefunk-idiom",
+      "neutralText": "French House 계보 프로덕션",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.6
+        },
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.5
+        },
+        {
+          "path": "production.pumpingLikelihood",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Future Funk",
+            "French House"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "production.sampleBasedLikelihood",
+        "production.pumpingLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Future Funk",
+          "French House"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "futurefunk_rhythmic_vocal_sampling",
+      "facet": "production",
+      "semanticFamily": "futurefunk-idiom",
+      "neutralText": "리듬처럼 쓰인 보컬 샘플",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.5
+        },
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.55
+        }
+      ],
+      "supporting": [
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.3
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Future Funk",
+            "Vaporwave"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity",
+        "production.sampleBasedLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Future Funk",
+          "Vaporwave"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "futurefunk_citypop_sampling_lineage",
+      "facet": "production",
+      "semanticFamily": "futurefunk-idiom",
+      "neutralText": "City Pop 샘플링 계보",
+      "required": [
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.55
+        },
+        {
+          "path": "harmony.tonalAmbiguity",
+          "max": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Future Funk",
+            "City Pop",
+            "Vaporwave"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "production.sampleBasedLikelihood",
+        "harmony.tonalAmbiguity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Future Funk",
+          "City Pop",
+          "Vaporwave"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "bebop_fast_walking_pulse",
+      "facet": "performance",
+      "semanticFamily": "jazz-subgenre",
+      "neutralText": "빠른 워킹 펄스",
+      "required": [
+        {
+          "path": "bass.walkingLikelihood",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.tempo",
+          "min": 170
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Bebop"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "bass.walkingLikelihood",
+        "pulse.tempo"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Bebop"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "cool_jazz_relaxed_tempo",
+      "facet": "rhythm",
+      "semanticFamily": "jazz-subgenre",
+      "neutralText": "이완된 템포감",
+      "required": [
+        {
+          "path": "pulse.tempo",
+          "max": 130
+        },
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.15
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Cool Jazz"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "pulse.tempo",
+        "pulse.groovePushPull"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Cool Jazz"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "fusion_dense_harmonic_rhythm",
+      "facet": "arrangement",
+      "semanticFamily": "jazz-subgenre",
+      "neutralText": "복합 화성 밀도",
+      "required": [
+        {
+          "path": "harmony.chromaticity",
+          "min": 0.5
+        },
+        {
+          "path": "tonal.harmonicRhythm",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Jazz Fusion",
+            "Fusion Jazz"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "harmony.chromaticity",
+        "tonal.harmonicRhythm"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Jazz Fusion",
+          "Fusion Jazz"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "soul_warm_pocket",
+      "facet": "rhythm",
+      "semanticFamily": "soul-idiom",
+      "neutralText": "따뜻한 소울 포켓",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.15
+        },
+        {
+          "path": "production.warmth",
+          "min": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Soul"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "production.warmth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Soul"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "disco_four_floor_strings",
+      "facet": "arrangement",
+      "semanticFamily": "disco-idiom",
+      "neutralText": "디스코 지속 레이어",
+      "required": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.6
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 3
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Disco"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "pulse.kickPeriodicity",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Disco"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "techno_hypnotic_repetition",
+      "facet": "rhythm",
+      "semanticFamily": "techno-idiom",
+      "neutralText": "최면적 반복 그루브",
+      "required": [
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.75
+        },
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.6
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Techno"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicRepetition",
+        "pulse.kickPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Techno"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "trance_uplifting_buildup",
+      "facet": "arrangement",
+      "semanticFamily": "trance-idiom",
+      "neutralText": "고조되는 빌드업",
+      "required": [
+        {
+          "path": "form.buildupSlope",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Trance"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "form.buildupSlope",
+        "pulse.kickPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Trance"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "vaporwave_slowed_nostalgia",
+      "facet": "production",
+      "semanticFamily": "vaporwave-idiom",
+      "neutralText": "느려진 향수적 질감",
+      "required": [
+        {
+          "path": "pulse.tempo",
+          "max": 100
+        },
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Vaporwave"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.tempo",
+        "production.sampleBasedLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Vaporwave"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "synthwave_gated_drums",
+      "facet": "production",
+      "semanticFamily": "synthwave-idiom",
+      "neutralText": "게이트형 신스 드럼",
+      "required": [
+        {
+          "path": "production.transientSharpness",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Synthwave"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "production.transientSharpness",
+        "pulse.kickPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Synthwave"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "hiphop_boom_bap_pocket",
+      "facet": "rhythm",
+      "semanticFamily": "hiphop-idiom",
+      "neutralText": "붐뱁 포켓",
+      "required": [
+        {
+          "path": "pulse.groovePushPull",
+          "min": 0.1
+        },
+        {
+          "path": "pulse.subdivisionRatio",
+          "max": 1.3
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Hip-Hop"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.groovePushPull",
+        "pulse.subdivisionRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Hip-Hop"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "rnb_smooth_vocal_led_texture",
+      "facet": "arrangement",
+      "semanticFamily": "rnb-idiom",
+      "neutralText": "보컬 주도 텍스처",
+      "required": [
+        {
+          "path": "role.leadPresence",
+          "min": 0.55
+        },
+        {
+          "path": "production.warmth",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "R&B"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "role.leadPresence",
+        "production.warmth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "R&B"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "rock_driving_backbeat",
+      "facet": "rhythm",
+      "semanticFamily": "rock-idiom",
+      "neutralText": "드라이빙 백비트",
+      "required": [
+        {
+          "path": "pulse.accentPeriodicity",
+          "equals": 4
+        },
+        {
+          "path": "production.roughness",
+          "min": 0.4
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Rock",
+            "Indie Rock"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.accentPeriodicity",
+        "production.roughness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Rock",
+          "Indie Rock"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "metal_dense_distortion_wall",
+      "facet": "production",
+      "semanticFamily": "metal-idiom",
+      "neutralText": "고밀도 디스토션 벽",
+      "required": [
+        {
+          "path": "production.distortionLikelihood",
+          "min": 0.65
+        },
+        {
+          "path": "form.density",
+          "min": 0.6
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Metal"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "production.distortionLikelihood",
+        "form.density"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Metal"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "pop_bright_hook_production",
+      "facet": "production",
+      "semanticFamily": "pop-idiom",
+      "neutralText": "밝은 훅 프로덕션",
+      "required": [
+        {
+          "path": "production.brightness",
+          "min": 0.6
+        },
+        {
+          "path": "production.noisiness",
+          "max": 0.35
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Pop"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.08
+        }
+      ],
+      "anchors": [
+        "production.brightness",
+        "production.noisiness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Pop"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "guitar_comping_role",
+      "facet": "performance",
+      "semanticFamily": "offbeat-accompaniment",
+      "neutralText": "엇박 중심 반주",
+      "required": [
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.45
+        },
+        {
+          "path": "pulse.syncopation",
+          "min": 0.35
+        }
+      ],
+      "supporting": [
+        {
+          "path": "instrument.dominanceConfidence",
+          "max": 0.6
+        }
+      ],
+      "anchors": [
+        "instrument.presenceConfidence",
+        "pulse.syncopation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "guitar_solo_prominence",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "기타 솔로",
+      "required": [
+        {
+          "path": "instrument.soloLikelihood",
+          "min": 0.6
+        },
+        {
+          "path": "instrument.dominanceConfidence",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "instrument.soloLikelihood",
+        "instrument.dominanceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "brass_stab_accent",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "브라스 스탭",
+      "required": [
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.4
+        },
+        {
+          "path": "articulation.attackSharpness",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "instrument.presenceConfidence",
+        "articulation.attackSharpness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "string_layer_swell",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "부풀어 오르는 지속층",
+      "required": [
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.55
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 2
+        },
+        {
+          "path": "articulation.noteLengthRatio",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "texture.sustainRatio",
+        "articulation.noteLengthRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "staccato_articulation",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "스타카토 연주",
+      "required": [
+        {
+          "path": "articulation.staccatoLikelihood",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "articulation.staccatoLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "legato_articulation",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "레가토 연주",
+      "required": [
+        {
+          "path": "articulation.legatoLikelihood",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "articulation.legatoLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "wide_dynamic_accents",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "넓은 다이내믹 악센트",
+      "required": [
+        {
+          "path": "articulation.dynamicAccentRange",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "articulation.dynamicAccentRange"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "single_voice_focus",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "단일 성부 집중",
+      "required": [
+        {
+          "path": "texture.voiceCount",
+          "equals": 1
+        },
+        {
+          "path": "instrument.dominanceConfidence",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "texture.voiceCount",
+        "instrument.dominanceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "homophonic_lead_and_support",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "리드-반주 구조",
+      "required": [
+        {
+          "path": "texture.textureClass",
+          "equals": "homophonic"
+        },
+        {
+          "path": "role.leadPresence",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "texture.textureClass",
+        "role.leadPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "layered_dense_arrangement",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "레이어드 편성",
+      "required": [
+        {
+          "path": "texture.textureClass",
+          "equals": "layered"
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 3
+        }
+      ],
+      "anchors": [
+        "texture.textureClass",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "duo_ensemble_texture",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "듀오 편성 짜임새",
+      "required": [
+        {
+          "path": "arrangement.verifiedEnsembleSize",
+          "equals": 2
+        }
+      ],
+      "anchors": [
+        "arrangement.verifiedEnsembleSize"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 14000
+    },
+    {
+      "id": "quartet_ensemble_texture",
+      "facet": "arrangement",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "콰르텟 편성 짜임새",
+      "required": [
+        {
+          "path": "arrangement.verifiedEnsembleSize",
+          "equals": 4
+        }
+      ],
+      "anchors": [
+        "arrangement.verifiedEnsembleSize"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 14000
+    },
+    {
+      "id": "tape_saturation_warmth",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "테이프 새추레이션",
+      "required": [
+        {
+          "path": "production.roughness",
+          "min": 0.3,
+          "max": 0.6
+        },
+        {
+          "path": "production.warmth",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "production.roughness",
+        "production.warmth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000
+    },
+    {
+      "id": "soft_clipping_character",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "소프트 클리핑 질감",
+      "required": [
+        {
+          "path": "production.transientSoftness",
+          "min": 0.5
+        },
+        {
+          "path": "production.compressionLikelihood",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "production.transientSoftness",
+        "production.compressionLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "short_room_reverb",
+      "status": "dormant",
+      "dormantReason": "production.roomSize needs impulse-response estimation; no detector separates room size from a reverb tail in a mixed signal",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "짧은 룸 리버브",
+      "required": [
+        {
+          "path": "production.roomSize",
+          "min": 0.3,
+          "max": 0.6
+        }
+      ],
+      "anchors": [
+        "production.roomSize"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "dense_delay_texture",
+      "status": "dormant",
+      "dormantReason": "production.delayDensity needs autocorrelation of the reverb tail; not separable from rhythmic repetition today",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "밀도 높은 딜레이",
+      "required": [
+        {
+          "path": "production.delayDensity",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "production.delayDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "low_pass_darkening",
+      "status": "dormant",
+      "dormantReason": "production.lowPassLikelihood needs filter-sweep tracking; a dark mix and a closing filter look identical in a single spectrum",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "로우패스 어두워짐",
+      "required": [
+        {
+          "path": "production.lowPassLikelihood",
+          "min": 0.55
+        },
+        {
+          "path": "production.brightness",
+          "max": 0.5
+        }
+      ],
+      "anchors": [
+        "production.lowPassLikelihood",
+        "production.brightness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "high_pass_thinning",
+      "status": "dormant",
+      "dormantReason": "production.highPassLikelihood needs filter-sweep tracking; a thin mix and a rising filter look identical in a single spectrum",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "하이패스 트랜지션",
+      "required": [
+        {
+          "path": "production.highPassLikelihood",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "production.highPassLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "midrange_saturation_push",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "미드레인지 새추레이션",
+      "required": [
+        {
+          "path": "production.roughness",
+          "min": 0.45
+        },
+        {
+          "path": "production.lowEndWeight",
+          "max": 0.5
+        }
+      ],
+      "anchors": [
+        "production.roughness",
+        "production.lowEndWeight"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "vinyl_noise_layer",
+      "facet": "production",
+      "semanticFamily": "production-general",
+      "neutralText": "빈티지 노이즈 레이어",
+      "required": [
+        {
+          "path": "production.noisiness",
+          "min": 0.45
+        },
+        {
+          "path": "production.sampleBasedLikelihood",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "production.noisiness",
+        "production.sampleBasedLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "slap_articulation_bass",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "슬랩 주법 경향",
+      "required": [
+        {
+          "path": "bass.bassMotion",
+          "min": 0.4
+        },
+        {
+          "path": "articulation.attackSharpness",
+          "min": 0.6
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "bass.bassMotion",
+        "articulation.attackSharpness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
+    },
+    {
+      "id": "static_bass_foundation",
+      "facet": "performance",
+      "semanticFamily": "instrument-performance",
+      "neutralText": "고정 저역 기반",
+      "required": [
+        {
+          "path": "bass.bassRhythmicRole",
+          "equals": "static"
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "bass.bassRhythmicRole"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "folk_acoustic_texture",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "어쿠스틱 포크 질감",
+      "required": [
+        {
+          "path": "production.noisiness",
+          "max": 0.4
+        },
+        {
+          "path": "production.roughness",
+          "min": 0.2,
+          "max": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Folk",
+            "Traditional"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "production.noisiness",
+        "production.roughness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Folk",
+          "Traditional"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "lofi_dusty_beat",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "로파이 먼지 질감",
+      "required": [
+        {
+          "path": "production.noisiness",
+          "min": 0.4
+        },
+        {
+          "path": "production.brightness",
+          "max": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Lo-Fi",
+            "Hip-Hop"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "production.noisiness",
+        "production.brightness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Lo-Fi",
+          "Hip-Hop"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "breakcore_extreme_density",
+      "facet": "rhythm",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "극단적 밀도의 브레이크",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.85
+        },
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.75
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Breakcore",
+            "Glitchcore"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity",
+        "pulse.rhythmicEntropy"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 6000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Breakcore",
+          "Glitchcore"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "glitch_fragmented_micro_edit",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "글리치 마이크로 편집",
+      "required": [
+        {
+          "path": "production.granularity",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Glitch",
+            "IDM",
+            "Glitchcore"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "production.granularity",
+        "pulse.rhythmicEntropy"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Glitch",
+          "IDM",
+          "Glitchcore"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "postrock_slow_build_swell",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "완만한 빌드업 스웰",
+      "required": [
+        {
+          "path": "form.buildupSlope",
+          "min": 0.4
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Post-Rock"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "form.buildupSlope",
+        "texture.sustainRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Post-Rock"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "dreampop_hazy_layering",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "몽롱한 레이어링",
+      "required": [
+        {
+          "path": "production.reverbTail",
+          "min": 0.5
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 2
+        },
+        {
+          "path": "production.brightness",
+          "max": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Dream Pop",
+            "Shoegaze"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "production.reverbTail",
+        "production.brightness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Dream Pop",
+          "Shoegaze"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "cooljazz_understated_lead",
+      "facet": "performance",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "절제된 리드 톤",
+      "required": [
+        {
+          "path": "role.leadPresence",
+          "min": 0.4,
+          "max": 0.68
+        },
+        {
+          "path": "pulse.tempo",
+          "max": 130
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Cool Jazz"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "role.leadPresence",
+        "pulse.tempo"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Cool Jazz"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "fusion_odd_meter_tendency",
+      "facet": "rhythm",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "복합 박자 경향",
+      "required": [
+        {
+          "path": "pulse.rhythmicEntropy",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.45
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Jazz Fusion"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicEntropy",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Jazz Fusion"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "synthwave_bright_arp_layer",
+      "facet": "performance",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "신스웨이브 아르페지오 레이어",
+      "required": [
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.6
+        },
+        {
+          "path": "production.brightness",
+          "min": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Synthwave"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicRepetition",
+        "production.brightness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Synthwave"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "rnb_lush_chord_bed",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "풍성한 화성 베드",
+      "required": [
+        {
+          "path": "harmony.chromaticity",
+          "min": 0.45
+        },
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "R&B"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "harmony.chromaticity",
+        "texture.sustainRatio"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "R&B"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "indierock_loose_energy",
+      "facet": "rhythm",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "느슨한 에너지의 연주",
+      "required": [
+        {
+          "path": "pulse.microTimingDeviation",
+          "min": 0.3
+        },
+        {
+          "path": "production.roughness",
+          "min": 0.35
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Indie Rock"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.microTimingDeviation",
+        "production.roughness"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Indie Rock"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "metal_precise_double_kick_feel",
+      "facet": "rhythm",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "정밀한 더블킥 감각",
+      "required": [
+        {
+          "path": "pulse.doubleTimeLikelihood",
+          "min": 0.4
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.6
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Metal"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.doubleTimeLikelihood",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Metal"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "pop_concise_hook_structure",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "간결한 훅 구조",
+      "required": [
+        {
+          "path": "form.repetitionDepth",
+          "min": 0.6
+        },
+        {
+          "path": "form.sectionNovelty",
+          "max": 0.4
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Pop"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.08
+        }
+      ],
+      "anchors": [
+        "form.repetitionDepth",
+        "form.sectionNovelty"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Pop"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "ukgarage_vocal_garage_texture",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "보컬 개러지 텍스처",
+      "required": [
+        {
+          "path": "role.leadPresence",
+          "min": 0.4
+        },
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.35
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "UK Garage",
+            "Garage"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "role.leadPresence",
+        "pulse.shuffleStrength"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "UK Garage",
+          "Garage"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "future_garage_atmospheric_space",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "atmospheric 개러지 공간감",
+      "required": [
+        {
+          "path": "production.reverbTail",
+          "min": 0.45
+        },
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.35
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Future Garage"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "production.reverbTail",
+        "pulse.breakDensity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Future Garage"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "frenchhouse_filtered_loop",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "필터드 디스코 루프",
+      "required": [
+        {
+          "path": "production.filterMotion",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "French House"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "production.filterMotion",
+        "pulse.kickPeriodicity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "French House"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "soul_gospel_vocal_led_warmth",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "보컬 중심 온기",
+      "required": [
+        {
+          "path": "role.leadPresence",
+          "min": 0.5
+        },
+        {
+          "path": "production.warmth",
+          "min": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Soul",
+            "Gospel"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "role.leadPresence",
+        "production.warmth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Soul",
+          "Gospel"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "choral_dense_voice_blend",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "성부 혼합 텍스처",
+      "required": [
+        {
+          "path": "texture.voiceCount",
+          "min": 3
+        },
+        {
+          "path": "texture.dominanceDispersion",
+          "min": 0.55
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Choral",
+            "Classical"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "texture.voiceCount",
+        "texture.dominanceDispersion"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Choral",
+          "Classical"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "baroque_ornament_dense_line",
+      "facet": "performance",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "장식적으로 조밀한 선율",
+      "required": [
+        {
+          "path": "pulse.onsetDensity",
+          "min": 0.5
+        },
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.6
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Baroque",
+            "Classical"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.onsetDensity",
+        "tonal.tonalFocus"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Baroque",
+          "Classical"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "swing_era_big_band_pulse",
+      "facet": "rhythm",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "빅밴드 스윙 펄스",
+      "required": [
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.5
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 3
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Swing"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "pulse.shuffleStrength",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Swing"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "dixieland_collective_drive",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "집단적 추진감",
+      "required": [
+        {
+          "path": "texture.dominanceDispersion",
+          "min": 0.55
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.4
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Dixieland",
+            "New Orleans"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.15
+        }
+      ],
+      "anchors": [
+        "texture.dominanceDispersion",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Dixieland",
+          "New Orleans"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "stable_tempo_confidence",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "안정된 템포 확신",
+      "required": [
+        {
+          "path": "pulse.tempoStability",
+          "min": 0.65
+        },
+        {
+          "path": "pulse.metricStability",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "pulse.tempoStability",
+        "pulse.metricStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "unstable_tempo_drift",
+      "facet": "rhythm",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "흔들리는 템포감",
+      "required": [
+        {
+          "path": "pulse.tempoStability",
+          "max": 0.35
+        },
+        {
+          "path": "pulse.pulsePresence",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "pulse.tempoStability"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "high_energy_trajectory",
+      "facet": "arrangement",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "상승하는 에너지 궤적",
+      "required": [
+        {
+          "path": "form.energyTrajectory",
+          "min": 0.15
+        },
+        {
+          "path": "form.buildupSlope",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "form.energyTrajectory",
+        "form.buildupSlope"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "falling_energy_trajectory",
+      "facet": "arrangement",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "가라앉는 에너지 궤적",
+      "required": [
+        {
+          "path": "form.energyTrajectory",
+          "max": -0.15
+        },
+        {
+          "path": "form.releaseDepth",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "form.energyTrajectory",
+        "form.releaseDepth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 7000
+    },
+    {
+      "id": "novel_section_arrival",
+      "facet": "arrangement",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "새로운 구간의 도착",
+      "required": [
+        {
+          "path": "form.sectionNovelty",
+          "min": 0.6
+        },
+        {
+          "path": "form.transitionLikelihood",
+          "min": 0.4
+        }
+      ],
+      "anchors": [
+        "form.sectionNovelty",
+        "form.transitionLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 6000
+    },
+    {
+      "id": "stable_repeated_section",
+      "facet": "arrangement",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "반복 안정 구간",
+      "required": [
+        {
+          "path": "form.sectionNovelty",
+          "max": 0.25
+        },
+        {
+          "path": "form.repetitionDepth",
+          "min": 0.6
+        }
+      ],
+      "anchors": [
+        "form.sectionNovelty",
+        "form.repetitionDepth"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "dense_layered_form",
+      "facet": "arrangement",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "층위가 두꺼운 편성",
+      "required": [
+        {
+          "path": "form.layerCount",
+          "min": 3
+        },
+        {
+          "path": "form.density",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "form.layerCount",
+        "form.density"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "thin_sparse_form",
+      "facet": "arrangement",
+      "semanticFamily": "rhythm-general",
+      "neutralText": "얇고 성긴 편성",
+      "required": [
+        {
+          "path": "form.layerCount",
+          "max": 2
+        },
+        {
+          "path": "form.density",
+          "max": 0.3
+        }
+      ],
+      "anchors": [
+        "form.layerCount",
+        "form.density"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000
+    },
+    {
+      "id": "ambient_texture_dominant_arrangement",
+      "facet": "arrangement",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "질감 중심 편성",
+      "required": [
+        {
+          "path": "texture.sustainRatio",
+          "min": 0.7
+        },
+        {
+          "path": "form.density",
+          "max": 0.35
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Ambient",
+            "Drone"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.12
+        }
+      ],
+      "anchors": [
+        "texture.sustainRatio",
+        "form.density"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 13000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Ambient",
+          "Drone"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "techno_minimal_loop_focus",
+      "facet": "production",
+      "semanticFamily": "genre-idiom",
+      "neutralText": "미니멀 루프 집중",
+      "required": [
+        {
+          "path": "pulse.rhythmicRepetition",
+          "min": 0.72
+        },
+        {
+          "path": "form.density",
+          "max": 0.5
+        }
+      ],
+      "contextMultipliers": [
+        {
+          "genreFamilies": [
+            "Techno",
+            "Minimal"
+          ],
+          "minGenreConfidence": 0.6,
+          "multiplier": 1.1
+        }
+      ],
+      "anchors": [
+        "pulse.rhythmicRepetition",
+        "form.density"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 11000,
+      "requiredContext": {
+        "genreFamilies": [
+          "Techno",
+          "Minimal"
+        ],
+        "minConfidence": 0.6
+      },
+      "contextMode": "REQUIRED"
+    },
+    {
+      "id": "harmony_major_tendency",
+      "facet": "performance",
+      "semanticFamily": "tonal-mode",
+      "neutralText": "장조 성향",
+      "required": [
+        {
+          "path": "harmony.modality",
+          "equals": "major"
+        },
+        {
+          "path": "harmony.modeConfidence",
+          "min": 0.62
+        }
+      ],
+      "supporting": [
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "harmony.modality",
+        "harmony.modeConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "harmony_minor_tendency",
+      "facet": "performance",
+      "semanticFamily": "tonal-mode",
+      "neutralText": "단조 성향",
+      "required": [
+        {
+          "path": "harmony.modality",
+          "equals": "minor"
+        },
+        {
+          "path": "harmony.modeConfidence",
+          "min": 0.62
+        }
+      ],
+      "supporting": [
+        {
+          "path": "tonal.tonalFocus",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "harmony.modality",
+        "harmony.modeConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "harmony_modal_colour",
+      "facet": "performance",
+      "semanticFamily": "tonal-mode",
+      "neutralText": "모달 하모니",
+      "required": [
+        {
+          "path": "harmony.modalLikelihood",
+          "min": 0.6
+        },
+        {
+          "path": "harmony.majorMinorDeviation",
+          "min": 0.3
+        },
+        {
+          "path": "harmony.modalAmbiguity",
+          "max": 0.45
+        }
+      ],
+      "supporting": [
+        {
+          "path": "harmony.modeConfidence",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "harmony.modalLikelihood",
+        "harmony.majorMinorDeviation"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 12000
+    },
+    {
+      "id": "harmony_cadential_return",
+      "facet": "performance",
+      "semanticFamily": "harmonic-motion",
+      "neutralText": "돌아오는 종지감",
+      "required": [
+        {
+          "path": "harmony.cadenceStrength",
+          "min": 0.55
+        },
+        {
+          "path": "harmony.chordChangeRate",
+          "min": 0.18
+        }
+      ],
+      "supporting": [
+        {
+          "path": "harmony.harmonicStability",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "harmony.cadenceStrength",
+        "harmony.chordChangeRate"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "melody_arch_contour",
+      "facet": "performance",
+      "semanticFamily": "melodic-contour",
+      "neutralText": "아치형 선율",
+      "required": [
+        {
+          "path": "melody.melodicContour",
+          "equals": "arched"
+        },
+        {
+          "path": "melody.melodicRange",
+          "min": 0.2
+        }
+      ],
+      "anchors": [
+        "melody.melodicContour",
+        "melody.melodicRange"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "melody_wave_contour",
+      "facet": "performance",
+      "semanticFamily": "melodic-contour",
+      "neutralText": "물결형 선율",
+      "required": [
+        {
+          "path": "melody.melodicContour",
+          "equals": "wave"
+        },
+        {
+          "path": "melody.melodicRange",
+          "min": 0.22
+        }
+      ],
+      "anchors": [
+        "melody.melodicContour",
+        "melody.melodicRange"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "melody_static_cell",
+      "facet": "performance",
+      "semanticFamily": "melodic-contour",
+      "neutralText": "고정 선율 셀",
+      "required": [
+        {
+          "path": "melody.melodicContour",
+          "equals": "static"
+        },
+        {
+          "path": "melody.melodicRepetition",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "melody.melodicContour",
+        "melody.melodicRepetition"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "melody_transposed_sequence",
+      "facet": "performance",
+      "semanticFamily": "melodic-motif",
+      "neutralText": "전위 반복 선율",
+      "required": [
+        {
+          "path": "melody.sequenceLikelihood",
+          "min": 0.65
+        },
+        {
+          "path": "melody.motifStrength",
+          "min": 0.35
+        }
+      ],
+      "anchors": [
+        "melody.sequenceLikelihood",
+        "melody.motifStrength"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "melody_long_phrase",
+      "facet": "performance",
+      "semanticFamily": "melodic-phrase",
+      "neutralText": "긴 호흡의 프레이즈",
+      "required": [
+        {
+          "path": "melody.phraseLength",
+          "min": 6
+        },
+        {
+          "path": "melody.phraseRegularity",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "melody.phraseLength",
+        "melody.phraseRegularity"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 10000
+    },
+    {
+      "id": "melody_dense_line",
+      "facet": "performance",
+      "semanticFamily": "melodic-phrase",
+      "neutralText": "촘촘한 선율 흐름",
+      "required": [
+        {
+          "path": "melody.melodicDensity",
+          "min": 0.6
+        },
+        {
+          "path": "melody.averageInterval",
+          "max": 0.35
+        }
+      ],
+      "anchors": [
+        "melody.melodicDensity",
+        "melody.averageInterval"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "melody_uneven_intervals",
+      "facet": "performance",
+      "semanticFamily": "melodic-contour",
+      "neutralText": "들쭉날쭉한 도약",
+      "required": [
+        {
+          "path": "melody.intervalVariance",
+          "min": 0.35
+        },
+        {
+          "path": "melody.leapLikelihood",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "melody.intervalVariance",
+        "melody.leapLikelihood"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "bass_continuous_activity",
+      "facet": "performance",
+      "semanticFamily": "bass-function",
+      "neutralText": "쉼 없는 베이스 라인",
+      "required": [
+        {
+          "path": "bass.bassActivity",
+          "min": 0.62
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.5
+        }
+      ],
+      "anchors": [
+        "bass.bassActivity",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "bass_singing_line",
+      "facet": "performance",
+      "semanticFamily": "bass-function",
+      "neutralText": "노래하는 베이스",
+      "required": [
+        {
+          "path": "bass.melodicBassLikelihood",
+          "min": 0.6
+        },
+        {
+          "path": "bass.bassPresence",
+          "min": 0.5
+        }
+      ],
+      "supporting": [
+        {
+          "path": "bass.bassRegister",
+          "min": 0.3
+        }
+      ],
+      "anchors": [
+        "bass.melodicBassLikelihood",
+        "bass.bassPresence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    }
+  ]
+}

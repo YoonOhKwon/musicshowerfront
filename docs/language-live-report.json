@@ -1,0 +1,3258 @@
+{
+  "at": "2026-09-03T14:11:21.397Z",
+  "basis": "controlled semantic fixtures, not actual song measurements",
+  "model": "gpt-5.6-sol",
+  "results": [
+    {
+      "name": "cold",
+      "snapshot": {
+        "genreFamily": "Electronic / Club",
+        "primaryGenre": "Techno",
+        "subgenreCandidates": [
+          "Industrial Techno"
+        ],
+        "confidence": 0.78,
+        "rhythm": {
+          "tempo": "fast",
+          "pulseRegularity": "very high",
+          "onsetDensity": "very high",
+          "complexity": "low",
+          "brokenPulse": "very low"
+        },
+        "harmony": {
+          "tonalFocus": "low",
+          "harmonicMotion": "very low",
+          "pitchUncertainty": "high"
+        },
+        "timbre": {
+          "brightness": "very high",
+          "warmth": "low",
+          "roughness": "very high",
+          "noisiness": "medium",
+          "transientEdge": "very high"
+        },
+        "texture": {
+          "density": "very high",
+          "sustain": "low",
+          "granularity": "high",
+          "layeredness": "medium"
+        },
+        "dynamics": {
+          "range": "very low",
+          "compression": "very high",
+          "pumping": "very high"
+        },
+        "space": {
+          "spaciousness": "very low",
+          "depth": "very low"
+        },
+        "production": {
+          "subWeight": "very high",
+          "saturation": "very high",
+          "cleanVsLoFi": "low",
+          "masterBrightness": "very high"
+        },
+        "mood": [
+          "activated",
+          "ambiguous",
+          "tense",
+          "cold"
+        ],
+        "currentSection": {
+          "state": "stable",
+          "novelty": "very low",
+          "buildup": "very low",
+          "breakdown": "very low",
+          "repetition": "very high"
+        },
+        "distinctive": {
+          "basis": "absolute character only",
+          "genreRelativeAvailable": false,
+          "statements": [
+            "pronounced spectral density",
+            "pronounced sub weight",
+            "restrained harmonic motion",
+            "pronounced roughness",
+            "pronounced compression",
+            "pronounced repetition"
+          ]
+        },
+        "fingerprint": "qn8vtq"
+      },
+      "artDirection": [
+        "압연 공장 표면",
+        "저천장 방폭 통로",
+        "과노출 복사 광학",
+        "밀폐 고압 설비"
+      ],
+      "meta": {
+        "model": "gpt-5.6-sol",
+        "latencyMs": 55596,
+        "usage": {
+          "input_tokens": 1567,
+          "input_tokens_details": {
+            "cache_write_tokens": 1246,
+            "cached_tokens": 0
+          },
+          "output_tokens": 5516,
+          "output_tokens_details": {
+            "reasoning_tokens": 1967
+          },
+          "total_tokens": 7083
+        },
+        "cache": "miss",
+        "candidateCount": 80
+      },
+      "candidateCount": 80,
+      "selected": [
+        {
+          "text": "복도가 같은 모서리를 되밟는다",
+          "type": "micro",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 1,
+          "weight": 1,
+          "grammar": "sentence",
+          "anchors": [
+            "currentSection.repetition",
+            "rhythm.pulseRegularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 1
+        },
+        {
+          "text": "형광관이 한 장면만 되풀이한다",
+          "type": "micro",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.9900000000000001,
+          "weight": 0.9935,
+          "grammar": "sentence",
+          "anchors": [
+            "currentSection.repetition",
+            "timbre.brightness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.9166666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9900000000000001
+        },
+        {
+          "text": "분진 경보가 멎지 않는 지하실",
+          "type": "nominal",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.9900000000000001,
+          "weight": 0.9935,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.repetition",
+            "timbre.noisiness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.9166666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9900000000000001
+        },
+        {
+          "text": "관자놀이를 두드리는 공구",
+          "type": "nominal",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.9800000000000001,
+          "weight": 0.9870000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.onsetDensity",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.8333333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9800000000000001
+        },
+        {
+          "text": "한 칸만 남은 금속 달력",
+          "type": "nominal",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.9600000000000001,
+          "weight": 0.9740000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.repetition",
+            "timbre.roughness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.6666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9600000000000001
+        },
+        {
+          "text": "터널 끝도 같은 온도로 닫힌다",
+          "type": "micro",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.9900000000000001,
+          "weight": 0.9935,
+          "grammar": "sentence",
+          "anchors": [
+            "space.depth",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.9166666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9550000000000001
+        },
+        {
+          "text": "바닥이 짧게 거듭 밀어 올린다",
+          "type": "micro",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.9540000000000001,
+          "weight": 0.9701000000000001,
+          "grammar": "sentence",
+          "anchors": [
+            "dynamics.pumping",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.9166666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9540000000000001
+        },
+        {
+          "text": "마찰로 닳은 압착판",
+          "type": "nominal",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.9500000000000002,
+          "weight": 0.9675000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.roughness",
+            "dynamics.compression"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5833333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9500000000000002
+        },
+        {
+          "text": "밸브 뒤에 갇힌 고압",
+          "type": "nominal",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.9500000000000002,
+          "weight": 0.9675000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "dynamics.compression",
+            "space.depth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5833333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9500000000000002
+        },
+        {
+          "text": "천장을 누르는 배관 묶음",
+          "type": "nominal",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.9700000000000001,
+          "weight": 0.9805,
+          "grammar": "phrase",
+          "anchors": [
+            "production.subWeight",
+            "space.spaciousness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.75,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.935
+        },
+        {
+          "text": "같은 칸 누르기",
+          "type": "fragment",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.9300000000000002,
+          "weight": 0.9545000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.repetition",
+            "rhythm.pulseRegularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9300000000000002
+        },
+        {
+          "text": "톱니식 전진",
+          "type": "fragment",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.9200000000000002,
+          "weight": 0.9480000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.pulseRegularity",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8850000000000001
+        },
+        {
+          "text": "서늘한 중량",
+          "type": "fragment",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.9200000000000002,
+          "weight": 0.9480000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "production.subWeight",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8850000000000001
+        },
+        {
+          "text": "제자리 강행",
+          "type": "fragment",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.9200000000000002,
+          "weight": 0.9480000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.harmonicMotion",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8500000000000001
+        },
+        {
+          "text": "과노출 윤곽",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "production.masterBrightness",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8490000000000001
+        },
+        {
+          "text": "갈비뼈 압박",
+          "type": "fragment",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "production.subWeight",
+            "dynamics.compression"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8490000000000001
+        },
+        {
+          "text": "천공카드",
+          "type": "single",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.8780000000000001,
+          "weight": 0.9207000000000001,
+          "grammar": "single",
+          "anchors": [
+            "rhythm.pulseRegularity",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.25,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8430000000000001
+        },
+        {
+          "text": "눌린 철망",
+          "type": "fragment",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8740000000000001,
+          "weight": 0.9181,
+          "grammar": "phrase",
+          "anchors": [
+            "dynamics.compression",
+            "texture.density"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.25,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8390000000000001
+        },
+        {
+          "text": "손은 같은 스위치를 다시 친다",
+          "type": "micro",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.9540000000000001,
+          "weight": 0.9701000000000001,
+          "grammar": "sentence",
+          "anchors": [
+            "currentSection.repetition",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.9166666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8290000000000001
+        },
+        {
+          "text": "찢긴 반사면",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.roughness",
+            "texture.granularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8140000000000001
+        },
+        {
+          "text": "닫힌 환기구",
+          "type": "fragment",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "space.spaciousness",
+            "texture.density"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8140000000000001
+        },
+        {
+          "text": "무한 복사",
+          "type": "fragment",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.8740000000000001,
+          "weight": 0.9181,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.repetition",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.25,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.804
+        },
+        {
+          "text": "저천장",
+          "type": "single",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.8640000000000001,
+          "weight": 0.9116000000000001,
+          "grammar": "single",
+          "anchors": [
+            "space.spaciousness",
+            "space.depth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.794
+        },
+        {
+          "text": "이갈이",
+          "type": "single",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.8640000000000001,
+          "weight": 0.9116000000000001,
+          "grammar": "single",
+          "anchors": [
+            "timbre.roughness",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.794
+        },
+        {
+          "text": "끊임없는 압입",
+          "type": "fragment",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.8940000000000001,
+          "weight": 0.9311,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.repetition",
+            "dynamics.compression"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7890000000000001
+        },
+        {
+          "text": "얼음장처럼 조여 오는 공기",
+          "type": "nominal",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.9440000000000001,
+          "weight": 0.9636,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "dynamics.compression"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.8333333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7840000000000001
+        },
+        {
+          "text": "과포화 표면",
+          "type": "fragment",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8520000000000001,
+          "weight": 0.9038,
+          "grammar": "phrase",
+          "anchors": [
+            "production.saturation",
+            "timbre.brightness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.782
+        },
+        {
+          "text": "차가운 점멸",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "rhythm.pulseRegularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7790000000000001
+        },
+        {
+          "text": "각인",
+          "type": "single",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.8220000000000001,
+          "weight": 0.8843000000000001,
+          "grammar": "single",
+          "anchors": [
+            "timbre.transientEdge",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.752
+        },
+        {
+          "text": "열수축",
+          "type": "single",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.8320000000000001,
+          "weight": 0.8908,
+          "grammar": "single",
+          "anchors": [
+            "timbre.warmth",
+            "dynamics.compression"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7270000000000001
+        },
+        {
+          "text": "방폭문",
+          "type": "single",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.8280000000000001,
+          "weight": 0.8882,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "mood"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7230000000000001
+        },
+        {
+          "text": "악물기",
+          "type": "single",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.8280000000000001,
+          "weight": 0.8882,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "mood"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7230000000000001
+        },
+        {
+          "text": "압연",
+          "type": "single",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8220000000000001,
+          "weight": 0.8843000000000001,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7170000000000001
+        },
+        {
+          "text": "압인",
+          "type": "single",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.8220000000000001,
+          "weight": 0.8843000000000001,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "rhythm.pulseRegularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7170000000000001
+        },
+        {
+          "text": "난반사",
+          "type": "single",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8280000000000001,
+          "weight": 0.8882,
+          "grammar": "single",
+          "anchors": [
+            "timbre.brightness",
+            "timbre.roughness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6880000000000001
+        },
+        {
+          "text": "타정",
+          "type": "single",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.8260000000000001,
+          "weight": 0.8869,
+          "grammar": "single",
+          "anchors": [
+            "timbre.transientEdge",
+            "rhythm.pulseRegularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 0.8,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.686
+        }
+      ],
+      "typeCounts": {
+        "single": 11,
+        "fragment": 13,
+        "nominal": 7,
+        "micro": 5
+      }
+    },
+    {
+      "name": "warm",
+      "snapshot": {
+        "genreFamily": "Electronic / Club",
+        "primaryGenre": "Techno",
+        "subgenreCandidates": [
+          "Dub Techno"
+        ],
+        "confidence": 0.78,
+        "rhythm": {
+          "tempo": "medium",
+          "pulseRegularity": "very high",
+          "onsetDensity": "low",
+          "complexity": "low",
+          "brokenPulse": "very low"
+        },
+        "harmony": {
+          "tonalFocus": "high",
+          "harmonicMotion": "medium",
+          "pitchUncertainty": "low"
+        },
+        "timbre": {
+          "brightness": "medium",
+          "warmth": "very high",
+          "roughness": "low",
+          "noisiness": "very low",
+          "transientEdge": "very low"
+        },
+        "texture": {
+          "density": "medium",
+          "sustain": "very high",
+          "granularity": "very low",
+          "layeredness": "very high"
+        },
+        "dynamics": {
+          "range": "medium",
+          "compression": "very high",
+          "pumping": "low"
+        },
+        "space": {
+          "spaciousness": "very high",
+          "depth": "very high"
+        },
+        "production": {
+          "subWeight": "high",
+          "saturation": "low",
+          "cleanVsLoFi": "very high",
+          "masterBrightness": "medium"
+        },
+        "mood": [
+          "measured",
+          "ambiguous",
+          "settled",
+          "warm"
+        ],
+        "currentSection": {
+          "state": "stable",
+          "novelty": "very low",
+          "buildup": "very low",
+          "breakdown": "very low",
+          "repetition": "very high"
+        },
+        "distinctive": {
+          "basis": "absolute character only",
+          "genreRelativeAvailable": false,
+          "statements": [
+            "pronounced spaciousness",
+            "pronounced warmth",
+            "pronounced compression",
+            "pronounced depth",
+            "pronounced repetition",
+            "pronounced pulse regularity"
+          ]
+        },
+        "fingerprint": "zxlvcu"
+      },
+      "artDirection": [
+        "온돌 석실",
+        "수몰 저장고",
+        "겹유리 관측실",
+        "밀랍 기록 보관소"
+      ],
+      "meta": {
+        "model": "gpt-5.6-sol",
+        "latencyMs": 48919,
+        "usage": {
+          "input_tokens": 1798,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 1246
+          },
+          "output_tokens": 5005,
+          "output_tokens_details": {
+            "reasoning_tokens": 1546
+          },
+          "total_tokens": 6803
+        },
+        "cache": "miss",
+        "candidateCount": 80
+      },
+      "candidateCount": 80,
+      "selected": [
+        {
+          "text": "오래된 시간이 새것처럼 밀폐된다",
+          "type": "micro",
+          "perspective": "association",
+          "category": "association",
+          "score": 1,
+          "weight": 1,
+          "grammar": "sentence",
+          "anchors": [
+            "currentSection.repetition",
+            "production.cleanVsLoFi"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 1
+        },
+        {
+          "text": "수면 아래 도는 운반대",
+          "type": "nominal",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.9600000000000001,
+          "weight": 0.9740000000000001,
+          "grammar": "below",
+          "anchors": [
+            "production.subWeight",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.6666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9600000000000001
+        },
+        {
+          "text": "매번 같은 깊이로 찍힌 인장",
+          "type": "nominal",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.952857142857143,
+          "weight": 0.9693571428571429,
+          "grammar": "phrase",
+          "anchors": [
+            "space.depth",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.8333333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.07142857142857142,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.952857142857143
+        },
+        {
+          "text": "등을 넓게 받치는 물",
+          "type": "nominal",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.9500000000000002,
+          "weight": 0.9675000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "space.spaciousness",
+            "production.subWeight"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5833333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9500000000000002
+        },
+        {
+          "text": "벽은 멀어져도 기척을 되돌린다",
+          "type": "micro",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.9467272727272729,
+          "weight": 0.9653727272727274,
+          "grammar": "sentence",
+          "anchors": [
+            "space.spaciousness",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.045454545454545456,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9467272727272729
+        },
+        {
+          "text": "공기는 오래 눌린 채 식지 않는다",
+          "type": "micro",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.9278095238095239,
+          "weight": 0.9530761904761905,
+          "grammar": "sentence",
+          "anchors": [
+            "dynamics.compression",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.09523809523809523,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9278095238095239
+        },
+        {
+          "text": "바람 없이 잠긴 갈대밭",
+          "type": "nominal",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.924,
+          "weight": 0.9506,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.state",
+            "timbre.noisiness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.6666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.924
+        },
+        {
+          "text": "두꺼운 초점",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.9200000000000002,
+          "weight": 0.9480000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "dynamics.compression",
+            "space.depth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9200000000000002
+        },
+        {
+          "text": "해저에 보관된 오후",
+          "type": "nominal",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.9500000000000002,
+          "weight": 0.9675000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "space.depth",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5833333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9150000000000001
+        },
+        {
+          "text": "한 번 간 자리가 조용히 다시 온다",
+          "type": "micro",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.9386666666666668,
+          "weight": 0.9601333333333334,
+          "grammar": "sentence",
+          "anchors": [
+            "currentSection.repetition",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.06666666666666667,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9036666666666667
+        },
+        {
+          "text": "둥근 되짚음",
+          "type": "fragment",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.9200000000000002,
+          "weight": 0.9480000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "currentSection.repetition",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8850000000000001
+        },
+        {
+          "text": "온기가 고인 석조 홀",
+          "type": "nominal",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.9140000000000001,
+          "weight": 0.9441,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "space.spaciousness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5833333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8790000000000001
+        },
+        {
+          "text": "미지근한 압력",
+          "type": "fragment",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.8940000000000001,
+          "weight": 0.9311,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "dynamics.compression"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8590000000000001
+        },
+        {
+          "text": "수온약층",
+          "type": "single",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.8780000000000001,
+          "weight": 0.9207000000000001,
+          "grammar": "single",
+          "anchors": [
+            "timbre.warmth",
+            "texture.layeredness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.25,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8430000000000001
+        },
+        {
+          "text": "매끈한 심층",
+          "type": "fragment",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8240000000000001,
+          "weight": 0.8856,
+          "grammar": "phrase",
+          "anchors": [
+            "space.depth",
+            "timbre.roughness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 0.8,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8240000000000001
+        },
+        {
+          "text": "끊김 없는 귀환",
+          "type": "fragment",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.8940000000000001,
+          "weight": 0.9311,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.pulseRegularity",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8240000000000001
+        },
+        {
+          "text": "포근한 하중",
+          "type": "fragment",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "production.subWeight",
+            "mood"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8140000000000001
+        },
+        {
+          "text": "호박색 굴절",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8480000000000001,
+          "weight": 0.9012,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "timbre.brightness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8130000000000001
+        },
+        {
+          "text": "몸은 같은 간격으로 가라앉는다",
+          "type": "micro",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.9278095238095239,
+          "weight": 0.9530761904761905,
+          "grammar": "sentence",
+          "anchors": [
+            "rhythm.pulseRegularity",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.09523809523809523,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8028095238095239
+        },
+        {
+          "text": "깊이 잠든 시계",
+          "type": "fragment",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.8580000000000001,
+          "weight": 0.9077000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "space.depth",
+            "currentSection.repetition"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.788
+        },
+        {
+          "text": "일정한 짚기",
+          "type": "fragment",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.8520000000000001,
+          "weight": 0.9038,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.pulseRegularity",
+            "rhythm.complexity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.782
+        },
+        {
+          "text": "겹유리 시야",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8480000000000001,
+          "weight": 0.9012,
+          "grammar": "phrase",
+          "anchors": [
+            "texture.layeredness",
+            "production.cleanVsLoFi"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.778
+        },
+        {
+          "text": "피부 밑 온기",
+          "type": "fragment",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "space.depth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.759
+        },
+        {
+          "text": "두꺼운 밀랍",
+          "type": "fragment",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8480000000000001,
+          "weight": 0.9012,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.758
+        },
+        {
+          "text": "수면 밑 방",
+          "type": "fragment",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.8740000000000001,
+          "weight": 0.9181,
+          "grammar": "phrase",
+          "anchors": [
+            "space.depth",
+            "production.subWeight"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.25,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.749
+        },
+        {
+          "text": "천천히 데워진 돌방",
+          "type": "nominal",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.9140000000000001,
+          "weight": 0.9441,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.tempo",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5833333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7190000000000002
+        },
+        {
+          "text": "환류",
+          "type": "single",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.8220000000000001,
+          "weight": 0.8843000000000001,
+          "grammar": "single",
+          "anchors": [
+            "currentSection.repetition",
+            "currentSection.state"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7170000000000001
+        },
+        {
+          "text": "잠항",
+          "type": "single",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.8220000000000001,
+          "weight": 0.8843000000000001,
+          "grammar": "single",
+          "anchors": [
+            "space.depth",
+            "production.subWeight"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7170000000000001
+        },
+        {
+          "text": "수장고",
+          "type": "single",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.796,
+          "weight": 0.8674000000000001,
+          "grammar": "single",
+          "anchors": [
+            "space.depth",
+            "production.cleanVsLoFi"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6910000000000001
+        },
+        {
+          "text": "저류",
+          "type": "single",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.754,
+          "weight": 0.8401000000000001,
+          "grammar": "single",
+          "anchors": [
+            "space.depth",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.6,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6839999999999999
+        },
+        {
+          "text": "정박",
+          "type": "single",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.786,
+          "weight": 0.8609,
+          "grammar": "single",
+          "anchors": [
+            "currentSection.state",
+            "mood"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.681
+        },
+        {
+          "text": "보온층",
+          "type": "single",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.796,
+          "weight": 0.8674000000000001,
+          "grammar": "single",
+          "anchors": [
+            "timbre.warmth",
+            "texture.layeredness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.6,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.656
+        },
+        {
+          "text": "압밀",
+          "type": "single",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.726,
+          "weight": 0.8219,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "texture.density"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.6,
+            "languageQuality": 0.8,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6559999999999999
+        },
+        {
+          "text": "복압",
+          "type": "single",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.754,
+          "weight": 0.8401000000000001,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "production.subWeight"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.6,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.649
+        },
+        {
+          "text": "침강",
+          "type": "single",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.786,
+          "weight": 0.8609,
+          "grammar": "single",
+          "anchors": [
+            "space.depth",
+            "production.subWeight"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.646
+        },
+        {
+          "text": "봉인",
+          "type": "single",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.786,
+          "weight": 0.8609,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.compression",
+            "production.cleanVsLoFi"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.646
+        }
+      ],
+      "typeCounts": {
+        "single": 11,
+        "fragment": 13,
+        "nominal": 7,
+        "micro": 5
+      }
+    },
+    {
+      "name": "jazz",
+      "snapshot": {
+        "genreFamily": "Jazz / Soul",
+        "primaryGenre": "Hard Bop",
+        "subgenreCandidates": [
+          "Post Bop"
+        ],
+        "confidence": 0.78,
+        "rhythm": {
+          "tempo": "fast",
+          "pulseRegularity": "high",
+          "onsetDensity": "very high",
+          "complexity": "very high",
+          "brokenPulse": "high"
+        },
+        "harmony": {
+          "tonalFocus": "very high",
+          "harmonicMotion": "very high",
+          "pitchUncertainty": "low"
+        },
+        "timbre": {
+          "brightness": "high",
+          "warmth": "high",
+          "roughness": "low",
+          "noisiness": "medium",
+          "transientEdge": "very high"
+        },
+        "texture": {
+          "density": "medium",
+          "sustain": "low",
+          "granularity": "high",
+          "layeredness": "medium"
+        },
+        "dynamics": {
+          "range": "very high",
+          "compression": "low",
+          "pumping": "very high"
+        },
+        "space": {
+          "spaciousness": "medium",
+          "depth": "medium"
+        },
+        "production": {
+          "subWeight": "low",
+          "saturation": "very high",
+          "cleanVsLoFi": "high",
+          "masterBrightness": "very high"
+        },
+        "mood": [
+          "measured",
+          "ambiguous",
+          "tense",
+          "warm"
+        ],
+        "currentSection": {
+          "state": "stable",
+          "novelty": "very low",
+          "buildup": "very low",
+          "breakdown": "very low",
+          "repetition": "medium"
+        },
+        "distinctive": {
+          "basis": "absolute character only",
+          "genreRelativeAvailable": false,
+          "statements": [
+            "pronounced tonal focus",
+            "pronounced harmonic motion",
+            "restrained sustain",
+            "pronounced rhythmic complexity",
+            "pronounced transient edge",
+            "pronounced onset density"
+          ]
+        },
+        "fingerprint": "1540h1l"
+      },
+      "artDirection": [
+        "고속 활판 공방",
+        "황동 분기 철로",
+        "가열된 제도실",
+        "연속사진 현상대"
+      ],
+      "meta": {
+        "model": "gpt-5.6-sol",
+        "latencyMs": 52721,
+        "usage": {
+          "input_tokens": 1793,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 1246
+          },
+          "output_tokens": 5266,
+          "output_tokens_details": {
+            "reasoning_tokens": 1618
+          },
+          "total_tokens": 7059
+        },
+        "cache": "miss",
+        "candidateCount": 80
+      },
+      "candidateCount": 80,
+      "selected": [
+        {
+          "text": "벽면은 짧게 꺾이며 중심을 지킨다",
+          "type": "micro",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 1,
+          "weight": 1,
+          "grammar": "sentence",
+          "anchors": [
+            "harmony.tonalFocus",
+            "rhythm.brokenPulse"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 1
+        },
+        {
+          "text": "한 획을 세우고 곧 다른 면을 연다",
+          "type": "micro",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 1,
+          "weight": 1,
+          "grammar": "sentence",
+          "anchors": [
+            "harmony.tonalFocus",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 1
+        },
+        {
+          "text": "작은 바퀴들이 서로 앞질러 붙는다",
+          "type": "micro",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.9841666666666666,
+          "weight": 0.9897083333333333,
+          "grammar": "sentence",
+          "anchors": [
+            "rhythm.onsetDensity",
+            "rhythm.complexity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.041666666666666664,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9841666666666666
+        },
+        {
+          "text": "여러 갈래로 답하는 나침반",
+          "type": "nominal",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.9800000000000001,
+          "weight": 0.9870000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.tonalFocus",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.8333333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9800000000000001
+        },
+        {
+          "text": "셔터마다 달라지는 각도",
+          "type": "nominal",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.9700000000000001,
+          "weight": 0.9805,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.transientEdge",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.75,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9700000000000001
+        },
+        {
+          "text": "햇볕은 뜨겁고 선로는 계속 갈라진다",
+          "type": "micro",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.9640000000000001,
+          "weight": 0.9766,
+          "grammar": "sentence",
+          "anchors": [
+            "timbre.warmth",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9640000000000001
+        },
+        {
+          "text": "연속으로 잘린 황동 박편",
+          "type": "nominal",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.9510000000000001,
+          "weight": 0.9681500000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.onsetDensity",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.75,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.05,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9510000000000001
+        },
+        {
+          "text": "먼저 반응하는 손가락 마디",
+          "type": "nominal",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.9440000000000001,
+          "weight": 0.9636,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.transientEdge",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.8333333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9440000000000001
+        },
+        {
+          "text": "냉각을 거부하는 활자판",
+          "type": "nominal",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.934,
+          "weight": 0.9571000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "production.saturation",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.75,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.934
+        },
+        {
+          "text": "열차 없이 움직이는 분기기",
+          "type": "nominal",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.9576470588235295,
+          "weight": 0.9724705882352942,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.pulseRegularity",
+            "rhythm.brokenPulse"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.8333333333333334,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.058823529411764705,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.9226470588235295
+        },
+        {
+          "text": "뜨거운 속기",
+          "type": "fragment",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.9200000000000002,
+          "weight": 0.9480000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.warmth",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8850000000000001
+        },
+        {
+          "text": "잘게 쪼개진 윤곽",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.9040000000000001,
+          "weight": 0.9376000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "texture.granularity",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.5,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8690000000000001
+        },
+        {
+          "text": "잇단 방향 전환",
+          "type": "fragment",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.8940000000000001,
+          "weight": 0.9311,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.harmonicMotion",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8590000000000001
+        },
+        {
+          "text": "촘촘한 타각",
+          "type": "fragment",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.onsetDensity",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8490000000000001
+        },
+        {
+          "text": "튀어 오른 톱니",
+          "type": "fragment",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.8940000000000001,
+          "weight": 0.9311,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.transientEdge",
+            "rhythm.brokenPulse"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8240000000000001
+        },
+        {
+          "text": "어깨는 굳고 손은 재빨리 풀린다",
+          "type": "micro",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.9474782608695653,
+          "weight": 0.9658608695652174,
+          "grammar": "sentence",
+          "anchors": [
+            "mood",
+            "rhythm.complexity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0.043478260869565216,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8224782608695653
+        },
+        {
+          "text": "정교한 혼잡",
+          "type": "fragment",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.8840000000000001,
+          "weight": 0.9246000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.complexity",
+            "texture.density"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.8140000000000001
+        },
+        {
+          "text": "출구가 자주 바뀌는 복도",
+          "type": "nominal",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.934,
+          "weight": 0.9571000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.harmonicMotion",
+            "rhythm.complexity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.75,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.809
+        },
+        {
+          "text": "식기 전 전환",
+          "type": "fragment",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.8880000000000001,
+          "weight": 0.9272,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.harmonicMotion",
+            "texture.sustain"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 1,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.798
+        },
+        {
+          "text": "신호가 바뀐 낮",
+          "type": "fragment",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.8620000000000001,
+          "weight": 0.9103000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.harmonicMotion",
+            "production.masterBrightness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.792
+        },
+        {
+          "text": "번쩍인 절단면",
+          "type": "fragment",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.8580000000000001,
+          "weight": 0.9077000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.transientEdge",
+            "production.masterBrightness"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.4166666666666667,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.788
+        },
+        {
+          "text": "절삭",
+          "type": "single",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.8180000000000001,
+          "weight": 0.8817,
+          "grammar": "single",
+          "anchors": [
+            "texture.sustain",
+            "timbre.transientEdge"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.783
+        },
+        {
+          "text": "달군 모서리",
+          "type": "fragment",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.8480000000000001,
+          "weight": 0.9012,
+          "grammar": "phrase",
+          "anchors": [
+            "timbre.transientEdge",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.778
+        },
+        {
+          "text": "당겨진 힘줄",
+          "type": "fragment",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.8480000000000001,
+          "weight": 0.9012,
+          "grammar": "phrase",
+          "anchors": [
+            "mood",
+            "dynamics.range"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.778
+        },
+        {
+          "text": "단단한 문답",
+          "type": "fragment",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.8520000000000001,
+          "weight": 0.9038,
+          "grammar": "phrase",
+          "anchors": [
+            "harmony.tonalFocus",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7470000000000001
+        },
+        {
+          "text": "연달아 접기",
+          "type": "fragment",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.8160000000000001,
+          "weight": 0.8804000000000001,
+          "grammar": "phrase",
+          "anchors": [
+            "rhythm.onsetDensity",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.3333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.746
+        },
+        {
+          "text": "조차장",
+          "type": "single",
+          "perspective": "environment",
+          "category": "environment",
+          "score": 0.8320000000000001,
+          "weight": 0.8908,
+          "grammar": "single",
+          "anchors": [
+            "rhythm.complexity",
+            "texture.density"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.7270000000000001
+        },
+        {
+          "text": "열구배",
+          "type": "single",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.788,
+          "weight": 0.8622,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.range",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 0.8,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.718
+        },
+        {
+          "text": "황동분진",
+          "type": "single",
+          "perspective": "material",
+          "category": "material",
+          "score": 0.798,
+          "weight": 0.8687,
+          "grammar": "single",
+          "anchors": [
+            "texture.granularity",
+            "timbre.warmth"
+          ],
+          "diagnostics": {
+            "musicalFit": 0.8,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.25,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6930000000000001
+        },
+        {
+          "text": "급선회",
+          "type": "single",
+          "perspective": "motion",
+          "category": "motion",
+          "score": 0.796,
+          "weight": 0.8674000000000001,
+          "grammar": "single",
+          "anchors": [
+            "rhythm.tempo",
+            "harmony.harmonicMotion"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6910000000000001
+        },
+        {
+          "text": "반사궁",
+          "type": "single",
+          "perspective": "body",
+          "category": "body",
+          "score": 0.788,
+          "weight": 0.8622,
+          "grammar": "single",
+          "anchors": [
+            "timbre.transientEdge",
+            "rhythm.onsetDensity"
+          ],
+          "diagnostics": {
+            "musicalFit": 0.8,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.683
+        },
+        {
+          "text": "분기실",
+          "type": "single",
+          "perspective": "architecture",
+          "category": "architecture",
+          "score": 0.752,
+          "weight": 0.8388,
+          "grammar": "single",
+          "anchors": [
+            "harmony.harmonicMotion",
+            "currentSection.state"
+          ],
+          "diagnostics": {
+            "musicalFit": 0.8,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.6819999999999999
+        },
+        {
+          "text": "각인",
+          "type": "single",
+          "perspective": "gesture",
+          "category": "gesture",
+          "score": 0.786,
+          "weight": 0.8609,
+          "grammar": "single",
+          "anchors": [
+            "timbre.transientEdge",
+            "harmony.tonalFocus"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.08333333333333333,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.681
+        },
+        {
+          "text": "밝은 면이 접힐 때마다 결이 드러난다",
+          "type": "micro",
+          "perspective": "optics",
+          "category": "optics",
+          "score": 0.9640000000000001,
+          "weight": 0.9766,
+          "grammar": "sentence",
+          "anchors": [
+            "production.masterBrightness",
+            "texture.granularity"
+          ],
+          "diagnostics": {
+            "musicalFit": 1,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 1,
+            "languageQuality": 1,
+            "semanticRichness": 1,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.679
+        },
+        {
+          "text": "계산자",
+          "type": "single",
+          "perspective": "association",
+          "category": "association",
+          "score": 0.788,
+          "weight": 0.8622,
+          "grammar": "single",
+          "anchors": [
+            "mood",
+            "rhythm.complexity"
+          ],
+          "diagnostics": {
+            "musicalFit": 0.8,
+            "specificity": 0.8,
+            "originality": 1,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.648
+        },
+        {
+          "text": "팽창압",
+          "type": "single",
+          "perspective": "temperature",
+          "category": "temperature",
+          "score": 0.752,
+          "weight": 0.8388,
+          "grammar": "single",
+          "anchors": [
+            "dynamics.pumping",
+            "production.saturation"
+          ],
+          "diagnostics": {
+            "musicalFit": 0.8,
+            "specificity": 0.8,
+            "originality": 0.8,
+            "imageStrength": 0.8,
+            "languageQuality": 1,
+            "semanticRichness": 0.16666666666666666,
+            "cliche": 0,
+            "literal": 0,
+            "generic": 0,
+            "recentSimilarity": 0,
+            "invalidAnchors": 0
+          },
+          "diversityScore": 0.647
+        }
+      ],
+      "typeCounts": {
+        "single": 10,
+        "fragment": 13,
+        "nominal": 7,
+        "micro": 6
+      }
+    }
+  ],
+  "comparison": {
+    "sameGenreOverlap": 0,
+    "differentGenreOverlap": 0.027777777777777776,
+    "caveat": "Real-song listening and long-session artistic quality still require human evaluation."
+  }
+}

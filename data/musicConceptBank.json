@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "embeddingModel": null,
+  "dimensions": null,
+  "concepts": {
+    "genres": ["French House", "Future Funk", "City Pop", "UK Garage", "2-Step", "Jungle", "Techno", "Ambient", "Jazz"],
+    "eras": ["1980s Japanese pop style", "late 1990s UK style", "2010s internet style", "Y2K aesthetic"],
+    "scenes": ["UK club", "pirate radio culture", "rave culture", "vaporwave culture"],
+    "aesthetics": ["magical girl anime aesthetic", "Japanese retro aesthetic", "cyberpunk aesthetic", "internet nostalgia"],
+    "moods": ["dreamy", "melancholic", "bright", "aggressive", "warm", "cold"],
+    "production": ["sidechain compression", "sample based production", "vocal chop", "wide stereo production"],
+    "instrumentation": ["synth bass", "sub bass", "electric piano", "clean guitar", "disco strings", "brass", "saxophone"]
+  },
+  "activationPolicy": {
+    "minimumSimilarity": 0.68,
+    "contextMinimumSimilarity": 0.75,
+    "minimumStableObservations": 3,
+    "note": "Text labels are a vocabulary index only. They are never activated without matching-model text vectors and temporal evidence."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "available": false,
+  "model": null,
+  "audioEncoder": null,
+  "dimension": 0,
+  "entries": [],
+  "vocabularySource": "./genreTaxonomy.json",
+  "activationPolicy": {
+    "onlyWhenBaseUncertain": true,
+    "confidenceTrigger": 0.45,
+    "entropyTrigger": 0.78,
+    "cooldownMs": 6000
+  },
+  "requirements": [
+    "Audio and text embeddings must come from the exact same public checkpoint.",
+    "Every entry must match dimension and include label plus family metadata.",
+    "Runtime must remain unavailable rather than compare incompatible Discogs-EffNet embeddings."
+  ],
+  "reason": "No verified browser-compatible CLAP audio encoder plus matching precomputed text embeddings are bundled."
+}

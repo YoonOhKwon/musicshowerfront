@@ -1,0 +1,42 @@
+{
+  "club-breaks": {
+    "triggers": ["Jungle", "Drum & Bass", "Breakbeat", "Juke", "Footwork", "Jersey Club", "Baltimore Club"],
+    "candidates": ["Jungle", "Atmospheric DnB", "Liquid DnB", "Juke", "Footwork", "Jersey Club", "Baltimore Club", "Breakcore"],
+    "character": {"breakbeat": 0.82, "regularity": 0.35, "speed": 0.78, "roughness": 0.52, "space": 0.45}
+  },
+  "four-floor-club": {
+    "triggers": ["House", "Deep House", "Tech House", "Techno", "Trance", "Electro"],
+    "candidates": ["Deep House", "Tech House", "Acid House", "Techno", "Trance", "Electroclash", "Blog House", "Deconstructed Club"],
+    "character": {"breakbeat": 0.18, "regularity": 0.86, "speed": 0.58, "roughness": 0.42, "space": 0.38}
+  },
+  "digital-experimental": {
+    "triggers": ["Experimental", "IDM", "Glitch", "Breakcore", "Ambient"],
+    "candidates": ["IDM", "Glitch", "Glitchcore", "Breakcore", "Mashcore", "HexD", "Deconstructed Club", "Drone"],
+    "character": {"breakbeat": 0.58, "regularity": 0.22, "speed": 0.48, "roughness": 0.72, "space": 0.55}
+  },
+  "internet-pop": {
+    "triggers": ["Pop", "Hyperpop", "Electropop", "Synth-pop"],
+    "candidates": ["Hyperpop", "Digicore", "Futurecore", "Future Funk", "PluggnB", "Vaporwave", "Glitchcore"],
+    "character": {"breakbeat": 0.4, "regularity": 0.65, "speed": 0.62, "roughness": 0.45, "space": 0.38}
+  },
+  "bass-rap": {
+    "triggers": ["Hip-Hop", "Trap", "Phonk", "Cloud Rap"],
+    "candidates": ["Trap", "Phonk", "Drift Phonk", "Cloud Rap", "Alternative Hip-Hop", "PluggnB", "Internet Rap"],
+    "character": {"breakbeat": 0.42, "regularity": 0.58, "speed": 0.42, "roughness": 0.52, "space": 0.4}
+  },
+  "guitar-density": {
+    "triggers": ["Rock", "Alternative Rock", "Punk", "Post-Punk", "Shoegaze", "Metal"],
+    "candidates": ["Alternative Rock", "Post-Punk", "Shoegaze", "Neo-Psychedelia", "Heavy Metal", "Punk"],
+    "character": {"breakbeat": 0.32, "regularity": 0.55, "speed": 0.52, "roughness": 0.7, "space": 0.46}
+  },
+  "atmospheric": {
+    "triggers": ["Ambient", "Drone", "Soundtrack", "New Age", "Downtempo"],
+    "candidates": ["Ambient", "Drone", "Soundtrack", "Atmospheric DnB", "Future Garage", "Dungeon Synth", "New Age"],
+    "character": {"breakbeat": 0.14, "regularity": 0.2, "speed": 0.2, "roughness": 0.24, "space": 0.88}
+  },
+  "soul-groove": {
+    "triggers": ["Jazz", "Funk", "Soul", "Disco", "R&B"],
+    "candidates": ["Fusion Jazz", "Funk", "Soul", "Disco", "R&B", "Gospel", "Bebop"],
+    "character": {"breakbeat": 0.38, "regularity": 0.48, "speed": 0.46, "roughness": 0.3, "space": 0.52}
+  }
+}

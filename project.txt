@@ -1,0 +1,4332 @@
+﻿
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\ai\aiProfiler.js =====
+/* =========================
+   FALLBACK PROFILE
+========================= */
+
+let keywordMatrix = {
+
+  genres: [
+
+    "?꾩옄?뚯븙",
+    "?섏슦??,
+    "?대읇 ?뚯븙",
+    "?곕퉬?명듃"
+
+  ],
+
+  textures: [
+
+    "?ㅼ삩",
+    "?좊━",
+    "湲덉냽",
+    "?덇컻"
+
+  ],
+
+  eras: [
+
+    "?꾨?",
+    "誘몃옒",
+    "?붿???,
+    "珥덊쁽?"
+
+  ],
+
+  beats: [
+
+    "留λ컯",
+    "諛섎났",
+    "吏덉＜",
+    "?덉젙"
+
+  ],
+
+  moods: [
+
+    "紐쏀솚",
+    "湲댁옣",
+    "?⑺?",
+    "?대갑"
+
+  ],
+
+  visualStyle: [
+
+    "?ㅼ삩",
+    "湲由ъ튂",
+    "?붿긽",
+    "鍮쏆쓽 ?뚰렪"
+
+  ],
+
+  intensity:
+    0.5,
+
+
+  genreProfile: {
+
+    family:
+      "?꾩옄?뚯븙",
+
+    primary:
+      "?섏슦??,
+
+    secondary: [
+
+      "???섏슦??,
+
+      "?뚰겕 ?섏슦??
+
+    ],
+
+    confidence:
+      0.3
+
+  }
+
+};
+
+
+let keywordMatrixReady =
+  true;
+
+
+let aiProfileLoaded =
+  false;
+
+
+let aiProfileStatus =
+  "waiting";
+
+
+let aiAnalysisRunning =
+  false;
+
+
+let aiAnalysisTimer =
+  null;
+
+
+/* =========================
+   AVERAGE
+========================= */
+
+function average(
+  array
+) {
+
+  if (
+    !array ||
+    !array.length
+  ) {
+
+    return 0;
+
+  }
+
+
+  return (
+    array.reduce(
+      (a, b) =>
+        a + b,
+      0
+    ) /
+    array.length
+  );
+
+}
+
+
+/* =========================
+   TOP NOTES
+========================= */
+
+function getTopNotes() {
+
+  const notes = [
+
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B"
+
+  ];
+
+
+  const chroma =
+    getChromaProfile();
+
+
+  return chroma
+
+    .map(
+      (value, index) => ({
+
+        note:
+          notes[index],
+
+        value
+
+      })
+    )
+
+    .sort(
+      (a, b) =>
+        b.value -
+        a.value
+    )
+
+    .slice(
+      0,
+      5
+    )
+
+    .map(
+      item =>
+        item.note
+    );
+
+}
+
+
+/* =========================
+   BUILD PROFILE
+========================= */
+
+function createAudioAIFeaturePacket() {
+
+  return {
+
+    rhythm:
+      getRhythmProfile(),
+
+    audio:
+      getAdvancedAudioProfile()
+
+  };
+
+}
+
+
+/* =========================
+   BUILD KEYWORD MATRIX
+========================= */
+
+async function buildKeywordMatrix() {
+
+  if (
+    !audioStarted
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    aiAnalysisRunning
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    audioAnalysis.samples <
+    20
+  ) {
+
+    aiProfileStatus =
+      "waiting";
+
+
+    scheduleNextAIAnalysis(
+      CONFIG.ai.retryDelay
+    );
+
+
+    return;
+
+  }
+
+
+  aiAnalysisRunning =
+    true;
+
+
+  aiProfileStatus =
+    "analyzing";
+
+
+  try {
+
+    const featurePacket =
+      createAudioAIFeaturePacket();
+
+
+    const topNotes =
+      getTopNotes();
+
+
+    const prompt = `
+?뱀떊? 怨좉툒 ?뚯븙 ?λⅤ 遺꾩꽍 諛?
+怨듦컧媛??쒓컖???쒖뒪?쒖쓽 ?뚯븙 遺꾩꽍 ?붿쭊?대떎.
+
+?꾨옒 ?곗씠?곕뒗 ?뚯븙??理쒓렐 援ш컙?먯꽌
+釉뚮씪?곗? DSP瑜??듯빐 異붿텧???뱀쭠?대떎.
+
+???곗씠?곕쭔??洹쇨굅濡??먮떒?댁빞 ?쒕떎.
+
+========================
+HARMONY
+========================
+
+Top Notes:
+${topNotes.join(", ") || "unknown"}
+
+Chroma:
+${JSON.stringify(
+  featurePacket.audio.harmony.chroma
+)}
+
+MFCC:
+${JSON.stringify(
+  featurePacket.audio.harmony.mfcc
+)}
+
+
+========================
+RHYTHM
+========================
+
+${JSON.stringify(
+  featurePacket.rhythm
+)}
+
+
+========================
+DYNAMICS
+========================
+
+${JSON.stringify(
+  featurePacket.audio.dynamics
+)}
+
+
+========================
+TIMBRE
+========================
+
+${JSON.stringify(
+  featurePacket.audio.timbre
+)}
+
+
+========================
+SPECTRUM
+========================
+
+${JSON.stringify(
+  featurePacket.audio.spectrum
+)}
+
+
+========================
+GENRE ANALYSIS
+========================
+
+?λⅤ瑜?媛?ν븳 ???믪? ?댁긽?꾨줈 遺꾩꽍?섎씪.
+
+?ㅼ쓬怨?媛숈? 怨꾩링???ъ슜?쒕떎.
+
+family:
+?遺꾨쪟
+
+primary:
+媛??媛?μ꽦 ?믪? ?λⅤ
+
+secondary:
+異붽? ?꾨낫 ?λⅤ 2~4媛?
+
+confidence:
+?꾩옱 ?곗씠?곌? ?대떦 primary ?λⅤ瑜?
+?쇰쭏??媛뺥븯寃?吏吏?섎뒗吏 0~1
+
+?덈? ?ㅼ뼱:
+
+House
+??Deep House
+??Tech House
+??Bass House
+
+UK Garage
+??2-Step
+??Speed Garage
+??Future Garage
+
+Drum & Bass
+??Liquid
+??Neurofunk
+??Jump Up
+
+Hard Dance
+??Hardstyle
+??Hardcore
+??J-Core
+
+Breakbeat
+??Breaks
+??Electro Breaks
+??Big Beat
+
+?? ?꾩옱 ?곗씠?곕줈 ?몃? ?λⅤ瑜?
+?좊ː???덇쾶 援щ퀎?????녿뒗 寃쎌슦
+?곸쐞 ?λⅤ?먯꽌 硫덉떠??
+
+========================
+
+keywords???쒓컖?붿뿉 ?ъ슜??
+吏㏃? ?쒓뎅???쒗쁽?댁뼱???쒕떎.
+
+?λⅤ肉먮쭔 ?꾨땲??
+
+吏덇컧
+?쒕?
+由щ벉
+媛먯젙
+怨듦컙媛?
+?됯컧
+?吏곸엫
+
+???쒗쁽?섎씪.
+
+諛섎뱶??吏?뺣맂 JSON 援ъ“留?諛섑솚?섎씪.
+`.trim();
+
+
+    console.log(
+      "[AI] advanced profile request"
+    );
+
+
+    /*
+      ?쒕쾭媛 ?붽뎄?섎뒗 援ъ“? ?뺥솗???쇱튂
+    */
+    const response =
+      await fetch(
+        "/api/music-analysis",
+        {
+
+          method:
+            "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+          body:
+            JSON.stringify({
+
+              featurePacket,
+
+              topNotes,
+
+              prompt
+
+            })
+
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+      const errorText =
+        await response.text();
+
+
+      throw new Error(
+        `HTTP ${response.status}: ${errorText}`
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    validateKeywordMatrix(
+      result
+    );
+
+
+    keywordMatrix =
+      result;
+
+
+    keywordMatrixReady =
+      true;
+
+
+    aiProfileLoaded =
+      true;
+
+
+    aiProfileStatus =
+      "ready";
+
+
+    console.log(
+      "[AI] profile updated:",
+      keywordMatrix
+    );
+
+  }
+
+
+  catch (error) {
+
+    console.error(
+      "[AI] analysis failed:",
+      error
+    );
+
+
+    /*
+      以묒슂:
+      湲곗〈 matrix ?좎?
+    */
+
+    keywordMatrixReady =
+      true;
+
+
+    aiProfileStatus =
+      "error";
+
+  }
+
+
+  finally {
+
+    aiAnalysisRunning =
+      false;
+
+
+    scheduleNextAIAnalysis(
+      CONFIG.ai.interval
+    );
+
+  }
+
+}
+
+
+/* =========================
+   VALIDATION
+========================= */
+
+function validateKeywordMatrix(
+  matrix
+) {
+
+  if (
+    !matrix ||
+    typeof matrix !== "object"
+  ) {
+
+    throw new Error(
+      "AI result is not an object."
+    );
+
+  }
+
+
+  const requiredArrays = [
+
+    "genres",
+
+    "textures",
+
+    "eras",
+
+    "beats",
+
+    "moods",
+
+    "visualStyle"
+
+  ];
+
+
+  for (
+    const name
+    of requiredArrays
+  ) {
+
+    if (
+      !Array.isArray(
+        matrix[name]
+      )
+    ) {
+
+      throw new Error(
+        `Missing category: ${name}`
+      );
+
+    }
+
+  }
+
+
+  if (
+    !matrix.genreProfile
+  ) {
+
+    matrix.genreProfile = {
+
+      family:
+        "unknown",
+
+      primary:
+        "unknown",
+
+      secondary:
+        [],
+
+      confidence:
+        0
+
+    };
+
+  }
+
+
+  if (
+    typeof matrix.intensity !==
+    "number"
+  ) {
+
+    matrix.intensity =
+      0.5;
+
+  }
+
+
+  matrix.intensity =
+    constrain(
+      matrix.intensity,
+      0,
+      1
+    );
+
+}
+
+
+/* =========================
+   AI TIMER
+========================= */
+
+function scheduleNextAIAnalysis(
+  delay =
+    CONFIG.ai.interval
+) {
+
+  if (
+    aiAnalysisTimer
+  ) {
+
+    clearTimeout(
+      aiAnalysisTimer
+    );
+
+  }
+
+
+  if (
+    !audioStarted
+  ) {
+
+    return;
+
+  }
+
+
+  aiAnalysisTimer =
+    setTimeout(
+      () => {
+
+        buildKeywordMatrix();
+
+      },
+
+      delay
+
+    );
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\audio\audioEngine.js =====
+let audioContext = null;
+
+let microphone = null;
+
+let analyser = null;
+
+let meydaAnalyzer = null;
+
+let audioFrequencyData = null;
+
+let audioWaveformData = null;
+
+let audioStarted = false;
+
+
+/* =========================
+   START AUDIO
+========================= */
+
+async function startAudioCapture() {
+
+  if (audioStarted) {
+    return;
+  }
+
+
+  const button =
+    document.getElementById(
+      "startButton"
+    );
+
+
+  try {
+
+    button.disabled = true;
+
+    button.textContent =
+      "?ㅻ뵒???낅젰 ?좏깮 以?..";
+
+
+    const stream =
+      await navigator.mediaDevices.getDisplayMedia({
+
+        video: true,
+
+        audio: true
+
+      });
+
+
+    /*
+      ?곸긽? ?꾩슂 ?놁쑝誘濡?醫낅즺
+    */
+    stream
+      .getVideoTracks()
+      .forEach(
+        track => track.stop()
+      );
+
+
+    /*
+      AudioContext
+    */
+    audioContext =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+
+    await audioContext.resume();
+
+
+    /*
+      Stream ??Web Audio
+    */
+    microphone =
+      audioContext
+        .createMediaStreamSource(
+          stream
+        );
+
+
+    /*
+      Analyser
+    */
+    analyser =
+      audioContext
+        .createAnalyser();
+
+
+    analyser.fftSize =
+      CONFIG.audio.fftSize;
+
+
+    analyser.smoothingTimeConstant =
+      CONFIG.audio.smoothing;
+
+
+    microphone.connect(
+      analyser
+    );
+
+
+    /*
+      諛곗뿴 ?앹꽦
+    */
+    audioFrequencyData =
+      new Uint8Array(
+        analyser.frequencyBinCount
+      );
+
+
+    audioWaveformData =
+      new Uint8Array(
+        analyser.fftSize
+      );
+
+
+    /*
+      ?댁쟾 ?곗씠??珥덇린??
+    */
+    resetAudioAnalysis();
+
+    resetBeatDetection();
+
+
+    /*
+      Meyda
+      spectralFlux??吏곸젒 怨꾩궛?섏? ?딄퀬
+      ?곗꽑 ?덉젙?깆쓣 ?꾪빐 ?ъ슜?섏? ?딅뒗??
+    */
+    meydaAnalyzer =
+      Meyda.createMeydaAnalyzer({
+
+        audioContext,
+
+        source:
+          microphone,
+
+        bufferSize:
+          CONFIG.audio.meydaBufferSize,
+
+        numberOfMFCCCoefficients:
+          CONFIG.audio.mfccCoefficients,
+
+        featureExtractors: [
+
+          "chroma",
+
+          "mfcc",
+
+          "rms",
+
+          "energy",
+
+          "zcr",
+
+          "loudness",
+
+          "spectralCentroid",
+
+          "spectralFlatness",
+
+          "spectralRolloff",
+
+          "spectralSpread",
+
+          "spectralSkewness",
+
+          "spectralKurtosis",
+
+          "spectralCrest",
+
+          "perceptualSharpness",
+
+          "perceptualSpread"
+
+        ],
+
+        callback:
+          processMeydaFeatures
+
+      });
+
+
+    meydaAnalyzer.start();
+
+
+    /*
+      ?ㅻ뵒???쒖옉
+    */
+    audioStarted =
+      true;
+
+
+    /*
+      ?⑥뼱 ?앹꽦 ??대㉧ 珥덇린??
+    */
+    lastWordSpawnTime =
+      0;
+
+
+    /*
+      踰꾪듉 ?쒓굅
+    */
+    button.style.display =
+      "none";
+
+
+    /*
+      AI ?곹깭
+    */
+    aiProfileStatus =
+      "waiting";
+
+
+    /*
+      理쒖큹 AI 遺꾩꽍
+    */
+    setTimeout(
+      () => {
+
+        buildKeywordMatrix();
+
+      },
+
+      CONFIG.ai.initialDelay
+
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Audio capture failed:",
+      error
+    );
+
+
+    audioStarted =
+      false;
+
+
+    button.disabled =
+      false;
+
+
+    button.textContent =
+      "?뚯븙 遺꾩꽍 ?쒖옉";
+
+  }
+
+}
+
+
+/* =========================
+   REALTIME AUDIO
+========================= */
+
+function updateAudioData() {
+
+  if (
+    !analyser
+  ) {
+
+    return;
+
+  }
+
+
+  analyser.getByteFrequencyData(
+    audioFrequencyData
+  );
+
+
+  analyser.getByteTimeDomainData(
+    audioWaveformData
+  );
+
+}
+
+
+/* =========================
+   STOP
+========================= */
+
+function stopAudioCapture() {
+
+  try {
+
+    if (
+      meydaAnalyzer
+    ) {
+
+      meydaAnalyzer.stop();
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.warn(
+      "Meyda stop failed:",
+      error
+    );
+
+  }
+
+
+  if (
+    audioContext &&
+    audioContext.state !== "closed"
+  ) {
+
+    audioContext.close();
+
+  }
+
+
+  audioStarted =
+    false;
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\audio\audioFeatures.js =====
+const audioAnalysis = {
+
+  /*
+    Harmony
+  */
+  chromaHistory: [],
+
+  mfccHistory: [],
+
+
+  /*
+    Basic timbre
+  */
+  zcrList: [],
+
+  flatnessList: [],
+
+  rmsList: [],
+
+  centroidList: [],
+
+  rolloffList: [],
+
+  spreadList: [],
+
+  skewnessList: [],
+
+  kurtosisList: [],
+
+  crestList: [],
+
+
+  /*
+    Perceptual timbre
+  */
+  sharpnessList: [],
+
+  perceptualSpreadList: [],
+
+
+  /*
+    Energy
+  */
+  energyList: [],
+
+  loudnessList: [],
+
+
+  /*
+    Frequency bands
+  */
+  bassList: [],
+
+  lowMidList: [],
+
+  midList: [],
+
+  highList: [],
+
+
+  samples: 0
+
+};
+
+
+const MAX_AI_SAMPLES =
+  CONFIG.audio.analysisWindowSamples;
+
+
+/* =========================
+   LIMITED ARRAY
+========================= */
+
+function pushLimited(
+  array,
+  value
+) {
+
+  array.push(value);
+
+
+  if (
+    array.length >
+    MAX_AI_SAMPLES
+  ) {
+
+    array.shift();
+
+  }
+
+}
+
+
+/* =========================
+   CHROMA
+========================= */
+
+function pushChroma(
+  chroma
+) {
+
+  if (
+    !chroma ||
+    chroma.length !== 12
+  ) {
+
+    return;
+
+  }
+
+
+  audioAnalysis.chromaHistory.push(
+    [...chroma]
+  );
+
+
+  if (
+    audioAnalysis.chromaHistory.length >
+    MAX_AI_SAMPLES
+  ) {
+
+    audioAnalysis.chromaHistory.shift();
+
+  }
+
+}
+
+
+/* =========================
+   MFCC
+========================= */
+
+function pushMFCC(
+  mfcc
+) {
+
+  if (
+    !mfcc ||
+    !mfcc.length
+  ) {
+
+    return;
+
+  }
+
+
+  audioAnalysis.mfccHistory.push(
+    [...mfcc]
+  );
+
+
+  if (
+    audioAnalysis.mfccHistory.length >
+    MAX_AI_SAMPLES
+  ) {
+
+    audioAnalysis.mfccHistory.shift();
+
+  }
+
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetAudioAnalysis() {
+
+  audioAnalysis.chromaHistory = [];
+
+  audioAnalysis.mfccHistory = [];
+
+  audioAnalysis.zcrList = [];
+
+  audioAnalysis.flatnessList = [];
+
+  audioAnalysis.rmsList = [];
+
+  audioAnalysis.centroidList = [];
+
+  audioAnalysis.rolloffList = [];
+
+  audioAnalysis.spreadList = [];
+
+  audioAnalysis.skewnessList = [];
+
+  audioAnalysis.kurtosisList = [];
+
+  audioAnalysis.crestList = [];
+
+  audioAnalysis.sharpnessList = [];
+
+  audioAnalysis.perceptualSpreadList = [];
+
+  audioAnalysis.energyList = [];
+
+  audioAnalysis.loudnessList = [];
+
+  audioAnalysis.bassList = [];
+
+  audioAnalysis.lowMidList = [];
+
+  audioAnalysis.midList = [];
+
+  audioAnalysis.highList = [];
+
+  audioAnalysis.samples = 0;
+
+}
+
+
+/* =========================
+   MEYDA CALLBACK
+========================= */
+
+function processMeydaFeatures(
+  features
+) {
+
+  if (
+    !features
+  ) {
+
+    return;
+
+  }
+
+
+  const rms =
+    Number(
+      features.rms
+    ) || 0;
+
+
+  /*
+    ?묒? ?몄씠利??쒓굅
+  */
+  if (
+    rms <
+    CONFIG.audio.minRMS
+  ) {
+
+    return;
+
+  }
+
+
+  /* =========================
+     HARMONY
+  ========================= */
+
+  pushChroma(
+    features.chroma
+  );
+
+
+  pushMFCC(
+    features.mfcc
+  );
+
+
+  /* =========================
+     TIMBRE
+  ========================= */
+
+  pushLimited(
+    audioAnalysis.zcrList,
+    Number(features.zcr) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.flatnessList,
+    Number(
+      features.spectralFlatness
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.rmsList,
+    rms
+  );
+
+
+  pushLimited(
+    audioAnalysis.centroidList,
+    Number(
+      features.spectralCentroid
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.rolloffList,
+    Number(
+      features.spectralRolloff
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.spreadList,
+    Number(
+      features.spectralSpread
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.skewnessList,
+    Number(
+      features.spectralSkewness
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.kurtosisList,
+    Number(
+      features.spectralKurtosis
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.crestList,
+    Number(
+      features.spectralCrest
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.sharpnessList,
+    Number(
+      features.perceptualSharpness
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.perceptualSpreadList,
+    Number(
+      features.perceptualSpread
+    ) || 0
+  );
+
+
+  /* =========================
+     ENERGY
+  ========================= */
+
+  pushLimited(
+    audioAnalysis.energyList,
+    Number(
+      features.energy
+    ) || 0
+  );
+
+
+  pushLimited(
+    audioAnalysis.loudnessList,
+    Number(
+      features.loudness?.total
+    ) || 0
+  );
+
+
+  /* =========================
+     FREQUENCY BANDS
+  ========================= */
+
+  calculateFrequencyBands();
+
+
+  audioAnalysis.samples =
+    audioAnalysis.rmsList.length;
+
+}
+
+
+/* =========================
+   FREQUENCY BANDS
+========================= */
+
+function calculateFrequencyBands() {
+
+  if (
+    !audioFrequencyData ||
+    !audioContext ||
+    !analyser
+  ) {
+
+    return;
+
+  }
+
+
+  const length =
+    audioFrequencyData.length;
+
+
+  let subBass = 0;
+
+  let bass = 0;
+
+  let lowMid = 0;
+
+  let mid = 0;
+
+  let high = 0;
+
+
+  for (
+    let i = 0;
+    i < length;
+    i++
+  ) {
+
+    const value =
+      audioFrequencyData[i] /
+      255;
+
+
+    const frequency =
+      i *
+      (
+        audioContext.sampleRate /
+        analyser.fftSize
+      );
+
+
+    if (
+      frequency < 60
+    ) {
+
+      subBass += value;
+
+    }
+
+    else if (
+      frequency < 250
+    ) {
+
+      bass += value;
+
+    }
+
+    else if (
+      frequency < 500
+    ) {
+
+      lowMid += value;
+
+    }
+
+    else if (
+      frequency < 2000
+    ) {
+
+      mid += value;
+
+    }
+
+    else {
+
+      high += value;
+
+    }
+
+  }
+
+
+  pushLimited(
+    audioAnalysis.bassList,
+    (
+      subBass +
+      bass
+    ) / length
+  );
+
+
+  pushLimited(
+    audioAnalysis.lowMidList,
+    lowMid / length
+  );
+
+
+  pushLimited(
+    audioAnalysis.midList,
+    mid / length
+  );
+
+
+  pushLimited(
+    audioAnalysis.highList,
+    high / length
+  );
+
+}
+
+
+/* =========================
+   STATISTICS
+========================= */
+
+function getFeatureStats(
+  array
+) {
+
+  if (
+    !array ||
+    !array.length
+  ) {
+
+    return {
+
+      mean: 0,
+
+      std: 0,
+
+      min: 0,
+
+      max: 0,
+
+      range: 0
+
+    };
+
+  }
+
+
+  const mean =
+    array.reduce(
+      (a, b) => a + b,
+      0
+    ) /
+    array.length;
+
+
+  const variance =
+    array.reduce(
+      (sum, value) =>
+        sum +
+        Math.pow(
+          value - mean,
+          2
+        ),
+      0
+    ) /
+    array.length;
+
+
+  const min =
+    Math.min(
+      ...array
+    );
+
+
+  const max =
+    Math.max(
+      ...array
+    );
+
+
+  return {
+
+    mean,
+
+    std:
+      Math.sqrt(
+        variance
+      ),
+
+    min,
+
+    max,
+
+    range:
+      max - min
+
+  };
+
+}
+
+
+/* =========================
+   CHROMA PROFILE
+========================= */
+
+function getChromaProfile() {
+
+  const result =
+    new Array(12).fill(0);
+
+
+  const history =
+    audioAnalysis.chromaHistory;
+
+
+  if (
+    !history.length
+  ) {
+
+    return result;
+
+  }
+
+
+  for (
+    const frame of history
+  ) {
+
+    for (
+      let i = 0;
+      i < 12;
+      i++
+    ) {
+
+      result[i] +=
+        Number(
+          frame[i]
+        ) || 0;
+
+    }
+
+  }
+
+
+  return result.map(
+    value =>
+      value /
+      history.length
+  );
+
+}
+
+
+/* =========================
+   MFCC PROFILE
+========================= */
+
+function getMFCCProfile() {
+
+  const history =
+    audioAnalysis.mfccHistory;
+
+
+  if (
+    !history.length
+  ) {
+
+    return [];
+
+  }
+
+
+  const size =
+    history[0].length;
+
+
+  const result =
+    new Array(size).fill(0);
+
+
+  for (
+    const frame of history
+  ) {
+
+    for (
+      let i = 0;
+      i < size;
+      i++
+    ) {
+
+      result[i] +=
+        Number(
+          frame[i]
+        ) || 0;
+
+    }
+
+  }
+
+
+  return result.map(
+    value =>
+      value /
+      history.length
+  );
+
+}
+
+
+/* =========================
+   ADVANCED PROFILE
+========================= */
+
+function getAdvancedAudioProfile() {
+
+  return {
+
+    samples:
+      audioAnalysis.samples,
+
+
+    harmony: {
+
+      chroma:
+        getChromaProfile(),
+
+      mfcc:
+        getMFCCProfile()
+
+    },
+
+
+    dynamics: {
+
+      rms:
+        getFeatureStats(
+          audioAnalysis.rmsList
+        ),
+
+      energy:
+        getFeatureStats(
+          audioAnalysis.energyList
+        ),
+
+      loudness:
+        getFeatureStats(
+          audioAnalysis.loudnessList
+        )
+
+    },
+
+
+    timbre: {
+
+      zcr:
+        getFeatureStats(
+          audioAnalysis.zcrList
+        ),
+
+      flatness:
+        getFeatureStats(
+          audioAnalysis.flatnessList
+        ),
+
+      centroid:
+        getFeatureStats(
+          audioAnalysis.centroidList
+        ),
+
+      rolloff:
+        getFeatureStats(
+          audioAnalysis.rolloffList
+        ),
+
+      spread:
+        getFeatureStats(
+          audioAnalysis.spreadList
+        ),
+
+      skewness:
+        getFeatureStats(
+          audioAnalysis.skewnessList
+        ),
+
+      kurtosis:
+        getFeatureStats(
+          audioAnalysis.kurtosisList
+        ),
+
+      crest:
+        getFeatureStats(
+          audioAnalysis.crestList
+        ),
+
+      sharpness:
+        getFeatureStats(
+          audioAnalysis.sharpnessList
+        ),
+
+      perceptualSpread:
+        getFeatureStats(
+          audioAnalysis.perceptualSpreadList
+        )
+
+    },
+
+
+    spectrum: {
+
+      bass:
+        getFeatureStats(
+          audioAnalysis.bassList
+        ),
+
+      lowMid:
+        getFeatureStats(
+          audioAnalysis.lowMidList
+        ),
+
+      mid:
+        getFeatureStats(
+          audioAnalysis.midList
+        ),
+
+      high:
+        getFeatureStats(
+          audioAnalysis.highList
+        )
+
+    }
+
+  };
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\audio\beatDetector.js =====
+let previousBass = 0;
+
+let previousEnergy = 0;
+
+let smoothBass = 0;
+
+let smoothMid = 0;
+
+let smoothHigh = 0;
+
+let smoothEnergy = 0;
+
+let lastBeatTime = 0;
+
+let beatFlash = 0;
+
+let beatScale = 0;
+
+let bpm = 0;
+
+let bpmHistory = [];
+
+let beatIntervalHistory = [];
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetBeatDetection() {
+
+  previousBass = 0;
+
+  previousEnergy = 0;
+
+  smoothBass = 0;
+
+  smoothMid = 0;
+
+  smoothHigh = 0;
+
+  smoothEnergy = 0;
+
+  lastBeatTime = 0;
+
+  beatFlash = 0;
+
+  beatScale = 0;
+
+  bpm = 0;
+
+  bpmHistory = [];
+
+  beatIntervalHistory = [];
+
+}
+
+
+/* =========================
+   FREQUENCY
+========================= */
+
+function averageFrequency(
+  start,
+  end
+) {
+
+  if (
+    !audioFrequencyData
+  ) {
+
+    return 0;
+
+  }
+
+
+  end =
+    Math.min(
+      end,
+      audioFrequencyData.length
+    );
+
+
+  let sum = 0;
+
+
+  for (
+    let i = start;
+    i < end;
+    i++
+  ) {
+
+    sum +=
+      audioFrequencyData[i];
+
+  }
+
+
+  return (
+    sum /
+    Math.max(
+      1,
+      end - start
+    )
+  );
+
+}
+
+
+/* =========================
+   BEAT
+========================= */
+
+function updateBeatDetection() {
+
+  if (
+    !audioFrequencyData
+  ) {
+
+    return false;
+
+  }
+
+
+  const bass =
+    averageFrequency(0, 8);
+
+
+  const mid =
+    averageFrequency(8, 35);
+
+
+  const high =
+    averageFrequency(35, 100);
+
+
+  const energy =
+    (
+      bass * 0.5 +
+      mid * 0.3 +
+      high * 0.2
+    ) / 255;
+
+
+  smoothBass =
+    lerp(
+      smoothBass,
+      bass,
+      0.18
+    );
+
+
+  smoothMid =
+    lerp(
+      smoothMid,
+      mid,
+      0.14
+    );
+
+
+  smoothHigh =
+    lerp(
+      smoothHigh,
+      high,
+      0.14
+    );
+
+
+  smoothEnergy =
+    lerp(
+      smoothEnergy,
+      energy,
+      0.12
+    );
+
+
+  const bassDelta =
+    smoothBass -
+    previousBass;
+
+
+  const energyDelta =
+    smoothEnergy -
+    previousEnergy;
+
+
+  const now =
+    performance.now();
+
+
+  const threshold =
+    CONFIG.beat.bassDelta +
+    smoothBass * 0.12;
+
+
+  let detected =
+    false;
+
+
+  if (
+
+    bassDelta >
+    threshold &&
+
+    energyDelta >
+    CONFIG.beat.energyDelta &&
+
+    smoothBass >
+    CONFIG.beat.minBass &&
+
+    now - lastBeatTime >
+    CONFIG.beat.cooldown
+
+  ) {
+
+    detected =
+      true;
+
+
+    if (
+      lastBeatTime > 0
+    ) {
+
+      const interval =
+        now -
+        lastBeatTime;
+
+
+      updateBPMFromInterval(
+        interval
+      );
+
+    }
+
+
+    lastBeatTime =
+      now;
+
+
+    beatFlash =
+      1;
+
+    beatScale =
+      1;
+
+  }
+
+
+  previousBass =
+    smoothBass;
+
+
+  previousEnergy =
+    smoothEnergy;
+
+
+  beatFlash *=
+    0.92;
+
+
+  beatScale *=
+    0.91;
+
+
+  return detected;
+
+}
+
+
+/* =========================
+   BPM
+========================= */
+
+function updateBPMFromInterval(
+  interval
+) {
+
+  if (
+    interval < 250 ||
+    interval > 2000
+  ) {
+
+    return;
+
+  }
+
+
+  beatIntervalHistory.push(
+    interval
+  );
+
+
+  if (
+    beatIntervalHistory.length >
+    16
+  ) {
+
+    beatIntervalHistory.shift();
+
+  }
+
+
+  const estimated =
+    60000 / interval;
+
+
+  if (
+    estimated <
+    CONFIG.beat.bpmMin ||
+
+    estimated >
+    CONFIG.beat.bpmMax
+  ) {
+
+    return;
+
+  }
+
+
+  bpmHistory.push(
+    estimated
+  );
+
+
+  if (
+    bpmHistory.length >
+    8
+  ) {
+
+    bpmHistory.shift();
+
+  }
+
+
+  bpm =
+    bpmHistory.reduce(
+      (a, b) =>
+        a + b,
+      0
+    ) /
+    bpmHistory.length;
+
+}
+
+
+/* =========================
+   RHYTHM PROFILE
+========================= */
+
+function getRhythmProfile() {
+
+  if (
+    !beatIntervalHistory.length
+  ) {
+
+    return {
+
+      bpm:
+        bpm || 0,
+
+      bpmStability:
+        0,
+
+      beatIntervalMean:
+        0,
+
+      beatIntervalStd:
+        0,
+
+      beatCount:
+        0
+
+    };
+
+  }
+
+
+  const mean =
+    beatIntervalHistory.reduce(
+      (a, b) =>
+        a + b,
+      0
+    ) /
+    beatIntervalHistory.length;
+
+
+  const variance =
+    beatIntervalHistory.reduce(
+      (sum, value) =>
+        sum +
+        Math.pow(
+          value - mean,
+          2
+        ),
+      0
+    ) /
+    beatIntervalHistory.length;
+
+
+  const std =
+    Math.sqrt(
+      variance
+    );
+
+
+  const coefficient =
+    mean > 0
+      ? std / mean
+      : 1;
+
+
+  const stability =
+    constrain(
+      1 - coefficient,
+      0,
+      1
+    );
+
+
+  return {
+
+    bpm:
+      bpm || 0,
+
+    bpmStability:
+      stability,
+
+    beatIntervalMean:
+      mean,
+
+    beatIntervalStd:
+      std,
+
+    beatCount:
+      beatIntervalHistory.length
+
+  };
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\data\visualDictionary.js =====
+const VISUAL_DICTIONARY = [
+
+  {
+    keywords: [
+      "?ㅼ삩",
+      "?뺢킅",
+      "鍮?
+    ],
+
+    hue: 320,
+
+    brightness: 1.3,
+
+    glow: 2.0,
+
+    speed: 1.2
+  },
+
+
+  {
+    keywords: [
+      "?좊━",
+      "?쇱쓬",
+      "?щ챸"
+    ],
+
+    hue: 200,
+
+    brightness: 1.2,
+
+    glow: 1.0,
+
+    speed: 0.8
+  },
+
+
+  {
+    keywords: [
+      "湲덉냽",
+      "泥?,
+      "湲곌퀎"
+    ],
+
+    hue: 210,
+
+    brightness: 1.0,
+
+    glow: 0.6,
+
+    speed: 1.1
+  },
+
+
+  {
+    keywords: [
+      "遺?,
+      "?닿린",
+      "?⑷킅濡?
+    ],
+
+    hue: 15,
+
+    brightness: 1.4,
+
+    glow: 1.8,
+
+    speed: 1.5
+  },
+
+
+  {
+    keywords: [
+      "?덇컻",
+      "轅?,
+      "紐쏀솚",
+      "援щ쫫"
+    ],
+
+    hue: 270,
+
+    brightness: 1.0,
+
+    glow: 2.2,
+
+    speed: 0.4
+  },
+
+
+  {
+    keywords: [
+      "湲由ъ튂",
+      "?ㅻ쪟",
+      "?붿???,
+      "?ъ씠踰?
+    ],
+
+    hue: 180,
+
+    brightness: 1.4,
+
+    glow: 1.8,
+
+    speed: 1.8
+  },
+
+
+  {
+    keywords: [
+      "?덊듃濡?,
+      "鍮덊떚吏",
+      "80?꾨?",
+      "90?꾨?"
+    ],
+
+    hue: 35,
+
+    brightness: 1.1,
+
+    glow: 0.8,
+
+    speed: 0.7
+  }
+
+];
+
+
+function getVisualProfile(
+  word
+) {
+
+  const text =
+    String(word)
+      .toLowerCase();
+
+
+  for (
+    const profile
+    of VISUAL_DICTIONARY
+  ) {
+
+    for (
+      const keyword
+      of profile.keywords
+    ) {
+
+      if (
+        text.includes(
+          keyword.toLowerCase()
+        )
+      ) {
+
+        return profile;
+
+      }
+
+    }
+
+  }
+
+
+  /*
+    ?????녿뒗 AI ?⑥뼱
+    ???쒕뜡 湲곕낯 ?ㅽ???
+  */
+  return {
+
+    hue:
+      random(360),
+
+    brightness:
+      1.0,
+
+    glow:
+      1.0,
+
+    speed:
+      1.0
+
+  };
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\visual\background.js =====
+let stars = [];
+
+
+function initializeBackground() {
+
+  stars = [];
+
+
+  for (
+    let i = 0;
+    i < 220;
+    i++
+  ) {
+
+    stars.push({
+
+      x:
+        random(width),
+
+      y:
+        random(height),
+
+      size:
+        random(
+          0.5,
+          2.5
+        ),
+
+      speed:
+        random(
+          0.1,
+          0.5
+        )
+
+    });
+
+  }
+
+}
+
+
+function drawBackground() {
+
+  background(
+    8,
+    8,
+    14,
+    45
+  );
+
+
+  noStroke();
+
+
+  for (
+    const star of stars
+  ) {
+
+    star.y -=
+      star.speed +
+      smoothEnergy * 0.5;
+
+
+    if (
+      star.y < 0
+    ) {
+
+      star.y =
+        height;
+
+    }
+
+
+    fill(
+      255,
+      255,
+      255,
+      80 + smoothHigh
+    );
+
+
+    circle(
+
+      star.x,
+
+      star.y,
+
+      star.size
+
+    );
+
+  }
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\visual\floatingWord.js =====
+class FloatingWord {
+
+  constructor(
+    word
+  ) {
+
+    this.text =
+      String(word);
+
+
+    this.x =
+      random(
+        width * 0.1,
+        width * 0.9
+      );
+
+
+    this.y =
+      random(
+        height * 0.25,
+        height * 0.75
+      );
+
+
+    this.life =
+      CONFIG.visual.wordLife;
+
+
+    this.size =
+      random(
+        CONFIG.visual.wordMinSize,
+        CONFIG.visual.wordMaxSize
+      );
+
+
+    this.baseSpeedY =
+      random(
+        0.3,
+        1.4
+      );
+
+
+    this.angle =
+      random(
+        TWO_PI
+      );
+
+
+
+
+
+    this.visual =
+      getVisualProfile(
+        this.text
+      );
+
+  }
+
+
+  update() {
+
+    this.y -=
+      this.baseSpeedY *
+      this.visual.speed *
+      (1 + smoothEnergy);
+
+
+    this.x +=
+      sin(
+        frameCount * 0.01 +
+        this.angle
+      ) *
+      0.4;
+
+
+    this.angle +=
+      0.01;
+
+
+    this.life -=
+      1.0;
+
+
+    this.alpha =
+      map(
+        this.life,
+        0,
+        CONFIG.visual.wordLife,
+        0,
+        255
+      );
+
+  }
+
+
+  show() {
+
+    push();
+
+
+    translate(
+      this.x,
+      this.y
+    );
+
+
+    rotate(
+      this.rotation *
+      frameCount
+    );
+
+
+    textAlign(
+      CENTER,
+      CENTER
+    );
+
+
+    textStyle(
+      BOLD
+    );
+
+
+    textSize(
+      this.size
+    );
+
+
+    /*
+      HSB ?됱긽
+    */
+    colorMode(
+      HSB,
+      360,
+      100,
+      100,
+      255
+    );
+
+
+    const hue =
+      this.visual.hue;
+
+
+    const brightness =
+      constrain(
+        85 *
+        this.visual.brightness,
+        0,
+        100
+      );
+
+
+    /*
+      Glow
+    */
+    noStroke();
+
+
+    fill(
+      hue,
+      70,
+      brightness,
+      this.alpha *
+      0.08 *
+      this.visual.glow
+    );
+
+
+    text(
+      this.text,
+      0,
+      0
+    );
+
+
+    /*
+      ?ㅼ젣 湲??
+    */
+    fill(
+      hue,
+      25,
+      brightness,
+      this.alpha
+    );
+
+
+    text(
+      this.text,
+      0,
+      0
+    );
+
+
+    pop();
+
+  }
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\visual\particle.js =====
+class Particle {
+
+  constructor() {
+
+    this.angle =
+      random(
+        TWO_PI
+      );
+
+
+    this.radius =
+      random(
+        100,
+        220
+      );
+
+
+    this.speed =
+      random(
+        1.5,
+        4.5
+      );
+
+
+    this.life =
+      255;
+
+  }
+
+
+  update() {
+
+    this.radius +=
+      this.speed;
+
+
+    this.life -=
+      4;
+
+  }
+
+
+  show() {
+
+    const x =
+      width / 2 +
+      cos(this.angle) *
+      this.radius;
+
+
+    const y =
+      height / 2 +
+      sin(this.angle) *
+      this.radius;
+
+
+    noStroke();
+
+
+    fill(
+      180,
+      220,
+      255,
+      this.life
+    );
+
+
+    circle(
+      x,
+      y,
+      2 +
+      smoothBass * 0.03
+    );
+
+  }
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\visual\visualEngine.js =====
+let floatingWords = [];
+
+let particles = [];
+
+
+/* =========================
+   WORD
+========================= */
+
+function createWord() {
+
+  /*
+    AI媛 ?ㅽ뙣?대룄 fallback matrix媛 ?덉쑝誘濡?
+    ?⑥뼱 ?앹꽦? 怨꾩냽?쒕떎.
+  */
+  if (
+    !keywordMatrixReady
+  ) {
+
+    return;
+
+  }
+
+
+  const pool = [
+
+    ...(keywordMatrix.genres || []),
+
+    ...(keywordMatrix.textures || []),
+
+    ...(keywordMatrix.eras || []),
+
+    ...(keywordMatrix.beats || []),
+
+    ...(keywordMatrix.moods || []),
+
+    ...(keywordMatrix.visualStyle || [])
+
+  ];
+
+
+  if (
+    !pool.length
+  ) {
+
+    return;
+
+  }
+
+
+  const selected =
+    random(pool);
+
+
+  floatingWords.push(
+    new FloatingWord(
+      selected
+    )
+  );
+
+
+  /*
+    理쒕? ?⑥뼱 ??
+  */
+  if (
+    floatingWords.length >
+    CONFIG.visual.maxFloatingWords
+  ) {
+
+    floatingWords.shift();
+
+  }
+
+}
+
+
+/* =========================
+   BEAT PARTICLES
+========================= */
+
+function createBeatParticles() {
+
+  for (
+    let i = 0;
+    i < 20;
+    i++
+  ) {
+
+    particles.push(
+      new Particle()
+    );
+
+  }
+
+
+  if (
+    particles.length >
+    CONFIG.visual.maxParticles
+  ) {
+
+    particles.splice(
+      0,
+      particles.length -
+      CONFIG.visual.maxParticles
+    );
+
+  }
+
+}
+
+
+/* =========================
+   ORB
+========================= */
+
+function drawOrb() {
+
+  push();
+
+
+  translate(
+    width / 2,
+    height / 2
+  );
+
+
+  const radius =
+    180 +
+    smoothBass * 1.3 +
+    beatScale * 80;
+
+
+  /*
+    Aura
+  */
+  for (
+    let i = 7;
+    i >= 1;
+    i--
+  ) {
+
+    noStroke();
+
+
+    fill(
+      120,
+      80,
+      255,
+      5 +
+      beatFlash * 15
+    );
+
+
+    circle(
+      0,
+      0,
+      radius +
+      i * 35
+    );
+
+  }
+
+
+  /*
+    Primary ring
+  */
+  noFill();
+
+
+  stroke(
+    255,
+    80,
+    170,
+    150
+  );
+
+
+  strokeWeight(
+    2 +
+    beatFlash * 5
+  );
+
+
+  circle(
+    0,
+    0,
+    radius
+  );
+
+
+  /*
+    Secondary ring
+  */
+  stroke(
+    70,
+    180,
+    255,
+    100
+  );
+
+
+  circle(
+    0,
+    0,
+    radius * 0.72
+  );
+
+
+  /*
+    Core
+  */
+  noStroke();
+
+
+  fill(
+    255,
+    255,
+    255,
+    10 +
+    beatFlash * 70
+  );
+
+
+  circle(
+    0,
+    0,
+    radius * 0.35
+  );
+
+
+  pop();
+
+}
+
+
+/* =========================
+   WAVEFORM
+========================= */
+
+function drawWaveform() {
+
+  if (
+    !audioWaveformData
+  ) {
+
+    return;
+
+  }
+
+
+  push();
+
+
+  noFill();
+
+
+  stroke(
+    255,
+    255,
+    255,
+    40
+  );
+
+
+  beginShape();
+
+
+  for (
+    let i = 0;
+    i < audioWaveformData.length;
+    i++
+  ) {
+
+    const x =
+      map(
+        i,
+        0,
+        audioWaveformData.length - 1,
+        0,
+        width
+      );
+
+
+    const y =
+      height / 2 +
+      map(
+        audioWaveformData[i],
+        0,
+        255,
+        -80,
+        80
+      );
+
+
+    vertex(
+      x,
+      y
+    );
+
+  }
+
+
+  endShape();
+
+
+  pop();
+
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+function drawHUD() {
+
+  push();
+
+
+  textAlign(
+    LEFT,
+    TOP
+  );
+
+
+  textSize(
+    13
+  );
+
+
+  fill(
+    255,
+    255,
+    255,
+    140
+  );
+
+
+  text(
+    `ENERGY  ${
+      Math.round(
+        smoothEnergy * 100
+      )
+    }%`,
+    25,
+    25
+  );
+
+
+  text(
+    `BASS    ${
+      Math.round(
+        smoothBass
+      )
+    }`,
+    25,
+    45
+  );
+
+
+  text(
+    `MID     ${
+      Math.round(
+        smoothMid
+      )
+    }`,
+    25,
+    65
+  );
+
+
+  text(
+    `HIGH    ${
+      Math.round(
+        smoothHigh
+      )
+    }`,
+    25,
+    85
+  );
+
+
+  text(
+    `BPM     ${
+      bpm
+        ? Math.round(bpm)
+        : "--"
+    }`,
+    25,
+    105
+  );
+
+
+  pop();
+
+}
+
+
+/* =========================
+   UPDATE VISUALS
+========================= */
+
+function updateVisuals() {
+
+  /*
+    Words
+  */
+  for (
+    let i =
+      floatingWords.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const word =
+      floatingWords[i];
+
+
+    word.update();
+
+    word.show();
+
+
+    if (
+      word.life <= 0
+    ) {
+
+      floatingWords.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+
+  /*
+    Particles
+  */
+  for (
+    let i =
+      particles.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const particle =
+      particles[i];
+
+
+    particle.update();
+
+    particle.show();
+
+
+    if (
+      particle.life <= 0
+    ) {
+
+      particles.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\config.js =====
+const CONFIG = {
+
+  audio: {
+
+    fftSize: 2048,
+
+    smoothing: 0.72,
+
+    meydaBufferSize: 2048,
+
+    minRMS: 0.005,
+
+    mfccCoefficients: 13,
+
+    analysisWindowSamples: 300
+
+  },
+
+
+  beat: {
+
+    minBass: 45,
+
+    bassDelta: 10,
+
+    energyDelta: 0.012,
+
+    cooldown: 100,
+
+    bpmMin: 60,
+
+    bpmMax: 180
+
+  },
+
+
+  visual: {
+
+    maxFloatingWords: 20,
+
+    maxParticles: 500,
+
+    wordLife: 255,
+
+    wordMinSize: 28,
+
+    wordMaxSize: 70
+
+  },
+
+
+  ai: {
+
+    initialDelay: 4000,
+
+    retryDelay: 3000,
+
+    interval: 8000
+
+  }
+
+};
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\js\main.js =====
+let lastWordSpawnTime = 0;
+
+const WORD_SPAWN_INTERVAL =
+  2000;
+
+const WORDS_PER_SPAWN =
+  3;
+
+
+/* =========================
+   SETUP
+========================= */
+
+function setup() {
+
+  createCanvas(
+    windowWidth,
+    windowHeight
+  );
+
+
+  textAlign(
+    CENTER,
+    CENTER
+  );
+
+
+  initializeBackground();
+
+
+  const button =
+    document.getElementById(
+      "startButton"
+    );
+
+
+  button.addEventListener(
+    "click",
+    startAudioCapture
+  );
+
+}
+
+
+/* =========================
+   WORD SPAWNER
+========================= */
+
+function updateWordSpawner() {
+
+  if (
+    !audioStarted
+  ) {
+
+    return;
+
+  }
+
+
+  const now =
+    millis();
+
+
+  /*
+    理쒖큹 3媛?
+  */
+  if (
+    lastWordSpawnTime === 0
+  ) {
+
+    spawnWords();
+
+
+    lastWordSpawnTime =
+      now;
+
+
+    return;
+
+  }
+
+
+  /*
+    2珥덈쭏??
+  */
+  if (
+    now -
+    lastWordSpawnTime >=
+    WORD_SPAWN_INTERVAL
+  ) {
+
+    spawnWords();
+
+
+    lastWordSpawnTime =
+      now;
+
+  }
+
+}
+
+
+function spawnWords() {
+
+  for (
+    let i = 0;
+    i < WORDS_PER_SPAWN;
+    i++
+  ) {
+
+    createWord();
+
+  }
+
+}
+
+
+/* =========================
+   DRAW
+========================= */
+
+function draw() {
+
+  drawBackground();
+
+
+  if (
+    audioStarted
+  ) {
+
+    updateAudioData();
+
+
+    const beat =
+      updateBeatDetection();
+
+
+    if (
+      beat
+    ) {
+
+      createBeatParticles();
+
+    }
+
+
+    updateWordSpawner();
+
+  }
+
+
+  drawWaveform();
+
+  drawOrb();
+
+  updateVisuals();
+
+  drawHUD();
+
+  drawAIStatus();
+
+}
+
+
+/* =========================
+   AI STATUS
+========================= */
+
+function drawAIStatus() {
+
+  if (
+    !audioStarted
+  ) {
+
+    return;
+
+  }
+
+
+  push();
+
+
+  textAlign(
+    RIGHT,
+    TOP
+  );
+
+
+  textSize(
+    13
+  );
+
+
+  fill(
+    255,
+    255,
+    255,
+    140
+  );
+
+
+  let status =
+    "KEYWORDS READY";
+
+
+  if (
+    aiProfileStatus ===
+    "waiting"
+  ) {
+
+    status =
+      "AI WAITING";
+
+  }
+
+
+  else if (
+    aiProfileStatus ===
+    "analyzing"
+  ) {
+
+    status =
+      "AI ANALYZING";
+
+  }
+
+
+  else if (
+    aiProfileStatus ===
+    "error"
+  ) {
+
+    status =
+      "AI RETRYING";
+
+  }
+
+
+  else if (
+    aiProfileStatus ===
+    "ready"
+  ) {
+
+    status =
+      "AI PROFILE READY";
+
+  }
+
+
+  text(
+    status,
+    width - 25,
+    25
+  );
+
+
+  pop();
+
+}
+
+
+/* =========================
+   RESIZE
+========================= */
+
+function windowResized() {
+
+  resizeCanvas(
+    windowWidth,
+    windowHeight
+  );
+
+
+  initializeBackground();
+
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\index.html =====
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>AI Music Synesthesia</title>
+
+  <link
+    rel="stylesheet"
+    href="./style.css"
+  >
+
+  <!-- p5.js -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"
+  ></script>
+
+  <!-- Meyda -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/meyda@5.6.3/dist/web/meyda.min.js"
+  ></script>
+</head>
+
+<body>
+
+  <button id="startButton">
+    ?뚯븙 遺꾩꽍 ?쒖옉
+  </button>
+
+  <!-- Config -->
+  <script src="./js/config.js"></script>
+
+  <!-- Audio -->
+  <script src="./js/audio/audioFeatures.js"></script>
+  <script src="./js/audio/beatDetector.js"></script>
+  <script src="./js/audio/audioEngine.js"></script>
+
+  <!-- AI -->
+  <script src="./js/ai/aiProfiler.js"></script>
+
+  <!-- Visual -->
+  <script src="./js/data/visualDictionary.js"></script>
+  <script src="./js/visual/background.js"></script>
+  <script src="./js/visual/particle.js"></script>
+  <script src="./js/visual/floatingWord.js"></script>
+  <script src="./js/visual/visualEngine.js"></script>
+
+  <!-- Main -->
+  <script src="./js/main.js"></script>
+
+</body>
+
+</html>
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\package.json =====
+{
+  "name": "music-shower",
+  "version": "1.0.0",
+  "description": "AI Music Synesthesia visualizer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "music",
+    "visualizer",
+    "synesthesia",
+    "ai",
+    "p5",
+    "meyda"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^7.8.0"
+  }
+}
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\server.js =====
+const path = require("path");
+
+console.log("THIS SERVER.JS IS RUNNING");
+const express = require("express");
+const cors = require("cors");
+const OpenAI = require("openai");
+
+require("dotenv").config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+
+/* =========================
+   MIDDLEWARE
+========================= */
+
+app.use(cors());
+
+app.use(
+  express.json({
+    limit: "100kb"
+  })
+);
+
+
+/* =========================
+   HEALTH CHECK
+========================= */
+
+app.get(
+  "/api/health",
+  (req, res) => {
+
+    res.json({
+      ok: true,
+      service: "AI Music Synesthesia",
+      aiConfigured: Boolean(
+        process.env.OPENAI_API_KEY
+      )
+    });
+
+  }
+);
+
+
+/* =========================
+   AI MUSIC ANALYSIS
+========================= */
+
+app.post(
+  "/api/music-analysis",
+  async (req, res) => {
+
+    try {
+
+      const {
+        featurePacket,
+        topNotes,
+        prompt
+      } = req.body;
+
+
+      if (
+        !featurePacket ||
+        !prompt
+      ) {
+
+        return res.status(400).json({
+
+          error:
+            "Feature packet and prompt are required."
+
+        });
+
+      }
+
+
+      if (
+        !process.env.OPENAI_API_KEY
+      ) {
+
+        return res.status(500).json({
+
+          error:
+            "OPENAI_API_KEY is not configured."
+
+        });
+
+      }
+
+
+      const response =
+        await client.responses.create({
+
+          model:
+            process.env.OPENAI_MODEL ||
+            "gpt-5.6-luna",
+
+          instructions: `
+?덈뒗 怨좉툒 ?뚯븙 遺꾩꽍 ?붿쭊?대떎.
+
+DSP feature瑜?吏곸젒 痢≪젙?섎뒗 寃껋씠 ?꾨땲??
+?쒓났??DSP feature?ㅼ쓣 ?뚯븙?숈쟻?쇰줈 ?댁꽍?댁꽌
+?꾩옱 ?뚯븙???λⅤ? ?쒓컖???뱀꽦??異붾줎?쒕떎.
+
+?λⅤ 遺꾨쪟??怨꾩링?곸쑝濡??섑뻾?쒕떎.
+
+family:
+媛?????뚯븙??怨꾩뿴
+
+primary:
+媛??媛?μ꽦???믪? ?몃? ?λⅤ
+
+secondary:
+異붽??곸쑝濡?媛?μ꽦???믪? ?λⅤ??
+
+confidence:
+0~1
+
+留ㅼ슦 以묒슂??洹쒖튃:
+
+- ?낅젰 ?곗씠?곕쭔?쇰줈 援щ텇?????녿뒗 ?λⅤ??
+  怨쇰룄?섍쾶 ?뺤젙?섏? ?딅뒗??
+- ?λⅤ媛 遺덊솗?ㅽ븯硫??곸쐞 ?λⅤ?먯꽌 硫덉텣??
+- ?쒕줈 援щ퀎?섏? ?딅뒗 ?λⅤ瑜??듭?濡??ｌ? ?딅뒗??
+- ?ㅼ썙?쒕뒗 吏㏐퀬 ?쒓컖?곸씤 ?쒓뎅???쒗쁽?쇰줈 ?앹꽦?쒕떎.
+`,
+
+          input: prompt,
+
+          text: {
+
+            format: {
+
+              type:
+                "json_schema",
+
+              name:
+                "advanced_music_profile",
+
+              strict:
+                true,
+
+              schema: {
+
+                type:
+                  "object",
+
+                additionalProperties:
+                  false,
+
+                properties: {
+
+                  genreProfile: {
+
+                    type:
+                      "object",
+
+                    additionalProperties:
+                      false,
+
+                    properties: {
+
+                      family: {
+                        type:
+                          "string"
+                      },
+
+                      primary: {
+                        type:
+                          "string"
+                      },
+
+                      secondary: {
+
+                        type:
+                          "array",
+
+                        items: {
+                          type:
+                            "string"
+                        },
+
+                        minItems:
+                          2,
+
+                        maxItems:
+                          4
+
+                      },
+
+                      confidence: {
+
+                        type:
+                          "number",
+
+                        minimum:
+                          0,
+
+                        maximum:
+                          1
+
+                      }
+
+                    },
+
+                    required: [
+
+                      "family",
+
+                      "primary",
+
+                      "secondary",
+
+                      "confidence"
+
+                    ]
+
+                  },
+
+
+                  genres: {
+
+                    type:
+                      "array",
+
+                    items: {
+                      type:
+                        "string"
+                    },
+
+                    minItems:
+                      5,
+
+                    maxItems:
+                      10
+
+                  },
+
+
+                  textures: {
+
+                    type:
+                      "array",
+
+                    items: {
+                      type:
+                        "string"
+                    },
+
+                    minItems:
+                      5,
+
+                    maxItems:
+                      10
+
+                  },
+
+
+                  eras: {
+
+                    type:
+                      "array",
+
+                    items: {
+                      type:
+                        "string"
+                    },
+
+                    minItems:
+                      4,
+
+                    maxItems:
+                      8
+
+                  },
+
+
+                  beats: {
+
+                    type:
+                      "array",
+
+                    items: {
+                      type:
+                        "string"
+                    },
+
+                    minItems:
+                      5,
+
+                    maxItems:
+                      10
+
+                  },
+
+
+                  moods: {
+
+                    type:
+                      "array",
+
+                    items: {
+                      type:
+                        "string"
+                    },
+
+                    minItems:
+                      5,
+
+                    maxItems:
+                      10
+
+                  },
+
+
+                  visualStyle: {
+
+                    type:
+                      "array",
+
+                    items: {
+                      type:
+                        "string"
+                    },
+
+                    minItems:
+                      5,
+
+                    maxItems:
+                      10
+
+                  },
+
+
+                  intensity: {
+
+                    type:
+                      "number",
+
+                    minimum:
+                      0,
+
+                    maximum:
+                      1
+
+                  }
+
+                },
+
+
+                required: [
+
+                  "genreProfile",
+
+                  "genres",
+
+                  "textures",
+
+                  "eras",
+
+                  "beats",
+
+                  "moods",
+
+                  "visualStyle",
+
+                  "intensity"
+
+                ]
+
+              }
+
+            }
+
+          }
+
+        });
+
+
+      const result =
+        JSON.parse(
+          response.output_text
+        );
+
+
+      console.log(
+        "[AI] advanced music profile generated"
+      );
+
+
+      res.json(
+        result
+      );
+
+    }
+
+
+    catch (error) {
+
+      console.error(
+        "[AI ERROR]",
+        error
+      );
+
+
+      res.status(500).json({
+
+        error:
+          "AI analysis failed.",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+  }
+);
+
+
+/* =========================
+   STATIC FILES
+========================= */
+
+const publicPath =
+  __dirname;
+
+
+/*
+  諛섎뱶??index.html??諛섑솚
+*/
+app.get(
+  "/",
+  (req, res) => {
+
+    res.sendFile(
+      path.join(
+        publicPath,
+        "index.html"
+      )
+    );
+
+  }
+);
+
+
+/*
+  CSS / JS / 湲고? ?뺤쟻 ?뚯씪
+*/
+app.use(
+  express.static(
+    publicPath
+  )
+);
+
+
+/* =========================
+   SERVER
+========================= */
+
+app.listen(
+  PORT,
+  () => {
+
+    console.log(
+      `AI Music Synesthesia running at http://localhost:${PORT}`
+    );
+
+    console.log(
+      `AI configured: ${
+        Boolean(
+          process.env.OPENAI_API_KEY
+        )
+      }`
+    );
+
+    console.log(
+      `AI model: ${
+        process.env.OPENAI_MODEL ||
+        "gpt-5-mini"
+      }`
+
+    );
+
+  }
+);
+
+
+===== FILE: C:\Users\yoono\Downloads\music shower\style.css =====
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  background: #08080e;
+  color: white;
+
+  font-family:
+    Arial,
+    "Noto Sans KR",
+    sans-serif;
+}
+
+canvas {
+  display: block;
+
+  position: fixed;
+
+  left: 0;
+  top: 0;
+
+  z-index: 0;
+}
+
+#startButton {
+  position: fixed;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 9999;
+
+  padding: 16px 28px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+
+  background: rgba(15, 15, 30, 0.95);
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  box-shadow:
+    0 0 30px rgba(120, 100, 255, 0.25);
+
+  backdrop-filter: blur(10px);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+#startButton:hover {
+  transform:
+    translate(-50%, -50%)
+    scale(1.05);
+
+  background:
+    rgba(35, 30, 65, 0.98);
+}
+
+#startButton:disabled {
+  cursor: default;
+  opacity: 0.7;
+}

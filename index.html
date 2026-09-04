@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08080e">
+  <link rel="icon" href="data:,">
+  <title>Music Shower · Real-time Music Language</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meyda@5.6.3/dist/web/meyda.min.js"></script>
+</head>
+<body>
+  <main id="audioLauncher" class="launcher" aria-labelledby="appTitle">
+    <p class="eyebrow">REAL-TIME MUSIC LANGUAGE VISUALIZER</p>
+    <h1 id="appTitle">MUSIC SHOWER</h1>
+    <p class="description">
+      음악을 로컬에서 즉시 느끼고 의미 상태로 융합해<br>
+      장르·악기·리듬·연주·음악적 맥락을 명료한 단어로 보여줍니다.
+    </p>
+    <label class="qualityControl" for="qualityMode">
+      <span>분석 품질</span>
+      <select id="qualityMode" aria-label="음악 분석 품질">
+        <option value="performance">가볍게</option>
+        <option value="balanced">균형</option>
+        <option value="quality">정밀</option>
+      </select>
+    </label>
+    <label class="qualityControl" for="languageMode">
+      <span>문구 생성</span>
+      <select id="languageMode" aria-label="문구 생성 방식">
+        <option value="remote">실시간 분석 + AI 해석 · API 사용</option>
+        <option value="local">실시간 분석 · 비용 없음</option>
+      </select>
+    </label>
+    <div class="actions">
+      <button id="startButton" class="primaryButton">탭·시스템 오디오</button>
+      <button id="fileButton" class="secondaryButton">음원 파일 선택</button>
+    </div>
+    <p class="hint">탭 오디오를 선택할 때 ‘오디오 공유’를 켜 주세요.</p>
+    <p class="hint">생성형 모드는 오디오 대신 분석 요약만 전송합니다. L: 프롬프트·토큰 추적</p>
+    <input id="audioFileInput" type="file" accept="audio/*" hidden>
+  </main>
+
+  <p id="audioStatus" class="audioStatus" data-state="info" aria-live="polite">
+    입력 방식을 선택하세요.
+  </p>
+  <button id="stopButton" class="stopButton" hidden>분석 중지</button>
+
+  <script src="./js/config.js"></script>
+  <script src="./js/core/ringBuffer.js"></script>
+  <script src="./js/core/sessionGuard.js"></script>
+  <script src="./js/core/multiRateScheduler.js"></script>
+  <script src="./js/core/performanceMonitor.js"></script>
+  <script src="./js/audio/signalMath.js"></script>
+  <script src="./js/audio/bassPitchTracker.js"></script>
+  <script src="./js/audio/melodyPitchTracker.js"></script>
+  <script src="./js/audio/audioFeatures.js"></script>
+  <script src="./js/audio/beatDetector.js"></script>
+  <script src="./js/ml/audioPreprocessing.js"></script>
+  <script src="./js/audio/sharedAudioRing.js"></script>
+  <script src="./js/audio/audioEngine.js"></script>
+  <script src="./js/ml/modelLoader.js"></script>
+  <script src="./js/ml/genreClassifier.js"></script>
+  <script src="./js/ml/confidenceCalibrator.js"></script>
+  <script src="./js/ml/instrumentClassifier.js"></script>
+  <script src="./js/ml/moodClassifier.js"></script>
+  <script src="./js/ml/temporalAggregator.js"></script>
+  <script src="./js/ml/genreTracker.js"></script>
+  <script src="./js/ml/noveltyDetector.js"></script>
+  <script src="./js/ml/semanticFusion.js"></script>
+  <script src="./js/ml/zeroShotGenre.js"></script>
+  <script src="./js/ml/conceptEmbeddingEngine.js"></script>
+  <script src="./js/ml/subgenreSearch.js"></script>
+  <script src="./js/ml/musicModel.js"></script>
+  <script src="./js/mir/mirEngine.js"></script>
+  <script src="./js/mir/harmonicMotionEngine.js"></script>
+  <script src="./js/mir/melodyContourEngine.js"></script>
+  <script src="./js/semantic/trackCharacterEngine.js"></script>
+  <script src="./js/semantic/semanticChange.js"></script>
+  <script src="./js/semantic/localLanguageModel.js"></script>
+  <script src="./js/semantic/evidenceCompatibility.js"></script>
+  <script src="./js/semantic/phraseQuality.js"></script>
+  <script src="./js/semantic/languageLayerPolicy.js"></script>
+  <script src="./js/semantic/semanticFacets.js"></script>
+  <script src="./js/semantic/semanticEvidence.js"></script>
+  <script src="./js/semantic/instrumentationEventEngine.js"></script>
+  <script src="./js/semantic/arrangementEngine.js"></script>
+  <script src="./js/semantic/rhythmicGrammar.js"></script>
+  <script src="./js/semantic/aestheticAxisEngine.js"></script>
+  <script src="./js/semantic/aestheticEvidenceEngine.js"></script>
+  <script src="./js/semantic/genreContextEngine.js"></script>
+  <script src="./js/semantic/musicalPrimitiveEngine.js"></script>
+  <script src="./js/semantic/musicalObservationEngine.js"></script>
+  <script src="./js/semantic/musicalIdiomEngine.js"></script>
+  <script src="./js/semantic/knowledgeConsistencyValidator.js"></script>
+  <script src="./js/semantic/impressionSynthesizer.js"></script>
+  <script src="./js/semantic/verifiedClaimStore.js"></script>
+  <script src="./js/semantic/factFirewall.js"></script>
+  <script src="./js/semantic/contextFirewall.js"></script>
+  <script src="./js/semantic/factComposer.js"></script>
+  <script src="./js/semantic/liveEventGrammar.js"></script>
+  <script src="./js/semantic/phraseGenome.js"></script>
+  <script src="./js/semantic/localGenerativeGrammar.js"></script>
+  <script src="./js/semantic/contextLexicalExpansion.js"></script>
+  <script src="./js/semantic/aestheticConceptEngine.js"></script>
+  <script src="./js/semantic/proposedContextKnowledge.js"></script>
+  <script src="./js/semantic/vocabularyCoverage.js"></script>
+  <script src="./js/semantic/languageComposition.js"></script>
+  <script src="./js/semantic/semanticCandidatePipeline.js"></script>
+  <script src="./js/semantic/evidenceFusionEngine.js"></script>
+  <script src="./js/semantic/temporalEvidenceEngine.js"></script>
+  <script src="./js/semantic/semanticStateV2.js"></script>
+  <script src="./js/semantic/semanticSnapshot.js"></script>
+  <script src="./js/semantic/musicExpressionEngine.js"></script>
+  <script src="./js/semantic/semanticFacetManager.js"></script>
+  <script src="./js/semantic/languageCritic.js"></script>
+  <script src="./js/semantic/phraseProviders.js"></script>
+  <script src="./js/semantic/candidateReservoir.js"></script>
+  <script src="./js/semantic/evidenceReservoir.js"></script>
+  <script src="./js/semantic/songLanguageProfile.js"></script>
+  <script src="./js/semantic/phrasePoolEngine.js"></script>
+  <script src="./js/semantic/languageInspector.js"></script>
+  <script src="./js/semantic/semanticWordEngine.js"></script>
+  <script src="./js/semantic/semanticEngine.js"></script>
+  <script src="./js/ai/costControl.js"></script>
+  <script src="./js/ai/aiProfiler.js"></script>
+  <script src="./js/data/visualDictionary.js"></script>
+  <script src="./js/visual/backgroundAudioMapper.js"></script>
+  <script src="./js/visual/backgroundGovernor.js"></script>
+  <script src="./js/visual/background.js"></script>
+  <script src="./js/visual/danmakuMotion.js"></script>
+  <script src="./js/visual/wordLifecycle.js"></script>
+  <script src="./js/visual/phraseSelection.js"></script>
+  <script src="./js/visual/floatingWord.js"></script>
+  <script src="./js/visual/visualEngine.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+</html>

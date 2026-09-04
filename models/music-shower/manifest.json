@@ -1,0 +1,57 @@
+{
+  "available": true,
+  "name": "Music Shower Discogs-EffNet shared encoder",
+  "version": "discogs-effnet-bsdynamic-1",
+  "sampleRate": 16000,
+  "bundledModelBytes": 23473532,
+  "preprocessing": {
+    "type": "Essentia TensorflowInputMusiCNN",
+    "frameSize": 512,
+    "hopSize": 256,
+    "patchFrames": 128,
+    "melBands": 96,
+    "patchSeconds": 2.048
+  },
+  "runtime": {
+    "onnxUrl": "/node_modules/onnxruntime-web/dist/ort.all.min.js",
+    "onnxWasmBaseUrl": "/node_modules/onnxruntime-web/dist/",
+    "essentiaWasmUrl": "/node_modules/essentia.js/dist/essentia-wasm.umd.js",
+    "essentiaModelUrl": "/node_modules/essentia.js/dist/essentia.js-model.umd.js"
+  },
+  "models": {
+    "encoder": {
+      "url": "/models/music-shower/assets/discogs-effnet-bsdynamic-1.onnx",
+      "input": "melspectrogram",
+      "outputs": { "genre": "activations", "embedding": "embeddings" },
+      "sha256": "A280825B334797CF677939DB8CD5762C0392AEDD0CA6415DBC1CD083F045E43C"
+    },
+    "instrument": {
+      "url": "/models/music-shower/assets/mtg_jamendo_instrument-discogs-effnet-1.onnx",
+      "input": "embeddings",
+      "outputs": { "activations": "activations" },
+      "sha256": "9AE2D9E763D66BD8EED654D1AC3AA171E6539CB8A0E11F3DCD53DF1428980802"
+    },
+    "mood": {
+      "url": "/models/music-shower/assets/mtg_jamendo_moodtheme-discogs-effnet-1.onnx",
+      "input": "embeddings",
+      "outputs": { "activations": "activations" },
+      "sha256": "7D6270ACAA5F4BBA4B115A0D6849ACA05ED6BD153DCB6D9DA4F6AB9F99EF10FF"
+    }
+  },
+  "metadataUrls": {
+    "genre": "/models/music-shower/assets/discogs-effnet-bsdynamic-1.json",
+    "instrument": "/models/music-shower/assets/mtg_jamendo_instrument-discogs-effnet-1.json",
+    "mood": "/models/music-shower/assets/mtg_jamendo_moodtheme-discogs-effnet-1.json"
+  },
+  "activations": { "genre": "identity", "instrument": "identity", "mood": "identity" },
+  "license": {
+    "models": "Essentia Models license; non-commercial use. Bundled file title says CC BY-NC-ND 4.0 while its legal-code URL and current provider docs say CC BY-NC-SA 4.0; see assets/ESSENTIA_MODELS_LICENSE.txt",
+    "essentiaJs": "AGPL-3.0",
+    "onnxRuntime": "MIT"
+  },
+  "sources": [
+    "https://essentia.upf.edu/models/feature-extractors/discogs-effnet/",
+    "https://essentia.upf.edu/models/classification-heads/mtg_jamendo_instrument/",
+    "https://essentia.upf.edu/models/classification-heads/mtg_jamendo_moodtheme/"
+  ]
+}
