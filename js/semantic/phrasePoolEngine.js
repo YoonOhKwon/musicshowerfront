@@ -72,6 +72,12 @@ const PhrasePool = (() => {
       // Cache critic output by the binned musical snapshot + concept set so the main thread
       // does not re-run every evidence/firewall check for acoustically equivalent states.
       this.localCriticCache = new Map();
+      // Section 5: a coarser cache than this.cache above -- keyed by aesthetic-axis territory
+      // (js/semantic/aestheticAxisEngine.js's axisSignature), not the exact snapshot fingerprint.
+      // A ROUTINE pool top-up (reason "pool-low") that re-enters a territory already reached
+      // recently, with local open-layer candidates already covering it, does not need a fresh
+      // remote call -- see the gate in regenerate() below.
+      this.axisSignatureCache = new Map();
       this.reservoir = new ReservoirModule.Reservoir({ capacity: this.poolSize });
       this.evidenceReservoir = new EvidenceModule.Reservoir({ capacity: 180 });
       this.songProfile = new ProfileModule.Profile();
@@ -122,6 +128,7 @@ const PhrasePool = (() => {
       this.consecutiveFailures = 0;
       this.cache.clear();
       this.localCriticCache.clear();
+      this.axisSignatureCache.clear();
       this.state = { status: "fallback", provider: "live-expression", model: null, latencyMs: 0,
         phraseCount: 0, remaining: 0, fingerprint: "", artDirection: [], candidateCount: 0,
         selectedCount: 0, reason: "session-reset", cache: "miss", error: null, tokenUsage };
@@ -227,6 +234,25 @@ const PhrasePool = (() => {
       const reason = changed ? "semantic-change" : eventDriven ? "semantic-event" :
         !this.hasRemotePool ? "initial-generation" : low ? "pool-low" : "pool-ready";
       if (this.hasRemotePool && !changed && !low && !eventDriven) return this.snapshot();
+      // Section 5: an aesthetic-axis territory the local pool already covers does not need a
+      // fresh remote call just for a ROUTINE top-up (reason "pool-low" -- the only reason value
+      // reachable past the line above). semantic-change/semantic-event/initial-generation still
+      // call through regardless: those need genre-specialization/phrasing variation the axis
+      // engine alone cannot produce, not just open-layer gap-filling.
+      const axisSignature = state.genreContextEvidence?.axisSignature || null;
+      if (reason === "pool-low" && axisSignature) {
+        // Specifically the axis-REGION vocabulary system's own output (data/aestheticRegions.json
+        // matches), not any open-layer word from anywhere -- a bare single-trait mood descriptor
+        // ("밝음", "공격적") from musicExpressionEngine.js is a different, much coarser source and
+        // does not mean this axis TERRITORY has real vocabulary coverage.
+        const hasLocalOpenLayerCoverage = context.localCandidates.some(item => item.source === "aesthetic-axis");
+        const cachedForSignature = this.axisSignatureCache.get(axisSignature);
+        if (hasLocalOpenLayerCoverage || (cachedForSignature && now - cachedForSignature.at < 300000)) {
+          this.axisSignatureCache.set(axisSignature, { at: now });
+          this.state = { ...this.state, reason };
+          return this.snapshot();
+        }
+      }
       if (changed || !this.hasRemotePool) {
         const cached = this.cache.get(snapshot.fingerprint);
         if (cached && cached.selected.length > 0 && now - cached.generatedAt < 60000) {

@@ -8,6 +8,21 @@ const AestheticAxisEngine = (() => {
   const Facets = typeof SemanticFacets !== "undefined" ? SemanticFacets : require("./semanticFacets");
   const clamp = Facets.clamp;
 
+  // Section 5: a coarse, deterministic fingerprint of "which axis territory is the track in right
+  // now" -- three bands per axis (same low/mid/high bucketing languageDiversityMetrics.js's
+  // axisCoverage() uses), sorted by axis name so equal axis states always produce the identical
+  // string. Deliberately coarser than a full snapshot fingerprint: the runtime LLM call gate
+  // (phrasePoolEngine.js) uses this to recognize "we've already been in roughly this aesthetic
+  // territory recently" even when the exact measured values drift slightly, so a real re-entry
+  // into the same territory can reuse cached local coverage instead of re-triggering a call.
+  function axisSignature(axes = {}, bins = 3) {
+    return Object.keys(axes).sort().map(name => {
+      const value = axes[name];
+      if (typeof value !== "number" || !Number.isFinite(value)) return `${name}:null`;
+      return `${name}:${Math.min(bins - 1, Math.floor(clamp(value) * bins))}`;
+    }).join("|");
+  }
+
   function genreLabels(genre = {}) {
     return [genre.primary, genre.family, ...(genre.secondary || []).map(x => x?.label),
       ...(genre.fineCandidates || []).map(x => (typeof x === "string" ? x : x?.label))]
@@ -167,10 +182,10 @@ const AestheticAxisEngine = (() => {
       const { delta, direction } = this.trajectory(axes, at);
       this.recordHistory(axes, at);
       const candidates = this.matchRegions(axes, contributingPaths, genre, direction);
-      return { axes, contributingPaths, genreMatch, delta, direction, candidates };
+      return { axes, contributingPaths, genreMatch, delta, direction, candidates, axisSignature: axisSignature(axes) };
     }
   }
 
-  return { Engine, genrePriorResult };
+  return { Engine, genrePriorResult, axisSignature };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = AestheticAxisEngine;

@@ -49,36 +49,35 @@ test("language request preserves Sol and explicit prefix while bounding recent m
   const request = createLanguageRequest({ ...input(), recentPhrases: Array.from({ length: 200 }, () => "최근 문구") }, { model: "gpt-5.6-sol" });
   assert.equal(request.model, "gpt-5.6-sol");
   assert.equal(request.store, false);
-  assert.equal(request.text.format.schema.properties.genre.maxItems, 3);
+  // Section 5: fast/deep merged into one profile once phrasePoolEngine.js's axis-signature gate
+  // started filtering out the routine top-up case locally -- every call reaching this point
+  // already represents a real gap, so there is one schema/effort/budget, not two graded by reason.
+  assert.equal(request.text.format.schema.properties.genre.maxItems, 2);
   assert.equal(JSON.parse(request.input[1].content).recentPhrases.length, 24);
   assert.equal(request.input[0].content[0].prompt_cache_breakpoint.mode, "explicit");
-  assert.equal(request.max_output_tokens, 10000);
+  assert.equal(request.max_output_tokens, 6000);
   const withExtra = input();
   withExtra.snapshot.rhythm.pcm = [1, 2, 3];
   assert.equal(validateLanguageInput(withExtra).snapshot.rhythm.pcm, undefined);
 });
 
-test("a routine pool top-up uses the fast call profile; a real context change uses the deep one", () => {
+test("every call reason resolves to the single merged tuning profile", () => {
   const { callMode, CALL_TUNING } = require("../lib/languageService");
-  assert.equal(callMode("pool-low"), "fast");
-  assert.equal(callMode("pool-ready"), "fast");
-  assert.equal(callMode("semantic-change"), "deep");
-  assert.equal(callMode("initial-generation"), "deep");
-  assert.equal(callMode("semantic-event"), "deep");
-  assert.equal(callMode(undefined), "deep");
+  for (const reason of ["pool-low", "pool-ready", "semantic-change", "initial-generation", "semantic-event", undefined])
+    assert.equal(callMode(reason), "default", reason);
 
-  const fastRequest = createLanguageRequest({ ...input(), reason: "pool-low" });
-  assert.equal(fastRequest.reasoning.effort, "low");
-  assert.equal(fastRequest.max_output_tokens, CALL_TUNING.fast.maxOutputTokens);
-  assert.equal(fastRequest.text.format.schema.properties.genre.maxItems, 2);
-  assert.ok(fastRequest.max_output_tokens < 10000, "fast mode must request meaningfully less than the old flat 10000");
+  const request = createLanguageRequest({ ...input(), reason: "pool-low" });
+  assert.equal(request.reasoning.effort, "low");
+  assert.equal(request.max_output_tokens, CALL_TUNING.default.maxOutputTokens);
+  assert.equal(request.text.format.schema.properties.genre.maxItems, 2);
+  assert.ok(request.max_output_tokens < 10000, "the merged profile must request meaningfully less than the old flat deep-mode 10000");
 
-  const deepRequest = createLanguageRequest({ ...input(), reason: "semantic-change" });
-  assert.equal(deepRequest.reasoning.effort, "medium");
-  assert.equal(deepRequest.text.format.schema.properties.genre.maxItems, 3);
-
-  // Both modes share the identical per-item shape so the critic/parser stay mode-agnostic.
-  assert.deepEqual(fastRequest.text.format.schema.properties.live.items, deepRequest.text.format.schema.properties.live.items);
+  // A different reason must produce an IDENTICAL request shape now -- there is nothing left to
+  // grade by reason (the reason string still flows into the prompt payload itself for context).
+  const otherReasonRequest = createLanguageRequest({ ...input(), reason: "semantic-change" });
+  assert.equal(otherReasonRequest.reasoning.effort, request.reasoning.effort);
+  assert.equal(otherReasonRequest.max_output_tokens, request.max_output_tokens);
+  assert.deepEqual(otherReasonRequest.text.format.schema, request.text.format.schema);
 });
 
 test("malformed snapshots, incomplete responses and malformed candidate scores are rejected", () => {
@@ -342,7 +341,7 @@ test("a successful generation resets the failure streak back to zero", async () 
   assert.equal(engine.backoffMs(), 0);
 });
 
-test("a pool-low refill requests the fast, low-reasoning, small-schema call", async () => {
+test("a pool-low refill requests the low-reasoning, small-schema call (the only profile there is now)", async () => {
   let sentRequest = null;
   const client = { responses: { create: (request) => { sentRequest = request; return Promise.resolve(responseFixture()); } } };
   const service = createLanguageService({ client, minimumIntervalMs: 0 });

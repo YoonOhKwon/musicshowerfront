@@ -90,6 +90,32 @@ test("aesthetic-axis region candidates flow through genreContextEngine alongside
   for (const candidate of axisCandidates) assert.ok(candidate.anchors.length >= 2, "axis candidates must carry real evidence anchors");
 });
 
+test("genreContextEngine exposes axisSignature on its result when an axis engine is wired (section 5's runtime call gate reads this)", () => {
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
+  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
+  const state = {
+    genre: { primary: "City Pop", family: "Pop / Internet", confidence: 0.3, uncertain: true },
+    rhythmicGrammar: { fourOnFloor: 0.75 }, productionEvidence: { sampleBased: 0.8 },
+    moodDimensions: { brightness: 0.8 }, instruments: [], expressionFeatures: {}
+  };
+  const result = engine.evaluate(state);
+  assert.equal(typeof result.axisSignature, "string");
+  assert.equal(result.axisSignature, axisEngine.evaluate({
+    measurements: {}, rhythmicGrammar: state.rhythmicGrammar, productionEvidence: state.productionEvidence,
+    instrumentationEvidence: {}, moodDimensions: state.moodDimensions, aestheticEvidence: {}
+  }, state.genre).axisSignature);
+});
+
+test("without a wired axis engine, genreContextEngine's result carries no axisSignature at all", () => {
+  const engine = new GenreContext.Engine(genreContextKnowledge);
+  const result = engine.evaluate({
+    genre: { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false },
+    rhythmicGrammar: { fourOnFloor: 0.75 }, productionEvidence: { sampleBased: 0.8 },
+    moodDimensions: { brightness: 0.8 }, instruments: [], expressionFeatures: {}
+  });
+  assert.equal(result.axisSignature, undefined);
+});
+
 test("without a wired axis engine, genreContextEngine behaves exactly as before (no axis candidates, no crash)", () => {
   const engine = new GenreContext.Engine(genreContextKnowledge);
   const result = engine.evaluate({
@@ -159,4 +185,26 @@ test("a region can require an axis direction (e.g. 'deepening nostalgia'), not j
   const deepening = engine.evaluate({ ...flatState, moodDimensions: { ...flatState.moodDimensions, warmth: 1 } }, genre, t0 + 12000);
   assert.ok(deepening.candidates.some(item => item.text === "짙어지는 향수"),
     `expected the rising-nostalgia region once warmth clearly climbed; got ${JSON.stringify(deepening.candidates.map(c => c.text))}`);
+});
+
+test("axisSignature is deterministic regardless of key order, and distinguishes genuinely different axis territories", () => {
+  const axes = { nostalgia: 0.8, warmth: 0.3 };
+  assert.equal(AestheticAxisEngine.axisSignature(axes), AestheticAxisEngine.axisSignature({ warmth: 0.3, nostalgia: 0.8 }),
+    "key order must not affect the signature -- it is a cache key");
+  assert.notEqual(AestheticAxisEngine.axisSignature({ nostalgia: 0.8, warmth: 0.3 }),
+    AestheticAxisEngine.axisSignature({ nostalgia: 0.1, warmth: 0.3 }), "a genuinely different territory must produce a different signature");
+});
+
+test("axisSignature treats a null axis as its own distinct band, never confusing it with a real low value", () => {
+  const withNull = AestheticAxisEngine.axisSignature({ nostalgia: null, warmth: 0.3 });
+  const withLow = AestheticAxisEngine.axisSignature({ nostalgia: 0.01, warmth: 0.3 });
+  assert.notEqual(withNull, withLow);
+  assert.ok(withNull.includes("nostalgia:null"));
+});
+
+test("evaluate() exposes an axisSignature alongside its candidates, matching axisSignature() computed directly from the same axes", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
+  const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
+  const result = engine.evaluate({ moodDimensions: { warmth: 0.7, brightness: 0.4 }, productionEvidence: { sampleBased: 0.6 } }, genre);
+  assert.equal(result.axisSignature, AestheticAxisEngine.axisSignature(result.axes));
 });

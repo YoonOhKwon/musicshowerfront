@@ -1,6 +1,20 @@
 let wordLaneCursor = 0;
 let wordDirectionCursor = 0;
 
+// Section 5: the open layer (AESTHETIC/IMPRESSION) must not read as a measured fact just because
+// it shares the same font and full opacity as FACT/LIVE. This is a purely presentational scale on
+// top of the existing alpha/lifecycle math below -- it never touches progress/exit/stall timing,
+// so the ownership/completion/no-displacement contract in wordLifecycle.js is untouched.
+const LAYER_TEXT_STYLE = Object.freeze({
+  LIVE: { bold: true, alphaScale: 1 }, FACT: { bold: true, alphaScale: 1 },
+  CONTEXT: { bold: true, alphaScale: 0.92 },
+  AESTHETIC: { bold: false, alphaScale: 0.82 }, IMPRESSION: { bold: false, alphaScale: 0.78 }
+});
+function layerTextStyle(token) {
+  const layer = (typeof LanguageLayerPolicy !== "undefined" ? LanguageLayerPolicy.decorate(token) : token).layer;
+  return LAYER_TEXT_STYLE[layer] || LAYER_TEXT_STYLE.FACT;
+}
+
 function getNextWordLane(activeWords = [], direction = 1) {
   const top = Math.max(90, height * 0.16);
   const bottom = Math.min(height - 70, height * 0.84);
@@ -24,6 +38,7 @@ class FloatingWord {
     const token = typeof wordToken === "object" ? wordToken : { text: String(wordToken) };
     this.text = String(token.text || "");
     this.visual = getVisualProfile(token);
+    this.textStyle = layerTextStyle(token);
     const treatment = PhraseSelection.treatment(token);
     const sizeLimit = width * 0.76 / Math.max(1, this.text.length * 0.92);
     this.size = Math.min(sizeLimit, random(CONFIG.visual.wordMinSize, CONFIG.visual.wordMaxSize) * this.visual.scale * treatment.scale);
@@ -61,7 +76,7 @@ class FloatingWord {
     push();
     translate(this.x, this.y);
     textAlign(CENTER, CENTER);
-    textStyle(BOLD);
+    textStyle(this.textStyle.bold ? BOLD : NORMAL);
     textSize(this.size);
     colorMode(HSB, 360, 100, 100, 255);
     noStroke();
@@ -70,7 +85,7 @@ class FloatingWord {
       this.visual.hue,
       this.visual.saturation * 100,
       SignalMath.clamp(this.visual.brightness, 0, 1.5) * 66,
-      this.alpha * 0.09 * this.visual.glow
+      this.alpha * 0.09 * this.visual.glow * this.textStyle.alphaScale
     );
     for (let offset = 10; offset >= 2; offset -= 4) {
       text(this.text, random(-offset, offset) * 0.06, random(-offset, offset) * 0.06);
@@ -80,9 +95,14 @@ class FloatingWord {
       this.visual.hue,
       Math.max(12, this.visual.saturation * 48),
       Math.min(100, this.visual.brightness * 86),
-      this.alpha
+      this.alpha * this.textStyle.alphaScale
     );
     text(this.text, 0, 0);
     pop();
   }
 }
+// The rest of this file is pure p5.js canvas code with no Node-testable surface (bare globals:
+// width/height/push/fill/text/CONFIG/...). layerTextStyle/LAYER_TEXT_STYLE have no such
+// dependency, so they alone are exported for a real node --test (see
+// test/floatingWordLayerStyle.test.js) -- a no-op in the browser, which has no `module`.
+if (typeof module !== "undefined" && module.exports) module.exports = { LAYER_TEXT_STYLE, layerTextStyle };

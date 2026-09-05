@@ -72,7 +72,13 @@ const GenreContext = (() => {
       // gate (data/aestheticAxes.json's null-propagation + minAxes). The middle/context layer
       // below (lineage/era/scene/culture, and now composition-inferred open genre names) is a
       // genre-IDENTITY claim and keeps the existing 0.75 bar.
-      if (this.aestheticAxisEngine && audible) result.candidates.push(...this.aestheticAxisEngine.evaluate(view, genre).candidates);
+      if (this.aestheticAxisEngine && audible) {
+        const axisResult = this.aestheticAxisEngine.evaluate(view, genre);
+        result.candidates.push(...axisResult.candidates);
+        // Exposed so phrasePoolEngine.js's runtime LLM call gate (section 5) can recognize "we've
+        // already been in roughly this aesthetic territory" without recomputing the axis vector.
+        result.axisSignature = axisResult.axisSignature;
+      }
       if (genre.uncertain || genre.confidence < 0.75 || !audible) {
         result.matchedPriors = result.candidates.map(x => x.text);
         // Deliberately modest and independent of genre.confidence (which may be low/uncertain
