@@ -137,15 +137,26 @@ test("a null current or baseline value keeps delta/direction null, never fabrica
   assert.equal(result.direction.warmth, null);
 });
 
+test("a region barely clearing its min threshold does not fire just because genre confidence is high (selectivity is margin-based, not genre-based)", () => {
+  const engine = new AestheticAxisEngine.Engine({
+    axes: { warmth: { components: [{ path: "moodDimensions.warmth", weight: 1 }] } }
+  }, { entries: [{ text: "따뜻한 아날로그 온기", category: "association", requires: [{ axis: "warmth", min: 0.5 }], minAxes: 1 }] });
+  const genre = { primary: "City Pop", confidence: 0.9, uncertain: false };
+  assert.equal(engine.evaluate({ moodDimensions: { warmth: 0.55 } }, genre).candidates.length, 0,
+    "barely over the min threshold, even with a very confident genre, must not be enough");
+  assert.equal(engine.evaluate({ moodDimensions: { warmth: 0.8 } }, genre).candidates.length, 1,
+    "comfortably clearing the threshold should fire");
+});
+
 test("a region can require an axis direction (e.g. 'deepening nostalgia'), not just its current value", () => {
   const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions, { historyWindowMs: 10000 });
   const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
   const t0 = 4_000_000;
   const flatState = { moodDimensions: { warmth: 0.5, brightness: 0.4, valence: 0.5, aggression: 0.3 },
-    productionEvidence: { sampleBased: 0.6 }, rhythmicGrammar: {} };
+    productionEvidence: { sampleBased: 0.75 }, rhythmicGrammar: {} };
   const first = engine.evaluate(flatState, genre, t0);
   assert.ok(!first.candidates.some(item => item.text === "짙어지는 향수"), "no baseline yet, direction-gated region must not fire");
-  const deepening = engine.evaluate({ ...flatState, moodDimensions: { ...flatState.moodDimensions, warmth: 0.95 } }, genre, t0 + 12000);
+  const deepening = engine.evaluate({ ...flatState, moodDimensions: { ...flatState.moodDimensions, warmth: 1 } }, genre, t0 + 12000);
   assert.ok(deepening.candidates.some(item => item.text === "짙어지는 향수"),
     `expected the rising-nostalgia region once warmth clearly climbed; got ${JSON.stringify(deepening.candidates.map(c => c.text))}`);
 });

@@ -10,6 +10,7 @@ let genreFamilyLookup = new Map();
 let genreAliasLookup = new Map();
 let genreTaxonomyData = {};
 let genreContextKnowledgeData = {};
+let genreCompositionsData = null;
 let zeroShotClassifier = new ZeroShotGenre.Classifier();
 let semanticRuntimeInitialized = false;
 let semanticInferencePending = false;
@@ -121,7 +122,7 @@ function createInitialSemanticState(sessionId = 0) {
 
 async function loadSemanticData() {
   const [taxonomyResponse, aliasResponse, embeddingResponse, neighborhoodResponse, contextResponse, lexiconResponse,
-    coreTermsResponse, aestheticAxesResponse, aestheticRegionsResponse] = await Promise.all([
+    coreTermsResponse, aestheticAxesResponse, aestheticRegionsResponse, genreCompositionsResponse] = await Promise.all([
     fetch("./data/genreTaxonomy.json"),
     fetch("./data/genreAliases.json"),
     fetch("./data/genreEmbeddings.json"),
@@ -130,13 +131,15 @@ async function loadSemanticData() {
     fetch("./data/musicalLexicon.json"),
     fetch("./data/approvedCoreTerms.json"),
     fetch("./data/aestheticAxes.json"),
-    fetch("./data/aestheticRegions.json")
+    fetch("./data/aestheticRegions.json"),
+    fetch("./data/genreCompositions.json")
   ]);
   if (coreTermsResponse.ok) SemanticFacets.setApprovedCoreTerms((await coreTermsResponse.json())?.entries);
   if (aestheticAxesResponse.ok && aestheticRegionsResponse.ok) {
     aestheticAxisEngine = new AestheticAxisEngine.Engine(await aestheticAxesResponse.json(), await aestheticRegionsResponse.json());
     aestheticEvidenceEngine = new AestheticEvidence.Engine(aestheticAxisEngine);
   }
+  if (genreCompositionsResponse.ok) genreCompositionsData = await genreCompositionsResponse.json();
   if (taxonomyResponse.ok) {
     const taxonomy = await taxonomyResponse.json();
     genreTaxonomyData = taxonomy;
@@ -154,7 +157,7 @@ async function loadSemanticData() {
   }
   if (contextResponse.ok) {
     genreContextKnowledgeData = await contextResponse.json();
-    genreContextEngine = new GenreContext.Engine(genreContextKnowledgeData, aestheticAxisEngine);
+    genreContextEngine = new GenreContext.Engine(genreContextKnowledgeData, aestheticAxisEngine, genreCompositionsData);
   }
   if (neighborhoodResponse.ok) subgenreSearcher = new SubgenreSearch.Searcher(await neighborhoodResponse.json());
   if (lexiconResponse.ok) musicalIdiomEngine.setLexicon(await lexiconResponse.json());

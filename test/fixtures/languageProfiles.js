@@ -46,8 +46,9 @@ const musicalLexicon = require("../../data/musicalLexicon.json");
 const genreTaxonomy = require("../../data/genreTaxonomy.json");
 const aestheticAxes = require("../../data/aestheticAxes.json");
 const aestheticRegions = require("../../data/aestheticRegions.json");
+const genreCompositions = require("../../data/genreCompositions.json");
 const aestheticAxisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
-const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, aestheticAxisEngine);
+const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, aestheticAxisEngine, genreCompositions);
 const aestheticEvidenceEngine = new AestheticEvidence.Engine(aestheticAxisEngine);
 const musicalIdiomEngine = new MusicalIdioms.Engine(musicalLexicon,
   { primitiveSchema: require("../../js/semantic/musicalPrimitiveEngine").schema(), genreTaxonomy });

@@ -11,6 +11,7 @@ const { profile, RICH_KINDS } = require("../test/fixtures/languageProfiles");
 const lexicon = require("../data/musicalLexicon.json");
 const taxonomy = require("../data/genreTaxonomy.json");
 const contextKnowledge = require("../data/genreContextKnowledge.json");
+const genreCompositions = require("../data/genreCompositions.json");
 const aestheticAxes = require("../data/aestheticAxes.json");
 const aestheticRegions = require("../data/aestheticRegions.json");
 
@@ -21,7 +22,7 @@ const engine = new Idioms.Engine(lexicon, { primitiveSchema: schema, genreTaxono
 const primitiveSamples = [...RICH_KINDS, "cold", "warm", "jazz"].map(kind => Primitives.analyze(profile(kind)));
 const primitiveClassification = Validator.classifyPrimitives(schema, primitiveSamples);
 const report = Validator.validate({ lexicon, primitiveSchema: schema, graph: engine.graph,
-  detectorRules: Pipeline.productionRules, detectorCapabilities: Grammar.detectorCapabilities, contextKnowledge,
+  detectorRules: Pipeline.productionRules, detectorCapabilities: Grammar.detectorCapabilities, contextKnowledge, genreCompositions,
   primitiveClassification, impressionRules: Impressions.RULES, directConsumerPaths: Pipeline.primitiveConsumerPaths });
 
 // Section 3: wording-convention drift on genreContextKnowledge.json (warning-tier, informational

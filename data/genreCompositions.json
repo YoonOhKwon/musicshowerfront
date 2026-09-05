@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "text": "Future Funk 계열",
+      "requiresTopK": ["Nu Disco", "Vaporwave", "City Pop"],
+      "minTopKCount": 2,
+      "requires": [
+        { "path": "productionEvidence.sampleBased", "min": 0.7 },
+        { "path": "rhythmicGrammar.fourOnFloor", "min": 0.75 }
+      ]
+    },
+    {
+      "text": "French House 계열",
+      "requiresTopK": ["House", "Disco"],
+      "minTopKCount": 1,
+      "requires": [
+        { "path": "productionEvidence.filterSweep", "min": 0.65 },
+        { "path": "rhythmicGrammar.fourOnFloor", "min": 0.7 }
+      ]
+    }
+  ]
+}

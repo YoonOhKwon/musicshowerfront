@@ -22,8 +22,21 @@ const readJson = async relativePath => JSON.parse(await fs.readFile(path.join(ro
 const aestheticAxesData = await readJson("data/aestheticAxes.json");
 const AXIS_NAMES = Object.keys(aestheticAxesData.axes || {});
 const genreContextKnowledge = await readJson("data/genreContextKnowledge.json");
+const genreCompositions = await readJson("data/genreCompositions.json").catch(() => ({ rules: [] }));
 const genreAliases = await readJson("data/genreAliases.json");
 const discogsModel = await readJson("models/music-shower/assets/discogs-effnet-bsdynamic-1.json");
+
+// Canonicalizes a raw Discogs-EffNet class label the same way semanticEngine.js's
+// canonicalGenre() does (split "parent---specific", resolve through data/genreAliases.json), so
+// any label this offers to (or accepts from) the LLM is genuinely reachable at runtime.
+function canonicalLabelsFromModel() {
+  const aliasLookup = new Map(Object.entries(genreAliases).map(([key, value]) => [key.toLowerCase(), value]));
+  return [...new Set((discogsModel.classes || []).map(rawClass => {
+    const specific = rawClass.includes("---") ? rawClass.split("---", 2)[1] : rawClass;
+    return aliasLookup.get(specific.toLowerCase()) || specific;
+  }))];
+}
+const CANONICAL_LABELS = canonicalLabelsFromModel();
 
 // Curated 2-3 axis territories to seed the LLM's creative direction (section 3.1: "축 공간을
 // 영역으로 나누고, 각 영역마다 다양한 결의 감상 어휘를 요청"). Kept in sync with
@@ -55,7 +68,8 @@ for (const region of SEED_REGIONS) for (const axis of region.axes)
   if (!AXIS_NAMES.includes(axis)) throw new Error(`SEED_REGIONS references unknown axis "${axis}" -- keep this list in sync with data/aestheticAxes.json`);
 
 function parseArgs(argv) {
-  const args = { target: "vocabulary", limit: 20, out: null, model: process.env.OPENAI_LANGUAGE_MODEL || process.env.OPENAI_MODEL || "gpt-5.6-sol", termsPerRegion: 6 };
+  const args = { target: "vocabulary", limit: 20, out: null, model: process.env.OPENAI_LANGUAGE_MODEL || process.env.OPENAI_MODEL || "gpt-5.6-sol",
+    termsPerRegion: 6, targets: null };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
     if (arg === "--target") args.target = argv[++index];
@@ -63,6 +77,7 @@ function parseArgs(argv) {
     else if (arg === "--out") args.out = argv[++index];
     else if (arg === "--model") args.model = argv[++index];
     else if (arg === "--terms-per-region") args.termsPerRegion = Number(argv[++index]);
+    else if (arg === "--targets") args.targets = argv[++index].split(",").map(name => name.trim()).filter(Boolean);
   }
   if (!Number.isFinite(args.limit) || args.limit < 1) throw new Error("--limit must be a positive number");
   return args;
@@ -130,6 +145,59 @@ Absolute rules:
 - Never claim actual origin, recording date, or identify an artist.
 Return only the structured JSON, no prose.`;
 
+// Section 4: Discogs' 400 classes are a coordinate system, not a wall -- an internet/scene genre
+// name (Future Funk, French House) that has no dedicated class can still be inferred from WHICH
+// classes the classifier's own top-K weights, combined with real audio evidence. requiresTopK
+// must reference REAL model labels (enforced by the enum below), never an invented one.
+const COMPOSITION_RULE_SCHEMA = {
+  type: "object", additionalProperties: false,
+  properties: {
+    text: { type: "string", maxLength: 40 },
+    requiresTopK: { type: "array", minItems: 1, maxItems: 4, items: { type: "string", enum: CANONICAL_LABELS } },
+    minTopKCount: { type: "integer", minimum: 1, maximum: 4 },
+    requires: { type: "array", minItems: 2, maxItems: 3,
+      items: { type: "object", additionalProperties: false,
+        properties: { path: { type: "string" }, min: { type: "number", minimum: 0, maximum: 1 } }, required: ["path", "min"] } }
+  },
+  required: ["text", "requiresTopK", "minTopKCount", "requires"]
+};
+const COMPOSITION_RESPONSE_SCHEMA = { type: "object", additionalProperties: false,
+  properties: { rules: { type: "array", items: COMPOSITION_RULE_SCHEMA } }, required: ["rules"] };
+const COMPOSITION_INSTRUCTIONS = `You author rules that infer an internet/scene genre NAME that has no dedicated class in a 400-class Discogs-EffNet genre classifier, from a combination of which real classes the classifier tends to rank highly for that style plus real audio evidence.
+Absolute rules:
+- text is a TENTATIVE hypothesis, never a fact -- it MUST end in 계열 or 경향.
+- requiresTopK must list 2-3 of the REAL class labels given to you (copy verbatim) that a classifier would plausibly rank highly for tracks that scene/internet-genre community would call by this name. Never invent a label.
+- minTopKCount is normally 2 unless requiresTopK has only 1-2 entries.
+- requires: 2-3 conditions using ONLY these exact snapshot paths (copy verbatim): ${ALLOWED_CONTEXT_PATHS.join(", ")}, from at least 2 different prefixes.
+- Never claim actual origin or identify an artist.
+Return only the structured JSON, no prose.`;
+
+async function authorComposition(targetName, hint, count) {
+  const prompt = `Known real class labels: ${CANONICAL_LABELS.join(", ")}\nAuthor ${count} composition rule(s) for the internet/scene genre "${targetName}"${hint ? ` (${hint})` : ""}.`;
+  const parsed = await callResponses(COMPOSITION_INSTRUCTIONS, prompt, COMPOSITION_RESPONSE_SCHEMA, "composition_rule_batch");
+  return parsed.rules || [];
+}
+
+async function runCompositions() {
+  // Targets are supplied by the operator (there is no automatic way to discover "genre names the
+  // internet uses but Discogs doesn't classify" -- that list itself takes human judgment). Reuses
+  // whatever data/genreCompositions.json already covers as the default target set so a re-run
+  // authors alternative rule variants for the same known gaps; pass --targets to override.
+  const targets = args.targets || genreCompositions.rules.map(rule => rule.text.replace(/\s*(?:계열|경향)$/, ""));
+  const rules = [];
+  for (const target of targets.slice(0, args.limit)) {
+    process.stderr.write(`Authoring composition rule for [${target}] ...\n`);
+    try {
+      rules.push(...await authorComposition(target, null, 1));
+    } catch (error) {
+      process.stderr.write(`  [${target}] failed: ${error.message}\n`);
+    }
+  }
+  const output = { generatedAt: new Date().toISOString(), model: args.model, rules };
+  const issues = Validator.validateGenreCompositions(output, {});
+  return { output, issues };
+}
+
 async function callResponses(instructions, prompt, schema, schemaName) {
   const response = await client.responses.create({
     model: args.model,
@@ -168,17 +236,6 @@ async function runVocabulary() {
   return { output, issues };
 }
 
-// Canonicalizes a raw Discogs-EffNet class label the same way semanticEngine.js's
-// canonicalGenre() does (split "parent---specific", resolve through data/genreAliases.json),
-// so the labels this offers to the LLM are genuinely reachable at runtime.
-function canonicalLabelsFromModel() {
-  const aliasLookup = new Map(Object.entries(genreAliases).map(([key, value]) => [key.toLowerCase(), value]));
-  return [...new Set((discogsModel.classes || []).map(rawClass => {
-    const specific = rawClass.includes("---") ? rawClass.split("---", 2)[1] : rawClass;
-    return aliasLookup.get(specific.toLowerCase()) || specific;
-  }))];
-}
-
 async function authorGenreContext(label, count) {
   const prompt = `genre label: ${label}\nGenerate ${count} DISTINCT style-association candidates for this genre.`;
   const parsed = await callResponses(GENRE_INSTRUCTIONS, prompt, GENRE_RESPONSE_SCHEMA, "genre_candidate_batch");
@@ -187,7 +244,7 @@ async function authorGenreContext(label, count) {
 
 async function runGenreContext() {
   const covered = new Set(Object.keys(genreContextKnowledge.genres || {}).map(name => name.toLowerCase()));
-  const uncovered = canonicalLabelsFromModel().filter(label => !covered.has(label.toLowerCase())).slice(0, args.limit);
+  const uncovered = CANONICAL_LABELS.filter(label => !covered.has(label.toLowerCase())).slice(0, args.limit);
   const byGenre = {};
   for (const label of uncovered) {
     process.stderr.write(`Authoring genre-context candidates for [${label}] ...\n`);
@@ -208,11 +265,17 @@ async function runGenreContext() {
   return { output, issues };
 }
 
+const RUNNERS = { vocabulary: runVocabulary, "genre-context": runGenreContext, compositions: runCompositions };
+const DEFAULT_OUT_PATHS = { vocabulary: "data/aestheticVocabulary.generated.json",
+  "genre-context": "data/genreContextCandidates.generated.json", compositions: "data/genreCompositions.generated.json" };
+
 async function main() {
-  const { output, issues } = args.target === "genre-context" ? await runGenreContext() : await runVocabulary();
-  const outPath = args.out || (args.target === "genre-context" ? "data/genreContextCandidates.generated.json" : "data/aestheticVocabulary.generated.json");
+  const runner = RUNNERS[args.target];
+  if (!runner) throw new Error(`Unknown --target "${args.target}" -- expected one of: ${Object.keys(RUNNERS).join(", ")}`);
+  const { output, issues } = await runner();
+  const outPath = args.out || DEFAULT_OUT_PATHS[args.target];
   await fs.writeFile(path.join(root, outPath), JSON.stringify(output, null, 2) + "\n");
-  const entryCount = output.entries?.length ?? Object.values(output.genres || {}).flat().length;
+  const entryCount = output.entries?.length ?? output.rules?.length ?? Object.values(output.genres || {}).flat().length;
   console.log(`Wrote ${entryCount} entries to ${outPath}`);
   if (issues.length) {
     console.log(`\n${issues.length} validation issue(s) -- review before merging (see docs/VOCABULARY_AUTHORING.md):`);

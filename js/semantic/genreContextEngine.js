@@ -54,16 +54,32 @@ const GenreContext = (() => {
     return evidence;
   }
   class Engine {
-    constructor(data = {}, aestheticAxisEngine = null) { this.data = data; this.aestheticAxisEngine = aestheticAxisEngine; }
+    constructor(data = {}, aestheticAxisEngine = null, compositions = null) {
+      this.data = data; this.aestheticAxisEngine = aestheticAxisEngine; this.compositions = compositions;
+    }
     evaluate(state = {}) {
       const genre = state.genre || {};
       const result = { genre: genre.uncertain ? null : genre.primary || null, confidence: 0,
         basis: "style association, not origin or identification", matchedPriors: [], candidates: [],
         aestheticEvidence: state.aestheticEvidence || {} };
-      if (genre.uncertain || genre.confidence < 0.75 || state.expressionFeatures?.audible === false) return result;
+      const audible = state.expressionFeatures?.audible !== false;
       const view = { measurements: state.expressionFeatures || {}, rhythmicGrammar: state.rhythmicGrammar || {},
         productionEvidence: state.productionEvidence || {}, instrumentationEvidence: instrumentEvidence(state),
         moodDimensions: state.moodDimensions || {}, aestheticEvidence: result.aestheticEvidence };
+      // Open layer (association/AESTHETIC) is axis-based, not genre-identity-based: it must not
+      // wait on genre.confidence >= 0.75, since an unconfirmed genre is the single biggest cause
+      // of open-layer silence, and the axis engine already carries its own independent evidence
+      // gate (data/aestheticAxes.json's null-propagation + minAxes). The middle/context layer
+      // below (lineage/era/scene/culture, and now composition-inferred open genre names) is a
+      // genre-IDENTITY claim and keeps the existing 0.75 bar.
+      if (this.aestheticAxisEngine && audible) result.candidates.push(...this.aestheticAxisEngine.evaluate(view, genre).candidates);
+      if (genre.uncertain || genre.confidence < 0.75 || !audible) {
+        result.matchedPriors = result.candidates.map(x => x.text);
+        // Deliberately modest and independent of genre.confidence (which may be low/uncertain
+        // here) -- this reflects only how well-evidenced the axis-based candidates themselves are.
+        result.confidence = result.candidates.length ? 0.5 : 0;
+        return result;
+      }
       const resolvedKey = resolveGenreEntry(this.data, genre.primary);
       const entry = resolvedKey ? this.data.genres[resolvedKey] : null;
       const rules = [...(entry?.candidates || []), ...(this.data.families?.[genre.family]?.candidates || [])];
@@ -85,11 +101,7 @@ const GenreContext = (() => {
             relationScore: confidence }));
       }
       result.candidates.push(...this.relationCandidates(genre, view));
-      // Open, data-driven aesthetic vocabulary (data/aestheticRegions.json): unlike the rule/
-      // relation candidates above, these are not keyed to a fixed genre name at all -- they
-      // speak from continuous axis evidence (data/aestheticAxes.json) so two tracks in the same
-      // genre with different production/mood values can surface different aesthetic words.
-      if (this.aestheticAxisEngine) result.candidates.push(...this.aestheticAxisEngine.evaluate(view, genre).candidates);
+      result.candidates.push(...this.compositionCandidates(genre, view));
       // A rule and a relation can name the same thing; keep the better-evidenced one only.
       const best = new Map();
       for (const candidate of result.candidates) {
@@ -171,6 +183,44 @@ const GenreContext = (() => {
         }) : [])
       ].filter(Boolean);
       return list.slice(0, 14);
+    }
+    // Section 4: Discogs-EffNet's 400 classes are a coordinate system, not a wall -- a genre with
+    // no dedicated class (Future Funk, French House) can still be inferred from WHICH classes the
+    // classifier's own top-K puts weight on, combined with real audio evidence a hand-authored
+    // rule would otherwise require. requiresTopK/minTopKCount reference genre.topK's own labels
+    // (already run through canonicalGenre()'s alias resolution, same as genre.primary), so this
+    // needs no separate normalization step.
+    compositionCandidates(genre, view) {
+      if (!this.compositions) return [];
+      const topKLabels = new Set((genre.topK || []).map(item => String(item?.label ?? item ?? "").toLowerCase()).filter(Boolean));
+      if (!topKLabels.size) return [];
+      const results = [];
+      for (const rule of this.compositions.rules || []) {
+        const requiresTopK = rule.requiresTopK || [];
+        const matchedCount = requiresTopK.filter(label => topKLabels.has(String(label).toLowerCase())).length;
+        if (matchedCount < (rule.minTopKCount ?? 1)) continue;
+        const tests = rule.requires || [];
+        const groups = new Set(tests.map(test => test.path.split(".")[0]));
+        if (tests.length < 2 || groups.size < 2) continue;
+        const matched = tests.every(test => {
+          const value = Facets.read(view, test.path);
+          return typeof value === "number" && Number.isFinite(value) && value >= (test.min ?? 0) && value <= (test.max ?? 1);
+        });
+        // A composition-inferred name is a hypothesis about an UNLABELED genre, never a fact --
+        // it must always read as tentative (계열/경향), never as if the classifier actually named it.
+        if (!matched || !/(?:계열|경향)$/.test(rule.text) || !Facets.safeText(rule.text, "lineage")) continue;
+        const completeness = matchedCount / Math.max(1, requiresTopK.length);
+        // Deliberately capped well below the primary genre's own confidence and below a hand-
+        // authored rule's typical ceiling -- this must never be strong enough to read as more
+        // certain than (or overwrite) the HUD's actual confirmed genre.
+        const confidence = Math.min(genre.confidence * 0.65, 0.6) * (0.6 + completeness * 0.4);
+        if (confidence < 0.35) continue;
+        results.push(Facets.token(rule.text, "lineage", confidence,
+          ["primaryGenre", ...tests.map(test => test.path)].slice(0, 6),
+          { source: "genre-composition", kind: "style", relationFamily: "COMPOSITION",
+            relationScore: confidence, matchedTopK: requiresTopK.filter(label => topKLabels.has(String(label).toLowerCase())) }));
+      }
+      return results.slice(0, 6);
     }
   }
   return { Engine, instrumentEvidence, normalizeGenreLabel, resolveGenreEntry };

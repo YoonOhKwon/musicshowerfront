@@ -83,7 +83,14 @@ const AestheticAxisEngine = (() => {
     // "nostalgia is deepening" phrase -- which is matched against the `direction` map from
     // trajectory() below; regions with no `direction` field are unaffected and work exactly as
     // before (value-only).
-    matchRegions(axes, contributingPaths, genreConfidence, direction = {}) {
+    // Section 4: the open layer is axis-based, not genre-based -- confidence here comes primarily
+    // from HOW WELL the measured axes clear their thresholds (averageMargin), never gated by
+    // genre confidence the way rule/relation candidates are. A confidently-known genre adds only
+    // a small bonus on top; an unconfirmed or uncertain genre must still let a strongly-evidenced
+    // region speak ("장르를 몰라도 인상 어휘는 나와야 한다").
+    matchRegions(axes, contributingPaths, genre = {}, direction = {}) {
+      const genreConfidence = genre?.uncertain ? 0 : (genre?.confidence ?? 0);
+      const genreBonus = genreConfidence >= 0.5 ? Math.min(0.15, (genreConfidence - 0.5) * 0.3) : 0;
       const candidates = [];
       for (const region of this.regions) {
         const requires = region.requires || [];
@@ -101,7 +108,12 @@ const AestheticAxisEngine = (() => {
           return clamp((axes[req.axis] - min) / Math.max(0.001, max - min));
         });
         const averageMargin = margins.reduce((sum, x) => sum + x, 0) / margins.length;
-        const confidence = Math.min(0.84, clamp((genreConfidence ?? 0.6) * (0.6 + averageMargin * 0.24)));
+        // Selectivity is an explicit, genre-independent gate on the margin itself (not folded
+        // into the confidence formula) -- a region barely clearing its min thresholds should not
+        // speak just because genre happens to be confident. This keeps candidate volume in check
+        // regardless of how the (separate) genre bonus below is tuned.
+        if (averageMargin < 0.35) continue;
+        const confidence = Math.min(0.84, clamp(0.4 + averageMargin * 0.4 + genreBonus));
         if (confidence < 0.45) continue;
         const anchorPaths = [...new Set(satisfied.flatMap(req => contributingPaths[req.axis] || []))];
         candidates.push(Facets.token(region.text, region.category, confidence,
@@ -154,7 +166,7 @@ const AestheticAxisEngine = (() => {
       const { axes, contributingPaths, genreMatch } = this.evaluateAxes(state, genre);
       const { delta, direction } = this.trajectory(axes, at);
       this.recordHistory(axes, at);
-      const candidates = this.matchRegions(axes, contributingPaths, genre.confidence, direction);
+      const candidates = this.matchRegions(axes, contributingPaths, genre, direction);
       return { axes, contributingPaths, genreMatch, delta, direction, candidates };
     }
   }
