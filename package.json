@@ -8,6 +8,7 @@
     "smoke:model": "node scripts/model-smoke.mjs",
     "test:model": "node scripts/model-smoke.mjs",
     "profile:semantic": "node scripts/profile-semantic.cjs",
+    "audit:feedback": "node scripts/audit-feedback.cjs",
     "validate:knowledge": "node scripts/validate-knowledge.cjs",
     "test:language:live": "node scripts/language-smoke.cjs --live",
     "test:language:diversity": "node scripts/language-diversity.cjs",
