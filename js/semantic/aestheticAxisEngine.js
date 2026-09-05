@@ -29,14 +29,22 @@ const AestheticAxisEngine = (() => {
       .filter(Boolean).map(x => String(x).toLowerCase());
   }
 
-  // A genre-prior component is never "missing evidence" once genre itself is known -- an
-  // unmatched genre is a real answer (this style has no prior on this axis), so it resolves to
-  // 0, not null. Only a genuinely unresolved/uncertain genre makes the component unavailable.
+  // A genre NOT in this axis's prior table is not "this style scores 0 on this axis" -- the
+  // table only lists genres someone actually researched a prior for. An unmatched genre means
+  // "no prior information for this genre on this axis", which is the textbook definition of an
+  // unmeasurable value: null, never 0 (project rule 1). Filling it with 0 silently caps every
+  // untabled genre's weighted average below what the genre-prior weight alone can reach (e.g.
+  // nostalgia's 0.40 genre-prior weight structurally capped the whole axis at 0.60 for any of the
+  // ~ Discogs 400 genres outside its 8-entry prior table -- worse than genre being unconfirmed,
+  // which lets the same axis reach 1.0 from measured signal alone). Only a genuinely unresolved/
+  // uncertain genre makes the component unavailable in that OTHER sense; both cases now resolve
+  // to the same outcome -- null, excluded from the weighted average -- which is the correct fix,
+  // not a coincidence: "genre known but untabled" and "genre unknown" are both "no prior here".
   function genrePriorResult(priors, genre) {
     if (!genre || genre.uncertain || !genre.primary) return { value: null, matched: false };
     const labels = genreLabels(genre);
     const matchKey = Object.keys(priors || {}).find(name => labels.some(label => label.includes(name.toLowerCase())));
-    return { value: matchKey ? priors[matchKey] : 0, matched: Boolean(matchKey) };
+    return { value: matchKey ? priors[matchKey] : null, matched: Boolean(matchKey) };
   }
 
   class Engine {

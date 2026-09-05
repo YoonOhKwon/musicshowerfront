@@ -47,6 +47,48 @@ test("a genre-prior component alone (no real acoustic signal) cannot manufacture
   assert.equal(genreOnly.axes.glossiness, null, "genre label alone must not fabricate an unmeasured axis");
 });
 
+// Regression coverage for the STEP-1 fix: genrePriorResult() used to return `value: 0` for a
+// genre absent from an axis's prior table, and 0 is a finite number the weighted average happily
+// summed in. That silently capped the axis below what the genre-prior weight alone could reach
+// for every genre outside the (8-entry) table -- a confidently-known-but-untabled genre (Techno,
+// Shoegaze) scored WORSE than an unconfirmed genre, which is backwards: "no prior researched for
+// this genre" and "genre unknown" are the same absence of information and must resolve the same
+// way (null), not two different numbers.
+test("STEP 1: same acoustic evidence, a genre absent from the prior table now scores IDENTICALLY to an unconfirmed genre (not lower)", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const view = { moodDimensions: { warmth: 0.7, brightness: 0.6 },
+    productionEvidence: { sampleBased: 0.6, distortion: 0.3 }, rhythmicGrammar: { fourOnFloor: 0.6 } };
+  const untabled = engine.evaluateAxes(view, { primary: "Techno", confidence: 0.85, uncertain: false });
+  const alsoUntabled = engine.evaluateAxes(view, { primary: "Shoegaze", confidence: 0.85, uncertain: false });
+  const unconfirmed = engine.evaluateAxes(view, { primary: "Unknown", confidence: 0.2, uncertain: true });
+  for (const axis of ["nostalgia", "artificiality", "urbanity", "motion"]) {
+    assert.equal(untabled.axes[axis], unconfirmed.axes[axis],
+      `${axis}: Techno (untabled) must equal unconfirmed genre, not score lower`);
+    assert.equal(alsoUntabled.axes[axis], unconfirmed.axes[axis], `${axis}: Shoegaze (untabled) must equal unconfirmed genre`);
+  }
+});
+
+test("STEP 1: a genre actually IN the prior table still gets a real boost from it", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const view = { moodDimensions: { warmth: 0.7, brightness: 0.6 },
+    productionEvidence: { sampleBased: 0.6, distortion: 0.3 }, rhythmicGrammar: { fourOnFloor: 0.6 } };
+  const tabled = engine.evaluateAxes(view, { primary: "City Pop", confidence: 0.85, uncertain: false });
+  const untabled = engine.evaluateAxes(view, { primary: "Techno", confidence: 0.85, uncertain: false });
+  // City Pop has a genrePriors entry on nostalgia/urbanity (not artificiality) -- confirms the
+  // prior itself still functions, this was never about disabling genre priors altogether.
+  assert.ok(tabled.axes.nostalgia > untabled.axes.nostalgia);
+  assert.ok(tabled.axes.urbanity > untabled.axes.urbanity);
+  assert.equal(tabled.axes.artificiality, untabled.axes.artificiality, "city pop has no artificiality prior, so no difference is expected there");
+});
+
+test("STEP 1: zero measured components still keeps the axis null regardless of genre-table membership (unaffected by this fix)", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const emptyView = { moodDimensions: {}, productionEvidence: {}, rhythmicGrammar: {} };
+  assert.equal(engine.evaluateAxes(emptyView, { primary: "City Pop", confidence: 0.85, uncertain: false }).axes.nostalgia, null);
+  assert.equal(engine.evaluateAxes(emptyView, { primary: "Techno", confidence: 0.85, uncertain: false }).axes.nostalgia, null);
+  assert.equal(engine.evaluateAxes(emptyView, { primary: "Unknown", confidence: 0.2, uncertain: true }).axes.nostalgia, null);
+});
+
 test("region text is keyed to axis combinations, not genre identity: same genre, different production/mood values produce different words", () => {
   const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
   const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
