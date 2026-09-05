@@ -5,6 +5,46 @@ const LanguageInspector = (() => {
   let signature = "";
   let feedback = [];
 
+  // The two-tier epistemology's own grouping (엄격/중간/개방), not a new taxonomy: LIVE/FACT are
+  // the strict layer, CONTEXT is the middle (conditional style hypotheses), AESTHETIC/IMPRESSION
+  // are the open layer. Selection-rate collapse here is the whole point of Part C-2 -- once
+  // vocabulary grows and candidates outnumber slots, this is the only place that shows whether the
+  // selector is still picking sensibly or just taking whatever survived the critic in order.
+  const LAYER_TIER = { LIVE: "strict", FACT: "strict", CONTEXT: "middle", AESTHETIC: "open", IMPRESSION: "open" };
+  function layerTier(layer) { return LAYER_TIER[layer] || "unknown"; }
+  function axisBucket(count) {
+    const n = Number(count) || 0;
+    return n <= 1 ? "1" : n === 2 ? "2" : "3+";
+  }
+  // Pure so it can be unit tested without a DOM: takes the same de-duplicated candidate list and
+  // selected-text set render() already builds, returns the numbers C-2 asks the panel to expose.
+  function selectionStatsOf(candidates = [], selectedTexts = new Set()) {
+    const candidateCount = candidates.length;
+    const selectedCount = candidates.filter(item => selectedTexts.has(item.text)).length;
+    const byLayerTier = {};
+    const byAxisBucket = {};
+    for (const candidate of candidates) {
+      const tier = layerTier(candidate.layer);
+      byLayerTier[tier] = byLayerTier[tier] || { total: 0, selected: 0 };
+      byLayerTier[tier].total += 1;
+      const bucket = axisBucket((candidate.diagnostics?.evidenceAxes || []).length);
+      byAxisBucket[bucket] = byAxisBucket[bucket] || { total: 0, selected: 0 };
+      byAxisBucket[bucket].total += 1;
+      if (selectedTexts.has(candidate.text)) {
+        byLayerTier[tier].selected += 1;
+        byAxisBucket[bucket].selected += 1;
+      }
+    }
+    const topDropped = candidates.filter(item => !selectedTexts.has(item.text))
+      .sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 5)
+      .map(item => ({ text: item.text, score: item.score || 0, layer: item.layer,
+        rejectionReason: item.valid === false ? (item.diagnostics?.rejectionReason || "?") : "not-selected" }));
+    return {
+      candidateCount, selectedCount, selectionRate: candidateCount ? selectedCount / candidateCount : 0,
+      byLayerTier, byAxisBucket, topDropped
+    };
+  }
+
   function readFeedback() {
     try { feedback = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").slice(-200); }
     catch { feedback = []; }
@@ -21,8 +61,22 @@ const LanguageInspector = (() => {
     const existing = feedback.find(item => item.text === candidate.text && item.fingerprint === snapshot?.fingerprint);
     feedback = feedback.filter(item => !(item.text === candidate.text && item.fingerprint === snapshot?.fingerprint));
     if (existing?.vote !== vote) feedback.push({
+      feedbackSchemaVersion: 2,
+      voteMeaning: "manual-evaluation-only",
       text: candidate.text, vote, fingerprint: snapshot?.fingerprint || "", at: new Date().toISOString(),
       score: candidate.score, type: candidate.type, perspective: candidate.perspective,
+      diagnostics: {
+        primaryGenre: snapshot?.primaryGenre || null,
+        semanticConfidence: snapshot?.semanticConfidence ?? snapshot?.confidence ?? null,
+        temporalStability: snapshot?.temporalStability ?? null,
+        evidenceCoverage: snapshot?.genreReasoning?.primary?.evidenceCoverage ?? null,
+        challengers: snapshot?.genreReasoning?.challengers || [],
+        takeovers: snapshot?.genreReasoning?.takeovers || [],
+        liveEventCount: snapshot?.temporalState?.liveEvents?.length || 0,
+        staleClaims: snapshot?.temporalState?.stale || [],
+        contradictions: snapshot?.temporalState?.contradictions || [],
+        suppressedClaims: snapshot?.temporalState?.suppressed || []
+      },
       snapshot
     });
     feedback = feedback.slice(-200);
@@ -59,9 +113,12 @@ const LanguageInspector = (() => {
     const tokenDetails = element("details");
     tokenDetails.open = true;
     tokenDetails.append(element("summary", "LLM 토큰 추적"), element("pre", "", "languageInspectorTokens"));
+    const selectionDetails = element("details");
+    selectionDetails.open = true;
+    selectionDetails.append(element("summary", "선별 통계"), element("pre", "", "languageInspectorSelectionStats"));
     const details = element("details");
     details.append(element("summary", "전송한 의미 스냅샷"), element("pre", "", "languageInspectorSnapshot"));
-    panel.append(header, status, tokenDetails, details, element("p", "점수는 음악 관련성·현재 상태·명료성·자연스러움 기준입니다. 음압은 디지털 신호 세기이며 압축·분위기는 추정입니다. 👍/👎는 이 기기에만 저장됩니다.", "languageInspectorNote"), element("div", undefined, "languageInspectorCandidates"));
+    panel.append(header, status, tokenDetails, selectionDetails, details, element("p", "점수는 음악 관련성·현재 상태·명료성·자연스러움 기준입니다. 음압은 디지털 신호 세기이며 압축·분위기는 추정입니다. 👍/👎는 자동 학습이나 강제 유지가 아닌 수동 평가 표식이며 이 기기에만 저장됩니다.", "languageInspectorNote"), element("div", undefined, "languageInspectorCandidates"));
     panel.addEventListener("keydown", event => { if (event.key === "Escape") toggle(); });
     document.body.append(panel);
   }
@@ -73,11 +130,17 @@ const LanguageInspector = (() => {
     const tokens = state.tokenUsage || {};
     const requestTokens = tokens.request || {};
     const projectTokens = tokens.projectSession || tokens.languageSession || {};
+    const semantic = getSemanticState();
+    const primaryHypothesis = semantic.genreReasoning?.primary;
+    const temporal = semantic.temporalEvidence || {};
     const count = value => Math.max(0, Number(value) || 0).toLocaleString("ko-KR");
     const percent = value => `${Math.round(Math.max(0, Number(value) || 0) * 100)}%`;
     panel.querySelector(".languageInspectorStatus").textContent = [
       `Provider: ${state.provider || "--"} · ${state.model || "--"}`,
-      `State: ${state.status || "idle"} · epoch ${getSemanticState().semanticEpoch || 0} · fingerprint ${state.fingerprint || "--"}`,
+      `State: ${state.status || "idle"} · epoch ${semantic.semanticEpoch || 0} · fingerprint ${state.fingerprint || "--"}`,
+      `Primary: ${primaryHypothesis?.genre || "--"} · semantic ${(primaryHypothesis?.semanticConfidence || 0).toFixed(2)} · stability ${(primaryHypothesis?.temporalStability || 0).toFixed(2)} · coverage ${(primaryHypothesis?.evidenceCoverage || 0).toFixed(2)}`,
+      `Challengers: ${(semantic.genreReasoning?.challengers || []).slice(0, 4).map(item => `${item.genre} ${(Number(item.semanticConfidence) || 0).toFixed(2)}/${(Number(item.temporalStability) || 0).toFixed(2)}`).join(" · ") || "--"}`,
+      `Temporal: LIVE ${(temporal.liveEvents || []).length} · short ${(temporal.shortTermStates || []).length} · traits ${(temporal.trackTraits || []).length} · stale ${(temporal.stale || []).length} · suppressed ${(temporal.suppressed || []).length} · contradictions ${(temporal.contradictions || []).length}`,
       `Facets: ${SemanticFacets.names.join(" / ")}`,
       `Candidates ${state.candidateCount || 0} → selected ${state.selectedCount || 0} · remaining ${state.remaining || 0}`,
       `Layer survival: ${JSON.stringify(state.survival?.layers || {})}`,
@@ -110,6 +173,16 @@ const LanguageInspector = (() => {
       else unique.set(candidate.text, { ...candidate, duplicateCount: 1 });
     }
     const candidates = [...unique.values()].sort((a, b) => Number(selected.has(b.text)) - Number(selected.has(a.text)) || b.score - a.score);
+    const stats = selectionStatsOf(candidates, selected);
+    const tierLine = tier => `${tier} ${stats.byLayerTier[tier]?.selected || 0}/${stats.byLayerTier[tier]?.total || 0}`;
+    const axisLine = bucket => `${bucket}축 ${stats.byAxisBucket[bucket]?.selected || 0}/${stats.byAxisBucket[bucket]?.total || 0}` +
+      ` (${stats.byAxisBucket[bucket]?.total ? Math.round(stats.byAxisBucket[bucket].selected / stats.byAxisBucket[bucket].total * 100) : 0}%)`;
+    panel.querySelector(".languageInspectorSelectionStats").textContent = [
+      `Candidates ${stats.candidateCount} → selected ${stats.selectedCount} · rate ${Math.round(stats.selectionRate * 100)}%`,
+      `By tier (엄격/중간/개방): ${["strict", "middle", "open"].map(tierLine).join(" · ")}`,
+      `By axis count (3+ 조합 생존율이 향후 과다생성 튜닝의 핵심 지표): ${["1", "2", "3+"].map(axisLine).join(" · ")}`,
+      `Top dropped: ${stats.topDropped.map(item => `${item.text}(${item.score.toFixed(2)}/${item.layer}/${item.rejectionReason})`).join(" · ") || "--"}`
+    ].join("\n");
     for (const candidate of candidates) {
       const row = element("article", undefined, "languageInspectorCandidate");
       row.dataset.selected = String(selected.has(candidate.text));
@@ -156,5 +229,6 @@ const LanguageInspector = (() => {
     panel.focus();
     timer = setInterval(render, 1500);
   }
-  return { toggle };
+  return { toggle, layerTier, axisBucket, selectionStatsOf };
 })();
+if (typeof module !== "undefined" && module.exports) module.exports = LanguageInspector;
