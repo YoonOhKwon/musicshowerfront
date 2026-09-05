@@ -132,6 +132,22 @@ npm run test:language:live
 
 `test:model`은 실제 MP3 세 개로 로컬 음악 모델을 검사합니다. `npm test`는 실제 MP3의 RMS/peak→단어 경로, 3단계 시간 증거, 원형·관용어, Shared/transferable 경로, Floating Word의 완주와 무음·드롭·지연·실패·중복을 검사합니다. `test:language:live`는 유료 API를 최대 세 번 호출하는 선택적 검증이며 이번 자동 검증에서는 실행하지 않습니다. 자동 테스트는 장르·분위기의 청감 정확도를 보증하지 않습니다.
 
+### 지속 개선용 회귀 감사
+
+`D` 패널에서 저장한 세션 기록은 이제 classifier, 악기 provenance, performance, MIR, genre-hypothesis를 함께 보존합니다. 실제 청취 경로의 변화를 확인하려면 기록을 다시 재생합니다.
+
+```powershell
+node scripts/replay.cjs --input <recordings-folder> --report
+```
+
+언어 패널에서 내보낸 👍/👎 파일은 학습 데이터로 자동 사용하지 않고, 현재 근거와 과거 memory 누수를 점검하는 읽기 전용 감사에 사용합니다.
+
+```powershell
+npm run audit:feedback -- --input <feedback.json>
+```
+
+감사 결과의 `manual-evaluation-only`, `evidenceCoverage`, `independentEvidenceFamilies`, `temporalLeaks`, `legacyPersistenceInflation`을 기준으로 규칙과 threshold를 보정합니다. 여러 classifier top-k label은 독립 근거 하나로 계산하고, Future Funk·French House·Nu Disco·Jazz Rap·Electro Swing·Liquid DnB는 서로 다른 구성 단서가 있을 때만 composite hypothesis가 됩니다.
+
 ## 문제 해결
 
 - `로컬 DSP 분석`: 모델 로딩이 실패했지만 시각화는 계속 동작하는 대체 상태입니다.

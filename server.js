@@ -8,7 +8,7 @@ require("dotenv").config({ quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BUILD_VERSION = "2026.09.05.song-language-diversity-v17";
+const BUILD_VERSION = "2026.09.06.genre-reasoning-v19";
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-sol";
 const REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || "medium";
 const MAX_OUTPUT_TOKENS = Math.max(256, Number(process.env.OPENAI_MAX_OUTPUT_TOKENS) || 10000);

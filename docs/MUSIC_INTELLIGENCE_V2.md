@@ -64,7 +64,17 @@ Musical Primitives → Idiom Lexicon → Evidence Fusion
 
 ## 8. Temporal Evidence 구조
 
-`live/dynamics`는 fast tier에서 즉시 반영한다. `rhythm/instrumentation/performance/arrangement/production`은 musical tier에서 반복 관측이 필요하다. `genre/lineage/mood/era/scene/culture/association`은 context tier에서 최소 3회 및 5.5초 지속이 필요하다. 현재 label보다 challenger가 0.06 이상 높고 별도 persistence 시간을 통과해야 교체된다. 확정 정보는 30초 동안 재확인되는 Track Memory에 저장되며 스스로 만료를 연장하지 않는다.
+`live/dynamics`는 fast tier에서 즉시 반영한다. `rhythm/instrumentation/performance/arrangement/production`은 musical tier에서 반복 관측이 필요하다. `genre/lineage/mood/era/scene/culture/association`은 context tier에서 최소 3회 및 5.5초 지속이 필요하다. 현재 label보다 challenger가 0.08 이상 높고 2.5초 takeover 시간을 통과해야 교체된다. 확정 정보는 30초 동안 재확인되는 Track Memory에 저장되며 스스로 만료를 연장하지 않는다. LIVE 이벤트는 별도 TTL 뒤 historicalEvents로 이동하고 Track Memory에 승격되지 않는다.
+
+## 후속 보정 라운드 (v19)
+
+v19에서는 semantic confidence와 temporal stability를 분리한 상태에서 실제 오디오 관측의 품질을 높였다. ML 악기 존재는 fast temporal window로 평활화하고, 등장·이탈·리드·솔로 판정은 새로운 `analysisWindowId`가 들어온 경우에만 history를 전진시킨다. 같은 ML 결과를 500ms semantic refresh마다 재사용해 관측 횟수를 부풀리던 경로를 제거했다. performance 표현은 `mixture-level temporal proxy; no source separation`으로 해상도를 명시한다.
+
+beat detector는 steady band energy를 onset impact로 오인하지 않도록 bass/mid/high 상승량과 band share를 사용한다. 이를 통해 `backbeat`, `offbeat`, `hat`, `kick` 후보가 현재 transient에 근거하도록 했고, filter-sweep는 단조로운 centroid trajectory의 길이·방향성·반전량으로 graded confidence를 계산한다.
+
+복합 장르는 classifier label set을 나누어 구성 요소의 출처를 확인한다. 예를 들어 Future Funk는 일본/인터넷 계열과 Disco 계열이 함께 있어야 하며, Nu Disco는 현대적·댄스 계열 label 없이 `Disco + Funk`만으로 생성되지 않는다. `independentEvidenceFamilies`는 group 개수가 아니라 실제 근거 계열(`genreModel`, `rhythm`, `production`, `instrumentation`, `mood`)을 센다.
+
+`scripts/replay.cjs`는 v3 세션 기록을 새 hypothesis engine에 다시 통과시키고 primary timeline, composite, takeover를 보고한다. `scripts/audit-feedback.cjs`는 Language Inspector JSON을 읽기 전용으로 점검하며 수동 vote가 runtime을 학습시키지 않음을 명시하고, legacy persistence inflation과 LIVE/FACT 누수를 수치화한다.
 
 ## 9. Genre Context 구조
 

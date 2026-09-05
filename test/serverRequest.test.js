@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const { createMusicAnalysisRequest, musicProfileSchema, BUILD_VERSION } = require("../server");
 
 test("server exposes a build identifier for stale-process diagnosis", () => {
-  assert.equal(BUILD_VERSION, "2026.09.05.song-language-diversity-v17");
+  assert.equal(BUILD_VERSION, "2026.09.06.genre-reasoning-v19");
 });
 
 test("Sol request keeps medium reasoning and an explicit reusable prompt prefix", () => {
