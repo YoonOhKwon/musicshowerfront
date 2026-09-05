@@ -61,9 +61,10 @@ const PhraseSelection = (() => {
     if (observationSeconds < 5) return { LIVE: 0.60, FACT: 0.40, CONTEXT: 0, AESTHETIC: 0, IMPRESSION: 0 };
     if (observationSeconds < 15) return { LIVE: 0.27, FACT: 0.50, CONTEXT: 0.23, AESTHETIC: 0, IMPRESSION: 0 };
     if (observationSeconds < 30) return { LIVE: 0.15, FACT: 0.37, CONTEXT: 0.33, AESTHETIC: 0.08, IMPRESSION: 0.07 };
-    // Long-form output remains music-first: roughly 65% audio-derived LIVE/FACT, 20% context and
-    // 15% aesthetic/impression. Candidate count never lets a genre dictionary dominate this mix.
-    return { LIVE: 0.10, FACT: 0.55, CONTEXT: 0.20, AESTHETIC: 0.08, IMPRESSION: 0.07 };
+    if (observationSeconds < 45) return { LIVE: 0.10, FACT: 0.45, CONTEXT: 0.25, AESTHETIC: 0.10, IMPRESSION: 0.10 };
+    // Deep Immersion Phase (45s+): The AI has listened long enough to confidently express deep aesthetic and emotional interpretations.
+    // Context, Aesthetic, and Impression now dominate the visual field to give a "high-resolution emotional listening" feel.
+    return { LIVE: 0.05, FACT: 0.15, CONTEXT: 0.20, AESTHETIC: 0.30, IMPRESSION: 0.30 };
   }
   function choose(source = [], recent = [], random = Math.random, options = {}) {
     const { changing = false, active = [], observationSeconds = Infinity, avoidFacets = [] } = options;

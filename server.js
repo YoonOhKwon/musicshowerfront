@@ -348,6 +348,67 @@ app.post("/api/language-pool", async (req, res) => {
   }
 });
 
+app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" }), async (req, res) => {
+  if (!client) return res.status(503).json({ error: "OpenAI not configured." });
+  try {
+    // 1. Forward raw audio to Flamingo python server
+    const flamingoRes = await fetch("http://localhost:5005/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "audio/wav", "Content-Length": req.body.length },
+      body: req.body
+    });
+    if (!flamingoRes.ok) throw new Error("Flamingo server error: " + await flamingoRes.text());
+    const { caption } = await flamingoRes.json();
+
+    // 2. Translate and structure via OpenAI
+    const prompt = `You are an expert music aesthetic interpreter.
+A deep listening AI (Music Flamingo) analyzed a 30s audio chunk and gave this caption:
+"${caption}"
+
+Translate and synthesize this deep aesthetic observation into Korean aesthetic/impression floating words.
+Include era, vibe, cultural context (like 일본 버블경제, 80년대 감성, -코어). 
+Return up to 6 highly evocative terms in the JSON schema format.`;
+
+    const response = await client.responses.create({
+      model: MODEL,
+      input: [{ role: "user", content: prompt }],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "deep_aesthetic_words",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              words: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    text: { type: "string", description: "The deep aesthetic phrase in Korean" },
+                    category: { type: "string", enum: ["AESTHETIC", "IMPRESSION", "CONTEXT"] },
+                    weight: { type: "number", minimum: 0, maximum: 1 }
+                  },
+                  required: ["text", "category", "weight"],
+                  additionalProperties: false
+                }
+              }
+            },
+            required: ["words"],
+            additionalProperties: false
+          }
+        }
+      }
+    });
+    
+    const result = JSON.parse(response.output_text);
+    res.json({ caption, deepWords: result.words });
+  } catch (error) {
+    console.error("[deep-analysis error]", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/api/music-analysis", async (req, res) => {
   try {
     const { featurePacket } = req.body || {};

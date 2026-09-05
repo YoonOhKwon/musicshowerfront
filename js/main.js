@@ -42,19 +42,101 @@ function setup() {
   window.addEventListener("pagehide", () => releaseAudioResources());
 }
 
+let deepAnalysisTriggered = false;
+let deepAestheticQueue = [];
+
 function updateWordSpawner() {
   if (!audioStarted) return;
   const now = millis();
+  
+  // Trigger deep analysis exactly once after 30 seconds of listening
+  if (!deepAnalysisTriggered && typeof mlAudioWindow !== "undefined" && mlAudioWindow) {
+    const sessionDurationMs = performance.now() - (pcmCaptureMetrics?.startedAt || performance.now());
+    if (sessionDurationMs > 30000) {
+      deepAnalysisTriggered = true;
+      triggerDeepAnalysisUpload();
+    }
+  }
+
   const arousal = getActiveMoodProfile().arousal || 0.5;
   const densityFactor = WordLifecycle.densityFactor(floatingWords.length, CONFIG.visual.maxFloatingWords);
-  const interval = CONFIG.visual.wordSpawnInterval * (1.18 - arousal * 0.38) * densityFactor;
+  // When deep queue has items, spawn them faster to flood the screen
+  const interval = deepAestheticQueue.length > 0 
+    ? CONFIG.visual.wordSpawnInterval * 0.4
+    : CONFIG.visual.wordSpawnInterval * (1.18 - arousal * 0.38) * densityFactor;
 
   if (lastWordSpawnTime === 0 || now - lastWordSpawnTime >= interval) {
     let spawned = false;
     beginWordSpawnBatch();
-    for (let index = 0; index < CONFIG.visual.wordsPerSpawn; index++) spawned = createWord() || spawned;
+    
+    if (deepAestheticQueue.length > 0) {
+      // Force spawn from our deep aesthetic queue
+      const deepWord = deepAestheticQueue.shift();
+      spawned = createWordFromCandidate(deepWord);
+    } else {
+      for (let index = 0; index < CONFIG.visual.wordsPerSpawn; index++) spawned = createWord() || spawned;
+    }
+    
     if (spawned) lastWordSpawnTime = now;
   }
+}
+
+function createWordFromCandidate(candidate) {
+  const instance = WordLifecycle.spawn(candidate, floatingWords);
+  if (instance) {
+    floatingWords.push(instance);
+    return true;
+  }
+  return false;
+}
+
+function triggerDeepAnalysisUpload() {
+  if (!mlAudioWindow) return;
+  const pcm = mlAudioWindow.latestNative(30);
+  if (!pcm || pcm.length < audioContext.sampleRate * 5) return;
+  
+  const buffer = new ArrayBuffer(44 + pcm.length * 2);
+  const view = new DataView(buffer);
+  const writeString = (view, offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+  
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + pcm.length * 2, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, audioContext.sampleRate, true);
+  view.setUint32(28, audioContext.sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(view, 36, 'data');
+  view.setUint32(40, pcm.length * 2, true);
+  
+  for (let i = 0, offset = 44; i < pcm.length; i++, offset += 2) {
+    let s = Math.max(-1, Math.min(1, pcm[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+  
+  console.log("Deep Listen: Uploading 30s audio to Flamingo...");
+  fetch("/api/deep-analysis", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: buffer })
+    .then(res => res.json())
+    .then(data => {
+      if (data.deepWords && data.deepWords.length > 0) {
+        console.log("Deep Listen complete. Received:", data.deepWords);
+        // Decorate and enqueue
+        data.deepWords.forEach(w => {
+          deepAestheticQueue.push({
+            text: w.text,
+            category: w.category === "CONTEXT" ? "genre" : (w.category === "IMPRESSION" ? "mood" : "association"),
+            layer: w.category || "AESTHETIC",
+            weight: w.weight || 1,
+            source: "remote-deep-listen",
+            confidence: 0.99
+          });
+        });
+      }
+    }).catch(e => console.error("Deep Listen failed:", e));
 }
 
 function draw() {

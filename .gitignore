@@ -4,3 +4,8 @@ node_modules/
 !.env.example
 
 npm-debug.log*
+.research-venv/
+.research-cache/
+models/research/
+research-output/
+__pycache__/
