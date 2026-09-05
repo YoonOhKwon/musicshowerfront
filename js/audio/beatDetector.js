@@ -3,6 +3,8 @@ let smoothMid = 0;
 let smoothHigh = 0;
 let smoothEnergy = 0;
 let previousBassEnergy = 0;
+let previousMidEnergy = 0;
+let previousHighEnergy = 0;
 let previousEnergy = 0;
 let lastBeatTime = 0;
 let beatFlash = 0;
@@ -23,6 +25,8 @@ function resetBeatDetection() {
   smoothHigh = 0;
   smoothEnergy = 0;
   previousBassEnergy = 0;
+  previousMidEnergy = 0;
+  previousHighEnergy = 0;
   previousEnergy = 0;
   lastBeatTime = 0;
   beatFlash = 0;
@@ -57,6 +61,8 @@ function updateBeatDetection() {
     baseline.mean + baseline.std * CONFIG.beat.fluxThresholdStd
   );
   const bassRise = bassEnergy - previousBassEnergy;
+  const midRise = midEnergy - previousMidEnergy;
+  const highRise = highEnergy - previousHighEnergy;
   const energyRise = energy - previousEnergy;
   const now = performance.now();
   const strongTransient = flux > threshold * 1.45;
@@ -72,14 +78,31 @@ function updateBeatDetection() {
     if (lastBeatTime > 0) updateBPMFromInterval(now - lastBeatTime);
     lastBeatTime = now;
     beatTimestamps.push(now);
+    const positiveRises = [bassRise, midRise, highRise].map(value => Math.max(0, value));
+    const riseTotal = positiveRises.reduce((sum, value) => sum + value, 0);
+    const impact = (rise, floor, share) => SignalMath.clamp(
+      SignalMath.clamp(Math.max(0, rise) / Math.max(0.0001, floor * 2)) * 0.68 + share * 0.32
+    );
+    const lowImpact = impact(bassRise, CONFIG.beat.bassRise, riseTotal ? positiveRises[0] / riseTotal : 0);
+    const midImpact = impact(midRise, CONFIG.beat.midRise, riseTotal ? positiveRises[1] / riseTotal : 0);
+    const highImpact = impact(highRise, CONFIG.beat.highRise, riseTotal ? positiveRises[2] / riseTotal : 0);
+    const ordered = [{ band: "low", value: lowImpact }, { band: "mid", value: midImpact },
+      { band: "high", value: highImpact }].sort((a, b) => b.value - a.value);
+    const onsetClass = ordered[0].value >= 0.5 && ordered[0].value - ordered[1].value >= 0.08
+      ? ({ low: "kick", mid: "backbeat", high: "hat" })[ordered[0].band] : "mixed";
     onsetEvents.push({ at: now, strength: SignalMath.clamp(flux / Math.max(0.001, threshold * 1.5)),
-      lowImpact: SignalMath.clamp(bassRise / Math.max(0.001, CONFIG.beat.bassRise * 2)) });
+      // Band-local TRANSIENT rises, not steady absolute band energy. A sustained bright or
+      // mid-heavy passage therefore cannot turn every unrelated onset into a hat/backbeat.
+      lowImpact, midImpact, highImpact, onsetClass,
+      spectralContrast: SignalMath.clamp(ordered[0].value - ordered[1].value) });
     beatFlash = 1;
     beatScale = 1;
   }
 
   pushOnsetMetric(flux);
   previousBassEnergy = bassEnergy;
+  previousMidEnergy = midEnergy;
+  previousHighEnergy = highEnergy;
   previousEnergy = energy;
   beatFlash *= 0.9;
   beatScale *= 0.89;

@@ -44,6 +44,8 @@ const CONFIG = {
     fluxThresholdStd: 1.15,
     minEnergy: 0.025,
     bassRise: 0.004,
+    midRise: 0.003,
+    highRise: 0.002,
     bpmMin: 65,
     bpmMax: 195,
     bpmFoldMin: 75,

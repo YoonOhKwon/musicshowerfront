@@ -246,8 +246,12 @@ const MusicalPrimitives = (() => {
         major: tonal.scale === "major" ? clamp(tonal.confidence) : clamp(1 - tonal.confidence),
         minor: tonal.scale === "minor" ? clamp(tonal.confidence) : clamp(1 - tonal.confidence)
       };
+    const sequenceCenter = motionMeasured && motion.tonalCenter && motion.keyUncertain !== true
+      ? motion.tonalCenter : null;
+    const sequenceKeyConfidence = sequenceCenter ? valueOrNull(motion.keyConfidence) : null;
     Object.assign(output.harmony, {
-      tonalCenter: !tonal.uncertain && tonal.key ? tonal.key : null, keyConfidence: valueOrNull(tonal.confidence),
+      tonalCenter: sequenceCenter || (!motionMeasured && !tonal.uncertain && tonal.key ? tonal.key : null),
+      keyConfidence: sequenceKeyConfidence ?? (!motionMeasured && !tonal.uncertain ? valueOrNull(tonal.confidence) : null),
       majorMinorLikelihood: majorMinor,
       modality: motionMeasured ? motion.modality || null : null,
       modeConfidence: motionMeasured ? valueOrNull(motion.modeConfidence) : null,
@@ -274,10 +278,13 @@ const MusicalPrimitives = (() => {
     if (motionMeasured) {
       for (const key of ["chordChangeRate", "harmonicRhythm", "harmonicStability", "harmonicRepetition",
         "harmonicMotionDirection", "harmonicDensity", "cadenceStrength", "modality", "modeConfidence",
-        "modalLikelihood", "modalAmbiguity", "majorMinorDeviation", "majorMinorLikelihood"]) {
+        "modalLikelihood", "modalAmbiguity", "majorMinorDeviation", "majorMinorLikelihood",
+        "tonalCenter", "keyConfidence"]) {
         putMeta(output.meta, `harmony.${key}`, output.harmony[key],
-          key.startsWith("mod") || key.startsWith("major") ? motion.modeConfidence : motion.confidence,
-          ["audio.chroma", "harmonicMotion"], "chroma-sequence motion");
+          key === "tonalCenter" || key === "keyConfidence" ? motion.keyConfidence ?? motion.confidence
+            : key.startsWith("mod") || key.startsWith("major") ? motion.modeConfidence : motion.confidence,
+          ["audio.chroma", "harmonicMotion"],
+          key === "tonalCenter" || key === "keyConfidence" ? "chroma-sequence key" : "chroma-sequence motion");
       }
     }
 
@@ -324,10 +331,23 @@ const MusicalPrimitives = (() => {
     const bassPresence = valueOrNull(families.bass?.confidence);
     const bassMotionValue = valueOrNull(performance.bassPitchMotion);
     const bassRepetition = valueOrNull(performance.bassPatternRepetition);
+    const keyPitchClass = motionMeasured && Number.isInteger(motion.keyPitchClass) && motion.keyUncertain !== true
+      ? motion.keyPitchClass
+      : (!motionMeasured && Number.isInteger(tonal.pitchClass) && !tonal.uncertain ? tonal.pitchClass : null);
+    const histogramRoot = (() => {
+      const histogram = performance.bassPitchClassHistogram;
+      if (!Array.isArray(histogram) || histogram.length !== 12 || !Number.isInteger(keyPitchClass)) return null;
+      const total = histogram.reduce((sum, value) => sum + (Number(value) || 0), 0);
+      if (total < 6) return null;
+      const tonic = Number(histogram[keyPitchClass]) || 0;
+      const fifth = Number(histogram[(keyPitchClass + 7) % 12]) || 0;
+      const third = Math.max(Number(histogram[(keyPitchClass + 4) % 12]) || 0, Number(histogram[(keyPitchClass + 3) % 12]) || 0);
+      return clamp((tonic + fifth + third) / total);
+    })();
     // Section 7. rootFollowing relates the bass pitch proxy to the harmonic state, so it can only
     // be claimed when BOTH sides are real: a bass line with no measured harmony to follow, or a
     // harmony estimate with no clear bass, leaves it null instead of asserting a root anchor.
-    const rootFollowing = valueOrNull(performance.rootFollowing) ?? (
+    const rootFollowing = valueOrNull(performance.rootFollowing) ?? histogramRoot ?? (
       bassMotionValue !== null && motionMeasured && finite(motion.harmonicStability) && finite(motion.confidence) &&
         motion.confidence >= 0.4 && bassPresence !== null && bassPresence >= 0.45
         ? clamp((1 - bassMotionValue) * 0.55 + motion.harmonicStability * 0.45) : null);

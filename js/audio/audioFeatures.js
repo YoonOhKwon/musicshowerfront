@@ -48,6 +48,10 @@ const bassPitchTracker = new BassPitchTracker.Tracker();
 const melodyPitchTracker = typeof MelodyPitchTracker === "object" && MelodyPitchTracker.Tracker
   ? new MelodyPitchTracker.Tracker()
   : { observeFrame() {}, reset() {}, trajectory() { return []; } };
+const hpssEngine = typeof Hpss === "object" && Hpss.Engine
+  ? new Hpss.Engine()
+  : { observe() { return { harmonic: null, percussive: null, chroma: null, harmonicRatio: 0, ready: false }; },
+    reset() {}, snapshot() { return { harmonic: null, percussive: null, chroma: null, harmonicRatio: 0, ready: false }; } };
 const bassEnergyEnvelope = new RingBuffer(600);
 const statsCache = new WeakMap();
 let cachedLocalMood = { valence: 0.5, arousal: 0, tension: 0, warmth: 0.5, brightness: 0.5, spaciousness: 0.5 };
@@ -91,6 +95,7 @@ function resetAudioAnalysis() {
   bandPlan = null;
   bassPitchTracker.reset();
   melodyPitchTracker.reset();
+  hpssEngine.reset();
   bassEnergyEnvelope.clear();
   cachedLocalMoodAt = -Infinity;
   cachedInstrumentEvidenceAt = -Infinity;
@@ -135,8 +140,13 @@ function updateRealtimeSpectrumAnalysis() {
   realtimeAudioFeatures.energy = energy;
 
   const framePitchAt = performance.now();
-  bassPitchTracker.observeFrame(audioFrequencyData, audioContext.sampleRate, analyser.fftSize, framePitchAt);
-  melodyPitchTracker.observeFrame(audioFrequencyData, audioContext.sampleRate, analyser.fftSize, framePitchAt);
+  const hpss = hpssEngine.observe(audioFrequencyData, {
+    sampleRate: audioContext.sampleRate,
+    fftSize: analyser.fftSize
+  });
+  const pitchOptions = hpss.ready ? { harmonic: hpss.harmonic, percussive: hpss.percussive } : {};
+  bassPitchTracker.observeFrame(audioFrequencyData, audioContext.sampleRate, analyser.fftSize, framePitchAt, pitchOptions);
+  melodyPitchTracker.observeFrame(audioFrequencyData, audioContext.sampleRate, analyser.fftSize, framePitchAt, pitchOptions);
   bassEnergyEnvelope.push({ at: framePitchAt, value: bands.subBass + bands.bass });
 
   for (const [name, value] of Object.entries(bands)) {
@@ -443,6 +453,15 @@ function getMelodyPitchTrajectory(windowMs = 0) {
 function getChromaSequence(limit = 120) {
   const frames = historyValues(audioAnalysis.chromaHistory);
   return frames.length > limit ? frames.slice(-limit) : frames;
+}
+
+function getHpssSnapshot() {
+  return hpssEngine.snapshot();
+}
+
+function getHarmonicChroma() {
+  const chroma = hpssEngine.snapshot().chroma;
+  return Array.isArray(chroma) && chroma.length === 12 ? chroma : null;
 }
 
 function createAudioFeatureFingerprint() {

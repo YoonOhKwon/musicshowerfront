@@ -1,8 +1,9 @@
 // Harmonic-motion detector (section 4). Reads the chroma vector sequence the Meyda stage already
 // produces and derives how FAST and how STABLY the harmony moves, plus a major/minor/modal
-// tendency. It deliberately does not attempt chord labels: frame-to-frame chroma distance is
-// enough for "stable / moderate / rapid harmonic movement", and anything finer than that would be
-// a guess dressed as a measurement.
+// tendency and a conservative tonal center. It deliberately does not attempt chord labels: frame-
+// to-frame chroma distance is enough for "stable / moderate / rapid harmonic movement", and a key
+// is named only when the window's templates (or Krumhansl-Schmuckler) agree with enough margin.
+// Specific modes (Dorian, Mixolydian) are never claimed from a folded 12-bin mix chroma.
 //
 // Every output is null until the window really supports it, and `confidence` reports how much of
 // the estimate rests on a clear tonal signal rather than on noise.
@@ -142,12 +143,55 @@ const HarmonicMotion = (() => {
     };
   }
 
+  const KEYS = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+
+  function attachKey(centroid, tonalFocus, tonality) {
+    const scores = tonality.templateScores || {};
+    const Mir = typeof MIREngine !== "undefined" ? MIREngine : require("./mirEngine");
+    let scale = null, tonic = null, margin = 0;
+    if (tonality.modality === "major" && scores.major) {
+      scale = "major";
+      tonic = scores.major.tonic;
+      margin = Math.max(0, scores.major.score - (scores.minor?.score || 0));
+    } else if (tonality.modality === "minor" && scores.minor) {
+      scale = "minor";
+      tonic = scores.minor.tonic;
+      margin = Math.max(0, scores.minor.score - (scores.major?.score || 0));
+    } else {
+      const guess = Mir.estimateKey(centroid, tonalFocus);
+      if (guess.uncertain || !guess.key) {
+        return {
+          tonalCenter: null, keyScale: null, keyPitchClass: null,
+          keyConfidence: guess.confidence || 0, keyMargin: guess.margin ?? null, keyUncertain: true
+        };
+      }
+      return {
+        tonalCenter: guess.key, keyScale: guess.scale,
+        keyPitchClass: Number.isInteger(guess.pitchClass) ? guess.pitchClass : null,
+        keyConfidence: guess.confidence, keyMargin: guess.margin ?? null, keyUncertain: false
+      };
+    }
+    const confidence = clamp(clamp(tonalFocus) * 0.45 + margin * 5 + (tonality.modeConfidence || 0) * 0.35);
+    if (!(confidence >= 0.42) || !Number.isInteger(tonic)) {
+      return {
+        tonalCenter: null, keyScale: null, keyPitchClass: null,
+        keyConfidence: confidence, keyMargin: margin, keyUncertain: true
+      };
+    }
+    return {
+      tonalCenter: KEYS[tonic], keyScale: scale, keyPitchClass: tonic,
+      keyConfidence: confidence, keyMargin: margin, keyUncertain: false
+    };
+  }
+
   function nulls(reason) {
     return {
       chordChangeRate: null, harmonicRhythm: null, harmonicStability: null, harmonicRepetition: null,
       harmonicMotionDirection: null, harmonicDensity: null, cadenceStrength: null,
       modality: null, modeConfidence: null, modalLikelihood: null, modalAmbiguity: null,
       majorMinorDeviation: null, majorMinorLikelihood: null,
+      tonalCenter: null, keyScale: null, keyPitchClass: null, keyConfidence: null, keyMargin: null,
+      keyUncertain: null,
       changeEvents: 0, changesPerBeat: null, sampleCount: 0, confidence: 0, reason
     };
   }
@@ -231,6 +275,7 @@ const HarmonicMotion = (() => {
     }
 
     const tonality = modality(centroid, tonalFocus);
+    const key = attachKey(centroid, tonalFocus, tonality);
     const confidence = clamp(clamp(tonalFocus) * 0.6 + Math.min(1, frames.length / 48) * 0.4);
     return {
       chordChangeRate, harmonicRhythm, harmonicStability, harmonicRepetition,
@@ -239,6 +284,8 @@ const HarmonicMotion = (() => {
       modalLikelihood: tonality.modalLikelihood, modalAmbiguity: tonality.modalAmbiguity,
       majorMinorDeviation: tonality.majorMinorDeviation, majorMinorLikelihood: tonality.majorMinorLikelihood,
       pitchClassCoverage: tonality.pitchClassCoverage, pitchClassCount: tonality.pitchClassCount,
+      tonalCenter: key.tonalCenter, keyScale: key.keyScale, keyPitchClass: key.keyPitchClass,
+      keyConfidence: key.keyConfidence, keyMargin: key.keyMargin, keyUncertain: key.keyUncertain,
       changeEvents, changesPerBeat, sampleCount: frames.length, confidence, reason: "measured"
     };
   }

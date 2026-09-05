@@ -17,14 +17,25 @@ const MIREngine = (() => {
     return Array.from({ length: 12 }, (_, index) => profile[(index - tonic + 12) % 12]);
   }
 
+  function usableChroma(chroma) {
+    return Array.isArray(chroma) && chroma.length === 12 && chroma.every(Number.isFinite) && chroma.some(value => value > 0);
+  }
+
+  function meanChroma(frames) {
+    if (!frames.length) return [];
+    const vector = Array.from({ length: 12 }, (_, index) => mean(frames.map(frame => frame[index])));
+    const total = vector.reduce((sum, value) => sum + Math.max(0, value), 0);
+    return total > 0 ? vector.map(value => Math.max(0, value) / total) : vector;
+  }
+
   function estimateKey(chroma = [], tonalFocus = 0) {
-    if (chroma.length !== 12 || !chroma.every(Number.isFinite) || tonalFocus < 0.16) {
-      return { key: null, scale: null, confidence: 0, method: "chroma-template", uncertain: true };
+    if (!usableChroma(chroma) || tonalFocus < 0.16) {
+      return { key: null, scale: null, pitchClass: null, confidence: 0, method: "chroma-template", uncertain: true };
     }
     const scores = [];
     for (let tonic = 0; tonic < 12; tonic++) {
-      scores.push({ key: KEYS[tonic], scale: "major", score: cosine(chroma, rotate(MAJOR, tonic)) });
-      scores.push({ key: KEYS[tonic], scale: "minor", score: cosine(chroma, rotate(MINOR, tonic)) });
+      scores.push({ key: KEYS[tonic], scale: "major", score: cosine(chroma, rotate(MAJOR, tonic)), pitchClass: tonic });
+      scores.push({ key: KEYS[tonic], scale: "minor", score: cosine(chroma, rotate(MINOR, tonic)), pitchClass: tonic });
     }
     scores.sort((a, b) => b.score - a.score);
     const margin = Math.max(0, scores[0].score - scores[1].score);
@@ -34,21 +45,26 @@ const MIREngine = (() => {
 
   class Engine {
     constructor({ historyMs = 5000 } = {}) { this.historyMs = historyMs; this.reset(); }
-    reset() { this.observations = []; this.current = null; }
-    update({ bpm = 0, beatConfidence = 0, chroma = [], tonalFocus = 0, rhythmicGrammar = {} } = {}, at = Date.now()) {
+    reset() { this.observations = []; this.chromaFrames = []; this.current = null; }
+    update({ bpm = 0, beatConfidence = 0, chroma = [], harmonicChroma = null, tonalFocus = 0, rhythmicGrammar = {} } = {}, at = Date.now()) {
       this.observations = this.observations.filter(item => at - item.at <= this.historyMs);
+      this.chromaFrames = this.chromaFrames.filter(item => at - item.at <= this.historyMs);
       this.observations.push({ at, bpm: Number(bpm) || 0, confidence: clamp(beatConfidence) });
+      const chosen = usableChroma(harmonicChroma) ? harmonicChroma : chroma;
+      if (usableChroma(chosen)) this.chromaFrames.push({ at, chroma: chosen.slice(0, 12) });
       const trusted = this.observations.filter(item => item.bpm >= 50 && item.confidence >= 0.45);
       const bpmValues = trusted.map(item => item.bpm);
       const bpmMean = mean(bpmValues);
       const deviation = Math.sqrt(mean(bpmValues.map(value => (value - bpmMean) ** 2)));
       const stability = bpmValues.length >= 2 ? clamp(1 - deviation / Math.max(1, bpmMean * 0.08)) : 0;
+      const keyChroma = this.chromaFrames.length >= 4 ? meanChroma(this.chromaFrames.map(item => item.chroma)) : chosen;
       this.current = {
         resolution: "musical",
         windowMs: this.historyMs,
         tempo: { bpm: bpmMean || Number(bpm) || 0, confidence: clamp(mean(trusted.map(x => x.confidence)) * (0.65 + stability * 0.35)), stability },
-        tonal: estimateKey(chroma, tonalFocus),
-        chroma: { vector: chroma.slice(0, 12), confidence: clamp(tonalFocus) },
+        tonal: estimateKey(keyChroma, tonalFocus),
+        chroma: { vector: (usableChroma(chosen) ? chosen : chroma).slice(0, 12), confidence: clamp(tonalFocus),
+          source: usableChroma(harmonicChroma) ? "hpss-harmonic" : "meyda" },
         rhythm: {
           fourOnFloor: rhythmicGrammar.fourOnFloor ?? null,
           swing: rhythmicGrammar.swing ?? null,
@@ -63,7 +79,7 @@ const MIREngine = (() => {
       return this.current;
     }
   }
-  return { Engine, estimateKey };
+  return { Engine, estimateKey, KEYS };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = MIREngine;

@@ -85,3 +85,56 @@ test("reset clears accumulated history", () => {
   const profile = tracker.profile([0, 500, 1000, 1500, 2000, 2500, 3000, 3500]);
   assert.equal(profile.sampleCount, 0);
 });
+
+test("adjacent-bin walking motion produces walkingEvidence without needing huge leaps", () => {
+  const tracker = new BassPitchTracker.Tracker();
+  const onsets = [];
+  const bins = [8, 9, 10, 11, 10, 9, 8, 9, 10, 11, 10, 9];
+  for (let index = 0; index < bins.length; index++) {
+    const at = index * 500;
+    tracker.observeFrame(spectrumWithPeak(bins[index]), SAMPLE_RATE, FFT_SIZE, at);
+    onsets.push(at);
+  }
+  const profile = tracker.profile(onsets);
+  assert.ok(profile.stepwiseRatio > 0.7, `stepwiseRatio=${profile.stepwiseRatio}`);
+  assert.ok(profile.walkingEvidence >= 0.7, `walkingEvidence=${profile.walkingEvidence}`);
+  assert.ok(profile.bassPitchMotion < 0.55, `walking should not look like leaping motion, got ${profile.bassPitchMotion}`);
+  assert.ok(Number.isInteger(profile.dominantPitchClass));
+  assert.equal(profile.pitchClassHistogram.length, 12);
+});
+
+test("leaping riffs keep high motion and low walking evidence", () => {
+  const tracker = new BassPitchTracker.Tracker();
+  const onsets = [];
+  const bins = [5, 9, 13, 17, 5, 9, 13, 17, 5, 9, 13, 17];
+  for (let index = 0; index < bins.length; index++) {
+    const at = index * 500;
+    tracker.observeFrame(spectrumWithPeak(bins[index]), SAMPLE_RATE, FFT_SIZE, at);
+    onsets.push(at);
+  }
+  const profile = tracker.profile(onsets);
+  assert.ok(profile.bassPitchMotion > 0.4, `motion=${profile.bassPitchMotion}`);
+  assert.ok((profile.walkingEvidence ?? 0) < 0.45, `walkingEvidence=${profile.walkingEvidence}`);
+});
+
+test("harmonic residual prefers a pitched bass peak over a kick spike in the mix", () => {
+  const tracker = new BassPitchTracker.Tracker();
+  const onsets = [];
+  for (let index = 0; index < 12; index++) {
+    const at = index * 500;
+    const mix = spectrumWithPeak(4, 255, 20);
+    mix[12] = 90;
+    const harmonic = new Float32Array(BIN_COUNT);
+    harmonic[12] = 0.7;
+    harmonic[11] = 0.25;
+    harmonic[13] = 0.25;
+    const percussive = new Float32Array(BIN_COUNT);
+    percussive[4] = 0.9;
+    tracker.observeFrame(mix, SAMPLE_RATE, FFT_SIZE, at, { harmonic, percussive });
+    onsets.push(at);
+  }
+  const profile = tracker.profile(onsets);
+  assert.ok(profile.bassPitchMotion !== null);
+  assert.ok(profile.bassPitchMotion < 0.2, `pitched residual is a held note, motion=${profile.bassPitchMotion}`);
+  assert.ok((profile.walkingEvidence ?? 0) < 0.4);
+});

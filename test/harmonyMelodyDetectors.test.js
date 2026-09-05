@@ -199,3 +199,26 @@ test("harmony and melody primitives carry detector provenance, not a borrowed nu
   // Pitch-class breadth is counted over the whole window by the detector rather than guessed.
   assert.equal(value.tonal.pitchSetBreadth, harmony.pitchClassCount);
 });
+
+test("chroma-sequence key names C major / A minor without claiming a mode from one chord", () => {
+  const major = harmonicMotionFrom({ progression: [[0, "maj"], [5, "maj"], [7, "maj"], [0, "maj"]], framesPerChord: 12, repeats: 3, tonalFocus: 0.75 });
+  const minor = harmonicMotionFrom({ progression: [[9, "min"], [2, "min"], [4, "min"], [9, "min"]], framesPerChord: 12, repeats: 3, tonalFocus: 0.75 });
+  const oneChord = harmonicMotionFrom({ progression: [[0, "maj7"]], framesPerChord: 40, repeats: 1, tonalFocus: 0.8 });
+  const noisy = HarmonicMotion.analyze({ chromaFrames: noiseFrames(60), frameIntervalMs: 100, bpm: 120, tonalFocus: 0.2 });
+
+  assert.equal(major.tonalCenter, "C");
+  assert.equal(major.keyScale, "major");
+  assert.equal(major.keyPitchClass, 0);
+  assert.equal(major.keyUncertain, false);
+  assert.equal(minor.tonalCenter, "A");
+  assert.equal(minor.keyScale, "minor");
+  assert.equal(minor.keyPitchClass, 9);
+  assert.equal(oneChord.modality, null, "a lone chord is still not a mode");
+  assert.ok(noisy.keyUncertain === true || noisy.tonalCenter === null);
+
+  const { value } = idiomsFor({ harmony: major });
+  assert.equal(value.harmony.tonalCenter, "C");
+  assert.ok(value.meta["harmony.tonalCenter"]?.available, "tonalCenter must leave DECLARED_ONLY once the sequence names a key");
+  assert.ok(value.meta["harmony.keyConfidence"]?.available);
+  assert.match(value.meta["harmony.tonalCenter"].method, /key/);
+});

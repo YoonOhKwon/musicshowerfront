@@ -3023,9 +3023,20 @@
           "max": 0.35
         }
       ],
+      "supporting": [
+        {
+          "path": "harmony.keyConfidence",
+          "min": 0.42
+        },
+        {
+          "path": "harmony.tonalCenter"
+        }
+      ],
       "anchors": [
         "tonal.tonalFocus",
-        "harmony.tonalAmbiguity"
+        "harmony.tonalAmbiguity",
+        "harmony.keyConfidence",
+        "harmony.tonalCenter"
       ],
       "confidenceRule": "min",
       "ttlMs": 12000

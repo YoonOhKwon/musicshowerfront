@@ -49,3 +49,23 @@ test("missing primitive input remains null instead of pretending absence is zero
     assert.ok(Object.values(fields).every(value => value === null));
   }
 });
+
+test("rootFollowing uses bass pitch-class histogram against a measured key, not motion alone", () => {
+  const harmony = require("./fixtures/languageProfiles").harmonicMotionFrom({
+    progression: [[0, "maj"], [5, "maj"], [7, "maj"], [0, "maj"]], framesPerChord: 12, repeats: 3, tonalFocus: 0.75
+  });
+  const histogram = [8, 0, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0];
+  const value = Primitives.analyze({
+    harmonicMotion: harmony,
+    instrumentation: { observed: [{ id: "bass", confidence: 0.8 }], families: { bass: { confidence: 0.8 } }, confidence: 0.8 },
+    performance: { bassPitchMotion: 0.28, bassPitchClassHistogram: histogram, walkingBassLikelihood: 0.82, bassFunction: "walking" }
+  });
+  assert.equal(value.harmony.tonalCenter, "C");
+  assert.ok(value.bass.rootFollowing > 0.7, `rootFollowing=${value.bass.rootFollowing}`);
+  const unrelated = Primitives.analyze({
+    harmonicMotion: harmony,
+    instrumentation: { observed: [{ id: "bass", confidence: 0.8 }], families: { bass: { confidence: 0.8 } }, confidence: 0.8 },
+    performance: { bassPitchMotion: 0.28, bassPitchClassHistogram: [0, 0, 8, 0, 0, 0, 0, 0, 0, 4, 0, 2] }
+  });
+  assert.ok(unrelated.bass.rootFollowing < 0.45, `unrelated bass should not look rooted, got ${unrelated.bass.rootFollowing}`);
+});

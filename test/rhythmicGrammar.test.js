@@ -136,3 +136,45 @@ test("missing context leaves the advanced production fields honestly null", () =
   assert.equal(result.vocalChop, null);
   assert.equal(result.stereoWidth, null);
 });
+
+test("moderate beat confidence still yields conservative beat-grid and kick occupancy evidence", () => {
+  const bpm = 124, period = 60000 / bpm;
+  const events = Array.from({ length: 20 }, (_, beat) => ({
+    at: beat * period, strength: 0.78, lowImpact: 0.9, midImpact: beat % 2 ? 0.7 : 0.2, highImpact: 0.25
+  }));
+  const result = RhythmicGrammar.analyze(events, bpm, 0.47, events.at(-1).at + 1);
+  assert.ok(result.beatGridConfidence > 0.6);
+  assert.ok(result.kickOccupancy > 0.9);
+  assert.ok(result.fourOnFloor > 0.7);
+  assert.equal(result.kickPattern, "four-on-the-floor");
+});
+
+test("variable non-kick onsets cannot manufacture breakbeat over a regular four-floor kick grid", () => {
+  const bpm = 120, period = 60000 / bpm;
+  const events = [];
+  for (let beat = 0; beat < 20; beat++) {
+    const at = beat * period;
+    events.push({ at, strength: 0.8, lowImpact: 0.9 });
+    if (beat % 3 === 0) events.push({ at: at + period * 0.31, strength: 0.75, lowImpact: 0.1 });
+    if (beat % 4 === 1) events.push({ at: at + period * 0.73, strength: 0.7, lowImpact: 0.05 });
+  }
+  const result = RhythmicGrammar.analyze(events, bpm, 0.9, events.at(-1).at + 1);
+  assert.ok(result.fourOnFloor > 0.72);
+  assert.ok(result.brokenBeat < 0.35);
+  assert.equal(result.candidates.some(item => item.text === "브레이크비트"), false);
+});
+
+test("a long monotonic centroid trajectory produces graded filter-sweep evidence", () => {
+  const frames = [900, 1080, 1290, 1530, 1790, 2080, 2400, 2750]
+    .map((centroid, index) => ({ centroid, rms: 0.1, at: index * 500 }));
+  const confidence = RhythmicGrammar.detectFilterSweep({ deltaRms: 0.01 }, frames);
+  assert.ok(confidence > 0.7, `expected displayable filter-sweep evidence, got ${confidence}`);
+  assert.ok(confidence <= RhythmicGrammar.detectorCapabilities["productionEvidence.filterSweep"].max);
+});
+
+test("centroid zig-zag and loudness jumps are not called filter sweeps", () => {
+  const zigZag = [900, 1450, 980, 1520, 1000, 1580, 1040, 1600].map(centroid => ({ centroid }));
+  assert.equal(RhythmicGrammar.detectFilterSweep({ deltaRms: 0.01 }, zigZag), null);
+  const monotonic = [900, 1100, 1320, 1560, 1820, 2100, 2400, 2750].map(centroid => ({ centroid }));
+  assert.equal(RhythmicGrammar.detectFilterSweep({ deltaRms: 0.08 }, monotonic), null);
+});
