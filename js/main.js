@@ -63,6 +63,7 @@ function draw() {
     updateBeatDetection();
     updateSemanticRuntime(performance.now());
     updateWordSpawner();
+    if (ReplayRecorder.isActive()) ReplayRecorder.capture(getSemanticState(), performance.now());
   }
   drawBackground();
   updateVisuals();
@@ -71,7 +72,24 @@ function draw() {
     drawAIStatus();
     drawSemanticHUD();
     drawSemanticDebugPanel();
+    drawReplayRecorderStatus();
   }
+}
+
+// STEP 3: recording status line, drawn only while the debug panel (D) is open -- kept separate
+// from drawSemanticDebugPanel()'s single multi-line text() call so toggling recording never
+// touches that function's existing line layout.
+function drawReplayRecorderStatus() {
+  push();
+  textAlign(LEFT, TOP);
+  textFont("monospace");
+  textSize(12);
+  fill(ReplayRecorder.isActive() ? [255, 120, 120, 230] : [160, 180, 200, 190]);
+  const label = ReplayRecorder.isActive()
+    ? `● REC "${ReplayRecorder.snapshot().track}"  ${ReplayRecorder.frameCount()} frames  (R to stop + download)`
+    : "○ not recording  (R to start a replay-harness recording)";
+  text(label, 32, 574);
+  pop();
 }
 
 function drawAIStatus() {
@@ -102,6 +120,15 @@ function keyPressed() {
     document.body.classList.toggle("semanticDebug", CONFIG.semantic.debug);
   }
   if (key === "l" || key === "L") LanguageInspector.toggle();
+  // STEP 3: only reachable with the debug panel open, matching where its status line renders.
+  if ((key === "r" || key === "R") && CONFIG.semantic.debug) {
+    if (ReplayRecorder.isActive()) {
+      ReplayRecorder.download(ReplayRecorder.stop());
+    } else {
+      const name = window.prompt("Replay recording name (e.g. future_funk_01):", `recording_${Date.now()}`);
+      if (name) ReplayRecorder.start(name);
+    }
+  }
 }
 
 function windowResized() {

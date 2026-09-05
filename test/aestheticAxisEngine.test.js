@@ -144,10 +144,15 @@ test("genreContextEngine exposes axisSignature on its result when an axis engine
   };
   const result = engine.evaluate(state);
   assert.equal(typeof result.axisSignature, "string");
-  assert.equal(result.axisSignature, axisEngine.evaluate({
+  const directAxisResult = axisEngine.evaluate({
     measurements: {}, rhythmicGrammar: state.rhythmicGrammar, productionEvidence: state.productionEvidence,
     instrumentationEvidence: {}, moodDimensions: state.moodDimensions, aestheticEvidence: {}
-  }, state.genre).axisSignature);
+  }, state.genre);
+  assert.equal(result.axisSignature, directAxisResult.axisSignature);
+  // STEP 3: the raw axis vector must also be exposed (scripts/replay.cjs reads it for real
+  // per-song axis-value distributions), not just the coarse signature.
+  assert.deepEqual(result.axes, directAxisResult.axes);
+  assert.ok(typeof result.axes.urbanity === "number", "urbanity should resolve from the real evidence in this fixture");
 });
 
 test("without a wired axis engine, genreContextEngine's result carries no axisSignature at all", () => {

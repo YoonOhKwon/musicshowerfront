@@ -76,8 +76,11 @@ const GenreContext = (() => {
         const axisResult = this.aestheticAxisEngine.evaluate(view, genre);
         result.candidates.push(...axisResult.candidates);
         // Exposed so phrasePoolEngine.js's runtime LLM call gate (section 5) can recognize "we've
-        // already been in roughly this aesthetic territory" without recomputing the axis vector.
+        // already been in roughly this aesthetic territory" without recomputing the axis vector,
+        // and so scripts/replay.cjs (section 3) can report real axis-value distributions per song
+        // without a second, separate axis computation that could silently drift from this one.
         result.axisSignature = axisResult.axisSignature;
+        result.axes = axisResult.axes;
       }
       if (genre.uncertain || genre.confidence < 0.75 || !audible) {
         result.matchedPriors = result.candidates.map(x => x.text);
