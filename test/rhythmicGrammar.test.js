@@ -53,11 +53,29 @@ test("a flat energy envelope is not mistaken for sidechain", () => {
   assert.equal(result.sidechain, null);
 });
 
-test("low beat confidence refuses to claim sidechain even with a duck shape present", () => {
+test("very low beat confidence still refuses to claim sidechain even with a duck shape present", () => {
   const beats = beatsAt(9);
   const envelope = duckEnvelope(beats);
-  const result = RhythmicGrammar.production({}, [], { envelope, beatTimestamps: beats, beatConfidence: 0.3 });
+  const result = RhythmicGrammar.production({}, [], { envelope, beatTimestamps: beats, beatConfidence: 0.15 });
   assert.equal(result.sidechain, null);
+});
+
+// Regression coverage for a real gap this exact class of bug already had one fix for elsewhere in
+// this file: analyze()'s own fields used to hard-null below beatConfidence 0.6 until a real Future
+// Funk recording showed moderate confidence (0.3-0.6) still carries usable phase evidence (see the
+// comment on that gate). detectSidechain() had the SAME 0.6 cutoff, unfixed, on the SAME underlying
+// confidence signal -- so a real duck-then-recover shape was silently discarded whenever the beat
+// grid was only moderately confident, which real replay recordings of this exact Future Funk track
+// show is common (rhythmicGrammar.confidence sits in the 0.3-0.6 band for a large fraction of a real
+// session, not just as a rare edge case).
+test("moderate beat confidence (0.3-0.6, the band the analyze() fix already covers) now reports a dampened sidechain instead of null", () => {
+  const beats = beatsAt(9);
+  const envelope = duckEnvelope(beats);
+  const confident = RhythmicGrammar.production({}, [], { envelope, beatTimestamps: beats, beatConfidence: 0.85 });
+  const moderate = RhythmicGrammar.production({}, [], { envelope, beatTimestamps: beats, beatConfidence: 0.45 });
+  assert.ok(moderate.sidechain !== null, "moderate confidence must no longer discard a real duck-shape detection");
+  assert.ok(moderate.sidechain < confident.sidechain,
+    "lower confidence must still report a WEAKER value than high confidence on the identical shape, not the same one");
 });
 
 test("too few beat windows refuses to claim sidechain", () => {

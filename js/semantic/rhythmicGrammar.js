@@ -234,8 +234,15 @@ const RhythmicGrammar = (() => {
   }
   // Averages the beat-relative energy trajectory across recent beat windows and looks for the
   // duck-then-recover shape characteristic of sidechain ducking, not just generic energy variance.
+  // beatConfidence used to hard-gate at 0.6 -- the same all-or-nothing cutoff analyze() had for
+  // its own fields until the Future Funk feedback trace showed moderate confidence (0.3-0.6) still
+  // carries real phase evidence. This detector claims something MORE specific than analyze()'s
+  // rhythm fields (that the ducking is beat-ALIGNED, not just present), so it keeps a floor
+  // analyze() no longer has -- but the floor is 0.3, not 0.6, and confidence now scales the
+  // reported strength (reliability) instead of silently discarding real duck-shape evidence.
   function detectSidechain(envelope, beatTimestamps, beatConfidence) {
-    if (!Array.isArray(envelope) || !Array.isArray(beatTimestamps) || !(beatConfidence >= 0.6)) return null;
+    if (!Array.isArray(envelope) || !Array.isArray(beatTimestamps) || !(beatConfidence >= 0.3)) return null;
+    const reliability = 0.6 + Facets.clamp(beatConfidence) * 0.4;
     const beats = beatTimestamps.filter(Number.isFinite).sort((a, b) => a - b);
     if (beats.length < 7) return null;
     const BUCKETS = 8;
@@ -266,8 +273,8 @@ const RhythmicGrammar = (() => {
     const duckDepths = windows.map(w => (Math.max(w[0], 1e-6) - Math.min(...w.slice(1, 4))) / Math.max(w[0], 1e-6));
     const consistency = Facets.clamp(1 - (Math.sqrt(mean(duckDepths.map(x => (x - duckDepth) ** 2))) / Math.max(0.05, duckDepth)));
     if (duckDepth < 0.22 || recovery < 0.35) return null;
-    return Facets.clamp(duckDepth * 0.5 + recovery * 0.3 + consistency * 0.2);
+    return Facets.clamp((duckDepth * 0.5 + recovery * 0.3 + consistency * 0.2) * reliability);
   }
-  return { analyze, production, detectFilterSweep, subdivisionRatio, accentPeriodicity, candidatesFromEvidence, detectorCapabilities };
+  return { analyze, production, detectFilterSweep, detectSidechain, subdivisionRatio, accentPeriodicity, candidatesFromEvidence, detectorCapabilities };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = RhythmicGrammar;
