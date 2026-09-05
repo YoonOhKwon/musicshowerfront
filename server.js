@@ -361,6 +361,7 @@ app.post("/api/language-pool", async (req, res) => {
 // separate approval gate.
 app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" }), async (req, res) => {
   try {
+    console.log(`[deep-analysis] received ${req.body.length} bytes, forwarding to Flamingo server (localhost:5005)...`);
     const audioSha256 = crypto.createHash("sha256").update(req.body).digest("hex");
     const flamingoRes = await fetch("http://localhost:5005/analyze", {
       method: "POST",
@@ -371,9 +372,10 @@ app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" })
     const { caption } = await flamingoRes.json();
     const review = DirectAudioReview.reviewCaption({ caption, provider: "music-flamingo", audioSha256 }, {});
     const observations = DirectAudioReview.toObservations(review);
+    console.log(`[deep-analysis] caption received (${caption.length} chars), ${observations.length} observation(s) extracted`);
     res.json({ ...review, observations });
   } catch (error) {
-    console.error("[deep-analysis error]", error);
+    console.error("[deep-analysis error] (is flamingo_server.py running on :5005?)", error.message);
     res.status(500).json({ error: error.message });
   }
 });

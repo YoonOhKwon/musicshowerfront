@@ -96,10 +96,16 @@ function triggerDeepAnalysisUpload() {
   if (!pcm || pcm.length < audioContext.sampleRate * 5) return;
   deepListenState.active = true;
   const buffer = pcmToWav(pcm, audioContext.sampleRate);
+  console.log("[Deep Listen] capturing 30s and uploading to /api/deep-analysis...");
   fetch("/api/deep-analysis", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: buffer })
     .then(res => res.json())
-    .then(data => { if (Array.isArray(data.observations)) applyDirectAudioObservations(data.observations); })
-    .catch(error => console.error("Deep Listen failed:", error))
+    .then(data => {
+      if (data.error) { console.error("[Deep Listen] server reported an error:", data.error); return; }
+      console.log("[Deep Listen] caption:", data.caption);
+      console.log(`[Deep Listen] ${data.observations?.length || 0} observation(s) ->`, data.observations);
+      if (Array.isArray(data.observations)) applyDirectAudioObservations(data.observations);
+    })
+    .catch(error => console.error("[Deep Listen] request failed (is flamingo_server.py running on :5005?):", error))
     .finally(() => { deepListenState.active = false; });
 }
 
