@@ -146,18 +146,37 @@ const SemanticSnapshot = (() => {
     ];
   }
 
+  function temporalItem(item = {}) {
+    return {
+      text: item.text,
+      category: item.category,
+      confidence: clamp(item.confidence),
+      semanticConfidence: clamp(item.semanticConfidence ?? item.confidence),
+      temporalStability: clamp(item.temporalStability),
+      evidenceStatus: item.evidenceStatus || "unknown",
+      expiresAt: item.expiresAt || null,
+      provenance: item.provenance ? {
+        source: item.provenance.source || [], path: item.provenance.path || [],
+        firstSeenAt: item.provenance.firstSeenAt ?? null,
+        lastSeenAt: item.provenance.lastSeenAt ?? null,
+        currentConfidence: clamp(item.provenance.currentConfidence),
+        peakConfidence: clamp(item.provenance.peakConfidence)
+      } : null
+    };
+  }
+
   function serialize(state = {}, distinctiveness = null) {
     const character = state.trackCharacter || {};
     const genre = state.genre || {};
     const snapshot = {
       ...Evidence.sanitize(state),
       primitives: state.primitives ? Object.fromEntries(Object.entries(state.primitives).filter(([key]) => key !== "meta")) : null,
-      detectedIdioms: (state.detectedIdioms || []).slice(0, 14).map(item => ({
+      detectedIdioms: (state.detectedIdioms || []).slice(0, 10).map(item => ({
         text: item.text, facet: item.category, confidence: clamp(item.confidence), neutral: Boolean(item.neutral),
         anchors: (item.anchors || []).slice(0, 6), source: item.source || "idiom",
         semanticFamily: item.semanticFamily || null, persistenceMs: item.persistenceMs || item.ttlMs || null
       })),
-      impressionConcepts: (state.impressionConcepts || []).slice(0, 8).map(item => ({
+      impressionConcepts: (state.impressionConcepts || []).slice(0, 6).map(item => ({
         id: item.id, text: item.text, confidence: clamp(item.confidence), anchors: (item.anchors || []).slice(0, 6),
         semanticFamily: item.semanticFamily, creativeOperator: item.creativeOperator,
         semanticEpoch: item.semanticEpoch, timestamp: item.timestamp, ttlMs: item.ttlMs
@@ -175,20 +194,78 @@ const SemanticSnapshot = (() => {
         windows: state.temporalEvidence.windows,
         elapsedMs: state.temporalEvidence.elapsedMs,
         revision: state.temporalEvidence.revision,
-        stable: (state.temporalEvidence.stable || []).slice(0, 20).map(item => ({ text: item.text, category: item.category, confidence: item.confidence }))
+        liveEvents: (state.temporalEvidence.liveEvents || []).slice(0, 6).map(temporalItem),
+        shortTermStates: (state.temporalEvidence.shortTermStates || []).slice(0, 8).map(temporalItem),
+        trackTraits: (state.temporalEvidence.trackTraits || []).slice(0, 6).map(temporalItem),
+        genreHypotheses: (state.temporalEvidence.genreHypotheses || []).slice(0, 5).map(temporalItem),
+        historicalEvents: (state.temporalEvidence.historicalEvents || []).slice(-6).map(temporalItem),
+        stale: (state.temporalEvidence.stale || []).slice(0, 6).map(temporalItem),
+        contradictions: (state.temporalEvidence.contradictions || []).slice(0, 6).map(temporalItem),
+        suppressed: (state.temporalEvidence.suppressed || []).slice(0, 6).map(temporalItem)
       } : null,
       trackContext: {
-        memory: (state.temporalEvidence?.trackMemory || []).slice(0, 20).map(item => ({ text: item.text, category: item.category, confidence: item.confidence })),
+        memory: (state.temporalEvidence?.trackTraits || []).slice(0, 8).map(item => ({
+          text: item.text, category: item.category,
+          semanticConfidence: clamp(item.semanticConfidence ?? item.confidence),
+          evidenceStatus: item.evidenceStatus || "unknown",
+          firstSeenAt: item.provenance?.firstSeenAt ?? null,
+          lastSeenAt: item.provenance?.lastSeenAt ?? null
+        })),
         semanticEpoch: state.semanticEpoch || 0
       },
       genreFamily: genre.family || "Unknown",
       primaryGenre: genre.uncertain ? null : genre.primary || null,
-      subgenreCandidates: (genre.fineCandidates || genre.topK || [])
+      subgenreCandidates: (state.genreReasoning?.actualSubgenres || genre.fineCandidates || [])
         .map(item => typeof item === "string" ? item : item?.label)
         .filter(Boolean).slice(0, 4),
-      confidence: Math.round(clamp(genre.confidence) * 100) / 100,
+      relatedGenres: (state.genreReasoning?.relatedGenres || genre.relatedCandidates || [])
+        .map(item => ({ label: item.label || item.genre || item, confidence: clamp(item.confidence ?? item.semanticConfidence) }))
+        .filter(item => item.label).slice(0, 8),
+      alternativeHypotheses: (state.genreReasoning?.alternatives || []).slice(0, 8).map(item => ({
+        label: item.genre, semanticConfidence: clamp(item.semanticConfidence),
+        temporalStability: clamp(item.temporalStability), evidenceCoverage: clamp(item.evidenceCoverage)
+      })),
+      genreReasoning: state.genreReasoning ? {
+        primary: state.genreReasoning.primary ? {
+          label: state.genreReasoning.primary.genre,
+          semanticConfidence: clamp(state.genreReasoning.primary.semanticConfidence),
+          temporalStability: clamp(state.genreReasoning.primary.temporalStability),
+          evidenceCoverage: clamp(state.genreReasoning.primary.evidenceCoverage),
+          independentEvidenceCount: state.genreReasoning.primary.independentEvidenceCount,
+          kind: state.genreReasoning.primary.kind,
+          evidenceGroups: state.genreReasoning.primary.evidenceGroups || {},
+          supportingEvidence: (state.genreReasoning.primary.supportingEvidence || []).slice(0, 8).map(item => ({
+            group: item.group, path: item.path, value: item.value, label: item.label
+          })),
+          contradictingEvidence: (state.genreReasoning.primary.contradictingEvidence || []).slice(0, 6)
+        } : null,
+        challengers: (state.genreReasoning.challengers || []).slice(0, 5).map(item => ({
+          label: item.genre, semanticConfidence: clamp(item.semanticConfidence),
+          temporalStability: clamp(item.temporalStability), evidenceCoverage: clamp(item.evidenceCoverage),
+          independentEvidenceCount: item.independentEvidenceCount,
+          evidenceGroups: item.evidenceGroups || {},
+          supportingEvidence: (item.supportingEvidence || []).slice(0, 5).map(evidence => ({
+            group: evidence.group, path: evidence.path, value: evidence.value, label: evidence.label
+          })),
+          contradictingEvidence: (item.contradictingEvidence || []).slice(0, 4)
+        })),
+        relations: (state.genreReasoning.relations || []).slice(0, 8).map(item => ({
+          text: item.text, relationType: item.relationType, relationTarget: item.relationTarget,
+          confidence: clamp(item.confidence), anchors: (item.anchors || []).slice(0, 5)
+        })),
+        rejectedHypotheses: (state.genreReasoning.rejectedHypotheses || []).slice(0, 6).map(item => ({
+          label: item.genre, reason: item.reason, evidenceCoverage: clamp(item.evidenceCoverage),
+          independentEvidenceCount: item.independentEvidenceCount,
+          contradictingEvidence: (item.contradictingEvidence || []).slice(0, 3)
+        })),
+        pendingChallenger: state.genreReasoning.pendingChallenger || null,
+        takeovers: (state.genreReasoning.takeovers || []).slice(-8)
+      } : null,
+      confidence: Math.round(clamp(genre.semanticConfidence ?? genre.confidence) * 100) / 100,
+      semanticConfidence: Math.round(clamp(genre.semanticConfidence ?? genre.confidence) * 100) / 100,
+      temporalStability: Math.round(clamp(genre.temporalStability ?? genre.stability) * 100) / 100,
       genreEvidence: [
-        ...(!genre.uncertain && genre.primary ? [{ label: genre.primary, confidence: clamp(genre.confidence) }] : []),
+        ...(!genre.uncertain && genre.primary ? [{ label: genre.primary, confidence: clamp(genre.semanticConfidence ?? genre.confidence) }] : []),
         ...(genre.secondary || []).filter(item => item?.label && Number.isFinite(item.confidence)).slice(0, 3)
       ],
       measurements: Object.fromEntries(Object.entries(state.expressionFeatures || {}).filter(([key, value]) =>
@@ -251,15 +328,24 @@ const SemanticSnapshot = (() => {
     };
     if (state.verifiedClaims?.items) {
       snapshot.verifiedClaims = {
-        items: state.verifiedClaims.items.slice(0, 24).map(item => ({
+        items: state.verifiedClaims.items.slice(0, 10).map(item => ({
           id: item.id, type: item.type, concept: item.concept,
           confidence: clamp(item.confidence), evidence: (item.evidence || []).slice(0, 6)
         })),
         licensed: [...(state.verifiedClaims.licensed instanceof Set
-          ? state.verifiedClaims.licensed : state.verifiedClaims.licensed || [])].slice(0, 48),
+          ? state.verifiedClaims.licensed : state.verifiedClaims.licensed || [])].slice(0, 24),
         capsule: state.verifiedClaims.capsule || null
       };
     }
+    if (!Object.keys(snapshot.rhythmGrammarDiagnostics || {}).length) delete snapshot.rhythmGrammarDiagnostics;
+    if (!state.genreReasoning) {
+      delete snapshot.genreReasoning;
+      delete snapshot.relatedGenres;
+      delete snapshot.alternativeHypotheses;
+    }
+    if (!state.temporalEvidence) delete snapshot.trackContext.memory;
+    if (!Number.isFinite(genre.semanticConfidence)) delete snapshot.semanticConfidence;
+    if (!Number.isFinite(genre.temporalStability)) delete snapshot.temporalStability;
     snapshot.fingerprint = stableFingerprint(snapshot);
     return snapshot;
   }

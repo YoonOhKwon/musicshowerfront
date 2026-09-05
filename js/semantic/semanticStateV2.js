@@ -18,7 +18,15 @@ const SemanticStateV2 = (() => {
         elapsedMs: temporal.elapsedMs || 0,
         revision: temporal.revision || 0,
         stable: temporal.stable || [],
-        trackMemory: temporal.trackMemory || []
+        trackMemory: temporal.trackMemory || [],
+        liveEvents: temporal.liveEvents || [],
+        shortTermStates: temporal.shortTermStates || [],
+        trackTraits: temporal.trackTraits || [],
+        genreHypotheses: temporal.genreHypotheses || [],
+        historicalEvents: temporal.historicalEvents || [],
+        contradictions: temporal.contradictions || [],
+        stale: temporal.stale || [],
+        suppressed: temporal.suppressed || []
       },
       layers: {
         realtimeDSP: layers.realtimeDSP !== false,

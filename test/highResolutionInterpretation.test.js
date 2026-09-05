@@ -82,6 +82,10 @@ test("walking bass and synth lead stay absent without source-specific pitch evid
   const supported = Instruments.performance([{ id: "bass", label: "베이스", confidence: 0.9 }], [],
     { onsetActivity: 0.8, bassPitchMotion: 0.9, bassOnsetRegularity: 0.9 });
   assert(supported.walkingBassLikelihood >= 0.8);
+  const stepwise = Instruments.performance([{ id: "bass", label: "베이스", confidence: 0.9 }], [],
+    { onsetActivity: 0.8, bassPitchMotion: 0.22, bassOnsetRegularity: 0.86, walkingEvidence: 0.84 });
+  assert(stepwise.walkingBassLikelihood >= 0.8);
+  assert.equal(stepwise.bassFunction, "walking");
   const synth = Instruments.performance([{ id: "synthesizer", label: "신스", confidence: 0.9 }], [],
     { onsetActivity: 0.8, melodicActivity: 0.9 });
   assert.equal(synth.leadLikelihood, null);
@@ -103,6 +107,30 @@ test("vocal entrance and synth lead require temporal change, with lead pitch evi
   const lead = synth.update([{ label: "synthesizer", confidence: 0.9, source: "ml" }],
     { accompanimentDensity: 0.5, onsetActivity: 0.8, melodicActivity: 0.9, pitchActivity: 0.9 }, 2200);
   assert(lead.instrumentEvents.some(x => x.text === "신스 리드 유입"));
+});
+
+test("a held ML result is not counted as repeated instrument observations", () => {
+  const engine = new Instruments.Engine({ eventTtlMs: 5000 });
+  const held = [{ label: "saxophone", confidence: 0.9, source: "ml", observationId: 7 }];
+  for (let index = 0; index < 8; index++) engine.update(held, {
+    eventInstruments: held, observationId: 7, accompanimentDensity: 0.3,
+    onsetActivity: 0.9, melodicActivity: 0.9, pitchActivity: 0.9
+  }, index * 500);
+  const result = engine.current;
+  assert.equal(engine.frames.length, 1);
+  assert.equal(result.performance.soloLikelihood, 0);
+  assert.equal(result.instrumentEvents.length, 0);
+});
+
+test("instrument families cover the installed model's broad bass, keys, synth and rhythm labels", () => {
+  const observed = Instruments.normalize([
+    { label: "acousticbassguitar", confidence: .7, source: "ml" },
+    { label: "rhodes", confidence: .65, source: "ml" },
+    { label: "pad", confidence: .6, source: "ml" },
+    { label: "drummachine", confidence: .58, source: "ml" }
+  ]);
+  const families = Instruments.familyRollup(observed);
+  for (const family of ["bass", "keys", "synth", "percussion"]) assert.ok(families[family]?.confidence > .5, family);
 });
 
 test("rhythmic grammar labels four-on-floor only from repeated low impacts", () => {

@@ -99,7 +99,8 @@ const PhraseQuality = (() => {
   function inferredLayer(input, family, core = "") {
     if (typeof input === "object" && input.layer) return String(input.layer).toUpperCase();
     if (family === "AESTHETIC_ASSOCIATION") return "AESTHETIC";
-    if (["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST"].includes(family)) return "CONTEXT";
+    if (["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST",
+      "SOURCE", "INFLUENCE", "RHYTHMIC_AFFINITY", "COMPOSITION"].includes(family)) return "CONTEXT";
     if (typeof input === "object" && (input.category || input.facet) === "mood") return "IMPRESSION";
     if (core === "nostalgia" || String(core).startsWith("syn:0")) return "IMPRESSION";
     if (core === "highloudness") return "FACT";

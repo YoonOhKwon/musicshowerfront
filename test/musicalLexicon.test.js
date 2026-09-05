@@ -38,6 +38,23 @@ test("neutral labels survive low genre confidence while specialization is gated"
   assert.ok(high.some(item => item.text === "집단 즉흥" && !item.neutral));
 });
 
+// Regression coverage for a v19 side effect: semanticEngine.js split what used to be one field
+// (genre.fineCandidates, fed by broad neighborhood search) into two -- fineCandidates is now
+// taxonomy-only, and the old neighborhood-search alternatives moved to genre.relatedCandidates.
+// genreValues() (used to gate idiom specialization) must read both, or a genre reachable only
+// through neighborhood search silently loses specialization with no test failure, since existing
+// tests always put the matching name directly in `primary`.
+test("idiom specialization fires for a genre reachable only through genre.relatedCandidates", () => {
+  const viaPrimary = engine.evaluate(profile(), { primary: "Jazz", family: "Jazz", confidence: .75 });
+  assert.ok(viaPrimary.some(item => item.text === "집단 즉흥" && !item.neutral));
+  const viaRelated = engine.evaluate(profile(), {
+    primary: "Unlisted Fusion Genre", family: "Unlisted", confidence: .75,
+    relatedCandidates: [{ label: "Jazz" }]
+  });
+  assert.ok(viaRelated.some(item => item.text === "집단 즉흥" && !item.neutral),
+    "Jazz specialization must fire even though it only appears in relatedCandidates, not primary/family");
+});
+
 test("invalid primitive combinations do not leak specific idioms", () => {
   const value = profile();
   value.pulse.subdivisionRatio = 1.7;

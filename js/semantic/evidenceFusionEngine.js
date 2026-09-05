@@ -5,6 +5,8 @@ const EvidenceFusion = (() => {
     rhythm: 0.86, context: 0.76, local: 0.72, production: 0.78
   });
   const keyFor = item => `${item.category || "live"}:${String(item.text || "").trim().toLowerCase()}`;
+  const dependencyFamily = (source, item) => item.evidenceFamily ||
+    (item.category === "genre" && ["local", "genreModel"].includes(source) ? "genre-classifier" : source);
 
   class Engine {
     fuse(groups = {}, at = Date.now()) {
@@ -13,9 +15,11 @@ const EvidenceFusion = (() => {
         for (const item of items || []) {
           if (!item?.text || !item?.category) continue;
           const key = keyFor(item);
-          const entry = map.get(key) || { ...item, confidence: 0, sources: {}, anchors: [], timestamp: at };
+          const entry = map.get(key) || { ...item, confidence: 0, sources: {}, sourceFamilies: {}, anchors: [], timestamp: at };
           const confidence = clamp(item.confidence ?? item.weight ?? item.score);
           entry.sources[source] = Math.max(entry.sources[source] || 0, confidence);
+          const family = dependencyFamily(source, item);
+          entry.sourceFamilies[family] = Math.max(entry.sourceFamilies[family] || 0, confidence);
           entry.anchors = [...new Set([...(entry.anchors || []), ...(item.anchors || [])])].slice(0, 10);
           map.set(key, entry);
         }
@@ -24,9 +28,10 @@ const EvidenceFusion = (() => {
         const evidence = Object.entries(item.sources);
         const weighted = evidence.reduce((sum, [source, score]) => sum + score * (SOURCE_WEIGHT[source] || 0.7), 0);
         const weights = evidence.reduce((sum, [source]) => sum + (SOURCE_WEIGHT[source] || 0.7), 0);
-        const independentBoost = Math.min(0.12, Math.max(0, evidence.length - 1) * 0.045);
+        const independentEvidenceCount = Object.keys(item.sourceFamilies).length;
+        const independentBoost = Math.min(0.12, Math.max(0, independentEvidenceCount - 1) * 0.045);
         const confidence = clamp(weighted / Math.max(0.001, weights) + independentBoost);
-        return { ...item, confidence, weight: confidence, evidenceCount: evidence.length,
+        return { ...item, confidence, weight: confidence, evidenceCount: evidence.length, independentEvidenceCount,
           source: item.source || "local", fusionSources: evidence.map(([source]) => source), timestamp: at };
       }).sort((a, b) => b.confidence - a.confidence);
     }

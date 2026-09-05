@@ -23,7 +23,8 @@ const PhrasePool = (() => {
       Layers.decorate(item).layer === "FACT" && item.source === source).length]));
   };
   const relationCounts = list => {
-    const families = ["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST", "AESTHETIC_ASSOCIATION"];
+    const families = ["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST",
+      "SOURCE", "INFLUENCE", "RHYTHMIC_AFFINITY", "COMPOSITION", "AESTHETIC_ASSOCIATION"];
     return Object.fromEntries(families.map(family => [family, (list || []).filter(item => Quality.relationFamily(item) === family).length]));
   };
   const CREATIVE_EVENT_PATH = /^(?:primaryGenre|genreFamily|currentSection\.(?:state|novelty)|instrumentEvents|performance\.(?:soloInstrument|leadInstrument|bassFunction)|arrangement\.(?:densityDelta|layerEntry|layerExit|foregroundChange|instrumentRoleChange)|impressionConcepts)/;

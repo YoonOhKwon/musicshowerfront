@@ -12,6 +12,10 @@ const ConfidenceCalibration = (() => {
     return clamp(entropy / Math.log(scores.length));
   }
 
+  // Calibration answers a semantic question only: "how much does the CURRENT model output
+  // support this label?" Persistence belongs to the genre tracker/hypothesis engine and is
+  // returned as diagnostics, never added to this score. Otherwise a weak guess inevitably grows
+  // into a confident claim merely because it was repeated.
   function calibrate({ predictions = [], stability = 0, temporalAgreement = 0, familyFor = () => "Unknown" } = {}) {
     const ranked = [...predictions].sort((left, right) => right.confidence - left.confidence);
     const top = ranked[0]?.confidence || 0;
@@ -25,24 +29,26 @@ const ConfidenceCalibration = (() => {
     const familyConsistency = clamp(ranked
       .filter(item => familyFor(item.label) === topFamily)
       .reduce((sum, item) => sum + Math.max(0, item.confidence), 0) / total);
-    const confidence = clamp(
-      rawStrength * 0.28 +
-      marginStrength * 0.18 +
-      clamp(temporalAgreement) * 0.22 +
-      clamp(stability) * 0.16 +
-      familyConsistency * 0.1 +
-      (1 - entropy) * 0.06
+    const semanticConfidence = clamp(
+      rawStrength * 0.5 +
+      marginStrength * 0.25 +
+      familyConsistency * 0.15 +
+      (1 - entropy) * 0.1
     );
     const differentFamilyRunnerUp = ranked[1] && familyFor(ranked[1].label) !== topFamily;
     const hybrid = Boolean(ranked[1] && differentFamilyRunnerUp && margin < Math.max(0.012, top * 0.24));
-    const unknown = top < 0.016 || confidence < 0.2;
+    const unknown = top < 0.016 || semanticConfidence < 0.2;
     const certainty = unknown ? "unknown"
       : hybrid ? "hybrid"
-      : confidence >= 0.67 ? "certain"
-      : confidence >= 0.43 ? "probable"
+      : semanticConfidence >= 0.67 ? "certain"
+      : semanticConfidence >= 0.43 ? "probable"
       : "uncertain";
     return {
-      confidence,
+      confidence: semanticConfidence,
+      semanticConfidence,
+      // Compatibility diagnostics. These values may gate a takeover but cannot change the
+      // semantic confidence above.
+      temporalStability: clamp(stability),
       rawConfidence: top,
       margin,
       entropy,
@@ -50,7 +56,7 @@ const ConfidenceCalibration = (() => {
       familyConsistency,
       hybrid,
       unknown,
-      uncertain: unknown || confidence < 0.34,
+      uncertain: unknown || semanticConfidence < 0.34,
       certainty,
       related: ranked.slice(1, 5)
     };

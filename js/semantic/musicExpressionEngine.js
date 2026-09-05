@@ -147,7 +147,10 @@ const MusicExpressionEngine = (() => {
     if (a.compressionEstimate > 0.72) add("강한 압축", "dynamics");
     if (a.crestFactorDb > 14 && a.peak > 0.2) add("강한 피크", "dynamics");
     if (a.pumping > 0.7 && a.beatConfidence > 0.65) add("강한 펌핑", "dynamics");
+    const ttlByDelta = { deltaEnergy: 1800, deltaRms: 1500, deltaLowEnergy: 2200,
+      deltaCentroid: 1600, deltaTransientDensity: 1700 };
     const deltaMeta = (key, currentKey) => ({ layer: "LIVE", source: "live", deltaSource: key,
+      ttlMs: ttlByDelta[key] || 1800,
       previousValue: Number.isFinite(a[currentKey]) && Number.isFinite(a[key]) ? a[currentKey] - a[key] : null,
       currentValue: Number.isFinite(a[currentKey]) ? a[currentKey] : null,
       deltaMagnitude: Math.abs(Number(a[key]) || 0), anchors: ["measurements." + key, "measurements." + currentKey] });
@@ -162,16 +165,16 @@ const MusicExpressionEngine = (() => {
     else if (a.deltaEnergy < -0.22) add("급격한 하강", "dynamics", 1, deltaMeta("deltaEnergy", "energy"));
     if (a.dropScore > 0.68 && a.deltaEnergy > 0.09) {
       const meta = { ...deltaMeta("deltaEnergy", "energy"), deltaSource: "dropScore", deltaMagnitude: a.dropScore,
-        anchors: ["measurements.dropScore", "measurements.deltaEnergy"] };
+        ttlMs: 3200, anchors: ["measurements.dropScore", "measurements.deltaEnergy"] };
       add("강한 드롭", "dynamics", 1, meta); add("드롭 진입", "live", 1, meta);
     }
     if (state.novelty?.transitionDetected && a.changing) add("구간 전환", "live", 0.96,
       { ...deltaMeta("deltaEnergy", "energy"), deltaSource: "sectionNovelty",
-        deltaMagnitude: state.novelty.score || Math.abs(a.deltaEnergy || 0), anchors: ["currentSection.novelty", "measurements.deltaEnergy"] });
+        ttlMs: 3000, deltaMagnitude: state.novelty.score || Math.abs(a.deltaEnergy || 0), anchors: ["currentSection.novelty", "measurements.deltaEnergy"] });
     if (a.deltaEnergy > 0.04 && c.structure?.buildupLikelihood > 0.68) add("빌드업", "live", 0.94,
-      { ...deltaMeta("deltaEnergy", "energy"), anchors: ["measurements.deltaEnergy", "currentSection.buildup"] });
+      { ...deltaMeta("deltaEnergy", "energy"), ttlMs: 2600, anchors: ["measurements.deltaEnergy", "currentSection.buildup"] });
     if (a.deltaEnergy < -0.09 && c.structure?.breakdownLikelihood > 0.6) add("브레이크", "live", 0.94,
-      { ...deltaMeta("deltaEnergy", "energy"), anchors: ["measurements.deltaEnergy", "currentSection.breakdown"] });
+      { ...deltaMeta("deltaEnergy", "energy"), ttlMs: 2600, anchors: ["measurements.deltaEnergy", "currentSection.breakdown"] });
     const m = state.moodDimensions || state.mood?.fused || state.mood?.local || {};
     const arousal = Number.isFinite(a.rms) && Number.isFinite(a.energy) ? clamp(a.rms * 3.2 + a.energy * 1.35) : m.arousal;
     const warmth = m.warmth ?? t.warmth, tension = m.tension;

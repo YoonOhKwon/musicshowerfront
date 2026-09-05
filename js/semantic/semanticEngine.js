@@ -11,6 +11,8 @@ let genreAliasLookup = new Map();
 let genreTaxonomyData = {};
 let genreContextKnowledgeData = {};
 let genreCompositionsData = null;
+let compositeGenreRulesData = {};
+let genreHierarchyData = {};
 let zeroShotClassifier = new ZeroShotGenre.Classifier();
 let semanticRuntimeInitialized = false;
 let semanticInferencePending = false;
@@ -31,6 +33,7 @@ let expressionWaveform = null;
 let expressionSpectrum = null;
 const instrumentationEventEngine = new InstrumentationEvents.Engine();
 let genreContextEngine = new GenreContext.Engine();
+let genreHypothesisEngine = new GenreHypotheses.Engine({}, {}, CONFIG.genreReasoning);
 let temporalEvidenceEngine = new TemporalEvidence.Engine();
 const evidenceFusionEngine = new EvidenceFusion.Engine();
 const arrangementEngine = new ArrangementEngine.Engine();
@@ -40,7 +43,9 @@ const mirEngine = new MIREngine.Engine();
 const conceptEmbeddingEngine = new ConceptEmbeddingEngine.Engine();
 let musicalIdiomEngine = new MusicalIdioms.Engine();
 let currentModelInstruments = [];
+let currentEventInstruments = [];
 let currentModelInstrumentsAt = 0;
+let currentInstrumentObservationId = null;
 const discogsParentFamily = {
   "blues": "Jazz / Soul",
   "brass & military": "Acoustic / Traditional",
@@ -80,6 +85,9 @@ function createInitialSemanticState(sessionId = 0) {
     sessionId,
     status: "idle",
     genre,
+    classifierGenre: { ...genre, topK: [], secondary: [], related: [] },
+    genreReasoning: { primary: null, challengers: [], alternatives: [], actualSubgenres: [],
+      relatedGenres: [], relations: [], hypotheses: [], takeovers: [] },
     instruments: [],
     ...SemanticEvidence.sanitize({}),
     instrumentFacetCandidates: [], rhythmFacetCandidates: [], productionFacetCandidates: [],
@@ -122,7 +130,8 @@ function createInitialSemanticState(sessionId = 0) {
 
 async function loadSemanticData() {
   const [taxonomyResponse, aliasResponse, embeddingResponse, neighborhoodResponse, contextResponse, lexiconResponse,
-    coreTermsResponse, aestheticAxesResponse, aestheticRegionsResponse, genreCompositionsResponse] = await Promise.all([
+    coreTermsResponse, aestheticAxesResponse, aestheticRegionsResponse, genreCompositionsResponse,
+    compositeRulesResponse, genreHierarchyResponse] = await Promise.all([
     fetch("./data/genreTaxonomy.json"),
     fetch("./data/genreAliases.json"),
     fetch("./data/genreEmbeddings.json"),
@@ -132,7 +141,9 @@ async function loadSemanticData() {
     fetch("./data/approvedCoreTerms.json"),
     fetch("./data/aestheticAxes.json"),
     fetch("./data/aestheticRegions.json"),
-    fetch("./data/genreCompositions.json")
+    fetch("./data/genreCompositions.json"),
+    fetch("./data/compositeGenreRules.json"),
+    fetch("./data/genreHierarchy.json")
   ]);
   if (coreTermsResponse.ok) SemanticFacets.setApprovedCoreTerms((await coreTermsResponse.json())?.entries);
   if (aestheticAxesResponse.ok && aestheticRegionsResponse.ok) {
@@ -140,6 +151,9 @@ async function loadSemanticData() {
     aestheticEvidenceEngine = new AestheticEvidence.Engine(aestheticAxisEngine);
   }
   if (genreCompositionsResponse.ok) genreCompositionsData = await genreCompositionsResponse.json();
+  if (compositeRulesResponse.ok) compositeGenreRulesData = await compositeRulesResponse.json();
+  if (genreHierarchyResponse.ok) genreHierarchyData = await genreHierarchyResponse.json();
+  genreHypothesisEngine.configure(compositeGenreRulesData, genreHierarchyData);
   if (taxonomyResponse.ok) {
     const taxonomy = await taxonomyResponse.json();
     genreTaxonomyData = taxonomy;
@@ -242,7 +256,7 @@ async function initializeSemanticRuntime() {
 function beginSemanticSession(inputMode = "unknown") {
   expressionHistory.reset();
   instrumentationEventEngine.reset();
-  currentModelInstruments = []; currentModelInstrumentsAt = 0;
+  currentModelInstruments = []; currentEventInstruments = []; currentModelInstrumentsAt = 0; currentInstrumentObservationId = null;
   semanticSessionId = semanticSessionGuard.next();
   RuntimePerformance.reset();
   genreTracker?.reset();
@@ -252,6 +266,7 @@ function beginSemanticSession(inputMode = "unknown") {
   distinctiveTracker?.reset();
   semanticChangeDetector?.reset();
   temporalEvidenceEngine?.reset();
+  genreHypothesisEngine?.reset();
   mirEngine.reset();
   musicModelBridge?.resetSession();
   semanticInferencePending = false;
@@ -273,7 +288,7 @@ function beginSemanticSession(inputMode = "unknown") {
 function endSemanticSession() {
   expressionHistory.reset();
   instrumentationEventEngine.reset();
-  currentModelInstruments = []; currentModelInstrumentsAt = 0;
+  currentModelInstruments = []; currentEventInstruments = []; currentModelInstrumentsAt = 0; currentInstrumentObservationId = null;
   semanticSessionId = semanticSessionGuard.next();
   semanticInferencePending = false;
   lastAppliedAnalysisWindowId = 0;
@@ -285,6 +300,7 @@ function endSemanticSession() {
   distinctiveTracker?.reset();
   semanticChangeDetector?.reset();
   temporalEvidenceEngine?.reset();
+  genreHypothesisEngine?.reset();
   mirEngine.reset();
   musicModelBridge?.resetSession();
   latestRollingEmbedding = [];
@@ -402,6 +418,18 @@ function refreshLocalInstruments() {
   semanticState.instruments = [...fused.values()].sort((a, b) => b.confidence - a.confidence).slice(0, 6);
 }
 
+function updatePitchEvidence() {
+  try {
+    semanticState.pitchEvidence = (typeof MelodyContour !== "undefined" ? MelodyContour : null)?.analyze({
+      samples: getMelodyPitchTrajectory(20000),
+      bpm: semanticState.audio?.bpm || 0
+    }) || { reason: "unavailable" };
+  } catch (error) {
+    semanticState.pitchEvidence = { reason: "error", message: String(error.message || error).slice(0, 80) };
+  }
+  return semanticState.pitchEvidence;
+}
+
 function refreshRealtimeExpressions() {
   if (!semanticState || !audioStarted || !analyser || !audioAnalysis.realtimeSamples) return;
   const semanticStartedAt = performance.now();
@@ -431,19 +459,31 @@ function refreshRealtimeExpressions() {
     weight: SignalMath.clamp(features.bass / Math.max(0.001, features.bass + features.mid + features.high)),
     aggression: SignalMath.clamp((semanticState.trackCharacter?.timbre?.roughness || 0) * 0.5 + features.transientDensity * 0.5)
   };
+  // The pitch trajectory is an actual melodic-register observation. Compute it before the
+  // instrumentation event engine so solo/lead decisions can use it in the same semantic tick,
+  // rather than relying on whole-mixture tonalFocus from the previous tick.
+  const pitchEvidence = updatePitchEvidence();
+  const pitchConfidence = Number.isFinite(pitchEvidence?.confidence) ? pitchEvidence.confidence : null;
   const instrumentEvidenceProfile = getInstrumentEvidenceProfile(true);
   const bassOnsets = onsetEvents.values().filter(x => x.lowImpact >= 0.55).map(x => x.at);
   const bassProfile = getBassPitchProfile(bassOnsets);
   const instrumentState = instrumentationEventEngine.update(semanticState.instruments, {
+    eventInstruments: currentEventInstruments,
+    observationId: currentInstrumentObservationId,
     accompanimentDensity: semanticState.trackCharacter?.texture?.density,
     onsetActivity: features.transientDensity,
     // Reused from the existing instrument-evidence descriptors (chroma vector motion / tonal
     // confidence) rather than a new pitch model — an honest proxy, not exact note tracking.
-    melodicActivity: instrumentEvidenceProfile.descriptors.chromaMotion,
-    pitchActivity: instrumentEvidenceProfile.descriptors.tonalFocus,
+    melodicActivity: Math.max(instrumentEvidenceProfile.descriptors.chromaMotion || 0,
+      pitchConfidence === null ? 0 : pitchConfidence * 0.9),
+    pitchActivity: pitchConfidence === null ? instrumentEvidenceProfile.descriptors.tonalFocus : pitchConfidence,
     bassPitchMotion: bassProfile.bassPitchMotion,
     bassOnsetRegularity: bassProfile.bassOnsetRegularity,
-    bassPatternRepetition: bassProfile.bassRepetition
+    bassPatternRepetition: bassProfile.bassRepetition,
+    walkingEvidence: bassProfile.walkingEvidence,
+    bassStepwiseRatio: bassProfile.stepwiseRatio,
+    bassPitchClassHistogram: bassProfile.pitchClassHistogram,
+    dominantBassPitchClass: bassProfile.dominantPitchClass
   });
   if (instrumentState) Object.assign(semanticState, instrumentState);
   semanticState.instrumentationEvidence = GenreContext.instrumentEvidence(semanticState);
@@ -458,13 +498,27 @@ function refreshRealtimeExpressions() {
     voiceConfidence: semanticState.instrumentationEvidence?.voice,
     onsetRate: recentOnsets
   });
+  applyGenreHypotheses();
   semanticState.aestheticEvidence = aestheticEvidenceEngine.evaluate(semanticState);
   semanticState.genreContextEvidence = genreContextEngine.evaluate(semanticState);
+  if (semanticState.genreReasoning?.relations?.length) {
+    const combined = [...(semanticState.genreContextEvidence.candidates || []), ...semanticState.genreReasoning.relations];
+    const best = new Map();
+    for (const item of combined) {
+      const key = `${item.category}:${String(item.text).toLowerCase()}`;
+      if (!best.has(key) || best.get(key).confidence < item.confidence) best.set(key, item);
+    }
+    semanticState.genreContextEvidence.candidates = [...best.values()];
+    semanticState.genreContextEvidence.matchedPriors = semanticState.genreContextEvidence.candidates.map(item => item.text);
+    semanticState.genreContextEvidence.confidence = Math.max(semanticState.genreContextEvidence.confidence || 0,
+      ...semanticState.genreReasoning.relations.map(item => item.confidence || 0));
+  }
   const mirStartedAt = performance.now();
   semanticState.mir = mirEngine.update({
     bpm: rhythm.bpm,
     beatConfidence: rhythm.confidence,
     chroma: semanticState.audio.chroma,
+    harmonicChroma: typeof getHarmonicChroma === "function" ? getHarmonicChroma() : null,
     tonalFocus: semanticState.audio.tonalFocus,
     rhythmicGrammar: grammar
   });
@@ -481,14 +535,6 @@ function refreshRealtimeExpressions() {
   } catch (error) {
     semanticState.harmonicMotion = { reason: "error", message: String(error.message || error).slice(0, 80) };
   }
-  try {
-    semanticState.pitchEvidence = (typeof MelodyContour !== "undefined" ? MelodyContour : null)?.analyze({
-      samples: getMelodyPitchTrajectory(20000),
-      bpm: rhythm.bpm
-    }) || { reason: "unavailable" };
-  } catch (error) {
-    semanticState.pitchEvidence = { reason: "error", message: String(error.message || error).slice(0, 80) };
-  }
   RuntimePerformance.recordMIR(performance.now() - mirStartedAt);
   SemanticCandidatePipeline.populate(semanticState, { arrangementEngine, idiomEngine: musicalIdiomEngine });
   updateTemporalEvidence();
@@ -496,12 +542,73 @@ function refreshRealtimeExpressions() {
   RuntimePerformance.recordSemantic(performance.now() - semanticStartedAt);
 }
 
+function applyGenreHypotheses() {
+  if (!semanticState || !genreHypothesisEngine) return;
+  const reasoning = genreHypothesisEngine.evaluate(semanticState, Date.now());
+  semanticState.genreReasoning = reasoning;
+  const primary = reasoning.primary;
+  if (!primary) return;
+  const semanticConfidence = primary.semanticConfidence || 0;
+  const uncertain = semanticConfidence < 0.34;
+  const runnerUp = reasoning.challengers[0];
+  const margin = Math.max(0, semanticConfidence - (runnerUp?.semanticConfidence || 0));
+  const hypothesisScores = reasoning.hypotheses.slice(0, CONFIG.ml.genre.topK).map(item => item.semanticConfidence || 0);
+  const scoreTotal = hypothesisScores.reduce((sum, value) => sum + value, 0);
+  const entropy = scoreTotal > 0 && hypothesisScores.length > 1
+    ? -hypothesisScores.reduce((sum, value) => {
+      const probability = value / scoreTotal;
+      return sum + (probability ? probability * Math.log(probability) : 0);
+    }, 0) / Math.log(hypothesisScores.length)
+    : 0;
+  semanticState.genre = {
+    ...(semanticState.classifierGenre || semanticState.genre),
+    family: genreFamily(primary.genre),
+    primary: primary.genre,
+    displayLabel: uncertain ? `${genreFamily(primary.genre)} 계열` : primary.genre,
+    confidence: semanticConfidence,
+    semanticConfidence,
+    stability: primary.temporalStability || 0,
+    temporalStability: primary.temporalStability || 0,
+    rawConfidence: primary.classifierConfidence || 0,
+    margin,
+    entropy,
+    topK: reasoning.hypotheses.slice(0, CONFIG.ml.genre.topK).map(item => ({
+      label: item.genre, confidence: item.semanticConfidence, semanticConfidence: item.semanticConfidence,
+      temporalStability: item.temporalStability, kind: item.kind, evidenceCoverage: item.evidenceCoverage
+    })),
+    secondary: reasoning.challengers.slice(0, CONFIG.ml.genre.topK - 1).map(item => ({
+      label: item.genre, confidence: item.semanticConfidence, evidenceCoverage: item.evidenceCoverage
+    })),
+    related: reasoning.relatedGenres,
+    alternativeHypotheses: reasoning.alternatives,
+    fineCandidates: reasoning.actualSubgenres,
+    uncertain,
+    unknown: uncertain,
+    hybrid: Boolean(runnerUp && Math.abs(semanticConfidence - runnerUp.semanticConfidence) < 0.08),
+    certainty: uncertain ? "uncertain" : semanticConfidence >= 0.67 ? "certain" : "probable"
+  };
+  if (reasoning.takeover && semanticChangeDetector) {
+    semanticState.semanticEpoch = semanticChangeDetector.accept({
+      embedding: latestRollingEmbedding,
+      genre: semanticState.genre.topK,
+      character: semanticState.trackCharacter
+    }, reasoning.takeover.at);
+    semanticState.semanticChange = { score: 1, changed: true, epoch: semanticState.semanticEpoch,
+      reason: "genre-hypothesis-takeover", components: { genreTakeover: 1 }, takeover: reasoning.takeover };
+    refreshSemanticWords(true);
+  }
+}
+
 function updateTemporalEvidence() {
   const now = Date.now();
   const local = SemanticFacetManager.base(semanticState);
-  const genreModel = semanticState.genre?.uncertain ? [] : (semanticState.genre.topK || []).slice(0, 4).map((item, index) =>
-    SemanticFacets.token(item.label, "genre", index === 0 ? semanticState.genre.confidence : item.confidence,
-      ["genreEvidence", "rhythmicGrammar", "trackCharacter.timbre"], { role: index === 0 ? "primary" : "secondary" }));
+  const genreModel = semanticState.genre?.uncertain ? [] : (semanticState.genreReasoning?.hypotheses || []).slice(0, 5).map((item, index) =>
+    SemanticFacets.token(item.genre, "genre", item.semanticConfidence,
+      (item.supportingEvidence || []).map(evidence => evidence.path === "classifierGenre.topK" ? "genreEvidence" : evidence.path)
+        .slice(0, 8).concat(index === 0 ? ["primaryGenre"] : []),
+      { role: index === 0 ? "primary" : "challenger", semanticConfidence: item.semanticConfidence,
+        temporalStability: item.temporalStability, evidenceCoverage: item.evidenceCoverage,
+        independentEvidenceCount: item.independentEvidenceCount, hypothesisKind: item.kind }));
   const embedding = [
     ...(semanticState.zeroShot?.candidates || []).map(item => SemanticFacets.token(item.label, "genre", item.confidence,
       ["genreEvidence", "trackCharacter.timbre", "trackCharacter.rhythm"], { role: "adjacent" })),
@@ -530,22 +637,6 @@ function updateTemporalEvidence() {
     };
   }
   const present = new Set(candidates.map(item => `${item.category}:${String(item.text).toLowerCase()}`));
-  const remembered = temporal.trackMemory.filter(item => !present.has(`${item.category}:${String(item.text).toLowerCase()}`));
-  for (const item of remembered) {
-    const memoryToken = { ...item, source: "track-memory" };
-    if (SemanticFacets.contextual.has(item.category) && semanticState.genreContextEvidence) {
-      semanticState.genreContextEvidence.candidates = [...semanticState.genreContextEvidence.candidates, memoryToken];
-      semanticState.genreContextEvidence.matchedPriors = [...semanticState.genreContextEvidence.matchedPriors, memoryToken.text];
-    } else if (item.category === "arrangement") {
-      semanticState.arrangementFacetCandidates = [...semanticState.arrangementFacetCandidates, memoryToken];
-    } else if (item.category === "rhythm") {
-      semanticState.rhythmFacetCandidates = [...semanticState.rhythmFacetCandidates, memoryToken];
-    } else if (item.category === "production") {
-      semanticState.productionFacetCandidates = [...semanticState.productionFacetCandidates, memoryToken];
-    } else if (item.category === "instrumentation" || item.category === "performance" || item.category === "live") {
-      semanticState.instrumentFacetCandidates = [...(semanticState.instrumentFacetCandidates || []), memoryToken];
-    }
-  }
   semanticState.stateV2 = SemanticStateV2.build({
     fusion: temporal.evaluated,
     temporal,
@@ -578,7 +669,9 @@ function updateTrackCharacterAndEpoch(embedding = latestRollingEmbedding, diagno
     novelty: semanticState.novelty
   });
   semanticState.distinctive = distinctiveTracker.observe(semanticState.trackCharacter);
-  semanticState.genre.fineCandidates = subgenreSearcher.search({
+  // Neighborhood search produces alternatives, not taxonomic children. Keep it out of
+  // `subgenreCandidates`; only GenreHypotheses' explicit hierarchy may populate that field.
+  semanticState.genre.relatedCandidates = subgenreSearcher.search({
     topK: semanticState.genre.topK,
     character: semanticState.trackCharacter
   });
@@ -644,7 +737,8 @@ function applyMusicModelResult(result, manifest) {
     activation: manifest.activations?.genre || "sigmoid"
   }).map(item => ({ ...item, label: canonicalGenre(item.label) }));
   if (predictions.length) {
-    semanticState.genre = createCalibratedGenreState(predictions, outputs.diagnostics);
+    semanticState.classifierGenre = createCalibratedGenreState(predictions, outputs.diagnostics);
+    semanticState.genre = { ...semanticState.classifierGenre };
   }
   const embedding = outputs.embedding;
   semanticState.conceptEmbedding = {
@@ -672,19 +766,26 @@ function applyMusicModelResult(result, manifest) {
       genreModel: predictions.map(item => ({ text: item.label, category: "genre", confidence: item.confidence })),
       embedding: semanticState.zeroShot.candidates.map(item => ({ text: item.label, category: "genre", confidence: item.confidence }))
     });
-    semanticState.genre = createCalibratedGenreState(
+    semanticState.classifierGenre = createCalibratedGenreState(
       fused.map(item => ({ label: item.text, confidence: item.confidence })),
       outputs.diagnostics
     );
+    semanticState.genre = { ...semanticState.classifierGenre };
   }
-  // Instrument events use current short-window output, not the long genre average.
+  // Presence uses the fast temporal window, while entrances/exits/performance use the newest raw
+  // inference. Holding one raw result between model runs must not count as multiple observations.
   const instrumentOutput = currentOutputs.instrument || [];
-  const mlInstruments = InstrumentClassifier.classify(instrumentOutput, manifest.labels.instrument, {
+  const presenceOutput = outputs.scales?.fast?.instrument?.length ? outputs.scales.fast.instrument : instrumentOutput;
+  const observedAt = Date.now();
+  const observationId = result.analysisWindowId ?? result.id ?? observedAt;
+  currentModelInstruments = InstrumentClassifier.classify(presenceOutput, manifest.labels.instrument, {
     activation: manifest.activations?.instrument || "identity"
-  })
-    .map(item => ({ ...item, source: "ml" }));
-  currentModelInstruments = mlInstruments;
-  currentModelInstrumentsAt = Date.now();
+  }).map(item => ({ ...item, source: "ml", observedAt, observationId }));
+  currentEventInstruments = InstrumentClassifier.classify(instrumentOutput, manifest.labels.instrument, {
+    activation: manifest.activations?.instrument || "identity"
+  }).map(item => ({ ...item, source: "ml", observedAt, observationId }));
+  currentModelInstrumentsAt = observedAt;
+  currentInstrumentObservationId = observationId;
   refreshLocalInstruments();
   const moodOutput = outputs.mood;
   const mood = MoodClassifier.classify(moodOutput, manifest.labels.mood, {
@@ -707,24 +808,35 @@ function createCalibratedGenreState(predictions, diagnostics = {}) {
     familyFor: genreFamily
   });
   const calibrated = ConfidenceCalibration.calibrate({
-    predictions: tracked.topK,
+    predictions,
     stability: tracked.stability,
     temporalAgreement: diagnostics.genreAgreement || 0,
     familyFor: genreFamily
   });
+  const currentTop = Math.max(0.0001, ...predictions.map(item => Number(item.confidence) || 0));
+  const primaryRaw = predictions.find(item => item.label === tracked.primary)?.confidence || 0;
+  const primarySupportRatio = Math.min(1, primaryRaw / currentTop);
+  const semanticConfidence = calibrated.semanticConfidence * primarySupportRatio;
+  const primaryUnknown = primaryRaw < 0.016 || semanticConfidence < 0.2;
   const runnerUp = tracked.topK.find(item => item.label !== tracked.primary);
-  const displayLabel = calibrated.unknown
+  const displayLabel = primaryUnknown
     ? "미확정 장르"
     : calibrated.hybrid && runnerUp
       ? `${tracked.primary} / ${runnerUp.label}`
-      : calibrated.uncertain && tracked.family !== "Unknown"
+      : (primaryUnknown || semanticConfidence < 0.34) && tracked.family !== "Unknown"
         ? `${tracked.family} 계열`
         : tracked.primary;
   return {
     ...tracked,
     ...calibrated,
+    confidence: semanticConfidence,
+    semanticConfidence,
+    temporalStability: tracked.stability,
+    unknown: primaryUnknown,
+    uncertain: primaryUnknown || semanticConfidence < 0.34,
     displayLabel,
     rawEntropy: tracked.entropy,
+    classifierRawTopK: predictions,
     observations: diagnostics.observations || 0,
     contextSeconds: diagnostics.contextSeconds || 0
   };

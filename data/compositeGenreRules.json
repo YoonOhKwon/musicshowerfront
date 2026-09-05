@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "future-funk",
+      "genre": "Future Funk",
+      "minimumCoverage": 0.75,
+      "minimumIndependentEvidence": 3,
+      "minimumConfidence": 0.54,
+      "evidenceGroups": [
+        { "id": "classifier", "weight": 1.2, "labelSets": [
+          { "labels": ["City Pop", "J-pop", "Vaporwave"], "minMatches": 1 },
+          { "labels": ["Nu Disco", "Disco", "Funk"], "minMatches": 1 }
+        ] },
+        { "id": "rhythm", "weight": 1, "tests": [{ "path": "rhythmicGrammar.fourOnFloor", "min": 0.62 }] },
+        { "id": "production", "weight": 1.1, "tests": [{ "path": "productionEvidence.sampleBased", "min": 0.62 }, { "path": "productionEvidence.sidechain", "min": 0.58 }] },
+        { "id": "timbre", "weight": 0.7, "required": false, "tests": [{ "path": "instrumentationEvidence.synth", "min": 0.48 }, { "path": "instrumentationEvidence.synthesizer", "min": 0.48 }, { "path": "moodDimensions.brightness", "min": 0.58 }] }
+      ],
+      "relations": [
+        { "type": "source", "genre": "J-pop", "requiresGroup": "classifier", "requiresAnyLabel": ["J-pop"] },
+        { "type": "source", "genre": "City Pop", "requiresGroup": "classifier", "requiresAnyLabel": ["City Pop"] },
+        { "type": "influence", "genre": "French House", "requiresGroup": "production" },
+        { "type": "lineage", "genre": "Disco", "requiresGroup": "rhythm" },
+        { "type": "rhythmic_affinity", "genre": "House", "requiresGroup": "rhythm" }
+      ]
+    },
+    {
+      "id": "french-house",
+      "genre": "French House",
+      "minimumCoverage": 1,
+      "minimumIndependentEvidence": 3,
+      "evidenceGroups": [
+        { "id": "classifier", "weight": 1.2, "labelSets": [
+          { "labels": ["House", "Garage House", "Deep House", "Tech House", "Electro House"], "minMatches": 1 },
+          { "labels": ["Disco", "Nu Disco", "Funk"], "minMatches": 1 }
+        ] },
+        { "id": "rhythm", "weight": 1, "tests": [{ "path": "rhythmicGrammar.fourOnFloor", "min": 0.66 }] },
+        { "id": "production", "weight": 1.1, "tests": [{ "path": "productionEvidence.filterSweep", "min": 0.62 }, { "path": "productionEvidence.sampleBased", "min": 0.66 }, { "path": "productionEvidence.sidechain", "min": 0.62 }] }
+      ],
+      "relations": [{ "type": "lineage", "genre": "Disco" }, { "type": "source", "genre": "sample-based House", "requiresGroup": "production" }]
+    },
+    {
+      "id": "nu-disco",
+      "genre": "Nu Disco",
+      "minimumCoverage": 0.75,
+      "minimumIndependentEvidence": 3,
+      "evidenceGroups": [
+        { "id": "classifier", "weight": 1.2, "labelSets": [
+          { "labels": ["Nu Disco", "House"], "minMatches": 1 },
+          { "labels": ["Disco", "Funk"], "minMatches": 1 }
+        ] },
+        { "id": "rhythm", "weight": 1, "tests": [{ "path": "rhythmicGrammar.fourOnFloor", "min": 0.62 }] },
+        { "id": "instrument", "weight": 0.85, "tests": [{ "path": "instrumentationEvidence.synth", "min": 0.48 }, { "path": "instrumentationEvidence.synthesizer", "min": 0.48 }, { "path": "instrumentationEvidence.bass", "min": 0.5 }] },
+        { "id": "production", "weight": 0.8, "required": false, "tests": [{ "path": "productionEvidence.sidechain", "min": 0.55 }] }
+      ],
+      "relations": [{ "type": "lineage", "genre": "Disco" }, { "type": "rhythmic_affinity", "genre": "House" }]
+    },
+    {
+      "id": "jazz-rap",
+      "genre": "Jazz Rap",
+      "minimumCoverage": 1,
+      "minimumIndependentEvidence": 3,
+      "evidenceGroups": [
+        { "id": "classifier", "weight": 1.2, "labelSets": [
+          { "labels": ["Jazz", "Jazz Funk", "Acid Jazz", "Future Jazz", "Jazzy Hip-Hop"], "minMatches": 1 },
+          { "labels": ["Hip-Hop", "Boom Bap", "Alternative Hip-Hop", "Jazzy Hip-Hop"], "minMatches": 1 }
+        ] },
+        { "id": "rhythm", "weight": 1, "tests": [{ "path": "rhythmicGrammar.swing", "min": 0.48 }, { "path": "rhythmicGrammar.syncopation", "min": 0.55 }] },
+        { "id": "instrument", "weight": 0.9, "tests": [{ "path": "instrumentationEvidence.keys", "min": 0.45 }, { "path": "instrumentationEvidence.piano", "min": 0.45 }, { "path": "instrumentationEvidence.electricpiano", "min": 0.45 }, { "path": "instrumentationEvidence.brass", "min": 0.45 }, { "path": "instrumentationEvidence.bass", "min": 0.5 }] }
+      ],
+      "relations": [{ "type": "source", "genre": "Jazz" }, { "type": "rhythmic_affinity", "genre": "Boom Bap" }]
+    },
+    {
+      "id": "electro-swing",
+      "genre": "Electro Swing",
+      "minimumCoverage": 1,
+      "minimumIndependentEvidence": 3,
+      "evidenceGroups": [
+        { "id": "classifier", "weight": 1.2, "labelSets": [
+          { "labels": ["Jazz", "Swing"], "minMatches": 1 },
+          { "labels": ["House", "Electronic", "Electro"], "minMatches": 1 }
+        ] },
+        { "id": "rhythm", "weight": 1.1, "tests": [{ "path": "rhythmicGrammar.swing", "min": 0.62 }] },
+        { "id": "instrument", "weight": 0.9, "tests": [{ "path": "instrumentationEvidence.brass", "min": 0.48 }, { "path": "instrumentationEvidence.keys", "min": 0.48 }, { "path": "instrumentationEvidence.piano", "min": 0.48 }, { "path": "instrumentationEvidence.synth", "min": 0.5 }, { "path": "instrumentationEvidence.synthesizer", "min": 0.5 }] }
+      ],
+      "relations": [{ "type": "source", "genre": "Swing" }, { "type": "influence", "genre": "Electronic dance music" }]
+    },
+    {
+      "id": "liquid-dnb",
+      "genre": "Liquid DnB",
+      "minimumCoverage": 1,
+      "minimumIndependentEvidence": 3,
+      "evidenceGroups": [
+        { "id": "classifier", "weight": 1.2, "labels": ["Liquid DnB", "Drum & Bass", "Jungle", "Atmospheric DnB"], "minMatches": 1 },
+        { "id": "rhythm", "weight": 1.1, "tests": [{ "path": "rhythmicGrammar.brokenBeat", "min": 0.62 }] },
+        { "id": "texture", "weight": 0.9, "tests": [{ "path": "moodDimensions.spaciousness", "min": 0.58 }, { "path": "trackCharacter.space.spaciousness", "min": 0.58 }, { "path": "moodDimensions.warmth", "min": 0.58 }] }
+      ],
+      "relations": [{ "type": "lineage", "genre": "Drum & Bass" }, { "type": "influence", "genre": "Ambient", "requiresGroup": "texture" }]
+    }
+  ]
+}

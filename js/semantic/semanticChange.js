@@ -54,6 +54,15 @@ const SemanticChange = (() => {
       return this.epoch;
     }
 
+    accept(input = {}, at = Date.now()) {
+      this.previous = {
+        embedding: input.embedding || [],
+        genre: input.genre || [],
+        character: input.character?.fingerprint || input.character || []
+      };
+      return this.advance(at);
+    }
+
     update(input = {}, at = Date.now()) {
       const current = {
         embedding: input.embedding || [],
@@ -68,14 +77,16 @@ const SemanticChange = (() => {
         embedding: cosineDistance(this.previous.embedding, current.embedding),
         genre: genreDistance(this.previous.genre, current.genre),
         character: vectorDistance(this.previous.character, current.character),
+        // Kept for diagnostics only. A drop/section boundary is a LIVE event and must never
+        // advance the track-level semantic epoch by itself.
         novelty: clamp(input.novelty),
-        section: input.sectionTransition ? 1 : 0
+        section: input.sectionTransition ? 1 : 0,
+        liveEventEligible: false
       };
       const score = clamp(
-        components.embedding * 0.31 + components.genre * 0.23 + components.character * 0.25 +
-        components.novelty * 0.13 + components.section * 0.08
+        components.embedding * 0.4 + components.genre * 0.3 + components.character * 0.3
       );
-      const corroborated = [components.embedding, components.genre, components.character, components.section]
+      const corroborated = [components.embedding, components.genre, components.character]
         .filter(value => value >= 0.3).length >= 2;
       const changed = score >= this.threshold && corroborated && at - this.lastChangeAt >= this.cooldownMs;
       if (changed) {

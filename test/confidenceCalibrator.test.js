@@ -4,7 +4,7 @@ const ConfidenceCalibration = require("../js/ml/confidenceCalibrator");
 
 const familyFor = label => ({ House: "Electronic", Techno: "Electronic", Jazz: "Jazz", Metal: "Rock" })[label] || "Unknown";
 
-test("calibration rewards temporal and family agreement without changing raw score", () => {
+test("temporal persistence never inflates semantic confidence", () => {
   const predictions = [
     { label: "House", confidence: 0.09 },
     { label: "Techno", confidence: 0.055 },
@@ -13,7 +13,9 @@ test("calibration rewards temporal and family agreement without changing raw sco
   const weak = ConfidenceCalibration.calibrate({ predictions, stability: 0.1, temporalAgreement: 0.1, familyFor });
   const strong = ConfidenceCalibration.calibrate({ predictions, stability: 0.9, temporalAgreement: 0.95, familyFor });
   assert.equal(strong.rawConfidence, 0.09);
-  assert.ok(strong.confidence > weak.confidence + 0.25);
+  assert.equal(strong.confidence, weak.confidence);
+  assert.equal(strong.semanticConfidence, weak.semanticConfidence);
+  assert.ok(strong.temporalStability > weak.temporalStability);
 });
 
 test("close cross-family candidates are marked hybrid", () => {

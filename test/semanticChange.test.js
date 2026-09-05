@@ -23,3 +23,24 @@ test("first useful musical evidence can explicitly leave the startup epoch", () 
   assert.equal(detector.advance(1000), 1);
   assert.equal(detector.epoch, 1);
 });
+
+test("a section transition and LIVE novelty do not advance the track semantic epoch", () => {
+  const detector = new SemanticChange.Detector({ threshold: 0.1, cooldownMs: 0 });
+  detector.update({ embedding: [1, 0], genre: [{ label: "House", confidence: 0.7 }], character: [0.4, 0.5] }, 0);
+  const result = detector.update({ embedding: [1, 0], genre: [{ label: "House", confidence: 0.7 }],
+    character: [0.4, 0.5], novelty: 1, sectionTransition: true }, 1000);
+  assert.equal(result.changed, false);
+  assert.equal(result.epoch, 0);
+  assert.equal(result.components.liveEventEligible, false);
+});
+
+test("an accepted genre takeover advances once and rebases later semantic comparison", () => {
+  const detector = new SemanticChange.Detector({ threshold: 0.1, cooldownMs: 0 });
+  detector.update({ embedding: [1, 0], genre: [{ label: "J-pop", confidence: 0.68 }], character: [0.4, 0.5] }, 0);
+  assert.equal(detector.accept({ embedding: [1, 0], genre: [{ label: "Future Funk", confidence: 0.78 }],
+    character: [0.4, 0.5] }, 3000), 1);
+  const next = detector.update({ embedding: [1, 0], genre: [{ label: "Future Funk", confidence: 0.78 }],
+    character: [0.4, 0.5] }, 3500);
+  assert.equal(next.changed, false);
+  assert.equal(next.epoch, 1);
+});

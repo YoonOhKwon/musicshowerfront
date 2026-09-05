@@ -93,10 +93,14 @@ const MusicalIdioms = (() => {
   }
 
   function genreValues(genre = {}) {
+    // fineCandidates is now taxonomy-only (GenreHypotheses' explicit hierarchy children);
+    // relatedCandidates is the broader neighborhood-search alternatives list that used to share
+    // this field. Both are genuine genre-label sources for idiom-trigger matching, so both are read.
     return [...new Set([
       genre.primary, genre.family, genre.displayLabel,
       ...(genre.secondary || []), ...(genre.topK || []).map(item => item.label),
-      ...(genre.fineCandidates || []).map(item => item.label)
+      ...(genre.fineCandidates || []).map(item => (typeof item === "string" ? item : item?.label)),
+      ...(genre.relatedCandidates || []).map(item => (typeof item === "string" ? item : item?.label))
     ].filter(Boolean).map(String))];
   }
 

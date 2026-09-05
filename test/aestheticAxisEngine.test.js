@@ -91,6 +91,28 @@ test("STEP 1: zero measured components still keeps the axis null regardless of g
   assert.equal(engine.evaluateAxes(emptyView, { primary: "Unknown", confidence: 0.2, uncertain: true }).axes.nostalgia, null);
 });
 
+// Regression coverage for a v19 side effect: semanticEngine.js split what used to be one field
+// (genre.fineCandidates, fed by broad neighborhood search) into two -- fineCandidates is now
+// taxonomy-only (GenreHypotheses' explicit hierarchy children), and the old neighborhood-search
+// alternatives moved to genre.relatedCandidates. genreLabels() (used by genrePriorResult() above)
+// still needs to read BOTH, or a genre whose only tabled label arrived via neighborhood search
+// (not the classifier's own primary/family/topK, and not an explicit taxonomy child) silently
+// loses its genre-prior boost with no test failure, since existing tests always put the tabled
+// name in `primary` directly.
+test("a genre-prior match reachable only through genre.relatedCandidates (not primary/family/fineCandidates) still applies", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const view = { moodDimensions: { warmth: 0.7, brightness: 0.6 },
+    productionEvidence: { sampleBased: 0.6, distortion: 0.3 }, rhythmicGrammar: { fourOnFloor: 0.6 } };
+  const untabled = engine.evaluateAxes(view, { primary: "Techno", confidence: 0.85, uncertain: false });
+  const viaRelated = engine.evaluateAxes(view, {
+    primary: "Techno", confidence: 0.85, uncertain: false,
+    relatedCandidates: [{ label: "City Pop" }]
+  });
+  assert.ok(viaRelated.axes.nostalgia > untabled.axes.nostalgia,
+    "City Pop's nostalgia prior must apply even though it only appears in relatedCandidates");
+  assert.ok(viaRelated.axes.urbanity > untabled.axes.urbanity);
+});
+
 test("region text is keyed to axis combinations, not genre identity: same genre, different production/mood values produce different words", () => {
   const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
   const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };

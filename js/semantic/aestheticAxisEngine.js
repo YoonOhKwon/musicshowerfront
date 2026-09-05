@@ -24,8 +24,12 @@ const AestheticAxisEngine = (() => {
   }
 
   function genreLabels(genre = {}) {
+    // fineCandidates is now taxonomy-only (GenreHypotheses' explicit hierarchy children);
+    // relatedCandidates is the broader neighborhood-search alternatives list that used to share
+    // this field. Both are genuine genre-label sources for prior matching, so both are read.
     return [genre.primary, genre.family, ...(genre.secondary || []).map(x => x?.label),
-      ...(genre.fineCandidates || []).map(x => (typeof x === "string" ? x : x?.label))]
+      ...(genre.fineCandidates || []).map(x => (typeof x === "string" ? x : x?.label)),
+      ...(genre.relatedCandidates || []).map(x => (typeof x === "string" ? x : x?.label))]
       .filter(Boolean).map(x => String(x).toLowerCase());
   }
 

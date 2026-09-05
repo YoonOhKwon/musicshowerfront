@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "children": {
+    "House": ["Deep House", "Acid House", "Tech House", "French House"],
+    "Disco": ["Nu Disco"],
+    "Drum & Bass": ["Liquid DnB", "Atmospheric DnB"],
+    "Hip-Hop": ["Boom Bap", "Jazz Rap", "Alternative Hip-Hop"],
+    "Jazz": ["Bebop", "Fusion Jazz"],
+    "Ambient": ["Drone"]
+  }
+}

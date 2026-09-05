@@ -8,12 +8,16 @@ const ContextFirewall = (() => {
   ]);
   const DISTANCE = Object.freeze({
     PRIMARY_GENRE: { minConfidence: 0.55, maxEntropy: 0.92, minMargin: 0.04, minStability: 0.0, minElapsed: 0, minScore: 0.40 },
-    PARENT:        { minConfidence: 0.72, maxEntropy: 0.75, minMargin: 0.12, minStability: 0.28, minElapsed: 8, minScore: 0.52 },
-    LINEAGE:       { minConfidence: 0.75, maxEntropy: 0.68, minMargin: 0.16, minStability: 0.38, minElapsed: 14, minScore: 0.56 },
-    ERA:           { minConfidence: 0.74, maxEntropy: 0.70, minMargin: 0.14, minStability: 0.35, minElapsed: 12, minScore: 0.54 },
-    ADJACENCY:     { minConfidence: 0.68, maxEntropy: 0.82, minMargin: 0.08, minStability: 0.22, minElapsed: 8, minScore: 0.46 },
-    SCENE:         { minConfidence: 0.78, maxEntropy: 0.55, minMargin: 0.22, minStability: 0.50, minElapsed: 22, minScore: 0.62 },
-    CULTURE:       { minConfidence: 0.80, maxEntropy: 0.50, minMargin: 0.24, minStability: 0.55, minElapsed: 26, minScore: 0.66 },
+    PARENT:        { minConfidence: 0.68, maxEntropy: 0.75, minMargin: 0.12, minStability: 0.28, minElapsed: 8, minScore: 0.52 },
+    LINEAGE:       { minConfidence: 0.70, maxEntropy: 0.68, minMargin: 0.16, minStability: 0.38, minElapsed: 14, minScore: 0.56 },
+    ERA:           { minConfidence: 0.70, maxEntropy: 0.70, minMargin: 0.14, minStability: 0.35, minElapsed: 12, minScore: 0.54 },
+    ADJACENCY:     { minConfidence: 0.66, maxEntropy: 0.82, minMargin: 0.08, minStability: 0.22, minElapsed: 8, minScore: 0.46 },
+    SOURCE:        { minConfidence: 0.66, maxEntropy: 0.82, minMargin: 0.06, minStability: 0.24, minElapsed: 8, minScore: 0.48 },
+    INFLUENCE:     { minConfidence: 0.68, maxEntropy: 0.80, minMargin: 0.08, minStability: 0.28, minElapsed: 10, minScore: 0.50 },
+    RHYTHMIC_AFFINITY: { minConfidence: 0.62, maxEntropy: 0.86, minMargin: 0.05, minStability: 0.20, minElapsed: 6, minScore: 0.44 },
+    COMPOSITION:   { minConfidence: 0.68, maxEntropy: 0.78, minMargin: 0.08, minStability: 0.30, minElapsed: 10, minScore: 0.50 },
+    SCENE:         { minConfidence: 0.72, maxEntropy: 0.55, minMargin: 0.22, minStability: 0.50, minElapsed: 22, minScore: 0.62 },
+    CULTURE:       { minConfidence: 0.74, maxEntropy: 0.50, minMargin: 0.24, minStability: 0.55, minElapsed: 26, minScore: 0.66 },
     ARTIST:        { minConfidence: 0.82, maxEntropy: 0.45, minMargin: 0.26, minStability: 0.58, minElapsed: 30, minScore: 0.70 },
     AESTHETIC_ASSOCIATION: { minConfidence: 0.60, maxEntropy: 0.90, minMargin: 0.04, minStability: 0.12, minElapsed: 6, minScore: 0.38 }
   });

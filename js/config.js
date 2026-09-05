@@ -75,6 +75,14 @@ const CONFIG = {
     debug: false
   },
 
+  genreReasoning: {
+    switchMargin: 0.08,
+    takeoverMs: 2500,
+    minimumCoverage: 0.66,
+    minimumIndependentEvidence: 2,
+    staleMs: 9000
+  },
+
   language: {
     poolSize: 36,
     regenerationFloor: 10,

@@ -48,8 +48,12 @@ const GenreContext = (() => {
   }
   function instrumentEvidence(state) {
     const evidence = {};
-    for (const item of Instruments.normalize((state.instruments || []).filter(x => x.source !== "dsp"))) {
+    const normalized = Instruments.normalize((state.instruments || []).filter(x => x.source !== "dsp"));
+    for (const item of normalized) {
       if (item.source !== "dsp") evidence[item.id] = item.confidence;
+    }
+    for (const [family, value] of Object.entries(Instruments.familyRollup(normalized))) {
+      evidence[family] = Math.max(evidence[family] || 0, value.confidence);
     }
     return evidence;
   }
@@ -67,11 +71,11 @@ const GenreContext = (() => {
         productionEvidence: state.productionEvidence || {}, instrumentationEvidence: instrumentEvidence(state),
         moodDimensions: state.moodDimensions || {}, aestheticEvidence: result.aestheticEvidence };
       // Open layer (association/AESTHETIC) is axis-based, not genre-identity-based: it must not
-      // wait on genre.confidence >= 0.75, since an unconfirmed genre is the single biggest cause
+      // wait on sufficiently grounded genre confidence, since an unconfirmed genre is the single biggest cause
       // of open-layer silence, and the axis engine already carries its own independent evidence
       // gate (data/aestheticAxes.json's null-propagation + minAxes). The middle/context layer
       // below (lineage/era/scene/culture, and now composition-inferred open genre names) is a
-      // genre-IDENTITY claim and keeps the existing 0.75 bar.
+      // genre-IDENTITY claim and keeps a conservative semantic-confidence bar.
       if (this.aestheticAxisEngine && audible) {
         const axisResult = this.aestheticAxisEngine.evaluate(view, genre);
         result.candidates.push(...axisResult.candidates);
@@ -82,7 +86,7 @@ const GenreContext = (() => {
         result.axisSignature = axisResult.axisSignature;
         result.axes = axisResult.axes;
       }
-      if (genre.uncertain || genre.confidence < 0.75 || !audible) {
+      if (genre.uncertain || genre.confidence < 0.68 || !audible) {
         result.matchedPriors = result.candidates.map(x => x.text);
         // Deliberately modest and independent of genre.confidence (which may be low/uncertain
         // here) -- this reflects only how well-evidenced the axis-based candidates themselves are.
@@ -132,7 +136,7 @@ const GenreContext = (() => {
         label.toLowerCase() === key || normalizeGenreLabel(label) === normalizedKey)?.[1];
       // Same confidence boundary the hand-written rules use: relations broaden COVERAGE,
       // they do not lower the bar for claiming a history or a scene.
-      if (!entry || !(genre.confidence >= 0.75)) return [];
+      if (!entry || !(genre.confidence >= 0.68)) return [];
       const resolvedValue = path => {
         const value = Facets.read(view, path);
         return Number.isFinite(value) ? value : null;

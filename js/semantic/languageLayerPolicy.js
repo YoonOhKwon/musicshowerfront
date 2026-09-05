@@ -45,7 +45,8 @@ const LanguageLayerPolicy = (() => {
   function layerFor(category, candidate = {}) {
     const requested = String(candidate.layer || "").toUpperCase();
     if (names.includes(requested)) return requested;
-    if (["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST"]
+    if (["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST",
+      "SOURCE", "INFLUENCE", "RHYTHMIC_AFFINITY", "COMPOSITION"]
       .includes(String(candidate.relationFamily || "").toUpperCase())) return "CONTEXT";
     if (String(candidate.relationFamily || "").toUpperCase() === "AESTHETIC_ASSOCIATION") return "AESTHETIC";
     if (category === "association" && candidate.kind === "artist") return "CONTEXT";
