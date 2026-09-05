@@ -62,9 +62,14 @@ const PhraseSelection = (() => {
     if (observationSeconds < 15) return { LIVE: 0.27, FACT: 0.50, CONTEXT: 0.23, AESTHETIC: 0, IMPRESSION: 0 };
     if (observationSeconds < 30) return { LIVE: 0.15, FACT: 0.37, CONTEXT: 0.33, AESTHETIC: 0.08, IMPRESSION: 0.07 };
     if (observationSeconds < 45) return { LIVE: 0.10, FACT: 0.45, CONTEXT: 0.25, AESTHETIC: 0.10, IMPRESSION: 0.10 };
-    // Deep Immersion Phase (45s+): The AI has listened long enough to confidently express deep aesthetic and emotional interpretations.
-    // Context, Aesthetic, and Impression now dominate the visual field to give a "high-resolution emotional listening" feel.
-    return { LIVE: 0.05, FACT: 0.15, CONTEXT: 0.20, AESTHETIC: 0.30, IMPRESSION: 0.30 };
+    // 45s+: sustained listening earns the open layer real room (AESTHETIC+IMPRESSION combined
+    // roughly triples versus the 30-45s band), but FACT stays the single largest layer -- this
+    // remains music-first, not aesthetic-first. Keeping FACT/LIVE from shrinking further than this
+    // also matters mechanically: choose()'s layer draw is a share of only the layers actually
+    // PRESENT in the candidate pool, so if AESTHETIC has no candidates this tick, its whole budget
+    // silently redistributes onto CONTEXT/IMPRESSION -- shrinking FACT/LIVE too far would let that
+    // redistribution spike CONTEXT's effective share far past what it looks like here.
+    return { LIVE: 0.06, FACT: 0.34, CONTEXT: 0.18, AESTHETIC: 0.21, IMPRESSION: 0.21 };
   }
   function choose(source = [], recent = [], random = Math.random, options = {}) {
     const { changing = false, active = [], observationSeconds = Infinity, avoidFacets = [] } = options;

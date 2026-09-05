@@ -58,6 +58,17 @@ test("epistemic layers get their own poetic-language policy, not a blanket ban",
   assert.match(languageInstructions, /FACT[\s\S]{0,200}(?:strict|direct musical terminology)/i);
 });
 
+// Regression coverage: a later change briefly told the model it could freely invent "-core"/"코어"
+// labels "if deeply aligned with the genre context," which contradicts semanticFacets.js's actual
+// runtime gate (safeText() rejects any *코어 term not in data/approvedCoreTerms.json) and this
+// project's long-standing "no invented core labels" rule. Restored; this locks it back in.
+test("the model is never told it may invent new -core/코어 labels", () => {
+  assert.match(languageInstructions, /invented \*?core\/코어 labels are forbidden/i);
+  // The specific encouraging phrasing this project briefly shipped and then reverted.
+  assert.doesNotMatch(languageInstructions, /freely use historical and cultural metaphors/i);
+  assert.doesNotMatch(languageInstructions, /neologisms \(like -core\/코어\) if deeply aligned/i);
+});
+
 test("candidateCount reaches the uncached model payload as a clamped target term count", () => {
   const base = { snapshot: Snapshot.serialize(profile()) };
   assert.equal(validateLanguageInput({ ...base }).candidateCount, 24, "defaults when absent");
