@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-09-05T00:07:31.982Z",
+  "model": "gpt-5.6-sol",
+  "sourceRegions": [
+    [
+      "nostalgia",
+      "decay"
+    ]
+  ],
+  "entries": [
+    {
+      "text": "바랜 재생목록",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.faded_playlist",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "min": 0.7
+        },
+        {
+          "axis": "decay",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "decay.tape_wear"
+      ],
+      "clicheRisk": 0.24
+    },
+    {
+      "text": "테이프의 잔기침",
+      "layer": "IMPRESSION",
+      "conceptKey": "decay.tape_wear",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "min": 0.6
+        },
+        {
+          "axis": "decay",
+          "min": 0.7
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.faded_playlist",
+        "nostalgia.video_rental"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "비디오 대여점 감성",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.video_rental",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "min": 0.8
+        },
+        {
+          "axis": "decay",
+          "min": 0.4
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "decay.tape_wear"
+      ],
+      "clicheRisk": 0.3
+    },
+    {
+      "text": "닳은 자막빛",
+      "layer": "IMPRESSION",
+      "conceptKey": "decay.worn_subtitle_glow",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "min": 0.5
+        },
+        {
+          "axis": "decay",
+          "min": 0.7
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.video_rental"
+      ],
+      "clicheRisk": 0.14
+    }
+  ]
+}

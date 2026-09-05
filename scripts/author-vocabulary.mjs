@@ -1,0 +1,225 @@
+#!/usr/bin/env node
+// Dev-only offline vocabulary authoring tool. NEVER required/imported by server.js, any
+// browser-loaded script (index.html), or any other runtime module -- it calls an LLM directly
+// and writes a *.generated.json review file, never a runtime data file. Run by hand:
+//   node scripts/author-vocabulary.mjs --target vocabulary --limit 12
+//   node scripts/author-vocabulary.mjs --target genre-context --limit 8
+// See docs/VOCABULARY_AUTHORING.md for the required human-review-then-merge workflow -- nothing
+// this script writes is ever auto-promoted to a runtime data file by any other script.
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+require("dotenv").config({ quiet: true });
+const OpenAI = require("openai");
+const GenreContext = require("../js/semantic/genreContextEngine.js");
+const Validator = require("../js/semantic/knowledgeConsistencyValidator.js");
+
+const root = path.resolve(import.meta.dirname, "..");
+const readJson = async relativePath => JSON.parse(await fs.readFile(path.join(root, relativePath), "utf8"));
+
+const aestheticAxesData = await readJson("data/aestheticAxes.json");
+const AXIS_NAMES = Object.keys(aestheticAxesData.axes || {});
+const genreContextKnowledge = await readJson("data/genreContextKnowledge.json");
+const genreAliases = await readJson("data/genreAliases.json");
+const discogsModel = await readJson("models/music-shower/assets/discogs-effnet-bsdynamic-1.json");
+
+// Curated 2-3 axis territories to seed the LLM's creative direction (section 3.1: "축 공간을
+// 영역으로 나누고, 각 영역마다 다양한 결의 감상 어휘를 요청"). Kept in sync with
+// data/aestheticAxes.json by the assertion loop right below -- a renamed/removed axis here fails
+// loudly instead of silently authoring against a stale axis name.
+const SEED_REGIONS = [
+  { axes: ["nostalgia", "decay"], description: "낡고 바랜 기억, 오래된 매체의 질감" },
+  { axes: ["nostalgia", "glossiness", "urbanity"], description: "버블경제 시절 도시의 반짝임" },
+  { axes: ["artificiality", "glossiness"], description: "인공적이고 매끈한 광택" },
+  { axes: ["artificiality", "motion"], description: "가상의 질주감, 디지털 스피드" },
+  { axes: ["decay", "warmth"], description: "따뜻하게 낡아가는 느낌" },
+  { axes: ["motion", "tension"], description: "조여오는 질주감, 압박된 속도" },
+  { axes: ["intimacy", "warmth"], description: "가까운 거리의 온기" },
+  { axes: ["urbanity", "glossiness"], description: "도시의 야경, 매끈한 스카이라인" },
+  { axes: ["weight", "tension"], description: "짓누르는 압박감" },
+  { axes: ["weight", "intimacy"], description: "육중하고 가까운 존재감" },
+  { axes: ["glossiness", "motion"], description: "매끄럽게 미끄러지는 속도감" },
+  { axes: ["decay", "intimacy"], description: "낡은 방 안의 고요한 근접감" },
+  { axes: ["nostalgia", "warmth"], description: "따뜻한 회상" },
+  { axes: ["artificiality", "tension"], description: "인공적으로 조여오는 긴장" },
+  { axes: ["urbanity", "motion"], description: "도시의 속도감" },
+  { axes: ["decay", "weight"], description: "무겁게 가라앉은 열화" },
+  { axes: ["glossiness", "warmth"], description: "따뜻한 광택" },
+  { axes: ["intimacy", "decay", "warmth"], description: "낡은 온기가 남은 방" },
+  { axes: ["artificiality", "urbanity"], description: "인공적인 도시 감각" },
+  { axes: ["nostalgia", "motion"], description: "짙어지는 향수, 흘러가는 시간" }
+];
+for (const region of SEED_REGIONS) for (const axis of region.axes)
+  if (!AXIS_NAMES.includes(axis)) throw new Error(`SEED_REGIONS references unknown axis "${axis}" -- keep this list in sync with data/aestheticAxes.json`);
+
+function parseArgs(argv) {
+  const args = { target: "vocabulary", limit: 20, out: null, model: process.env.OPENAI_LANGUAGE_MODEL || process.env.OPENAI_MODEL || "gpt-5.6-sol", termsPerRegion: 6 };
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+    if (arg === "--target") args.target = argv[++index];
+    else if (arg === "--limit") args.limit = Number(argv[++index]);
+    else if (arg === "--out") args.out = argv[++index];
+    else if (arg === "--model") args.model = argv[++index];
+    else if (arg === "--terms-per-region") args.termsPerRegion = Number(argv[++index]);
+  }
+  if (!Number.isFinite(args.limit) || args.limit < 1) throw new Error("--limit must be a positive number");
+  return args;
+}
+
+const args = parseArgs(process.argv.slice(2));
+const client = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+if (!client) {
+  console.error("OPENAI_API_KEY is not set (checked .env) -- cannot author vocabulary. Set it and retry.");
+  process.exit(1);
+}
+
+const VOCAB_ITEM_SCHEMA = {
+  type: "object", additionalProperties: false,
+  properties: {
+    text: { type: "string", maxLength: 40 },
+    layer: { type: "string", enum: ["AESTHETIC", "IMPRESSION"] },
+    conceptKey: { type: "string", maxLength: 60 },
+    region: { type: "array", minItems: 1, maxItems: 4,
+      items: { type: "object", additionalProperties: false,
+        properties: { axis: { type: "string", enum: AXIS_NAMES }, min: { type: "number", minimum: 0, maximum: 1 } },
+        required: ["axis", "min"] } },
+    minAxes: { type: "integer", minimum: 1, maximum: 4 },
+    register: { type: "string", enum: ["impression", "association", "cultural"] },
+    relatedKeys: { type: "array", maxItems: 5, items: { type: "string", maxLength: 60 } },
+    clicheRisk: { type: "number", minimum: 0, maximum: 1 }
+  },
+  required: ["text", "layer", "conceptKey", "region", "minAxes", "register", "relatedKeys", "clicheRisk"]
+};
+const VOCAB_RESPONSE_SCHEMA = { type: "object", additionalProperties: false,
+  properties: { entries: { type: "array", items: VOCAB_ITEM_SCHEMA } }, required: ["entries"] };
+
+const VOCAB_INSTRUCTIONS = `You author short Korean appreciative/impressionistic phrases for a live music visualization app. These words are NOT factual claims about the music -- they are impressions a listener might form, licensed by (not proven by) the given axis territory.
+Absolute rules, no exceptions:
+- Never identify a song, artist, or composer. Never claim an actual recording date, place, or personnel.
+- Never narrate an unobserved person or event ("she looked out the window").
+- 1-4 words per phrase, Korean-first; an established English aesthetic term (Y2K, lo-fi, liminal, city pop) is fine when it is genuinely how the scene refers to itself, not an invented coinage.
+- Within one request, vary the REGISTER across entries: literal description, metaphor, cultural/scene reference, tactile/textural, spatial. Do not just list synonyms of the same idea.
+- conceptKey identifies the CONCEPT (e.g. "nostalgia.tape_hiss"), not the surface wording -- lowercase, dot-separated.
+- relatedKeys should point to conceptKeys of OTHER entries you are also producing in this same batch where a real thematic link exists; use an empty array if none.
+- clicheRisk: your own honest 0-1 estimate of how generic/AI-poetry-sounding this phrase already is (0 = fresh, 1 = a cliche like "차가운 황홀").
+- minAxes must be between 1 and the number of conditions in region, normally equal to region.length.
+Return only the structured JSON, no prose.`;
+
+const GENRE_CANDIDATE_SCHEMA = {
+  type: "object", additionalProperties: false,
+  properties: {
+    text: { type: "string", maxLength: 40 },
+    category: { type: "string", enum: ["lineage", "era", "scene", "culture", "association"] },
+    requires: { type: "array", minItems: 2, maxItems: 3,
+      items: { type: "object", additionalProperties: false,
+        properties: { path: { type: "string" }, min: { type: "number", minimum: 0, maximum: 1 } }, required: ["path", "min"] } }
+  },
+  required: ["text", "category", "requires"]
+};
+const GENRE_RESPONSE_SCHEMA = { type: "object", additionalProperties: false,
+  properties: { candidates: { type: "array", items: GENRE_CANDIDATE_SCHEMA } }, required: ["candidates"] };
+
+const ALLOWED_CONTEXT_PATHS = [...Validator.CONTEXT_PATHS];
+const GENRE_INSTRUCTIONS = `You author style-association candidates for a music knowledge base, in the exact schema given.
+Absolute rules:
+- "requires" conditions must use ONLY these exact snapshot paths (copy verbatim, do not invent new ones): ${ALLOWED_CONTEXT_PATHS.join(", ")}.
+- Use at least 2 requires conditions from at least 2 different prefixes (e.g. one rhythmicGrammar.* and one productionEvidence.*) so a single measurement can never alone unlock the phrase.
+- category "era" text must end in 년대, 스타일, or 계열. category "scene" text must end in 씬 or 문화. category "lineage" text normally ends in 계열. category "association" is a style comparison ("~미학", "~감성", "~연상"), never identification.
+- Never claim actual origin, recording date, or identify an artist.
+Return only the structured JSON, no prose.`;
+
+async function callResponses(instructions, prompt, schema, schemaName) {
+  const response = await client.responses.create({
+    model: args.model,
+    input: [
+      { role: "developer", content: [{ type: "input_text", text: instructions }] },
+      { role: "user", content: [{ type: "input_text", text: prompt }] }
+    ],
+    text: { verbosity: "low", format: { type: "json_schema", name: schemaName, strict: true, schema } }
+  }, { timeout: 60000, maxRetries: 1 });
+  return JSON.parse(response.output_text);
+}
+
+async function authorVocabularyRegion(region, count) {
+  const prompt = `axes: ${region.axes.join(", ")}\ndescription: ${region.description}\nGenerate ${count} DISTINCT phrases for this axis territory. Each region[].axis must be one of exactly: ${region.axes.join(", ")}. minAxes should normally equal ${region.axes.length}.`;
+  const parsed = await callResponses(VOCAB_INSTRUCTIONS, prompt, VOCAB_RESPONSE_SCHEMA, "vocabulary_batch");
+  return parsed.entries || [];
+}
+
+async function runVocabulary() {
+  const regionsNeeded = Math.max(1, Math.ceil(args.limit / args.termsPerRegion));
+  const regions = SEED_REGIONS.slice(0, regionsNeeded);
+  const entries = [];
+  for (const region of regions) {
+    if (entries.length >= args.limit) break;
+    process.stderr.write(`Authoring region [${region.axes.join("+")}] ...\n`);
+    try {
+      const batch = await authorVocabularyRegion(region, Math.min(args.termsPerRegion, args.limit - entries.length));
+      entries.push(...batch);
+    } catch (error) {
+      process.stderr.write(`  region [${region.axes.join("+")}] failed: ${error.message}\n`);
+    }
+  }
+  const output = { generatedAt: new Date().toISOString(), model: args.model,
+    sourceRegions: regions.map(region => region.axes), entries: entries.slice(0, args.limit) };
+  const issues = Validator.validateGeneratedVocabulary(output, AXIS_NAMES);
+  return { output, issues };
+}
+
+// Canonicalizes a raw Discogs-EffNet class label the same way semanticEngine.js's
+// canonicalGenre() does (split "parent---specific", resolve through data/genreAliases.json),
+// so the labels this offers to the LLM are genuinely reachable at runtime.
+function canonicalLabelsFromModel() {
+  const aliasLookup = new Map(Object.entries(genreAliases).map(([key, value]) => [key.toLowerCase(), value]));
+  return [...new Set((discogsModel.classes || []).map(rawClass => {
+    const specific = rawClass.includes("---") ? rawClass.split("---", 2)[1] : rawClass;
+    return aliasLookup.get(specific.toLowerCase()) || specific;
+  }))];
+}
+
+async function authorGenreContext(label, count) {
+  const prompt = `genre label: ${label}\nGenerate ${count} DISTINCT style-association candidates for this genre.`;
+  const parsed = await callResponses(GENRE_INSTRUCTIONS, prompt, GENRE_RESPONSE_SCHEMA, "genre_candidate_batch");
+  return parsed.candidates || [];
+}
+
+async function runGenreContext() {
+  const covered = new Set(Object.keys(genreContextKnowledge.genres || {}).map(name => name.toLowerCase()));
+  const uncovered = canonicalLabelsFromModel().filter(label => !covered.has(label.toLowerCase())).slice(0, args.limit);
+  const byGenre = {};
+  for (const label of uncovered) {
+    process.stderr.write(`Authoring genre-context candidates for [${label}] ...\n`);
+    try {
+      byGenre[label] = await authorGenreContext(label, args.termsPerRegion);
+    } catch (error) {
+      process.stderr.write(`  [${label}] failed: ${error.message}\n`);
+    }
+  }
+  // Same shape as genreContextKnowledge.json's own `genres` object, so a reviewer can diff/merge
+  // it directly -- but written to a SEPARATE *.generated.json file, never merged automatically.
+  const output = { generatedAt: new Date().toISOString(), model: args.model, genres: byGenre };
+  const fakeKnowledge = { genres: byGenre };
+  const issues = [
+    ...Validator.validateContextKnowledge(fakeKnowledge, {}).filter(item => item.code === "context-path-missing"),
+    ...Validator.validateCategorySuffix(fakeKnowledge)
+  ];
+  return { output, issues };
+}
+
+async function main() {
+  const { output, issues } = args.target === "genre-context" ? await runGenreContext() : await runVocabulary();
+  const outPath = args.out || (args.target === "genre-context" ? "data/genreContextCandidates.generated.json" : "data/aestheticVocabulary.generated.json");
+  await fs.writeFile(path.join(root, outPath), JSON.stringify(output, null, 2) + "\n");
+  const entryCount = output.entries?.length ?? Object.values(output.genres || {}).flat().length;
+  console.log(`Wrote ${entryCount} entries to ${outPath}`);
+  if (issues.length) {
+    console.log(`\n${issues.length} validation issue(s) -- review before merging (see docs/VOCABULARY_AUTHORING.md):`);
+    for (const item of issues) console.log(`  [${item.severity}] ${item.code}: ${item.message}`);
+  } else {
+    console.log("No validation issues on this batch -- still requires human review before merging (docs/VOCABULARY_AUTHORING.md).");
+  }
+}
+
+main().catch(error => { console.error(error); process.exitCode = 1; });

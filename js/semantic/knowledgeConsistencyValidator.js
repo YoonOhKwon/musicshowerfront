@@ -1,6 +1,7 @@
 // Static integrity checks for the evidence -> primitive -> idiom -> language chain.
 // It reports disabled optional detectors separately from broken or mathematically unreachable rules.
 const KnowledgeConsistency = (() => {
+  const Facets = typeof SemanticFacets !== "undefined" ? SemanticFacets : require("./semanticFacets");
   const primitivePathSet = schema => new Set(Object.entries(schema || {})
     .flatMap(([group, fields]) => (fields || []).map(field => `${group}.${field}`)));
   const deltaPath = path => /(?:Delta|Trajectory|Slope)$/.test(path) || /densityDelta/.test(path) ||
@@ -368,8 +369,86 @@ const KnowledgeConsistency = (() => {
     return issues;
   }
 
+  // Section 3: category-word conventions on genreContextKnowledge.json-shaped candidates
+  // (existing hand-authored entries AND anything scripts/author-vocabulary.mjs later proposes
+  // for the same file) -- "era" reads as a period/style reference, never a bare year (that is
+  // ALSO enforced at generation time by semanticFacets.js's safeText(), this is a static check on
+  // the DATA itself), "scene" reads as a scene/culture, never a bare noun.
+  const ERA_SUFFIX = /(?:년대|스타일|계열)$/;
+  const SCENE_SUFFIX = /(?:씬|문화)$/;
+  function validateCategorySuffix(knowledge = {}) {
+    const issues = [];
+    function walkCandidates(list, location) {
+      for (const [index, candidate] of (list || []).entries()) {
+        if (!candidate || typeof candidate.text !== "string") continue;
+        const where = `${location}[${index}] ("${candidate.text}")`;
+        if (candidate.category === "era" && !ERA_SUFFIX.test(candidate.text))
+          issues.push(issue("warning", "era-suffix-convention",
+            `${where} is categorized "era" but does not end in 년대/스타일/계열.`, { text: candidate.text, location }));
+        if (candidate.category === "scene" && !SCENE_SUFFIX.test(candidate.text))
+          issues.push(issue("warning", "scene-suffix-convention",
+            `${where} is categorized "scene" but does not end in 씬/문화.`, { text: candidate.text, location }));
+      }
+    }
+    for (const [name, entry] of Object.entries(knowledge.genres || {})) walkCandidates(entry.candidates, `genres.${name}.candidates`);
+    for (const [name, entry] of Object.entries(knowledge.families || {})) walkCandidates(entry.candidates, `families.${name}.candidates`);
+    return issues;
+  }
+
+  // Section 3: static checks on an offline-authored, not-yet-reviewed vocabulary batch
+  // (scripts/author-vocabulary.mjs's output, data/aestheticVocabulary.generated.json). Failing
+  // entries are reported, never auto-dropped -- a human decides what ships (docs/VOCABULARY_AUTHORING.md).
+  function validateGeneratedVocabulary(generated = {}, axisNames = []) {
+    const issues = [];
+    const entries = Array.isArray(generated.entries) ? generated.entries : [];
+    const conceptKeys = new Set(entries.map(entry => entry?.conceptKey).filter(Boolean));
+    const seenConceptKeys = new Set();
+    for (const [index, entry] of entries.entries()) {
+      const where = `entries[${index}]`;
+      if (!entry || typeof entry.text !== "string" || !entry.text.trim()) {
+        issues.push(issue("error", "vocabulary-text-missing", `${where} has no text.`, { location: where }));
+        continue;
+      }
+      if (!["AESTHETIC", "IMPRESSION"].includes(entry.layer))
+        issues.push(issue("error", "vocabulary-layer-invalid", `${where} ("${entry.text}") declares layer "${entry.layer}", expected AESTHETIC or IMPRESSION.`,
+          { text: entry.text, location: where }));
+      const proxyCategory = entry.layer === "IMPRESSION" ? "mood" : "association";
+      if (!Facets.safeText(entry.text, proxyCategory))
+        issues.push(issue("error", "vocabulary-fails-safe-text", `${where} ("${entry.text}") does not pass safeText() for its layer.`,
+          { text: entry.text, location: where }));
+      if (!entry.conceptKey || typeof entry.conceptKey !== "string")
+        issues.push(issue("error", "vocabulary-concept-key-missing", `${where} ("${entry.text}") has no conceptKey.`, { location: where }));
+      else if (seenConceptKeys.has(entry.conceptKey))
+        issues.push(issue("error", "vocabulary-concept-key-duplicate", `conceptKey "${entry.conceptKey}" is used by more than one entry.`,
+          { conceptKey: entry.conceptKey, location: where }));
+      else seenConceptKeys.add(entry.conceptKey);
+      const region = Array.isArray(entry.region) ? entry.region : [];
+      if (!region.length) issues.push(issue("error", "vocabulary-region-empty", `${where} ("${entry.text}") has no region conditions.`, { location: where }));
+      for (const condition of region) {
+        if (!condition || !axisNames.includes(condition.axis))
+          issues.push(issue("error", "vocabulary-unknown-axis", `${where} ("${entry.text}") references unknown axis "${condition?.axis}".`,
+            { text: entry.text, axis: condition?.axis, location: where }));
+        if (!Number.isFinite(condition?.min) || condition.min < 0 || condition.min > 1)
+          issues.push(issue("error", "vocabulary-region-min-invalid", `${where} ("${entry.text}") has a non-numeric or out-of-range min.`, { location: where }));
+      }
+      if (!Number.isFinite(entry.minAxes) || entry.minAxes < 1 || entry.minAxes > region.length)
+        issues.push(issue("error", "vocabulary-min-axes-invalid",
+          `${where} ("${entry.text}") declares minAxes ${entry.minAxes}, outside [1, ${region.length}].`, { location: where }));
+      if (!Number.isFinite(entry.clicheRisk) || entry.clicheRisk < 0 || entry.clicheRisk > 1)
+        issues.push(issue("warning", "vocabulary-cliche-risk-invalid", `${where} ("${entry.text}") has a non-numeric or out-of-range clicheRisk.`, { location: where }));
+      for (const relatedKey of entry.relatedKeys || []) {
+        if (!conceptKeys.has(relatedKey))
+          issues.push(issue("warning", "vocabulary-related-key-unknown",
+            `${where} ("${entry.text}")'s relatedKeys references "${relatedKey}", not a conceptKey in this batch.`,
+            { text: entry.text, relatedKey, location: where }));
+      }
+    }
+    return issues;
+  }
+
   return { validate, validateLexicon, validateDetectorRules, validateContextKnowledge, validateGraphConsumers,
-    validateGenreNaming, validateClaimArchitecture, classifyPrimitives, summarizeClassification, coverageReport,
+    validateGenreNaming, validateClaimArchitecture, validateCategorySuffix, validateGeneratedVocabulary,
+    classifyPrimitives, summarizeClassification, coverageReport,
     primitivePathSet, rangeFor, CONTEXT_PATHS, REAL_DETECTOR_PATHS, SEVERITY_TIER };
 })();
 

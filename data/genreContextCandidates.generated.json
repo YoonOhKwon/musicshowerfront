@@ -1,0 +1,114 @@
+{
+  "generatedAt": "2026-09-05T00:07:56.918Z",
+  "model": "gpt-5.6-sol",
+  "genres": {
+    "Boogie Woogie": [
+      {
+        "text": "블루스 피아노 계열",
+        "category": "lineage",
+        "requires": [
+          {
+            "path": "instrumentationEvidence.piano",
+            "min": 0.7
+          },
+          {
+            "path": "rhythmicGrammar.swing",
+            "min": 0.5
+          }
+        ]
+      },
+      {
+        "text": "1940년대 댄스홀 스타일",
+        "category": "era",
+        "requires": [
+          {
+            "path": "measurements.bpm",
+            "min": 1
+          },
+          {
+            "path": "rhythmicGrammar.swing",
+            "min": 0.55
+          },
+          {
+            "path": "instrumentationEvidence.piano",
+            "min": 0.6
+          }
+        ]
+      },
+      {
+        "text": "빈티지 로드하우스 감성",
+        "category": "association",
+        "requires": [
+          {
+            "path": "moodDimensions.warmth",
+            "min": 0.55
+          },
+          {
+            "path": "rhythmicGrammar.syncopation",
+            "min": 0.5
+          },
+          {
+            "path": "instrumentationEvidence.piano",
+            "min": 0.55
+          }
+        ]
+      }
+    ],
+    "Chicago Blues": [
+      {
+        "text": "도시형 일렉트릭 블루스 계열",
+        "category": "lineage",
+        "requires": [
+          {
+            "path": "instrumentationEvidence.electricguitar",
+            "min": 0.7
+          },
+          {
+            "path": "instrumentationEvidence.bass",
+            "min": 0.5
+          },
+          {
+            "path": "moodDimensions.aggression",
+            "min": 0.4
+          }
+        ]
+      },
+      {
+        "text": "전후 1950년대 스타일",
+        "category": "era",
+        "requires": [
+          {
+            "path": "instrumentationEvidence.voice",
+            "min": 0.6
+          },
+          {
+            "path": "instrumentationEvidence.drums",
+            "min": 0.5
+          },
+          {
+            "path": "measurements.tonalFocus",
+            "min": 0.55
+          }
+        ]
+      },
+      {
+        "text": "스모키한 블루스 클럽 미학",
+        "category": "association",
+        "requires": [
+          {
+            "path": "rhythmicGrammar.swing",
+            "min": 0.45
+          },
+          {
+            "path": "instrumentationEvidence.electricguitar",
+            "min": 0.65
+          },
+          {
+            "path": "moodDimensions.warmth",
+            "min": 0.5
+          }
+        ]
+      }
+    ]
+  }
+}
