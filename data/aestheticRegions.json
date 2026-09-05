@@ -50,6 +50,12 @@
     { "text": "세피아 톤의 회상", "category": "association",
       "requires": [{ "axis": "nostalgia", "min": 0.55 }, { "axis": "warmth", "min": 0.5 }], "minAxes": 2 },
     { "text": "인터넷 리바이벌 미학", "category": "culture",
-      "requires": [{ "axis": "nostalgia", "min": 0.55 }, { "axis": "artificiality", "min": 0.5 }], "minAxes": 2 }
+      "requires": [{ "axis": "nostalgia", "min": 0.55 }, { "axis": "artificiality", "min": 0.5 }], "minAxes": 2 },
+    { "text": "짓누르는 저음의 무게", "category": "association",
+      "requires": [{ "axis": "weight", "min": 0.65 }], "minAxes": 1 },
+    { "text": "팽팽하게 당겨진 긴장", "category": "association",
+      "requires": [{ "axis": "tension", "min": 0.6 }], "minAxes": 1 },
+    { "text": "짙어지는 향수", "category": "association",
+      "requires": [{ "axis": "nostalgia", "min": 0.5, "direction": "rising" }], "minAxes": 1 }
   ]
 }

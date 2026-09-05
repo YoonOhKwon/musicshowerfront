@@ -66,6 +66,18 @@
         { "path": "moodDimensions.valence", "weight": 0.2 },
         { "path": "moodDimensions.aggression", "weight": 0.3, "invert": true }
       ]
+    },
+    "tension": {
+      "components": [
+        { "path": "moodDimensions.tension", "weight": 0.7 },
+        { "path": "productionEvidence.distortion", "weight": 0.3 }
+      ]
+    },
+    "weight": {
+      "components": [
+        { "path": "moodDimensions.weight", "weight": 0.7 },
+        { "path": "moodDimensions.warmth", "weight": 0.3 }
+      ]
     }
   }
 }

@@ -25,9 +25,15 @@ const AestheticAxisEngine = (() => {
   }
 
   class Engine {
-    constructor(axesData = {}, regionsData = {}) {
+    constructor(axesData = {}, regionsData = {}, { historyWindowMs = 20000 } = {}) {
       this.axes = axesData?.axes || {};
       this.regions = Array.isArray(regionsData?.entries) ? regionsData.entries : [];
+      // Trajectory memory: a short rolling history of past axis vectors, so evaluate() can also
+      // report how each axis has moved over the trailing window ("nostalgia is deepening"), not
+      // just where it currently sits. Bounded by both age and count so a long session never grows
+      // this unboundedly.
+      this.historyWindowMs = historyWindowMs;
+      this.history = [];
     }
 
     // Returns, per declared axis: a 0-1 value (or null if EVERY contributing signal is
@@ -72,15 +78,21 @@ const AestheticAxisEngine = (() => {
     }
 
     // Vocabulary is data (data/aestheticRegions.json): each region names the axis combination it
-    // speaks for, so adding a new word never requires touching this code.
-    matchRegions(axes, contributingPaths, genreConfidence) {
+    // speaks for, so adding a new word never requires touching this code. A region MAY also
+    // require a `direction` ("rising"/"falling"/"stable") on one of its axes -- e.g. a
+    // "nostalgia is deepening" phrase -- which is matched against the `direction` map from
+    // trajectory() below; regions with no `direction` field are unaffected and work exactly as
+    // before (value-only).
+    matchRegions(axes, contributingPaths, genreConfidence, direction = {}) {
       const candidates = [];
       for (const region of this.regions) {
         const requires = region.requires || [];
         if (!requires.length || !Facets.safeText(region.text, region.category)) continue;
         const satisfied = requires.filter(req => {
           const value = axes[req.axis];
-          return typeof value === "number" && value >= (req.min ?? 0) && value <= (req.max ?? 1);
+          if (typeof value !== "number" || value < (req.min ?? 0) || value > (req.max ?? 1)) return false;
+          if (req.direction && direction[req.axis] !== req.direction) return false;
+          return true;
         });
         const minAxes = Number.isFinite(region.minAxes) ? region.minAxes : requires.length;
         if (satisfied.length < minAxes) continue;
@@ -100,10 +112,50 @@ const AestheticAxisEngine = (() => {
       return candidates.slice(0, 14);
     }
 
-    evaluate(state = {}, genre = {}) {
+    // Compares the current axis vector against the OLDEST sample still inside historyWindowMs,
+    // so "delta" means "change over roughly the trailing window", not frame-to-frame jitter. If
+    // the poll rate is coarser than the window (or history is still short), no sample is that
+    // recent-yet-old-enough -- fall back to the single most recent prior sample instead, since
+    // that is always the closest available approximation, whether we have too little history
+    // (bootstrapping) or the window is simply narrower than the polling interval. Both delta and
+    // direction stay null wherever either side is null -- a missing baseline must never be
+    // treated as 0 movement.
+    trajectory(axes, at = Date.now()) {
+      const cutoff = at - this.historyWindowMs;
+      const baseline = this.history.find(entry => entry.at >= cutoff) || this.history.at(-1) || null;
+      const delta = {};
+      const direction = {};
+      for (const name of Object.keys(this.axes)) {
+        const current = axes[name];
+        const previous = baseline ? baseline.axes[name] : null;
+        if (typeof current !== "number" || typeof previous !== "number") {
+          delta[name] = null;
+          direction[name] = null;
+          continue;
+        }
+        // Both sides are already clamped to [0, 1], so the difference is naturally in [-1, 1] --
+        // no further clamping needed.
+        const change = current - previous;
+        delta[name] = change;
+        direction[name] = Math.abs(change) < 0.05 ? "stable" : change > 0 ? "rising" : "falling";
+      }
+      return { delta, direction };
+    }
+
+    recordHistory(axes, at = Date.now()) {
+      this.history.push({ at, axes });
+      // Bounded by age (generously, so an unusually slow poll rate still finds a baseline) AND by
+      // count, so a long session's history array never grows without limit.
+      const cutoff = at - this.historyWindowMs * 6;
+      this.history = this.history.filter(entry => entry.at >= cutoff).slice(-64);
+    }
+
+    evaluate(state = {}, genre = {}, at = Date.now()) {
       const { axes, contributingPaths, genreMatch } = this.evaluateAxes(state, genre);
-      const candidates = this.matchRegions(axes, contributingPaths, genre.confidence);
-      return { axes, contributingPaths, genreMatch, candidates };
+      const { delta, direction } = this.trajectory(axes, at);
+      this.recordHistory(axes, at);
+      const candidates = this.matchRegions(axes, contributingPaths, genre.confidence, direction);
+      return { axes, contributingPaths, genreMatch, delta, direction, candidates };
     }
   }
 

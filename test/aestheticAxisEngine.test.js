@@ -99,3 +99,53 @@ test("without a wired axis engine, genreContextEngine behaves exactly as before 
   });
   assert.equal(result.candidates.some(item => item.source === "aesthetic-axis"), false);
 });
+
+test("axes report a delta/direction, not just a current value, once a trailing-window baseline exists", () => {
+  const engine = new AestheticAxisEngine.Engine({
+    axes: { nostalgia: { components: [{ path: "moodDimensions.warmth", weight: 1 }] } }
+  }, { entries: [] }, { historyWindowMs: 10000 });
+  const t0 = 1_000_000;
+  const first = engine.evaluate({ moodDimensions: { warmth: 0.3 } }, {}, t0);
+  assert.equal(first.delta.nostalgia, null, "no baseline yet -- must not report a fabricated 0 delta");
+  assert.equal(first.direction.nostalgia, null);
+  const later = engine.evaluate({ moodDimensions: { warmth: 0.75 } }, {}, t0 + 12000);
+  assert.ok(later.delta.nostalgia > 0.4, `expected a strong rising delta, got ${later.delta.nostalgia}`);
+  assert.equal(later.direction.nostalgia, "rising");
+  const fallen = engine.evaluate({ moodDimensions: { warmth: 0.3 } }, {}, t0 + 24000);
+  assert.ok(fallen.delta.nostalgia < 0);
+  assert.equal(fallen.direction.nostalgia, "falling");
+});
+
+test("a tiny axis fluctuation reports as stable, not a spurious rising/falling flip", () => {
+  const engine = new AestheticAxisEngine.Engine({
+    axes: { warmth: { components: [{ path: "moodDimensions.warmth", weight: 1 }] } }
+  }, { entries: [] }, { historyWindowMs: 10000 });
+  const t0 = 2_000_000;
+  engine.evaluate({ moodDimensions: { warmth: 0.5 } }, {}, t0);
+  const result = engine.evaluate({ moodDimensions: { warmth: 0.52 } }, {}, t0 + 12000);
+  assert.equal(result.direction.warmth, "stable");
+});
+
+test("a null current or baseline value keeps delta/direction null, never fabricated as 0", () => {
+  const engine = new AestheticAxisEngine.Engine({
+    axes: { warmth: { components: [{ path: "moodDimensions.warmth", weight: 1 }] } }
+  }, { entries: [] }, { historyWindowMs: 10000 });
+  const t0 = 3_000_000;
+  engine.evaluate({ moodDimensions: {} }, {}, t0);
+  const result = engine.evaluate({ moodDimensions: { warmth: 0.6 } }, {}, t0 + 12000);
+  assert.equal(result.delta.warmth, null);
+  assert.equal(result.direction.warmth, null);
+});
+
+test("a region can require an axis direction (e.g. 'deepening nostalgia'), not just its current value", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions, { historyWindowMs: 10000 });
+  const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
+  const t0 = 4_000_000;
+  const flatState = { moodDimensions: { warmth: 0.5, brightness: 0.4, valence: 0.5, aggression: 0.3 },
+    productionEvidence: { sampleBased: 0.6 }, rhythmicGrammar: {} };
+  const first = engine.evaluate(flatState, genre, t0);
+  assert.ok(!first.candidates.some(item => item.text === "짙어지는 향수"), "no baseline yet, direction-gated region must not fire");
+  const deepening = engine.evaluate({ ...flatState, moodDimensions: { ...flatState.moodDimensions, warmth: 0.95 } }, genre, t0 + 12000);
+  assert.ok(deepening.candidates.some(item => item.text === "짙어지는 향수"),
+    `expected the rising-nostalgia region once warmth clearly climbed; got ${JSON.stringify(deepening.candidates.map(c => c.text))}`);
+});
