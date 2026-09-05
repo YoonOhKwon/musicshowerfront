@@ -76,4 +76,8 @@ test("replayTrack runs a small real recording through the full pipeline in well 
   assert.equal(result.axisSamples.length, 10);
   assert.ok(typeof result.axisSamples[0].urbanity === "number", "a real evidence frame should resolve at least some axes");
   assert.ok(Array.isArray(result.selected));
+  assert.ok(Array.isArray(result.genreTimeline));
+  assert.equal(result.genreTimeline[0].primary, "City Pop");
+  assert.ok(Array.isArray(result.compositeGenres));
+  assert.ok(Array.isArray(result.takeovers));
 });

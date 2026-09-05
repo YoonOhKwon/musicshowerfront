@@ -50,6 +50,21 @@ test("recording includes the required metadata fields for drift detection", () =
   assert.ok(Array.isArray(recording.frames));
 });
 
+test("schema v3 records classifier, provenance-ready instrument and genre reasoning fields", () => {
+  ReplayRecorder.start("reasoning", 1000);
+  ReplayRecorder.capture({
+    classifierGenre: { primary: "J-pop", topK: [{ label: "J-pop", confidence: .1 }] },
+    genre: { primary: "Future Funk" }, genreHypotheses: { primary: { genre: "Future Funk" } },
+    instrumentationEvidence: { synth: .7 }, performance: { soloLikelihood: 0 },
+    instrumentEvents: [], arrangement: { density: .5 }, mir: { tempo: { bpm: 120 } }
+  }, 1000);
+  const recording = ReplayRecorder.stop();
+  assert.equal(ReplayRecorder.SCHEMA_VERSION, 3);
+  assert.equal(recording.frames[0].classifierGenre.primary, "J-pop");
+  assert.equal(recording.frames[0].genreHypotheses.primary.genre, "Future Funk");
+  assert.equal(recording.frames[0].instrumentationEvidence.synth, .7);
+});
+
 test("captured frames are deep-cloned: mutating the live state afterward cannot corrupt an already-captured frame", () => {
   ReplayRecorder.start("clone_test");
   const liveState = { genre: { primary: "Techno" }, moodDimensions: { warmth: 0.5 } };

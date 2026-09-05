@@ -6,7 +6,7 @@
 const ReplayRecorder = (() => {
   // Bump whenever the FRAME shape below changes (a field added/removed/renamed) -- scripts/
   // replay.cjs warns instead of silently misreading an older recording against newer code.
-  const SCHEMA_VERSION = 2;
+  const SCHEMA_VERSION = 3;
   // Static identifiers, not runtime-introspected: the ML worker's model manifest lives in a
   // Worker thread and isn't reachable from this main-thread debug tool without new message-
   // passing plumbing (out of scope for a recording utility) -- update these two constants by hand
@@ -49,11 +49,19 @@ const ReplayRecorder = (() => {
     lastCaptureAt = atMs;
     frames.push({
       t: Math.round(atMs - startedAt),
+      classifierGenre: safeClone(state.classifierGenre),
       genre: safeClone(state.genre),
+      genreHypotheses: safeClone(state.genreHypotheses),
       moodDimensions: safeClone(state.moodDimensions),
       productionEvidence: safeClone(state.productionEvidence),
       rhythmicGrammar: safeClone(state.rhythmicGrammar),
       instruments: safeClone(state.instruments),
+      instrumentation: safeClone(state.instrumentation),
+      instrumentationEvidence: safeClone(state.instrumentationEvidence),
+      instrumentEvents: safeClone(state.instrumentEvents),
+      performance: safeClone(state.performance),
+      arrangement: safeClone(state.arrangement),
+      mir: safeClone(state.mir),
       trackCharacter: safeClone(state.trackCharacter),
       expressionFeatures: safeClone(state.expressionFeatures)
     });

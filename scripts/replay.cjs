@@ -27,6 +27,7 @@ const Selection = require("../js/visual/phraseSelection");
 const Metrics = require("../js/semantic/languageDiversityMetrics");
 const Quality = require("../js/semantic/phraseQuality");
 const ReplayRecorder = require("../js/debug/replayRecorder");
+const GenreHypotheses = require("../js/semantic/genreHypothesisEngine");
 
 const aestheticAxesData = require("../data/aestheticAxes.json");
 const aestheticRegionsData = require("../data/aestheticRegions.json");
@@ -34,6 +35,8 @@ const genreContextKnowledge = require("../data/genreContextKnowledge.json");
 const genreCompositions = require("../data/genreCompositions.json");
 const musicalLexicon = require("../data/musicalLexicon.json");
 const genreTaxonomy = require("../data/genreTaxonomy.json");
+const compositeGenreRules = require("../data/compositeGenreRules.json");
+const genreHierarchy = require("../data/genreHierarchy.json");
 
 function parseArgs(argv) {
   const args = { input: "test/fixtures/replays", report: false, baseline: null, compare: false };
@@ -81,20 +84,30 @@ function buildEngines() {
   const axisEngine = new AestheticAxisEngine.Engine(aestheticAxesData, aestheticRegionsData);
   const aestheticEvidenceEngine = new AestheticEvidence.Engine(axisEngine);
   const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, axisEngine, genreCompositions);
-  return { axisEngine, aestheticEvidenceEngine, genreContextEngine };
+  const genreHypothesisEngine = new GenreHypotheses.Engine(compositeGenreRules, genreHierarchy);
+  return { axisEngine, aestheticEvidenceEngine, genreContextEngine, genreHypothesisEngine };
 }
 
 function stateFromFrame(frame) {
+  const sourceGenre = frame.classifierGenre || frame.genre || {};
+  const primaryConfidence = Number(sourceGenre.semanticConfidence ?? sourceGenre.confidence) || 0;
+  const classifierGenre = Array.isArray(sourceGenre.topK) && sourceGenre.topK.length
+    ? sourceGenre
+    : { ...sourceGenre, topK: sourceGenre.primary ? [{ label: sourceGenre.primary, confidence: primaryConfidence }] : [] };
   return {
-    genre: frame.genre || {}, moodDimensions: frame.moodDimensions || {},
+    classifierGenre, genre: frame.genre || {},
+    genreHypotheses: frame.genreHypotheses || null, moodDimensions: frame.moodDimensions || {},
     productionEvidence: frame.productionEvidence || {}, rhythmicGrammar: frame.rhythmicGrammar || {},
-    instruments: frame.instruments || [], trackCharacter: frame.trackCharacter || {},
+    instruments: frame.instruments || [], instrumentation: frame.instrumentation || null,
+    instrumentationEvidence: frame.instrumentationEvidence || {}, instrumentEvents: frame.instrumentEvents || [],
+    performance: frame.performance || {}, arrangement: frame.arrangement || {}, mir: frame.mir || null,
+    trackCharacter: frame.trackCharacter || {},
     expressionFeatures: frame.expressionFeatures || {}
   };
 }
 
 function replayTrack(recording) {
-  const { aestheticEvidenceEngine, genreContextEngine } = buildEngines();
+  const { aestheticEvidenceEngine, genreContextEngine, genreHypothesisEngine } = buildEngines();
   const arrangementEngine = new Arrangement.Engine();
   const evidence = new Evidence.Reservoir({ capacity: 180 });
   const song = new SongProfile.Profile();
@@ -106,9 +119,29 @@ function replayTrack(recording) {
 
   const recent = [];
   const axisSamples = [];
+  const genreTimeline = [];
+  const compositeGenres = new Set();
   let silentFrameCount = 0;
   for (const frame of recording.frames) {
     const state = stateFromFrame(frame);
+    const reasoning = genreHypothesisEngine.evaluate(state, frame.t || 0);
+    state.genreHypotheses = reasoning;
+    if (reasoning.primary) {
+      state.genre = { ...state.genre, primary: reasoning.primary.genre,
+        confidence: reasoning.primary.semanticConfidence,
+        semanticConfidence: reasoning.primary.semanticConfidence,
+        temporalStability: reasoning.primary.temporalStability,
+        evidenceCoverage: reasoning.primary.evidenceCoverage,
+        uncertain: false,
+        secondary: reasoning.challengers.map(item => ({ label: item.genre, confidence: item.semanticConfidence })) };
+      if (reasoning.primary.kind === "composite") compositeGenres.add(reasoning.primary.genre);
+      if (!genreTimeline.length || genreTimeline.at(-1).primary !== reasoning.primary.genre || reasoning.takeover)
+        genreTimeline.push({ at: frame.t || 0, primary: reasoning.primary.genre,
+          semanticConfidence: reasoning.primary.semanticConfidence,
+          temporalStability: reasoning.primary.temporalStability,
+          evidenceCoverage: reasoning.primary.evidenceCoverage,
+          takeover: reasoning.takeover || null });
+    }
     state.aestheticEvidence = aestheticEvidenceEngine.evaluate(state);
     state.genreContextEvidence = genreContextEngine.evaluate(state);
     axisSamples.push(state.genreContextEvidence.axes || {});
@@ -133,7 +166,9 @@ function replayTrack(recording) {
       song.noteUsed(chosen, frame.t);
     } else silentFrameCount++;
   }
-  return { track: recording.track, selected: recent, axisSamples, frameCount: recording.frames.length, silentFrameCount };
+  return { track: recording.track, selected: recent, axisSamples, genreTimeline,
+    compositeGenres: [...compositeGenres], takeovers: genreHypothesisEngine.takeovers.slice(),
+    frameCount: recording.frames.length, silentFrameCount };
 }
 
 function percentiles(values, points = [10, 25, 40, 50, 70, 75, 90, 95]) {
@@ -167,6 +202,7 @@ function buildReport(runs) {
     const metrics = Metrics.evaluate(run.selected);
     return {
       track: run.track, frameCount: run.frameCount, silentFrameCount: run.silentFrameCount,
+      genreTimeline: run.genreTimeline, compositeGenres: run.compositeGenres, takeovers: run.takeovers,
       spokenVocabulary: metrics.phraseCount, uniqueConceptKeys: Metrics.concepts(run.selected).size,
       layerDistribution: metrics.layerDistribution, axisCombinationSizes: combinationSizeDistribution(run.selected),
       axisDistributions: axisDistributions(run.axisSamples, axisNames),
