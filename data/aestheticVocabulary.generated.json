@@ -1,97 +1,2474 @@
 {
-  "generatedAt": "2026-09-05T00:07:31.982Z",
+  "generatedAt": "2026-09-05T12:44:25.054Z",
   "model": "gpt-5.6-sol",
   "sourceRegions": [
     [
       "nostalgia",
       "decay"
+    ],
+    [
+      "nostalgia",
+      "glossiness",
+      "urbanity"
+    ],
+    [
+      "artificiality",
+      "glossiness"
+    ],
+    [
+      "artificiality",
+      "drive"
+    ],
+    [
+      "decay",
+      "warmth"
+    ],
+    [
+      "drive",
+      "tension"
+    ],
+    [
+      "intimacy",
+      "warmth"
+    ],
+    [
+      "urbanity",
+      "glossiness"
+    ],
+    [
+      "weight",
+      "tension"
+    ],
+    [
+      "weight",
+      "intimacy"
+    ],
+    [
+      "glossiness",
+      "drive"
+    ],
+    [
+      "decay",
+      "intimacy"
+    ],
+    [
+      "nostalgia",
+      "warmth"
+    ],
+    [
+      "artificiality",
+      "tension"
+    ],
+    [
+      "urbanity",
+      "drive"
+    ],
+    [
+      "decay",
+      "weight"
+    ],
+    [
+      "glossiness",
+      "warmth"
+    ],
+    [
+      "intimacy",
+      "decay",
+      "warmth"
+    ],
+    [
+      "artificiality",
+      "urbanity"
+    ],
+    [
+      "nostalgia",
+      "drive"
     ]
   ],
   "entries": [
     {
-      "text": "바랜 재생목록",
+      "text": "빛바랜 인화지",
       "layer": "AESTHETIC",
-      "conceptKey": "nostalgia.faded_playlist",
+      "conceptKey": "nostalgia.faded_print",
       "region": [
         {
           "axis": "nostalgia",
-          "min": 0.7
+          "band": "high",
+          "min": 0.722
         },
         {
           "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.vhs_afterimage"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "테이프 히스",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.tape_hiss",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "nostalgia.needle_wear"
+      ],
+      "clicheRisk": 0.15
+    },
+    {
+      "text": "VHS 잔상",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.vhs_afterimage",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "nostalgia.faded_print"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "해진 기억의 가장자리",
+      "layer": "IMPRESSION",
+      "conceptKey": "nostalgia.frayed_edge",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "very_high",
+          "min": 0.739
+        },
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [],
+      "clicheRisk": 0.38
+    },
+    {
+      "text": "바늘 자국의 온기",
+      "layer": "IMPRESSION",
+      "conceptKey": "nostalgia.needle_wear",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.tape_hiss"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "샴페인빛 퇴근길",
+      "layer": "AESTHETIC",
+      "conceptKey": "urban.champagne_commute",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        },
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        }
+      ],
+      "minAxes": 3,
+      "register": "association",
+      "relatedKeys": [
+        "surface.aged_gloss",
+        "memory.neon_archive"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "크롬 간판의 잔향",
+      "layer": "IMPRESSION",
+      "conceptKey": "memory.chrome_signage",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        }
+      ],
+      "minAxes": 3,
+      "register": "impression",
+      "relatedKeys": [
+        "memory.neon_archive",
+        "scene.bubble_citypop"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "버블시대 시티 팝",
+      "layer": "AESTHETIC",
+      "conceptKey": "scene.bubble_citypop",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "very_high",
+          "min": 0.739
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "urbanity",
+          "band": "very_high",
+          "min": 0.702
+        }
+      ],
+      "minAxes": 3,
+      "register": "cultural",
+      "relatedKeys": [
+        "memory.chrome_signage",
+        "urban.champagne_commute"
+      ],
+      "clicheRisk": 0.36
+    },
+    {
+      "text": "빌딩숲의 묵은 광택",
+      "layer": "IMPRESSION",
+      "conceptKey": "surface.aged_gloss",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "urbanity",
+          "band": "very_high",
+          "min": 0.702
+        }
+      ],
+      "minAxes": 3,
+      "register": "impression",
+      "relatedKeys": [
+        "urban.champagne_commute",
+        "memory.neon_archive"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "네온 보관함",
+      "layer": "AESTHETIC",
+      "conceptKey": "memory.neon_archive",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        },
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        }
+      ],
+      "minAxes": 3,
+      "register": "association",
+      "relatedKeys": [
+        "memory.chrome_signage",
+        "surface.aged_gloss"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "유광 합성수지",
+      "layer": "AESTHETIC",
+      "conceptKey": "material.gloss_resin",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "surface.seamless_finish"
+      ],
+      "clicheRisk": 0.08
+    },
+    {
+      "text": "크롬 피부",
+      "layer": "IMPRESSION",
+      "conceptKey": "surface.chrome_skin",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "digital.coated_pixel"
+      ],
+      "clicheRisk": 0.42
+    },
+    {
+      "text": "Y2K 인터페이스",
+      "layer": "AESTHETIC",
+      "conceptKey": "scene.y2k_interface",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "digital.coated_pixel"
+      ],
+      "clicheRisk": 0.24
+    },
+    {
+      "text": "봉합선 없는 광택",
+      "layer": "IMPRESSION",
+      "conceptKey": "surface.seamless_finish",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "material.gloss_resin"
+      ],
+      "clicheRisk": 0.16
+    },
+    {
+      "text": "코팅된 픽셀",
+      "layer": "AESTHETIC",
+      "conceptKey": "digital.coated_pixel",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "scene.y2k_interface",
+        "surface.chrome_skin"
+      ],
+      "clicheRisk": 0.19
+    },
+    {
+      "text": "픽셀 가속",
+      "layer": "AESTHETIC",
+      "conceptKey": "digital.pixel_acceleration",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "drive",
+          "band": "high",
           "min": 0.5
         }
       ],
       "minAxes": 2,
       "register": "impression",
       "relatedKeys": [
-        "decay.tape_wear"
+        "cyber.neon_passing"
       ],
-      "clicheRisk": 0.24
+      "clicheRisk": 0.18
     },
     {
-      "text": "테이프의 잔기침",
+      "text": "네온 추월선",
       "layer": "IMPRESSION",
-      "conceptKey": "decay.tape_wear",
+      "conceptKey": "cyber.neon_passing",
       "region": [
         {
-          "axis": "nostalgia",
-          "min": 0.6
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
         },
         {
-          "axis": "decay",
-          "min": 0.7
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
         }
       ],
       "minAxes": 2,
       "register": "association",
       "relatedKeys": [
-        "nostalgia.faded_playlist",
-        "nostalgia.video_rental"
+        "digital.pixel_acceleration"
       ],
-      "clicheRisk": 0.18
+      "clicheRisk": 0.27
     },
     {
-      "text": "비디오 대여점 감성",
+      "text": "Y2K 터보",
       "layer": "AESTHETIC",
-      "conceptKey": "nostalgia.video_rental",
+      "conceptKey": "retro.y2k_turbo",
       "region": [
         {
-          "axis": "nostalgia",
-          "min": 0.8
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
         },
         {
-          "axis": "decay",
-          "min": 0.4
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
         }
       ],
       "minAxes": 2,
       "register": "cultural",
       "relatedKeys": [
-        "decay.tape_wear"
+        "arcade.hyper_dash"
       ],
-      "clicheRisk": 0.3
+      "clicheRisk": 0.22
     },
     {
-      "text": "닳은 자막빛",
+      "text": "합성 바람결",
       "layer": "IMPRESSION",
-      "conceptKey": "decay.worn_subtitle_glow",
+      "conceptKey": "texture.synthetic_wind",
       "region": [
         {
-          "axis": "nostalgia",
-          "min": 0.5
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
         },
         {
+          "axis": "drive",
+          "band": "mid",
+          "min": 0.391,
+          "max": 0.49
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [],
+      "clicheRisk": 0.16
+    },
+    {
+      "text": "아케이드 전력질주",
+      "layer": "AESTHETIC",
+      "conceptKey": "arcade.hyper_dash",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "retro.y2k_turbo"
+      ],
+      "clicheRisk": 0.24
+    },
+    {
+      "text": "볕에 밴 마모",
+      "layer": "AESTHETIC",
+      "conceptKey": "decay.sunworn_surface",
+      "region": [
+        {
           "axis": "decay",
-          "min": 0.7
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "texture.frayed_blanket",
+        "warmth.lingering_room"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "해진 담요결",
+      "layer": "IMPRESSION",
+      "conceptKey": "texture.frayed_blanket",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
         }
       ],
       "minAxes": 2,
       "register": "association",
       "relatedKeys": [
-        "nostalgia.video_rental"
+        "decay.sunworn_surface",
+        "warmth.aged_honeyglow"
       ],
+      "clicheRisk": 0.15
+    },
+    {
+      "text": "세피아 온도",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.sepia_temperature",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "warmth.aged_honeyglow"
+      ],
+      "clicheRisk": 0.38
+    },
+    {
+      "text": "묵은 꿀빛",
+      "layer": "IMPRESSION",
+      "conceptKey": "warmth.aged_honeyglow",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        },
+        {
+          "axis": "warmth",
+          "band": "very_high",
+          "min": 0.779
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.sepia_temperature",
+        "texture.frayed_blanket"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "낡은 방의 잔열",
+      "layer": "IMPRESSION",
+      "conceptKey": "warmth.lingering_room",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "warmth",
+          "band": "mid",
+          "min": 0.645,
+          "max": 0.741
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "decay.sunworn_surface"
+      ],
+      "clicheRisk": 0.33
+    },
+    {
+      "text": "압축된 가속",
+      "layer": "IMPRESSION",
+      "conceptKey": "drive.compressed_acceleration",
+      "region": [
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "tension.tempered_velocity"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "초침보다 앞선 맥박",
+      "layer": "IMPRESSION",
+      "conceptKey": "drive.clock_racing_pulse",
+      "region": [
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "drive.techno_thriller_pulse"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "테크노 스릴러 박동",
+      "layer": "AESTHETIC",
+      "conceptKey": "drive.techno_thriller_pulse",
+      "region": [
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "drive.clock_racing_pulse"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "출구 없는 직선",
+      "layer": "IMPRESSION",
+      "conceptKey": "tension.exitless_straightaway",
+      "region": [
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "drive.compressed_acceleration"
+      ],
+      "clicheRisk": 0.34
+    },
+    {
+      "text": "긴장으로 벼린 속도",
+      "layer": "IMPRESSION",
+      "conceptKey": "tension.tempered_velocity",
+      "region": [
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "drive.compressed_acceleration"
+      ],
+      "clicheRisk": 0.24
+    },
+    {
+      "text": "숨결 닿는 온도",
+      "layer": "IMPRESSION",
+      "conceptKey": "intimacy.breath_warmth",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "very_high",
+          "min": 0.644
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "warmth.blanket_texture"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "한 뼘의 난로",
+      "layer": "IMPRESSION",
+      "conceptKey": "intimacy.nearby_hearth",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        },
+        {
+          "axis": "warmth",
+          "band": "very_high",
+          "min": 0.779
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "intimacy.small_room"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "담요 결의 소리",
+      "layer": "AESTHETIC",
+      "conceptKey": "warmth.blanket_texture",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "intimacy.breath_warmth"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "작은 방의 체온",
+      "layer": "IMPRESSION",
+      "conceptKey": "intimacy.small_room",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "very_high",
+          "min": 0.644
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "intimacy.nearby_hearth"
+      ],
+      "clicheRisk": 0.32
+    },
+    {
+      "text": "다방 맞은편",
+      "layer": "AESTHETIC",
+      "conceptKey": "warmth.teahouse_proximity",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        },
+        {
+          "axis": "warmth",
+          "band": "mid",
+          "min": 0.645,
+          "max": 0.741
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "유리처럼 반듯한 밤",
+      "layer": "IMPRESSION",
+      "conceptKey": "urbanity.glass_skyline",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "urbanity.neon_horizon",
+        "glossiness.chrome_city"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "네온 수평선",
+      "layer": "AESTHETIC",
+      "conceptKey": "urbanity.neon_horizon",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "very_high",
+          "min": 0.702
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "urbanity.glass_skyline"
+      ],
+      "clicheRisk": 0.38
+    },
+    {
+      "text": "크롬빛 도심",
+      "layer": "AESTHETIC",
+      "conceptKey": "glossiness.chrome_city",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "urbanity.glass_skyline",
+        "glossiness.city_pop_sheen"
+      ],
+      "clicheRisk": 0.27
+    },
+    {
+      "text": "시티 팝 광택",
+      "layer": "AESTHETIC",
+      "conceptKey": "glossiness.city_pop_sheen",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "glossiness.chrome_city"
+      ],
+      "clicheRisk": 0.31
+    },
+    {
+      "text": "야경의 매끈한 이음새",
+      "layer": "IMPRESSION",
+      "conceptKey": "urbanity.seamless_nightscape",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "urbanity.neon_horizon"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "무겁고 팽팽한 압박",
+      "layer": "IMPRESSION",
+      "conceptKey": "pressure.taut_weight",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "pressure.gauge_limit"
+      ],
+      "clicheRisk": 0.38
+    },
+    {
+      "text": "압력계 한계선",
+      "layer": "IMPRESSION",
+      "conceptKey": "pressure.gauge_limit",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "pressure.taut_weight",
+        "space.descending_ceiling"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "납판 같은 공기",
+      "layer": "AESTHETIC",
+      "conceptKey": "weight.leaden_air",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "space.descending_ceiling"
+      ],
+      "clicheRisk": 0.29
+    },
+    {
+      "text": "천장이 내려온다",
+      "layer": "IMPRESSION",
+      "conceptKey": "space.descending_ceiling",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "weight.leaden_air",
+        "pressure.gauge_limit"
+      ],
+      "clicheRisk": 0.31
+    },
+    {
+      "text": "보스전급 중력",
+      "layer": "AESTHETIC",
+      "conceptKey": "culture.bossfight_gravity",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "pressure.taut_weight"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "근접한 중량감",
+      "layer": "IMPRESSION",
+      "conceptKey": "presence.close_weight",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "high",
+          "min": 0.622
+        },
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "bass.chest_pressure"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "가슴팍의 저음",
+      "layer": "IMPRESSION",
+      "conceptKey": "bass.chest_pressure",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "presence.close_weight",
+        "breath.thick_nearness"
+      ],
+      "clicheRisk": 0.3
+    },
+    {
+      "text": "귀밑의 철근",
+      "layer": "AESTHETIC",
+      "conceptKey": "texture.iron_proximity",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        },
+        {
+          "axis": "intimacy",
+          "band": "very_high",
+          "min": 0.644
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "gravity.front_row"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "맨앞줄의 중력",
+      "layer": "AESTHETIC",
+      "conceptKey": "gravity.front_row",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "high",
+          "min": 0.622
+        },
+        {
+          "axis": "intimacy",
+          "band": "very_high",
+          "min": 0.644
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "texture.iron_proximity"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "두꺼운 숨결",
+      "layer": "IMPRESSION",
+      "conceptKey": "breath.thick_nearness",
+      "region": [
+        {
+          "axis": "weight",
+          "band": "high",
+          "min": 0.622
+        },
+        {
+          "axis": "intimacy",
+          "band": "very_high",
+          "min": 0.644
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "bass.chest_pressure"
+      ],
+      "clicheRisk": 0.32
+    },
+    {
+      "text": "매끈한 가속",
+      "layer": "IMPRESSION",
+      "conceptKey": "motion.smooth_acceleration",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "motion.streamlined_sprint"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "크롬빛 활주",
+      "layer": "AESTHETIC",
+      "conceptKey": "motion.chrome_glide",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "scene.y2k_drift"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "Y2K 드리프트",
+      "layer": "AESTHETIC",
+      "conceptKey": "scene.y2k_drift",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "motion.chrome_glide"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "유선형 질주",
+      "layer": "IMPRESSION",
+      "conceptKey": "motion.streamlined_sprint",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "motion.smooth_acceleration"
+      ],
+      "clicheRisk": 0.31
+    },
+    {
+      "text": "광택의 추월선",
+      "layer": "AESTHETIC",
+      "conceptKey": "space.polished_passing_lane",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [],
       "clicheRisk": 0.14
+    },
+    {
+      "text": "벽지 가까운 숨",
+      "layer": "IMPRESSION",
+      "conceptKey": "intimacy.wallpaper_breath",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        },
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "silence.worn_stillness",
+        "space.doorcrack_quiet"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "닳은 이불결",
+      "layer": "AESTHETIC",
+      "conceptKey": "texture.worn_bedding",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "silence.worn_stillness"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "다락방 lo-fi",
+      "layer": "AESTHETIC",
+      "conceptKey": "scene.attic_lofi",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "intimacy",
+          "band": "mid",
+          "min": 0.538,
+          "max": 0.598
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "texture.worn_bedding",
+        "space.doorcrack_quiet"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "문틈만 한 고요",
+      "layer": "IMPRESSION",
+      "conceptKey": "space.doorcrack_quiet",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        },
+        {
+          "axis": "intimacy",
+          "band": "very_high",
+          "min": 0.644
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "intimacy.wallpaper_breath",
+        "scene.attic_lofi"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "손때 밴 정적",
+      "layer": "IMPRESSION",
+      "conceptKey": "silence.worn_stillness",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "texture.worn_bedding",
+        "intimacy.wallpaper_breath"
+      ],
+      "clicheRisk": 0.16
+    },
+    {
+      "text": "손때 묻은 온기",
+      "layer": "IMPRESSION",
+      "conceptKey": "nostalgia.worn_warmth",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.drawer_coziness"
+      ],
+      "clicheRisk": 0.32
+    },
+    {
+      "text": "묵은 햇살",
+      "layer": "IMPRESSION",
+      "conceptKey": "nostalgia.aged_sunlight",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "warmth.faded_cream"
+      ],
+      "clicheRisk": 0.26
+    },
+    {
+      "text": "아날로그 다정함",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.analog_tenderness",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "very_high",
+          "min": 0.739
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [],
+      "clicheRisk": 0.48
+    },
+    {
+      "text": "서랍 속 포근함",
+      "layer": "IMPRESSION",
+      "conceptKey": "nostalgia.drawer_coziness",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "warmth",
+          "band": "very_high",
+          "min": 0.779
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "nostalgia.worn_warmth"
+      ],
+      "clicheRisk": 0.38
+    },
+    {
+      "text": "바랜 크림색",
+      "layer": "AESTHETIC",
+      "conceptKey": "warmth.faded_cream",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "mid",
+          "min": 0.59,
+          "max": 0.716
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "nostalgia.aged_sunlight"
+      ],
+      "clicheRisk": 0.17
+    },
+    {
+      "text": "기계식 조임",
+      "layer": "IMPRESSION",
+      "conceptKey": "tension.mechanical_clamp",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "artificiality.vacuum_anxiety"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "진공 포장된 초조",
+      "layer": "IMPRESSION",
+      "conceptKey": "artificiality.vacuum_anxiety",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "tension.mechanical_clamp"
+      ],
+      "clicheRisk": 0.24
+    },
+    {
+      "text": "Y2K 경고창",
+      "layer": "AESTHETIC",
+      "conceptKey": "artificiality.y2k_alert",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "tension",
+          "band": "mid",
+          "min": 0.246,
+          "max": 0.356
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "tension.interface_warning"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "붉은 인터페이스 경고",
+      "layer": "AESTHETIC",
+      "conceptKey": "tension.interface_warning",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "tension",
+          "band": "high",
+          "min": 0.435
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "artificiality.y2k_alert"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "크롬 복도의 압박",
+      "layer": "IMPRESSION",
+      "conceptKey": "tension.chrome_corridor",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "tension",
+          "band": "very_high",
+          "min": 0.67
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "tension.interface_warning"
+      ],
+      "clicheRisk": 0.27
+    },
+    {
+      "text": "도심의 빠른 보폭",
+      "layer": "IMPRESSION",
+      "conceptKey": "urban_drive.quick_stride",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "urban_drive.lane_pulse"
+      ],
+      "clicheRisk": 0.25
+    },
+    {
+      "text": "차선의 맥박",
+      "layer": "IMPRESSION",
+      "conceptKey": "urban_drive.lane_pulse",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "urban_drive.quick_stride",
+        "urban_drive.asphalt_vibration"
+      ],
+      "clicheRisk": 0.35
+    },
+    {
+      "text": "아스팔트 잔진동",
+      "layer": "AESTHETIC",
+      "conceptKey": "urban_drive.asphalt_vibration",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "drive",
+          "band": "mid",
+          "min": 0.391,
+          "max": 0.49
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "urban_drive.lane_pulse"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "고가도로 가속",
+      "layer": "IMPRESSION",
+      "conceptKey": "urban_drive.overpass_acceleration",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        },
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "urban_drive.neon_rush_hour"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "네온 러시아워",
+      "layer": "AESTHETIC",
+      "conceptKey": "urban_drive.neon_rush_hour",
+      "region": [
+        {
+          "axis": "urbanity",
+          "band": "very_high",
+          "min": 0.702
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "urban_drive.overpass_acceleration"
+      ],
+      "clicheRisk": 0.46
+    },
+    {
+      "text": "무겁게 뭉개진 음질",
+      "layer": "IMPRESSION",
+      "conceptKey": "degradation.crushed.fidelity",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "very_high",
+          "min": 0.556
+        },
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "texture.frayed.bass"
+      ],
+      "clicheRisk": 0.16
+    },
+    {
+      "text": "납빛 침전",
+      "layer": "AESTHETIC",
+      "conceptKey": "decay.leaden.sediment",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "space.sunken.resonance"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "더브의 잔해",
+      "layer": "AESTHETIC",
+      "conceptKey": "scene.dub.ruins",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "weight",
+          "band": "high",
+          "min": 0.622
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "texture.frayed.bass"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "해진 저음결",
+      "layer": "IMPRESSION",
+      "conceptKey": "texture.frayed.bass",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "very_high",
+          "min": 0.556
+        },
+        {
+          "axis": "weight",
+          "band": "high",
+          "min": 0.622
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "degradation.crushed.fidelity",
+        "scene.dub.ruins"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "바닥 밑 울림",
+      "layer": "IMPRESSION",
+      "conceptKey": "space.sunken.resonance",
+      "region": [
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "weight",
+          "band": "very_high",
+          "min": 0.656
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "decay.leaden.sediment"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "윤 오른 나무",
+      "layer": "AESTHETIC",
+      "conceptKey": "glossiness.polished_wood",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "warmth.amber_chrome"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "호박빛 크롬",
+      "layer": "AESTHETIC",
+      "conceptKey": "warmth.amber_chrome",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "very_high",
+          "min": 0.641
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "glossiness.polished_wood",
+        "glossiness.citypop_afterglow"
+      ],
+      "clicheRisk": 0.24
+    },
+    {
+      "text": "시티 팝 잔광",
+      "layer": "AESTHETIC",
+      "conceptKey": "glossiness.citypop_afterglow",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "warmth",
+          "band": "mid",
+          "min": 0.645,
+          "max": 0.741
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "warmth.amber_chrome"
+      ],
+      "clicheRisk": 0.35
+    },
+    {
+      "text": "햇살 코팅",
+      "layer": "IMPRESSION",
+      "conceptKey": "warmth.sunlit_coating",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "high",
+          "min": 0.61
+        },
+        {
+          "axis": "warmth",
+          "band": "very_high",
+          "min": 0.779
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "warmth.smooth_glow"
+      ],
+      "clicheRisk": 0.42
+    },
+    {
+      "text": "매끈한 온기",
+      "layer": "IMPRESSION",
+      "conceptKey": "warmth.smooth_glow",
+      "region": [
+        {
+          "axis": "glossiness",
+          "band": "mid",
+          "min": 0.535,
+          "max": 0.6
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "warmth.sunlit_coating"
+      ],
+      "clicheRisk": 0.3
+    },
+    {
+      "text": "오래된 방의 체온",
+      "layer": "IMPRESSION",
+      "conceptKey": "intimacy.lived_in_warmth",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        },
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 3,
+      "register": "impression",
+      "relatedKeys": [
+        "warmth.lingering_comfort",
+        "decay.handworn_quiet"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "손때 밴 고요",
+      "layer": "AESTHETIC",
+      "conceptKey": "decay.handworn_quiet",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        },
+        {
+          "axis": "decay",
+          "band": "very_high",
+          "min": 0.556
+        },
+        {
+          "axis": "warmth",
+          "band": "mid",
+          "min": 0.645,
+          "max": 0.741
+        }
+      ],
+      "minAxes": 3,
+      "register": "association",
+      "relatedKeys": [
+        "intimacy.lived_in_warmth",
+        "decay.faded_sunlight"
+      ],
+      "clicheRisk": 0.2
+    },
+    {
+      "text": "바랜 벽지의 볕",
+      "layer": "IMPRESSION",
+      "conceptKey": "decay.faded_sunlight",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "mid",
+          "min": 0.538,
+          "max": 0.598
+        },
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "warmth",
+          "band": "high",
+          "min": 0.751
+        }
+      ],
+      "minAxes": 3,
+      "register": "impression",
+      "relatedKeys": [
+        "decay.handworn_quiet",
+        "warmth.lingering_comfort"
+      ],
+      "clicheRisk": 0.17
+    },
+    {
+      "text": "빈티지 룸톤",
+      "layer": "AESTHETIC",
+      "conceptKey": "decay.vintage_roomtone",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "mid",
+          "min": 0.538,
+          "max": 0.598
+        },
+        {
+          "axis": "decay",
+          "band": "high",
+          "min": 0.49
+        },
+        {
+          "axis": "warmth",
+          "band": "mid",
+          "min": 0.645,
+          "max": 0.741
+        }
+      ],
+      "minAxes": 3,
+      "register": "cultural",
+      "relatedKeys": [
+        "intimacy.lived_in_warmth"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "어제의 포근한 잔향",
+      "layer": "IMPRESSION",
+      "conceptKey": "warmth.lingering_comfort",
+      "region": [
+        {
+          "axis": "intimacy",
+          "band": "high",
+          "min": 0.62
+        },
+        {
+          "axis": "decay",
+          "band": "mid",
+          "min": 0.404,
+          "max": 0.481
+        },
+        {
+          "axis": "warmth",
+          "band": "very_high",
+          "min": 0.779
+        }
+      ],
+      "minAxes": 3,
+      "register": "association",
+      "relatedKeys": [
+        "intimacy.lived_in_warmth",
+        "decay.faded_sunlight"
+      ],
+      "clicheRisk": 0.36
+    },
+    {
+      "text": "합성 네온 지대",
+      "layer": "AESTHETIC",
+      "conceptKey": "artificiality.synthetic_neon_zone",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "urbanity.billboard_pulse"
+      ],
+      "clicheRisk": 0.32
+    },
+    {
+      "text": "크롬빛 골목",
+      "layer": "IMPRESSION",
+      "conceptKey": "urbanity.chrome_alley",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "artificiality.vinyl_skyline"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "세기말 디지털 번화가",
+      "layer": "AESTHETIC",
+      "conceptKey": "urbanity.fin_de_siecle_digital",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "urbanity",
+          "band": "very_high",
+          "min": 0.702
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "artificiality.synthetic_neon_zone"
+      ],
+      "clicheRisk": 0.18
+    },
+    {
+      "text": "비닐 스카이라인",
+      "layer": "IMPRESSION",
+      "conceptKey": "artificiality.vinyl_skyline",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "very_high",
+          "min": 0.648
+        },
+        {
+          "axis": "urbanity",
+          "band": "high",
+          "min": 0.52
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "urbanity.chrome_alley"
+      ],
+      "clicheRisk": 0.21
+    },
+    {
+      "text": "전광판 맥박",
+      "layer": "IMPRESSION",
+      "conceptKey": "urbanity.billboard_pulse",
+      "region": [
+        {
+          "axis": "artificiality",
+          "band": "high",
+          "min": 0.601
+        },
+        {
+          "axis": "urbanity",
+          "band": "very_high",
+          "min": 0.702
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "artificiality.synthetic_neon_zone"
+      ],
+      "clicheRisk": 0.4
+    },
+    {
+      "text": "카세트 고속감기",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.tape_fast_forward",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [
+        "time.accelerating_memory"
+      ],
+      "clicheRisk": 0.12
+    },
+    {
+      "text": "뒤로 흐르는 계절",
+      "layer": "IMPRESSION",
+      "conceptKey": "time.receding_seasons",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "drive",
+          "band": "mid",
+          "min": 0.391,
+          "max": 0.49
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "space.faded_lane"
+      ],
+      "clicheRisk": 0.38
+    },
+    {
+      "text": "빛바랜 주행선",
+      "layer": "IMPRESSION",
+      "conceptKey": "space.faded_lane",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "association",
+      "relatedKeys": [
+        "time.receding_seasons"
+      ],
+      "clicheRisk": 0.22
+    },
+    {
+      "text": "어제의 가속도",
+      "layer": "IMPRESSION",
+      "conceptKey": "time.accelerating_memory",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "very_high",
+          "min": 0.739
+        },
+        {
+          "axis": "drive",
+          "band": "high",
+          "min": 0.5
+        }
+      ],
+      "minAxes": 2,
+      "register": "impression",
+      "relatedKeys": [
+        "nostalgia.tape_fast_forward"
+      ],
+      "clicheRisk": 0.28
+    },
+    {
+      "text": "Y2K 질주",
+      "layer": "AESTHETIC",
+      "conceptKey": "nostalgia.y2k_sprint",
+      "region": [
+        {
+          "axis": "nostalgia",
+          "band": "high",
+          "min": 0.722
+        },
+        {
+          "axis": "drive",
+          "band": "very_high",
+          "min": 0.83
+        }
+      ],
+      "minAxes": 2,
+      "register": "cultural",
+      "relatedKeys": [],
+      "clicheRisk": 0.18
     }
   ]
 }

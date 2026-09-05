@@ -116,10 +116,17 @@ function replayTrack(recording) {
     const generated = Manager.base(state);
     const context = { snapshot: Snapshot.serialize(state), eligibleTexts: generated.map(item => item.text) };
     const grounded = Critic.rank(generated, { context, limit: 120 }).selected;
-    let candidates = evidence.observe(grounded, { sessionId: seed, epoch: 1, at: frame.t, observationSeconds: (frame.t || 0) / 1000 });
+    // The REAL observed-listening-duration the recorder captured, not elapsed replay-loop time --
+    // js/visual/phraseSelection.js's layerRatios() gates the open layer behind observationSeconds
+    // actually reaching ~15-30s, and a captured frame's own expressionFeatures.observationSeconds
+    // is what a live session actually had at that moment, unlike frame.t (which is relative to
+    // when THIS recording started, not how long the player had been listening).
+    const observationSeconds = Number.isFinite(state.expressionFeatures?.observationSeconds)
+      ? state.expressionFeatures.observationSeconds : (frame.t || 0) / 1000;
+    let candidates = evidence.observe(grounded, { sessionId: seed, epoch: 1, at: frame.t, observationSeconds });
     song.observe(state, candidates, { sessionId: seed, at: frame.t });
     candidates = song.annotate(evidence.snapshot({ at: frame.t }), frame.t);
-    const chosen = Selection.choose(candidates, recent.slice(-12), random, { observationSeconds: (frame.t || 0) / 1000, now: frame.t, explorationRate: 0.3 });
+    const chosen = Selection.choose(candidates, recent.slice(-12), random, { observationSeconds, now: frame.t, explorationRate: 0.3 });
     if (chosen) {
       recent.push(chosen);
       evidence.noteDisplayed(chosen, frame.t);
@@ -129,7 +136,7 @@ function replayTrack(recording) {
   return { track: recording.track, selected: recent, axisSamples, frameCount: recording.frames.length, silentFrameCount };
 }
 
-function percentiles(values, points = [10, 25, 50, 75, 90, 95]) {
+function percentiles(values, points = [10, 25, 40, 50, 70, 75, 90, 95]) {
   const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
   if (!sorted.length) return Object.fromEntries(points.map(p => [`p${p}`, null]));
   return Object.fromEntries(points.map(p => {

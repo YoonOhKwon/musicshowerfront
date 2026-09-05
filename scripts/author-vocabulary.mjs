@@ -21,6 +21,23 @@ const readJson = async relativePath => JSON.parse(await fs.readFile(path.join(ro
 
 const aestheticAxesData = await readJson("data/aestheticAxes.json");
 const AXIS_NAMES = Object.keys(aestheticAxesData.axes || {});
+// STEP 4-1: real axis values (per data/axisDistribution.json, from scripts/replay.cjs) cluster
+// well below the 0.55-0.8 thresholds hand-guessed into data/aestheticRegions.json's first 28
+// entries -- so the LLM is never asked for an absolute threshold here. It picks a percentile BAND
+// instead, converted to an actual number after generation (see convertBandToRange below), with
+// the original band label kept alongside the number for later recalibration.
+const axisDistribution = await readJson("data/axisDistribution.json").catch(() => null);
+const BAND_NAMES = ["very_high", "high", "mid", "low"];
+function convertBandToRange(axisName, band) {
+  const axisPercentiles = axisDistribution?.percentiles?.[axisName];
+  if (!axisPercentiles) return { min: 0.5 }; // no distribution data yet -- a neutral fallback, flagged by the caller
+  const round = value => Number.isFinite(value) ? Number(value.toFixed(3)) : undefined;
+  if (band === "very_high") return { min: round(axisPercentiles.p90) };
+  if (band === "high") return { min: round(axisPercentiles.p75) };
+  if (band === "mid") return { min: round(axisPercentiles.p40), max: round(axisPercentiles.p70) };
+  if (band === "low") return { max: round(axisPercentiles.p25) };
+  return { min: 0.5 };
+}
 const genreContextKnowledge = await readJson("data/genreContextKnowledge.json");
 const genreCompositions = await readJson("data/genreCompositions.json").catch(() => ({ rules: [] }));
 const genreAliases = await readJson("data/genreAliases.json");
@@ -103,8 +120,8 @@ const VOCAB_ITEM_SCHEMA = {
     conceptKey: { type: "string", maxLength: 60 },
     region: { type: "array", minItems: 1, maxItems: 4,
       items: { type: "object", additionalProperties: false,
-        properties: { axis: { type: "string", enum: AXIS_NAMES }, min: { type: "number", minimum: 0, maximum: 1 } },
-        required: ["axis", "min"] } },
+        properties: { axis: { type: "string", enum: AXIS_NAMES }, band: { type: "string", enum: BAND_NAMES } },
+        required: ["axis", "band"] } },
     minAxes: { type: "integer", minimum: 1, maximum: 4 },
     register: { type: "string", enum: ["impression", "association", "cultural"] },
     relatedKeys: { type: "array", maxItems: 5, items: { type: "string", maxLength: 60 } },
@@ -125,6 +142,11 @@ Absolute rules, no exceptions:
 - relatedKeys should point to conceptKeys of OTHER entries you are also producing in this same batch where a real thematic link exists; use an empty array if none.
 - clicheRisk: your own honest 0-1 estimate of how generic/AI-poetry-sounding this phrase already is (0 = fresh, 1 = a cliche like "차가운 황홀").
 - minAxes must be between 1 and the number of conditions in region, normally equal to region.length.
+- region[].band is a RELATIVE percentile band against how this axis actually measures across real
+  tracks, not an absolute 0-1 threshold: "very_high" = top 10% of tracks on this axis, "high" = top
+  25%, "mid" = the middle range (40th-70th percentile), "low" = bottom 25%. Pick the band that
+  matches the phrase's intensity -- e.g. a phrase about an overwhelming wall of sound should use
+  "very_high" density, not "mid".
 Return only the structured JSON, no prose.`;
 
 const GENRE_CANDIDATE_SCHEMA = {
@@ -221,7 +243,26 @@ async function authorVocabularyRegion(region, count) {
   return parsed.entries || [];
 }
 
+// STEP 4-1: converts each region condition's LLM-chosen band into an actual {min, max} threshold
+// against data/axisDistribution.json's real measured percentiles, while keeping the original band
+// label on the same condition for later recalibration (the whole point of banding instead of
+// asking for an absolute number). minAxes is carried through unchanged.
+function applyBandConversion(entries) {
+  const usedFallback = new Set();
+  for (const entry of entries) {
+    for (const condition of entry.region || []) {
+      const band = condition.band;
+      const range = convertBandToRange(condition.axis, band);
+      if (!axisDistribution?.percentiles?.[condition.axis]) usedFallback.add(condition.axis);
+      condition.min = range.min ?? 0;
+      if (Number.isFinite(range.max)) condition.max = range.max;
+    }
+  }
+  return [...usedFallback];
+}
+
 async function runVocabulary() {
+  if (!axisDistribution) process.stderr.write("[author-vocabulary] data/axisDistribution.json not found -- bands will fall back to a flat 0.5 threshold. Run scripts/replay.cjs first for real percentile calibration.\n");
   const regionsNeeded = Math.max(1, Math.ceil(args.limit / args.termsPerRegion));
   const regions = SEED_REGIONS.slice(0, regionsNeeded);
   const entries = [];
@@ -235,8 +276,11 @@ async function runVocabulary() {
       process.stderr.write(`  region [${region.axes.join("+")}] failed: ${error.message}\n`);
     }
   }
+  const trimmed = entries.slice(0, args.limit);
+  const fallbackAxes = applyBandConversion(trimmed);
+  if (fallbackAxes.length) process.stderr.write(`[author-vocabulary] no distribution data for axes: ${fallbackAxes.join(", ")} -- their bands used the flat 0.5 fallback, review by hand.\n`);
   const output = { generatedAt: new Date().toISOString(), model: args.model,
-    sourceRegions: regions.map(region => region.axes), entries: entries.slice(0, args.limit) };
+    sourceRegions: regions.map(region => region.axes), entries: trimmed };
   const issues = Validator.validateGeneratedVocabulary(output, AXIS_NAMES);
   return { output, issues };
 }
