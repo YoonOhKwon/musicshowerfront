@@ -350,12 +350,15 @@ app.post("/api/language-pool", async (req, res) => {
   }
 });
 
-// Research-only endpoint (see docs/DEEP_LISTEN_EVALUATION.md). Not called from the live app --
-// no consent UX exists yet for uploading a user's listening-session audio, and per that doc this
-// stays offline/manual until an evaluation justifies a separately-scheduled, opt-in integration.
-// It never returns display-ready words: every caption sentence goes through
-// lib/directAudioReview.js and comes back human-review-required, exactly like the offline CLI
-// (scripts/deep-listen.py) does. Nothing here writes to semantic state or the visual word pool.
+// Periodic direct-audio (Music Flamingo) capture, called from js/main.js every ~30-45s of
+// listening. A caption never becomes a display-ready word here: reviewCaption() classifies each
+// sentence (musical/cultural-or-historical/impression) and toObservations() turns the
+// keyword-anchored ones into candidate-shaped observations at reduced, source-differentiated
+// confidence (lib/directAudioReview.js) -- js/main.js feeds those into
+// applyDirectAudioObservations(), which joins the SAME evidence-fusion/temporal-stability pipeline
+// every other source goes through (js/semantic/semanticEngine.js's updateTemporalEvidence()). The
+// full `review` is still returned alongside `observations` for transparency/debugging, not as a
+// separate approval gate.
 app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" }), async (req, res) => {
   try {
     const audioSha256 = crypto.createHash("sha256").update(req.body).digest("hex");
@@ -367,7 +370,8 @@ app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" })
     if (!flamingoRes.ok) throw new Error("Flamingo server error: " + await flamingoRes.text());
     const { caption } = await flamingoRes.json();
     const review = DirectAudioReview.reviewCaption({ caption, provider: "music-flamingo", audioSha256 }, {});
-    res.json(review);
+    const observations = DirectAudioReview.toObservations(review);
+    res.json({ ...review, observations });
   } catch (error) {
     console.error("[deep-analysis error]", error);
     res.status(500).json({ error: error.message });

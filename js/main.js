@@ -42,9 +42,26 @@ function setup() {
   window.addEventListener("pagehide", () => releaseAudioResources());
 }
 
+// Periodic direct-audio (Music Flamingo) capture. Unlike the first version of this feature, a
+// caption never goes straight to the screen: it becomes candidate observations
+// (lib/directAudioReview.js's toObservations(), server-side) fed into the SAME evidence-fusion /
+// temporal-stability pipeline every other source uses (js/semantic/semanticEngine.js's
+// applyDirectAudioObservations() -> updateTemporalEvidence()) -- it earns its confidence there,
+// same as a classifier or DSP read, rather than being handed a shortcut. First capture at 30s (the
+// same point genre/context language is already opening up); re-captured every 45s afterward so the
+// evidence genuinely tracks a "still listening" cadence instead of a one-shot snapshot.
+const deepListenState = { active: false, lastTriggeredAt: 0 };
+
 function updateWordSpawner() {
   if (!audioStarted) return;
   const now = millis();
+
+  if (!deepListenState.active && typeof mlAudioWindow !== "undefined" && mlAudioWindow) {
+    const sessionMs = performance.now() - (pcmCaptureMetrics?.startedAt || performance.now());
+    const dueAt = deepListenState.lastTriggeredAt ? deepListenState.lastTriggeredAt + 45000 : 30000;
+    if (sessionMs > dueAt) { deepListenState.lastTriggeredAt = sessionMs; triggerDeepAnalysisUpload(); }
+  }
+
   const arousal = getActiveMoodProfile().arousal || 0.5;
   const densityFactor = WordLifecycle.densityFactor(floatingWords.length, CONFIG.visual.maxFloatingWords);
   const interval = CONFIG.visual.wordSpawnInterval * (1.18 - arousal * 0.38) * densityFactor;
@@ -55,6 +72,35 @@ function updateWordSpawner() {
     for (let index = 0; index < CONFIG.visual.wordsPerSpawn; index++) spawned = createWord() || spawned;
     if (spawned) lastWordSpawnTime = now;
   }
+}
+
+function pcmToWav(pcm, sampleRate) {
+  const buffer = new ArrayBuffer(44 + pcm.length * 2);
+  const view = new DataView(buffer);
+  const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+  writeString(0, "RIFF"); view.setUint32(4, 36 + pcm.length * 2, true); writeString(8, "WAVE");
+  writeString(12, "fmt "); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  writeString(36, "data"); view.setUint32(40, pcm.length * 2, true);
+  for (let i = 0, offset = 44; i < pcm.length; i++, offset += 2) {
+    const s = Math.max(-1, Math.min(1, pcm[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return buffer;
+}
+
+function triggerDeepAnalysisUpload() {
+  if (!mlAudioWindow) return;
+  const pcm = mlAudioWindow.latestNative(30);
+  if (!pcm || pcm.length < audioContext.sampleRate * 5) return;
+  deepListenState.active = true;
+  const buffer = pcmToWav(pcm, audioContext.sampleRate);
+  fetch("/api/deep-analysis", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: buffer })
+    .then(res => res.json())
+    .then(data => { if (Array.isArray(data.observations)) applyDirectAudioObservations(data.observations); })
+    .catch(error => console.error("Deep Listen failed:", error))
+    .finally(() => { deepListenState.active = false; });
 }
 
 function draw() {

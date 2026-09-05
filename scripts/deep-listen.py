@@ -69,9 +69,17 @@ def validate_audio(filename):
 def memory_budget(status):
     gpu_free = status.get("freeBytes", 0)
     ram_free = status.get("availableRamBytes", 0)
-    if gpu_free < 20 * 1024**3 and ram_free < 22 * 1024**3:
-        raise RuntimeError("Insufficient free memory: need 20 GiB free GPU or 22 GiB free RAM for bounded CPU offload. Close memory-heavy apps and retry; no process was stopped.")
-    return {0: max(1, gpu_free - 2 * 1024**3), "cpu": max(1, ram_free - 4 * 1024**3)}
+    # flamingo_server.py loads the model in 4-bit (BitsAndBytesConfig(load_in_4bit=True)) whenever
+    # a GPU is present -- roughly a 4x reduction from the 16.5 GB full-precision weights (~4.1-4.5
+    # GiB of quantized weights), plus audio-encoder/activation overhead, so ~5 GiB free GPU memory
+    # is a realistic bound -- not the full-precision figure this gate used to require, which no run
+    # on this codepath ever actually needs. bitsandbytes 4-bit quantization is CUDA-only, so the
+    # CPU-only fallback still loads unquantized float32 weights and genuinely needs the larger RAM
+    # figure -- that threshold is unchanged. Still a real boundary, not a guarantee: first-run
+    # inference on a ~5 GiB card should be watched for OOM and this number revisited from measurement.
+    if gpu_free < 5 * 1024**3 and ram_free < 22 * 1024**3:
+        raise RuntimeError("Insufficient free memory: need 5 GiB free GPU (4-bit quantized) or 22 GiB free RAM for unquantized CPU offload. Close memory-heavy apps and retry; no process was stopped.")
+    return {0: max(1, gpu_free - 1 * 1024**3), "cpu": max(1, ram_free - 4 * 1024**3)}
 
 
 def evaluate(audio, model_dir, accepted=False, max_tokens=384):

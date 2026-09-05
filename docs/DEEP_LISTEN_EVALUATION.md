@@ -1,7 +1,20 @@
-# Optional direct-audio description evaluation
+# Direct-audio description (Music Flamingo)
 
-This is a research CLI, not a deployed browser feature. The normal Music Shower
-audio, words, server and LLM path are unchanged. No upload endpoint is exposed.
+Live-wired, not human-review-gated: js/main.js captures 30s of the actual listening
+session automatically (first at 30s of playback, then every 45s) and POSTs it to
+`/api/deep-analysis`. That endpoint (server.js) never calls an LLM to invent cultural
+claims and never hands back display-ready words directly -- it runs the caption
+through `lib/directAudioReview.js`'s `reviewCaption()` (classifies each sentence
+musical / cultural-or-historical / impression) and `toObservations()` (turns the
+keyword-anchored ones into candidate-shaped observations at reduced, differentiated
+confidence: musical 0.6, cultural/aesthetic 0.45). `js/main.js` feeds those into
+`applyDirectAudioObservations()` (js/semantic/semanticEngine.js), which joins the SAME
+evidence-fusion / temporal-stability pipeline (`evidenceFusionEngine.js` ->
+`temporalEvidenceEngine.js`) every other evidence source (classifier, rhythm grammar,
+production detectors) already goes through -- a caption earns its confidence there,
+across repeated observations, exactly like a measured signal does; it is not handed a
+shortcut to the screen. There is currently no consent UI beyond this document; treat
+that as an open item if this ships to anyone other than the developer running it locally.
 
 ## Verified environment
 
@@ -11,10 +24,14 @@ The bundled Python runtime is unchanged. A separate `.research-venv` now contain
 the research dependencies following the user's confirmation of non-commercial
 research use. Model weights and real inference must still be verified separately.
 
-The desktop had only about 3.8 GiB free host RAM during setup. The evaluator now
-requires either 20 GiB free GPU memory or 22 GiB free host RAM before model loading.
-These are deliberately conservative safety gates, not measured model minimums.
-Auto placement reserves 2 GiB GPU and 4 GiB host memory. It does not terminate apps.
+`flamingo_server.py` loads the model 4-bit quantized (`BitsAndBytesConfig(load_in_4bit=True)`)
+whenever a GPU is present -- roughly a 4x reduction from the 16.5 GB full-precision
+weights. `scripts/deep-listen.py`'s memory gate is sized for that (~5 GiB free GPU),
+not the old unquantized figure, which no run on this codepath ever actually needed;
+the desktop's ~5.3 GiB free GPU sits right at that boundary -- a real one, not a
+guarantee, and worth revisiting from measurement after a first real run. The
+CPU-only fallback path does not quantize (bitsandbytes 4-bit is CUDA-only) and still
+needs the larger ~22 GiB free host RAM figure the gate also checks.
 
 Explicit, resumable model setup is provided separately:
 
@@ -57,20 +74,24 @@ load/inference times, peak allocated CUDA memory and an empty human-review form.
 It does not write a report file or feed its claims into semantic state. The hash
 links repeated runs of the same excerpt without publishing the local filename.
 
-## Acceptance experiment before runtime integration
+## Evaluating quality now that this is live
 
-Use identical excerpts and a frozen descriptor snapshot. Compare:
-1. existing descriptor-only brief;
-2. direct-audio caption;
-3. human-reviewed combinations (never automatically trust model captions).
+Runtime integration has happened (see the top of this doc) -- this section is about
+judging and tuning it, not gating whether it happens. Use identical excerpts and a
+frozen descriptor snapshot to compare:
+1. existing descriptor-only brief (`lib/musicDescription.js`);
+2. direct-audio caption (this feature);
+3. what actually reaches the screen after evidenceFusionEngine/temporalEvidenceEngine/
+   critic (the real end-to-end result, not the raw caption).
 
 Rate audible correctness, helpful specificity, unsupported historical/cultural
 claims and important missed details. Log latency and memory per excerpt. Evaluate
 multiple distinct tracks in each family, including unknown/non-Western music and
 nearby confusing styles. Keep reviewed evaluation tracks separate from tuning.
 
-Only after these results justify it should a separately scheduled, opt-in audio
-service be integrated. It will need explicit audio-consent UX, per-window/session
-IDs, stale-result rejection, request limits and independent evidence validation.
-Current work establishes a runnable evaluation adapter and input/failure tests,
-not equivalence to Suno or validated direct-audio model accuracy.
+Known open items, not yet built: explicit audio-consent UX (nothing tells the
+listener their audio is being captured), per-window/session IDs, stale-result
+rejection, and a request-rate limit on `/api/deep-analysis`. Current work
+establishes the real evidence-fusion wiring and a runnable offline evaluation
+adapter, not equivalence to Suno or a validated accuracy figure for the underlying
+model.

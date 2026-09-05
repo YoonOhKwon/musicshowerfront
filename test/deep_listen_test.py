@@ -37,12 +37,19 @@ class DeepListenTest(unittest.TestCase):
 
     def test_busy_desktop_is_not_overcommitted(self):
         with self.assertRaisesRegex(RuntimeError, "Insufficient free memory"):
-            module.memory_budget({"freeBytes": 5 * 1024**3, "availableRamBytes": 4 * 1024**3})
+            module.memory_budget({"freeBytes": 2 * 1024**3, "availableRamBytes": 4 * 1024**3})
 
     def test_offload_reserves_memory_for_the_desktop(self):
         budget = module.memory_budget({"freeBytes": 6 * 1024**3, "availableRamBytes": 24 * 1024**3})
-        self.assertEqual(budget[0], 4 * 1024**3)
+        self.assertEqual(budget[0], 5 * 1024**3)
         self.assertEqual(budget["cpu"], 20 * 1024**3)
+
+    def test_4bit_quantized_gpu_budget_is_realistic_not_full_precision(self):
+        # The old gate required 20 GiB free GPU, sized for the UNQUANTIZED 16.5 GB model --
+        # flamingo_server.py actually loads it in 4-bit whenever CUDA is available, so this must
+        # not raise on a machine with only ~5-6 GiB free (the real quantized footprint).
+        budget = module.memory_budget({"freeBytes": int(5.3 * 1024**3), "availableRamBytes": 4 * 1024**3})
+        self.assertGreater(budget[0], 0)
 
 
 if __name__ == "__main__":

@@ -28,6 +28,13 @@ let phrasePoolEngine = null;
 let latestRollingEmbedding = [];
 let subgenreSearcher = new SubgenreSearch.Searcher();
 let semanticEvidenceReady = false;
+// Latest direct-audio-caption observations (js/main.js's periodic Flamingo capture, via
+// lib/directAudioReview.js's toObservations()) -- a candidate array, same shape every other
+// evidence source produces. It persists across ticks (not consumed once) so the SAME candidates
+// keep flowing into updateTemporalEvidence() every 500ms until a fresh caption replaces them --
+// temporalEvidenceEngine's existing observation-count/stability gates (unmodified) are what turn
+// that repetition into a genuinely earned, stable claim, not a one-shot injection.
+let directAudioCandidates = [];
 const expressionHistory = new MusicExpressionEngine.FeatureHistory();
 let expressionWaveform = null;
 let expressionSpectrum = null;
@@ -619,7 +626,7 @@ function updateTemporalEvidence() {
       ["genreEvidence", "trackCharacter.timbre", "trackCharacter.rhythm"], { role: "adjacent" })),
     ...(semanticState.conceptEmbedding?.candidates || [])
   ];
-  const candidates = evidenceFusionEngine.fuse({ local, genreModel, embedding }, now);
+  const candidates = evidenceFusionEngine.fuse({ local, genreModel, embedding, directAudio: directAudioCandidates }, now);
   semanticState.evidenceFusion = candidates;
   const temporal = temporalEvidenceEngine.update(candidates, now);
   semanticState.temporalEvidence = temporal;
@@ -866,6 +873,13 @@ function refreshSemanticWords(force = false) {
     semanticState.words = words;
     syncMLState();
   });
+}
+
+// Called by js/main.js whenever a fresh Flamingo caption is parsed (lib/directAudioReview.js's
+// toObservations()). Replaces the whole set -- a stale caption's claims must not linger once a
+// newer one exists, since temporalEvidenceEngine reads whatever this holds on every tick.
+function applyDirectAudioObservations(candidates = []) {
+  directAudioCandidates = Array.isArray(candidates) ? candidates : [];
 }
 
 function noteSemanticPhraseUsed(text) {
