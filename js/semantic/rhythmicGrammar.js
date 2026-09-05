@@ -2,7 +2,7 @@ const RhythmicGrammar = (() => {
   const detectorCapabilities = Object.freeze({
     "productionEvidence.filterSweep": { min: 0, max: 0.92, nullable: true, method: "centroid trajectory" },
     "productionEvidence.sidechain": { min: 0, max: 1, nullable: true, method: "beat-aligned envelope" },
-    "productionEvidence.sampleBased": { min: 0, max: 0.9, nullable: true, method: "repetition + master brightness" },
+    "productionEvidence.sampleBased": { min: 0, max: 0.9, nullable: true, method: "repetition + synth/sampler/computer instrumentation evidence" },
     "productionEvidence.vocalChop": { min: 0, max: 0.86, nullable: true, method: "voice confidence + onset rate" },
     "productionEvidence.stereoWidth": { available: false, nullable: true },
     "productionEvidence.reverb": { available: false, nullable: true },
@@ -223,9 +223,17 @@ const RhythmicGrammar = (() => {
   function production(features = {}, frames = [], context = {}) {
     const filterSweep = detectFilterSweep(features, frames);
     const sidechain = detectSidechain(context.envelope, context.beatTimestamps, context.beatConfidence);
-    const sampleBased = Number.isFinite(context.repetition) && Number.isFinite(context.masterBrightness) &&
-      context.repetition >= 0.75 && context.masterBrightness <= 0.4
-      ? Math.min(0.9, Facets.clamp(context.repetition * 0.6 + (1 - context.masterBrightness) * 0.4)) : null;
+    // Used to gate on low masterBrightness as a stand-in for "sampled/looped" -- but a dark
+    // acoustic recording (an acoustic jazz trio, say) is also low-brightness for entirely
+    // unrelated reasons (warm room tone, no synth shimmer), so that proxy fired on real acoustic
+    // performance as readily as on an actual sample-based track (confirmed against real recordings:
+    // masterBrightness alone gave acoustic jazz a HIGHER sampleBased score than the electronic
+    // tracks it was meant to detect). electronicConfidence requires actual evidence of
+    // synth/sampler/computer instrumentation -- the real basis for "built from samples" -- instead
+    // of inferring construction method from spectral tone alone.
+    const electronicConfidence = Math.max(0, Number(context.electronicConfidence) || 0);
+    const sampleBased = Number.isFinite(context.repetition) && context.repetition >= 0.75 && electronicConfidence >= 0.2
+      ? Math.min(0.9, Facets.clamp(context.repetition * 0.6 + electronicConfidence * 0.4)) : null;
     const vocalChop = Number.isFinite(context.voiceConfidence) && Number.isFinite(context.onsetRate) &&
       context.voiceConfidence >= 0.6 && context.onsetRate > 2.5
       ? Math.min(0.86, Facets.clamp(context.voiceConfidence * 0.5 + Facets.clamp((context.onsetRate - 1.5) / 3) * 0.5)) : null;

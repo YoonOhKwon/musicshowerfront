@@ -45,11 +45,11 @@
     },
     "syncopation": {
       "components": [
-        { "path": "rhythmicGrammar.syncopation", "weight": 0.35 },
-        { "path": "rhythmicGrammar.brokenBeat", "weight": 0.25 },
-        { "path": "rhythmicGrammar.swing", "weight": 0.15 },
+        { "path": "rhythmicGrammar.syncopation", "weight": 0.55 },
+        { "path": "rhythmicGrammar.brokenBeat", "weight": 0.2 },
+        { "path": "rhythmicGrammar.swing", "weight": 0.05 },
         { "genrePriors": { "uk garage": 0.6, "2-step": 0.55, "2 step": 0.55, "speed garage": 0.55,
-            "garage house": 0.5 }, "weight": 0.25 }
+            "garage house": 0.5 }, "weight": 0.2 }
       ]
     },
     "intimacy": {

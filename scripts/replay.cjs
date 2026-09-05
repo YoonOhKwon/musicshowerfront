@@ -11,6 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 
+const RhythmicGrammar = require("../js/semantic/rhythmicGrammar");
 const AestheticAxisEngine = require("../js/semantic/aestheticAxisEngine");
 const AestheticEvidence = require("../js/semantic/aestheticEvidenceEngine");
 const GenreContext = require("../js/semantic/genreContextEngine");
@@ -88,6 +89,22 @@ function buildEngines() {
   return { axisEngine, aestheticEvidenceEngine, genreContextEngine, genreHypothesisEngine };
 }
 
+const ELECTRONIC_INSTRUMENT_KEYS = ["synthesizer", "synth", "sampler", "computer"];
+
+// productionEvidence is otherwise replayed verbatim (frozen at capture time -- most of its fields
+// depend on raw buffers, like the internal centroid-trajectory history or the bass-energy
+// envelope, that the recording schema does not preserve). sampleBased is the one exception: its
+// only two inputs (structural repetition, instrumentation evidence) ARE both fully captured, so a
+// threshold/formula change to it (like the electronicConfidence fix) can and should be re-verified
+// against real recordings on replay instead of staying stuck testing whatever the recording
+// happened to compute the day it was captured.
+function recomputedSampleBased(frame) {
+  const repetition = frame.trackCharacter?.structure?.repetition;
+  const electronicConfidence = Math.max(0,
+    ...ELECTRONIC_INSTRUMENT_KEYS.map(key => Number(frame.instrumentationEvidence?.[key]) || 0));
+  return RhythmicGrammar.production({}, [], { repetition, electronicConfidence }).sampleBased;
+}
+
 function stateFromFrame(frame) {
   const sourceGenre = frame.classifierGenre || frame.genre || {};
   const primaryConfidence = Number(sourceGenre.semanticConfidence ?? sourceGenre.confidence) || 0;
@@ -97,7 +114,8 @@ function stateFromFrame(frame) {
   return {
     classifierGenre, genre: frame.genre || {},
     genreHypotheses: frame.genreHypotheses || null, moodDimensions: frame.moodDimensions || {},
-    productionEvidence: frame.productionEvidence || {}, rhythmicGrammar: frame.rhythmicGrammar || {},
+    productionEvidence: { ...(frame.productionEvidence || {}), sampleBased: recomputedSampleBased(frame) },
+    rhythmicGrammar: frame.rhythmicGrammar || {},
     instruments: frame.instruments || [], instrumentation: frame.instrumentation || null,
     instrumentationEvidence: frame.instrumentationEvidence || {}, instrumentEvents: frame.instrumentEvents || [],
     performance: frame.performance || {}, arrangement: frame.arrangement || {}, mir: frame.mir || null,

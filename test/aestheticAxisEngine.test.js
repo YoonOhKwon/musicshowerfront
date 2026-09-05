@@ -342,7 +342,7 @@ test("STEP 2 gate meta-test: productionEvidence.stereoWidth/reverb/distortion ar
       envelope.push({ at: start + index * 50, value: index < 3 ? 0.2 : index > 7 ? 0.9 : 0.5 });
   }
   const result = Grammar.production({ deltaRms: 0.01, deltaCentroid: 1000, pumping: 0.5 }, frames, {
-    envelope, beatTimestamps, beatConfidence: 0.9, repetition: 0.9, masterBrightness: 0.2, voiceConfidence: 0.8, onsetRate: 4
+    envelope, beatTimestamps, beatConfidence: 0.9, repetition: 0.9, electronicConfidence: 0.5, voiceConfidence: 0.8, onsetRate: 4
   });
   assert.equal(result.stereoWidth, null);
   assert.equal(result.reverb, null);

@@ -85,13 +85,26 @@ test("too few beat windows refuses to claim sidechain", () => {
   assert.equal(result.sidechain, null);
 });
 
-test("sample-based production needs both high repetition and a capped brightness", () => {
-  const both = RhythmicGrammar.production({}, [], { repetition: 0.85, masterBrightness: 0.25 });
+test("sample-based production needs both high repetition and real synth/sampler/computer instrumentation evidence", () => {
+  const both = RhythmicGrammar.production({}, [], { repetition: 0.85, electronicConfidence: 0.4 });
   assert.ok(both.sampleBased !== null && both.sampleBased > 0);
-  const onlyRepetition = RhythmicGrammar.production({}, [], { repetition: 0.9, masterBrightness: 0.8 });
+  const onlyRepetition = RhythmicGrammar.production({}, [], { repetition: 0.9, electronicConfidence: 0 });
   assert.equal(onlyRepetition.sampleBased, null);
-  const onlyBrightness = RhythmicGrammar.production({}, [], { repetition: 0.3, masterBrightness: 0.2 });
-  assert.equal(onlyBrightness.sampleBased, null);
+  const onlyElectronic = RhythmicGrammar.production({}, [], { repetition: 0.3, electronicConfidence: 0.6 });
+  assert.equal(onlyElectronic.sampleBased, null);
+});
+
+// Regression coverage for a real false positive found via replay of an actual acoustic jazz
+// recording: the previous gate used masterBrightness (low = "sampled") as its second condition,
+// but a dark acoustic recording is low-brightness for reasons that have nothing to do with sample
+// construction (warm room tone, no synth shimmer) -- real jazz data scored HIGHER on the old
+// formula (mean ~0.87) than the electronic future-funk tracks it was meant to detect (~0.78-0.84),
+// which then inflated the nostalgia axis (weighted 0.3 on sampleBased) and produced "샘플 루프"/
+// "레트로 퓨처 미학" vocabulary on an acoustic jazz trio with no samplers or synths anywhere in it.
+test("a dark, highly repetitive ACOUSTIC recording (high repetition, no electronic-instrument evidence) is not flagged as sample-based", () => {
+  const acousticButDark = RhythmicGrammar.production({}, [], { repetition: 0.8, electronicConfidence: 0 });
+  assert.equal(acousticButDark.sampleBased, null,
+    "repetition + darkness alone must not manufacture a sample-based claim without real electronic-instrument evidence");
 });
 
 test("vocal chop needs strong voice presence and an unusually high onset rate", () => {

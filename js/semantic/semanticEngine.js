@@ -489,12 +489,17 @@ function refreshRealtimeExpressions() {
   semanticState.instrumentationEvidence = GenreContext.instrumentEvidence(semanticState);
   const grammar = RhythmicGrammar.analyze(onsetEvents.values(), rhythm.bpm, rhythm.confidence, performance.now());
   semanticState.rhythmicGrammar = grammar;
+  // Real evidence of synth/sampler/computer instrumentation -- not spectral brightness, which a
+  // dark acoustic recording has just as often as an actual sample-based track for unrelated reasons.
+  const electronicConfidence = Math.max(0,
+    semanticState.instrumentationEvidence?.synthesizer || 0, semanticState.instrumentationEvidence?.synth || 0,
+    semanticState.instrumentationEvidence?.sampler || 0, semanticState.instrumentationEvidence?.computer || 0);
   semanticState.productionEvidence = RhythmicGrammar.production(features, expressionHistory.frames, {
     envelope: getBassEnergyEnvelope(),
     beatTimestamps: beatTimestamps.values(),
     beatConfidence: rhythm.confidence,
     repetition: semanticState.trackCharacter?.structure?.repetition,
-    masterBrightness: semanticState.trackCharacter?.production?.masterBrightness,
+    electronicConfidence,
     voiceConfidence: semanticState.instrumentationEvidence?.voice,
     onsetRate: recentOnsets
   });

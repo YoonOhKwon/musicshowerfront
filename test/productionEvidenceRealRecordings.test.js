@@ -2,13 +2,17 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const RhythmicGrammar = require("../js/semantic/rhythmicGrammar");
 
-// Two real in-app recordings (js/debug/replayRecorder.js) of the same Future Funk track,
-// 191/217 frames. Investigated because productionEvidence.filterSweep/sidechain/stereoWidth/
-// reverb/distortion/vocalChop were null in every single frame while pumping/sampleBased were
-// not -- this locks in the real cause found for each field so a future change can't silently
-// reintroduce (or silently "fix" without anyone noticing) the same pattern.
-const RECORDINGS = ["futurefunk1.json", "futurefunk2.json"].map(name =>
+const ELECTRONIC_INSTRUMENT_KEYS = ["synthesizer", "synth", "sampler", "computer"];
+
+// Three real in-app recordings (js/debug/replayRecorder.js): two Future Funk takes (191/217
+// frames) and one acoustic jazz trio (323 frames). Investigated because
+// productionEvidence.filterSweep/sidechain/stereoWidth/reverb/distortion/vocalChop were null in
+// every single frame across all three while pumping/sampleBased were not -- this locks in the
+// real cause found for each field so a future change can't silently reintroduce (or silently
+// "fix" without anyone noticing) the same pattern.
+const RECORDINGS = ["futurefunk1.json", "futurefunk2.json", "jazz_01.json"].map(name =>
   JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures/replays", name), "utf8")));
 
 for (const recording of RECORDINGS) {
@@ -38,14 +42,34 @@ for (const recording of RECORDINGS) {
     }
   });
 
-  test(`${recording.track}: sampleBased is non-null exactly on frames where repetition>=0.75 AND masterBrightness<=0.4 (the real gate, not just a similar rate)`, () => {
+  // The recording's OWN stored productionEvidence.sampleBased is frozen at capture time under the
+  // OLD (buggy, masterBrightness-based) formula -- it is not re-read here. This recomputes the
+  // CURRENT formula (repetition + real synth/sampler/computer instrumentation evidence) fresh from
+  // each frame's already-captured raw inputs, so this test tracks the live detector, not a stale
+  // snapshot of a formula that no longer exists.
+  test(`${recording.track}: sampleBased (current formula) is non-null exactly on frames with repetition>=0.75 AND real electronic-instrument evidence`, () => {
     for (const frame of recording.frames) {
       const repetition = frame.trackCharacter?.structure?.repetition;
-      const masterBrightness = frame.trackCharacter?.production?.masterBrightness;
-      const expectedNonNull = Number.isFinite(repetition) && Number.isFinite(masterBrightness) &&
-        repetition >= 0.75 && masterBrightness <= 0.4;
-      assert.equal(frame.productionEvidence.sampleBased !== null, expectedNonNull,
-        `frame ${frame.t}: repetition=${repetition} masterBrightness=${masterBrightness} sampleBased=${frame.productionEvidence.sampleBased}`);
+      const electronicConfidence = Math.max(0,
+        ...ELECTRONIC_INSTRUMENT_KEYS.map(key => Number(frame.instrumentationEvidence?.[key]) || 0));
+      const recomputed = RhythmicGrammar.production({}, [], { repetition, electronicConfidence }).sampleBased;
+      const expectedNonNull = Number.isFinite(repetition) && repetition >= 0.75 && electronicConfidence >= 0.2;
+      assert.equal(recomputed !== null, expectedNonNull,
+        `frame ${frame.t}: repetition=${repetition} electronicConfidence=${electronicConfidence} sampleBased=${recomputed}`);
+    }
+  });
+
+  // The specific regression this whole investigation was about: an acoustic recording with no
+  // synth/sampler/computer evidence anywhere must never be flagged as sample-based, no matter how
+  // repetitive or dark-toned it is.
+  test(`${recording.track}: if this track has no synth/sampler/computer instrumentation evidence anywhere, sampleBased (current formula) is null in every frame`, () => {
+    const everElectronic = recording.frames.some(frame =>
+      ELECTRONIC_INSTRUMENT_KEYS.some(key => Number(frame.instrumentationEvidence?.[key]) >= 0.2));
+    if (everElectronic) return; // this recording genuinely has electronic instrumentation; not the case this test guards
+    for (const frame of recording.frames) {
+      const repetition = frame.trackCharacter?.structure?.repetition;
+      const recomputed = RhythmicGrammar.production({}, [], { repetition, electronicConfidence: 0 }).sampleBased;
+      assert.equal(recomputed, null, `frame ${frame.t}: acoustic track must never get a sample-based claim`);
     }
   });
 
