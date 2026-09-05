@@ -9,9 +9,11 @@ function beginWordSpawnBatch() {
 
 function selectWeightedWord() {
   const state = getSemanticState();
+  const evidenceReadiness = PhraseSelection.evidenceReadinessOf(state.genreReasoning?.primary);
   return PhraseSelection.choose(getMusicProfileWords(), recentWordTokens, () => random(), {
     changing: state.expressionFeatures?.changing,
     observationSeconds: state.expressionFeatures?.observationSeconds ?? (state.temporalEvidence?.elapsedMs || 0) / 1000,
+    evidenceReadiness,
     active: floatingWords.map(word => word.text),
     avoidFacets: [...spawnBatchFacets]
   });

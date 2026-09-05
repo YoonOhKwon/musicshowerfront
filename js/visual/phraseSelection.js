@@ -56,6 +56,15 @@ const PhraseSelection = (() => {
       songUsePenalty * exhaustionPenalty * facetNeed * evidenceReservoir * clichePenalty * (typeFactor[item.type] || 1) /
       (1 + samePerspective * 0.22 + sameType * 0.08 + sameLayer * 0.13 + sameDistance * 0.08 + sameSource * 0.07));
   }
+  // How settled the engine's OWN genre read already is, right now -- not "how long has the session
+  // run," but "how much does genre reasoning actually stand on." Takes a genreHypothesisEngine
+  // ranked hypothesis (semanticState.genreReasoning.primary) and folds its confidence, evidence
+  // coverage and temporal stability into one [0,1] scalar for layerRatios' effective-seconds boost.
+  function evidenceReadinessOf(primary) {
+    if (!primary) return 0;
+    return Math.min(1, Math.max(0,
+      (primary.semanticConfidence || 0) * (primary.evidenceCoverage || 0) * (primary.temporalStability || 0)));
+  }
   function layerRatios(observationSeconds, changing) {
     if (changing) return { LIVE: 0.45, FACT: 0.32, CONTEXT: 0.12, AESTHETIC: 0.05, IMPRESSION: 0.06 };
     if (observationSeconds < 5) return { LIVE: 0.60, FACT: 0.40, CONTEXT: 0, AESTHETIC: 0, IMPRESSION: 0 };
@@ -72,7 +81,16 @@ const PhraseSelection = (() => {
     return { LIVE: 0.06, FACT: 0.34, CONTEXT: 0.18, AESTHETIC: 0.21, IMPRESSION: 0.21 };
   }
   function choose(source = [], recent = [], random = Math.random, options = {}) {
-    const { changing = false, active = [], observationSeconds = Infinity, avoidFacets = [] } = options;
+    const { changing = false, active = [], observationSeconds = Infinity, avoidFacets = [], evidenceReadiness = 0 } = options;
+    // A confident, temporally-stable genre read earns the deeper layers sooner than the clock
+    // alone would grant -- readiness in [0,1] scales elapsed time up to 2x, so an ambiguous track
+    // (readiness 0) is governed purely by observationSeconds as before, while a track the engine
+    // is already sure about reaches the 30s/45s bands earlier. Kept as a pure time-axis rescale
+    // (not a new branch in layerRatios or choose()'s draw) so the bucket table and its own
+    // redistribution-safety property (see layerRatios' comment) stay intact.
+    const effectiveSeconds = Number.isFinite(observationSeconds)
+      ? observationSeconds * (1 + Math.min(1, Math.max(0, evidenceReadiness)))
+      : observationSeconds;
     // Before real analysis exists primitives are legitimately most of the language; once the
     // track is understood they should be a garnish, not the meal.
     const primitiveBudget = observationSeconds < 8 ? 1 : observationSeconds < 20 ? 0.4 : 0.15;
@@ -92,7 +110,7 @@ const PhraseSelection = (() => {
     const recentFamilies = new Set(recent.slice(-4).map(item => Quality.semanticFamily(item)));
     const familyFresh = available.filter(item => !recentFamilies.has(Quality.semanticFamily(item)));
     if (familyFresh.length) available = familyFresh;
-    const ratios = layerRatios(observationSeconds, changing);
+    const ratios = layerRatios(effectiveSeconds, changing);
     const presentLayers = [...new Set(available.map(item => item.layer))];
     const layerShare = layer => (ratios[layer] || 0.02) /
       (1 + recent.filter(item => Layers.decorate(item).layer === layer).length * 0.9);
@@ -143,6 +161,6 @@ const PhraseSelection = (() => {
     const temporalSpeed = { LIVE: 1.14, FACT: 1, CONTEXT: 0.86, AESTHETIC: 0.88, IMPRESSION: 0.96 }[layer] || 1;
     return { ...shape, speed: shape.speed * temporalSpeed };
   }
-  return { choose, weight, treatment, layerRatios };
+  return { choose, weight, treatment, layerRatios, evidenceReadinessOf };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = PhraseSelection;
