@@ -7,7 +7,29 @@ const Selection = require("../js/visual/phraseSelection");
 const Evidence = require("../js/semantic/evidenceReservoir");
 const SongProfile = require("../js/semantic/songLanguageProfile");
 const Metrics = require("../js/semantic/languageDiversityMetrics");
+const Impressions = require("../js/semantic/impressionSynthesizer");
 const { profile, RICH_KINDS } = require("../test/fixtures/languageProfiles");
+const musicalLexicon = require("../data/musicalLexicon.json");
+const aestheticRegions = require("../data/aestheticRegions.json");
+const genreContextKnowledge = require("../data/genreContextKnowledge.json");
+
+// Section 6: how much vocabulary is actually SPEAKABLE right now, by layer -- aggregated from
+// every RUNTIME vocabulary source (never data/*.generated.json review files: those are explicitly
+// pre-review, not yet part of what the app can say -- see docs/VOCABULARY_AUTHORING.md).
+function runtimeVocabularyItems() {
+  const items = [];
+  for (const entry of musicalLexicon.entries || []) {
+    if (entry.neutralText) items.push({ text: entry.neutralText, category: entry.facet || "rhythm" });
+    for (const spec of entry.specializations || []) if (spec.text) items.push({ text: spec.text, category: entry.facet || "rhythm" });
+  }
+  for (const entry of aestheticRegions.entries || []) items.push({ text: entry.text, category: entry.category });
+  for (const rule of Impressions.RULES) items.push({ text: rule.text, category: "mood" });
+  for (const entry of Object.values(genreContextKnowledge.genres || {})) for (const candidate of entry.candidates || [])
+    items.push({ text: candidate.text, category: candidate.category });
+  for (const entry of Object.values(genreContextKnowledge.families || {})) for (const candidate of entry.candidates || [])
+    items.push({ text: candidate.text, category: candidate.category });
+  return items;
+}
 
 function seeded(seed = 1) {
   let value = seed >>> 0;
@@ -46,5 +68,6 @@ for (let left = 0; left < runs.length; left++) for (let right = left + 1; right 
 const output = { generatedAt: new Date().toISOString(), songs: runs.map(run => ({ kind: run.kind,
   metrics: run.metrics, examples: run.selected.slice(0, 12).map(item => item.text) })),
   separation: { averageJaccard: pairs.reduce((sum, item) => sum + item.jaccard, 0) / Math.max(1, pairs.length),
-    maximumJaccard: Math.max(0, ...pairs.map(item => item.jaccard)), pairs } };
+    maximumJaccard: Math.max(0, ...pairs.map(item => item.jaccard)), pairs },
+  vocabularyPoolSize: Metrics.vocabularyPoolSize(runtimeVocabularyItems()) };
 console.log(JSON.stringify(output, null, 2));

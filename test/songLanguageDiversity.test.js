@@ -18,6 +18,27 @@ const { createLanguageRequest } = require("../lib/languageService");
 const { profile, RICH_KINDS } = require("./fixtures/languageProfiles");
 const lexicon = require("../data/musicalLexicon.json");
 const taxonomy = require("../data/genreTaxonomy.json");
+const aestheticRegions = require("../data/aestheticRegions.json");
+const genreContextKnowledge = require("../data/genreContextKnowledge.json");
+
+// Section 6: how much vocabulary is actually speakable right now, by layer -- aggregated from
+// every RUNTIME source (never data/*.generated.json review files, which are explicitly pre-review
+// -- see docs/VOCABULARY_AUTHORING.md). Kept identical to scripts/language-diversity.cjs's own
+// runtimeVocabularyItems() so the two can never silently disagree about the count.
+function runtimeVocabularyItems() {
+  const items = [];
+  for (const entry of lexicon.entries || []) {
+    if (entry.neutralText) items.push({ text: entry.neutralText, category: entry.facet || "rhythm" });
+    for (const spec of entry.specializations || []) if (spec.text) items.push({ text: spec.text, category: entry.facet || "rhythm" });
+  }
+  for (const entry of aestheticRegions.entries || []) items.push({ text: entry.text, category: entry.category });
+  for (const rule of Impressions.RULES) items.push({ text: rule.text, category: "mood" });
+  for (const entry of Object.values(genreContextKnowledge.genres || {})) for (const candidate of entry.candidates || [])
+    items.push({ text: candidate.text, category: candidate.category });
+  for (const entry of Object.values(genreContextKnowledge.families || {})) for (const candidate of entry.candidates || [])
+    items.push({ text: candidate.text, category: candidate.category });
+  return items;
+}
 
 function seeded(seed = 1) {
   let value = seed >>> 0;
@@ -136,6 +157,37 @@ test("final selected language streams stay diverse, grounded and separated by so
     overlaps.push(Metrics.jaccard(streams[left].items, streams[right].items));
   assert.ok(overlaps.reduce((sum, value) => sum + value, 0) / overlaps.length < .15);
   assert.ok(Math.max(...overlaps) < .35);
+});
+
+test("section 6: the runtime vocabulary pool does not silently shrink, and every layer stays representable", () => {
+  const pool = Metrics.vocabularyPoolSize(runtimeVocabularyItems());
+  // Regression floors, not targets -- these should only ever move up as authoring rounds add
+  // vocabulary (section 3), never down. If one of these drops, something got deleted or a data
+  // file failed to load, not "the pool got more selective".
+  assert.ok(pool.total >= 300, `total vocabulary pool shrank below 300: ${pool.total}`);
+  assert.ok(pool.byLayer.FACT >= 150, `FACT vocabulary ${pool.byLayer.FACT}`);
+  assert.ok(pool.byLayer.AESTHETIC >= 15, `AESTHETIC vocabulary ${pool.byLayer.AESTHETIC}`);
+  assert.ok(pool.byLayer.IMPRESSION >= 30, `IMPRESSION vocabulary ${pool.byLayer.IMPRESSION}`);
+});
+
+test("section 6: open-layer share of a selected stream is measurable and moving in the right direction, even if not yet at the 30-50% target for every genre", () => {
+  const kinds = ["futurefunk", "citypop", "ukgarage", "jungle", "techno", "jazztrio", "shoegaze", "ambient"];
+  const distributions = kinds.map(kind => Metrics.evaluate(selectedStream(kind)).layerDistribution);
+  // Not yet a hard per-genre floor at 30% -- that is the reform's TARGET, not yet met by every
+  // genre (jazz/DnB fixtures in particular still lean heavily FACT, honestly). What regresses is
+  // the open layer going fully silent again, which this catches everywhere it currently speaks.
+  for (const [index, kind] of kinds.entries())
+    assert.ok(distributions[index].openLayerRatio > 0, `${kind}: open layer went completely silent (${distributions[index].openLayerRatio})`);
+  const average = distributions.reduce((sum, item) => sum + item.openLayerRatio, 0) / distributions.length;
+  assert.ok(average >= 0.15, `average open-layer share across genres regressed below 0.15: ${average.toFixed(3)}`);
+});
+
+test("section 6: the cliche score stays low in practice across real selected streams, not just in theory", () => {
+  const kinds = ["futurefunk", "citypop", "ukgarage", "jungle", "techno", "jazztrio", "shoegaze", "ambient"];
+  for (const kind of kinds) {
+    const distribution = Metrics.evaluate(selectedStream(kind)).clicheDistribution;
+    assert.ok(distribution.mean <= 0.3, `${kind}: cliche mean ${distribution.mean} regressed above 0.3`);
+  }
 });
 
 test("LLM request includes song memory and requires the concept-aware output schema", () => {
