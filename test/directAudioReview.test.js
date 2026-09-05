@@ -57,3 +57,26 @@ test('an unmatched sentence of a recognized type (no real keyword to anchor a la
   const review = { claims: [{ id: 'x', text: 'something with no real keyword', type: 'musical-claim' }] };
   assert.deepEqual(toObservations(review), []);
 });
+
+// Regression coverage for a real gap found against an ACTUAL Flamingo output (from a live run of
+// this feature, not a synthetic guess): "This track is an energetic, nostalgic Synthwave piece
+// that blends classic 1980s retro-futurist aesthetics with modern high-fidelity production." used
+// to classify as musical-claim (CULTURAL didn't recognize any of "Synthwave"/"retro-futurist"/
+// "1980s", so it fell through to MUSICAL matching "synth" inside "Synthwave") -- the caption's
+// single richest piece of aesthetic content was being thrown away as a generic technical claim.
+test('a real Flamingo sentence about era/aesthetic (Synthwave, retro-futurist, 1980s) classifies as cultural, not as a musical claim via an incidental "synth" substring', () => {
+  const review = reviewCaption({ caption: 'This track is an energetic, nostalgic Synthwave piece that blends classic 1980s retro-futurist aesthetics with modern high-fidelity production.' });
+  assert.equal(review.claims[0].type, 'cultural-or-historical');
+  const [observation] = toObservations(review);
+  assert.equal(observation.category, 'association');
+  assert.equal(observation.layer, 'AESTHETIC');
+});
+
+test('plain mood/feeling words with no era or place reference become IMPRESSION-layer observations, not dropped', () => {
+  const review = reviewCaption({ caption: 'The mix is polished.' });
+  assert.equal(review.claims[0].type, 'impression');
+  const [observation] = toObservations(review);
+  assert.equal(observation.text, '정제된 인상');
+  assert.equal(observation.category, 'mood');
+  assert.equal(observation.layer, 'IMPRESSION');
+});
