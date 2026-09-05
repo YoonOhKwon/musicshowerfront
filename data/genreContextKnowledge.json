@@ -909,6 +909,42 @@
           ]
         }
       ]
+    },
+    "Acoustic / Traditional": {
+      "candidates": [
+        {
+          "text": "어쿠스틱 전통 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "measurements.tonalFocus",
+              "min": 0.5
+            },
+            {
+              "path": "moodDimensions.warmth",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "Pop / Internet": {
+      "candidates": [
+        {
+          "text": "팝 계열",
+          "category": "lineage",
+          "requires": [
+            {
+              "path": "rhythmicGrammar.fourOnFloor",
+              "min": 0.5
+            },
+            {
+              "path": "moodDimensions.brightness",
+              "min": 0.5
+            }
+          ]
+        }
+      ]
     }
   },
   "relationPolicy": "Relations are conditional priors describing where a style sits, never observations. They only become candidates when the live genre is confident and independent current evidence supports them. Confidence decreases from parents to lineage to adjacency.",

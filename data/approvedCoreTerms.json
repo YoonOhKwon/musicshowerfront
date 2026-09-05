@@ -1,16 +1,149 @@
 {
   "version": 1,
   "entries": [
-    { "term": "브레이크코어", "aliases": ["breakcore"], "genreFamily": "Breakcore" },
-    { "term": "하드코어", "aliases": ["hardcore", "hardcore techno"], "genreFamily": "Hardcore" },
-    { "term": "데스코어", "aliases": ["deathcore"], "genreFamily": "Deathcore" },
-    { "term": "매스코어", "aliases": ["mathcore"], "genreFamily": "Mathcore" },
-    { "term": "글리치코어", "aliases": ["glitchcore"], "genreFamily": "Glitchcore" },
-    { "term": "디지코어", "aliases": ["digicore"], "genreFamily": "Digicore" },
-    { "term": "시길코어", "aliases": ["sigilkid", "sigilcore"], "genreFamily": "Digicore" },
-    { "term": "프렌치코어", "aliases": ["frenchcore"], "genreFamily": "Frenchcore" },
-    { "term": "스피드코어", "aliases": ["speedcore"], "genreFamily": "Speedcore" },
-    { "term": "니트로코어", "aliases": ["nitrocore"], "genreFamily": "Nitrocore" },
-    { "term": "로파이코어", "aliases": ["lofi core", "lo-fi core"], "genreFamily": "Lo-Fi" }
+    {
+      "term": "브레이크코어",
+      "aliases": [
+        "breakcore"
+      ],
+      "genreFamily": "Breakcore"
+    },
+    {
+      "term": "하드코어",
+      "aliases": [
+        "hardcore",
+        "hardcore techno"
+      ],
+      "genreFamily": "Hardcore"
+    },
+    {
+      "term": "데스코어",
+      "aliases": [
+        "deathcore"
+      ],
+      "genreFamily": "Deathcore"
+    },
+    {
+      "term": "매스코어",
+      "aliases": [
+        "mathcore"
+      ],
+      "genreFamily": "Mathcore"
+    },
+    {
+      "term": "글리치코어",
+      "aliases": [
+        "glitchcore"
+      ],
+      "genreFamily": "Glitchcore"
+    },
+    {
+      "term": "디지코어",
+      "aliases": [
+        "digicore"
+      ],
+      "genreFamily": "Digicore"
+    },
+    {
+      "term": "시길코어",
+      "aliases": [
+        "sigilkid",
+        "sigilcore"
+      ],
+      "genreFamily": "Digicore"
+    },
+    {
+      "term": "프렌치코어",
+      "aliases": [
+        "frenchcore"
+      ],
+      "genreFamily": "Frenchcore"
+    },
+    {
+      "term": "스피드코어",
+      "aliases": [
+        "speedcore"
+      ],
+      "genreFamily": "Speedcore"
+    },
+    {
+      "term": "니트로코어",
+      "aliases": [
+        "nitrocore"
+      ],
+      "genreFamily": "Nitrocore"
+    },
+    {
+      "term": "로파이코어",
+      "aliases": [
+        "lofi core",
+        "lo-fi core"
+      ],
+      "genreFamily": "Lo-Fi"
+    },
+    {
+      "term": "해피 하드코어",
+      "aliases": [
+        "happy hardcore"
+      ],
+      "genreFamily": "Happy Hardcore",
+      "source": "classifier"
+    },
+    {
+      "term": "브릿코어",
+      "aliases": [
+        "britcore"
+      ],
+      "genreFamily": "Britcore",
+      "source": "classifier"
+    },
+    {
+      "term": "호러코어",
+      "aliases": [
+        "horrorcore"
+      ],
+      "genreFamily": "Horrorcore",
+      "source": "classifier"
+    },
+    {
+      "term": "그라인드코어",
+      "aliases": [
+        "grindcore"
+      ],
+      "genreFamily": "Grindcore",
+      "source": "classifier"
+    },
+    {
+      "term": "멜로딕 하드코어",
+      "aliases": [
+        "melodic hardcore"
+      ],
+      "genreFamily": "Melodic Hardcore",
+      "source": "classifier"
+    },
+    {
+      "term": "메탈코어",
+      "aliases": [
+        "metalcore"
+      ],
+      "genreFamily": "Metalcore",
+      "source": "classifier"
+    },
+    {
+      "term": "노이즈코어",
+      "aliases": [
+        "noisecore"
+      ],
+      "genreFamily": "Noisecore",
+      "source": "classifier"
+    },
+    {
+      "term": "포스트 하드코어",
+      "aliases": [
+        "post-hardcore"
+      ],
+      "genreFamily": "Post-Hardcore",
+      "source": "classifier"
+    }
   ]
 }

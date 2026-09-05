@@ -95,3 +95,45 @@ test("Ambient / Cinematic family requires both spaciousness and a genuinely spar
   });
   assert.ok(!busy.candidates.map(item => item.text).includes("앰비언트 계열"));
 });
+
+// Project-transformation ask: a genre outside the 24 hand-curated data.genres entries must not go
+// silent just because it isn't individually curated -- as long as its FAMILY (which the classifier
+// assigns to all 400 real classes via discogsParentFamily, semanticEngine.js) has a families entry,
+// real evidence can still ground a lineage claim. Blues/Classical/Folk/Reggae/Children's all map to
+// "Acoustic / Traditional"; Pop maps to "Pop / Internet" -- neither had a families entry before.
+test("Acoustic / Traditional family (blues/classical/folk/reggae -- none individually curated) surfaces a lineage claim from real evidence", () => {
+  const engine = new GenreContext.Engine(knowledge);
+  const grounded = engine.evaluate({
+    genre: { primary: "Delta Blues", family: "Acoustic / Traditional", confidence: 0.8, uncertain: false },
+    rhythmicGrammar: {}, expressionFeatures: { tonalFocus: 0.65 },
+    productionEvidence: {}, instruments: [], moodDimensions: { warmth: 0.6 }
+  });
+  assert.ok(grounded.candidates.map(item => item.text).includes("어쿠스틱 전통 계열"));
+  const ungrounded = engine.evaluate({
+    genre: { primary: "Delta Blues", family: "Acoustic / Traditional", confidence: 0.8, uncertain: false },
+    rhythmicGrammar: {}, expressionFeatures: { tonalFocus: 0.2 },
+    productionEvidence: {}, instruments: [], moodDimensions: { warmth: 0.6 }
+  });
+  assert.ok(!ungrounded.candidates.map(item => item.text).includes("어쿠스틱 전통 계열"),
+    "low tonal focus must not still claim an acoustic lineage");
+});
+
+test("Pop / Internet family surfaces a lineage claim from real evidence", () => {
+  const engine = new GenreContext.Engine(knowledge);
+  const result = engine.evaluate({
+    genre: { primary: "Europop", family: "Pop / Internet", confidence: 0.8, uncertain: false },
+    rhythmicGrammar: { fourOnFloor: 0.6 }, expressionFeatures: {},
+    productionEvidence: {}, instruments: [], moodDimensions: { brightness: 0.6 }
+  });
+  assert.ok(result.candidates.map(item => item.text).includes("팝 계열"));
+});
+
+test("a genre whose family the classifier cannot map to any curated family (e.g. 'Unknown') stays honestly silent, not fabricated", () => {
+  const engine = new GenreContext.Engine(knowledge);
+  const result = engine.evaluate({
+    genre: { primary: "Some Untabled Genre", family: "Unknown", confidence: 0.9, uncertain: false },
+    rhythmicGrammar: { swing: 0.9, fourOnFloor: 0.9 }, expressionFeatures: { tonalFocus: 0.9 },
+    productionEvidence: {}, instruments: [], moodDimensions: { warmth: 0.9, brightness: 0.9 }
+  });
+  assert.equal(result.candidates.length, 0);
+});
