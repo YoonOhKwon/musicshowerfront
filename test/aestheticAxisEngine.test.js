@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const AestheticAxisEngine = require("../js/semantic/aestheticAxisEngine");
 const GenreContext = require("../js/semantic/genreContextEngine");
+const Grammar = require("../js/semantic/rhythmicGrammar");
 const aestheticAxes = require("../data/aestheticAxes.json");
 const aestheticRegions = require("../data/aestheticRegions.json");
 const genreContextKnowledge = require("../data/genreContextKnowledge.json");
@@ -57,11 +58,12 @@ test("a genre-prior component alone (no real acoustic signal) cannot manufacture
 test("STEP 1: same acoustic evidence, a genre absent from the prior table now scores IDENTICALLY to an unconfirmed genre (not lower)", () => {
   const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
   const view = { moodDimensions: { warmth: 0.7, brightness: 0.6 },
-    productionEvidence: { sampleBased: 0.6, distortion: 0.3 }, rhythmicGrammar: { fourOnFloor: 0.6 } };
+    productionEvidence: { sampleBased: 0.6, distortion: 0.3 },
+    rhythmicGrammar: { fourOnFloor: 0.6, syncopation: 0.3, brokenBeat: 0.2, swing: 0.1 } };
   const untabled = engine.evaluateAxes(view, { primary: "Techno", confidence: 0.85, uncertain: false });
   const alsoUntabled = engine.evaluateAxes(view, { primary: "Shoegaze", confidence: 0.85, uncertain: false });
   const unconfirmed = engine.evaluateAxes(view, { primary: "Unknown", confidence: 0.2, uncertain: true });
-  for (const axis of ["nostalgia", "artificiality", "urbanity", "motion"]) {
+  for (const axis of ["nostalgia", "artificiality", "urbanity", "syncopation"]) {
     assert.equal(untabled.axes[axis], unconfirmed.axes[axis],
       `${axis}: Techno (untabled) must equal unconfirmed genre, not score lower`);
     assert.equal(alsoUntabled.axes[axis], unconfirmed.axes[axis], `${axis}: Shoegaze (untabled) must equal unconfirmed genre`);
@@ -249,4 +251,109 @@ test("evaluate() exposes an axisSignature alongside its candidates, matching axi
   const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
   const result = engine.evaluate({ moodDimensions: { warmth: 0.7, brightness: 0.4 }, productionEvidence: { sampleBased: 0.6 } }, genre);
   assert.equal(result.axisSignature, AestheticAxisEngine.axisSignature(result.axes));
+});
+
+// STEP 2 gate: every path an axis component references must be a genuinely LIVE snapshot field
+// (capable of holding a real value under some realistic input), never one that is structurally
+// hardcoded to null. This is the exact class of bug STEP 1's fix was framed around, one level
+// deeper: js/semantic/rhythmicGrammar.js's production() unconditionally returns
+// `stereoWidth: null, reverb: null, distortion: null` -- discovered while doing this audit,
+// confirmed empirically below, not merely by reading the source. Three axis components (decay's
+// distortion at 0.45 weight -- its LARGEST component -- plus glossiness's stereoWidth, nostalgia's
+// distortion, tension's distortion, and BOTH of intimacy's two production components) referenced
+// these before this fix, meaning intimacy was silently "= warmth alone" this whole time.
+const KNOWN_DEAD_PATHS = new Set([
+  "productionEvidence.stereoWidth", "productionEvidence.reverb", "productionEvidence.distortion"
+]);
+const KNOWN_LIVE_PATHS = new Set([
+  "productionEvidence.sampleBased", "productionEvidence.sidechain", "productionEvidence.filterSweep",
+  "productionEvidence.pumping", "productionEvidence.vocalChop",
+  "moodDimensions.aggression", "moodDimensions.arousal", "moodDimensions.brightness",
+  "moodDimensions.spaciousness", "moodDimensions.tension", "moodDimensions.valence",
+  "moodDimensions.warmth", "moodDimensions.weight",
+  "rhythmicGrammar.confidence", "rhythmicGrammar.onsetCount", "rhythmicGrammar.fourOnFloor",
+  "rhythmicGrammar.swing", "rhythmicGrammar.syncopation", "rhythmicGrammar.brokenBeat",
+  "rhythmicGrammar.subdivisionRatio", "rhythmicGrammar.accentPeriodicity",
+  "rhythmicGrammar.accentPeriodicityConfidence", "rhythmicGrammar.accentPlacement",
+  "rhythmicGrammar.halfTimeLikelihood", "rhythmicGrammar.doubleTimeLikelihood",
+  "rhythmicGrammar.microTimingDeviation", "rhythmicGrammar.groovePushPull",
+  "rhythmicGrammar.kickPeriodicity", "rhythmicGrammar.rhythmicEntropy",
+  "measurements.transientDensity", "measurements.onsetRate", "measurements.bass",
+  "measurements.bpm", "measurements.flatness", "measurements.harmonicMovement",
+  "measurements.tempoStability", "measurements.tonalFocus"
+]);
+
+test("STEP 2 gate: no axis component references a path known to be structurally dead", () => {
+  for (const [axisName, def] of Object.entries(aestheticAxes.axes)) {
+    for (const component of def.components || []) {
+      if (!component.path) continue;
+      assert.ok(!KNOWN_DEAD_PATHS.has(component.path),
+        `${axisName} references ${component.path}, hardcoded to always-null in rhythmicGrammar.js's production() -- this component can never contribute`);
+    }
+  }
+});
+
+test("STEP 2 gate: every axis component path is on the verified-live snapshot field list", () => {
+  for (const [axisName, def] of Object.entries(aestheticAxes.axes)) {
+    for (const component of def.components || []) {
+      if (!component.path) continue;
+      assert.ok(KNOWN_LIVE_PATHS.has(component.path),
+        `${axisName} references ${component.path}, which is not on the verified-live path list -- ` +
+        `confirm by reading the producing source that it can hold a real value, then add it there`);
+    }
+  }
+});
+
+test("STEP 2 gate meta-test: productionEvidence.stereoWidth/reverb/distortion are empirically confirmed always-null, even under maximally favorable input", () => {
+  const frames = Array.from({ length: 8 }, (_, index) => ({ centroid: 1000 + index * 200 }));
+  const envelope = [];
+  const beatTimestamps = [];
+  for (let beat = 0; beat < 10; beat++) {
+    const start = beat * 500;
+    beatTimestamps.push(start);
+    for (let index = 0; index < 10; index++)
+      envelope.push({ at: start + index * 50, value: index < 3 ? 0.2 : index > 7 ? 0.9 : 0.5 });
+  }
+  const result = Grammar.production({ deltaRms: 0.01, deltaCentroid: 1000, pumping: 0.5 }, frames, {
+    envelope, beatTimestamps, beatConfidence: 0.9, repetition: 0.9, masterBrightness: 0.2, voiceConfidence: 0.8, onsetRate: 4
+  });
+  assert.equal(result.stereoWidth, null);
+  assert.equal(result.reverb, null);
+  assert.equal(result.distortion, null);
+  // Contrast: other optional fields DO resolve under this same favorable input, proving the three
+  // above are dead by design, not just unlucky with this particular synthetic input.
+  assert.ok(Number.isFinite(result.filterSweep), "filterSweep should resolve under this favorable input, unlike the three dead fields");
+  assert.ok(Number.isFinite(result.sampleBased), "sampleBased should resolve under this favorable input, unlike the three dead fields");
+});
+
+test("STEP 2: motion split into drive (steady propulsion) and syncopation (off-beat displacement), fourOnFloor now actually drives an axis", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const genre = { primary: "Techno", confidence: 0.85, uncertain: false };
+  const fourOnFloorHeavy = engine.evaluateAxes({ rhythmicGrammar: { fourOnFloor: 0.95, kickPeriodicity: 0.9, confidence: 0.9, syncopation: 0.05, brokenBeat: 0.05, swing: 0.05 },
+    moodDimensions: { arousal: 0.8 }, productionEvidence: { sidechain: 0.7 } }, genre);
+  assert.ok(fourOnFloorHeavy.axes.drive > 0.7, `a 0.95-fourOnFloor techno track should score high on drive, got ${fourOnFloorHeavy.axes.drive}`);
+  const syncopationHeavy = engine.evaluateAxes({ rhythmicGrammar: { fourOnFloor: 0.05, kickPeriodicity: 0.1, confidence: 0.3, syncopation: 0.9, brokenBeat: 0.85, swing: 0.7 },
+    moodDimensions: { arousal: 0.3 }, productionEvidence: {} }, genre);
+  assert.ok(syncopationHeavy.axes.syncopation > 0.6, `a heavily syncopated/broken pattern should score high on syncopation, got ${syncopationHeavy.axes.syncopation}`);
+  assert.ok(syncopationHeavy.axes.drive < fourOnFloorHeavy.axes.drive, "the syncopation-heavy pattern should score lower on drive than the four-on-floor one");
+  assert.equal(aestheticAxes.axes.motion, undefined, "the old combined motion axis should no longer exist");
+});
+
+test("STEP 2: density and clarity axes exist and resolve from real signals", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const genre = { primary: "Shoegaze", confidence: 0.85, uncertain: false };
+  const busy = engine.evaluateAxes({ measurements: { transientDensity: 0.8 }, moodDimensions: { arousal: 0.7, aggression: 0.7 } }, genre);
+  assert.ok(busy.axes.density !== null && busy.axes.density > 0.5);
+  assert.ok(busy.axes.clarity !== null && busy.axes.clarity < 0.5, "high aggression/transientDensity should read as LOW clarity");
+  const clean = engine.evaluateAxes({ measurements: { transientDensity: 0.1 }, moodDimensions: { arousal: 0.2, aggression: 0.1 } }, genre);
+  assert.ok(clean.axes.clarity > busy.axes.clarity, "low aggression/transientDensity should read as higher clarity than the busy case");
+});
+
+test("STEP 2: intimacy no longer silently reduces to warmth alone -- spaciousness now genuinely moves it", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, { entries: [] });
+  const genre = { primary: "Ambient", confidence: 0.85, uncertain: false };
+  const close = engine.evaluateAxes({ moodDimensions: { warmth: 0.6, spaciousness: 0.1, aggression: 0.2 } }, genre);
+  const spacious = engine.evaluateAxes({ moodDimensions: { warmth: 0.6, spaciousness: 0.9, aggression: 0.2 } }, genre);
+  assert.ok(close.axes.intimacy > spacious.axes.intimacy,
+    `same warmth, but low spaciousness must read as more intimate than high spaciousness (got ${close.axes.intimacy} vs ${spacious.axes.intimacy})`);
 });

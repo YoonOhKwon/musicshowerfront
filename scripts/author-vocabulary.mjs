@@ -46,23 +46,28 @@ const SEED_REGIONS = [
   { axes: ["nostalgia", "decay"], description: "낡고 바랜 기억, 오래된 매체의 질감" },
   { axes: ["nostalgia", "glossiness", "urbanity"], description: "버블경제 시절 도시의 반짝임" },
   { axes: ["artificiality", "glossiness"], description: "인공적이고 매끈한 광택" },
-  { axes: ["artificiality", "motion"], description: "가상의 질주감, 디지털 스피드" },
+  { axes: ["artificiality", "drive"], description: "가상의 질주감, 디지털 스피드" },
   { axes: ["decay", "warmth"], description: "따뜻하게 낡아가는 느낌" },
-  { axes: ["motion", "tension"], description: "조여오는 질주감, 압박된 속도" },
+  { axes: ["drive", "tension"], description: "조여오는 질주감, 압박된 속도" },
   { axes: ["intimacy", "warmth"], description: "가까운 거리의 온기" },
   { axes: ["urbanity", "glossiness"], description: "도시의 야경, 매끈한 스카이라인" },
   { axes: ["weight", "tension"], description: "짓누르는 압박감" },
   { axes: ["weight", "intimacy"], description: "육중하고 가까운 존재감" },
-  { axes: ["glossiness", "motion"], description: "매끄럽게 미끄러지는 속도감" },
+  { axes: ["glossiness", "drive"], description: "매끄럽게 미끄러지는 속도감" },
   { axes: ["decay", "intimacy"], description: "낡은 방 안의 고요한 근접감" },
   { axes: ["nostalgia", "warmth"], description: "따뜻한 회상" },
   { axes: ["artificiality", "tension"], description: "인공적으로 조여오는 긴장" },
-  { axes: ["urbanity", "motion"], description: "도시의 속도감" },
+  { axes: ["urbanity", "drive"], description: "도시의 속도감" },
   { axes: ["decay", "weight"], description: "무겁게 가라앉은 열화" },
   { axes: ["glossiness", "warmth"], description: "따뜻한 광택" },
   { axes: ["intimacy", "decay", "warmth"], description: "낡은 온기가 남은 방" },
   { axes: ["artificiality", "urbanity"], description: "인공적인 도시 감각" },
-  { axes: ["nostalgia", "motion"], description: "짙어지는 향수, 흘러가는 시간" }
+  { axes: ["nostalgia", "drive"], description: "짙어지는 향수, 흘러가는 시간" },
+  // STEP 2 additions: syncopation (split out of the old combined "motion") and the two newly
+  // added axes (density, clarity) had no seed territory at all until now.
+  { axes: ["syncopation", "urbanity"], description: "도시의 엇박 그루브, 개러지풍 스텝" },
+  { axes: ["density", "weight"], description: "짓누르는 밀도, 두꺼운 질감" },
+  { axes: ["clarity", "intimacy"], description: "투명하고 가까운 소리결" }
 ];
 for (const region of SEED_REGIONS) for (const axis of region.axes)
   if (!AXIS_NAMES.includes(axis)) throw new Error(`SEED_REGIONS references unknown axis "${axis}" -- keep this list in sync with data/aestheticAxes.json`);

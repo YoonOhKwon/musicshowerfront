@@ -1,13 +1,12 @@
 {
-  "version": 1,
+  "version": 2,
   "axes": {
     "nostalgia": {
       "components": [
-        { "path": "productionEvidence.sampleBased", "weight": 0.25 },
-        { "path": "moodDimensions.warmth", "weight": 0.2 },
-        { "path": "productionEvidence.distortion", "weight": 0.15 },
+        { "path": "productionEvidence.sampleBased", "weight": 0.3 },
+        { "path": "moodDimensions.warmth", "weight": 0.25 },
         { "genrePriors": { "vaporwave": 0.85, "future funk": 0.65, "city pop": 0.7, "synthwave": 0.75,
-            "lofi": 0.8, "lo-fi": 0.8, "vaportrap": 0.75, "nu disco": 0.5 }, "weight": 0.4 }
+            "lofi": 0.8, "lo-fi": 0.8, "vaportrap": 0.75, "nu disco": 0.5 }, "weight": 0.45 }
       ]
     },
     "artificiality": {
@@ -21,35 +20,43 @@
     },
     "glossiness": {
       "components": [
-        { "path": "productionEvidence.filterSweep", "weight": 0.3 },
-        { "path": "moodDimensions.brightness", "weight": 0.35 },
-        { "path": "productionEvidence.stereoWidth", "weight": 0.15 },
+        { "path": "productionEvidence.filterSweep", "weight": 0.35 },
+        { "path": "moodDimensions.brightness", "weight": 0.4 },
         { "genrePriors": { "city pop": 0.75, "future funk": 0.7, "nu disco": 0.65, "french house": 0.6,
-            "electro house": 0.5 }, "weight": 0.2 }
+            "electro house": 0.5 }, "weight": 0.25 }
       ]
     },
     "decay": {
       "components": [
-        { "path": "productionEvidence.distortion", "weight": 0.45 },
-        { "path": "moodDimensions.brightness", "weight": 0.2, "invert": true },
-        { "genrePriors": { "lofi": 0.85, "lo-fi": 0.85, "vaporwave": 0.45 }, "weight": 0.35 }
+        { "path": "moodDimensions.brightness", "weight": 0.3, "invert": true },
+        { "path": "productionEvidence.sampleBased", "weight": 0.25 },
+        { "path": "moodDimensions.aggression", "weight": 0.15 },
+        { "genrePriors": { "lofi": 0.85, "lo-fi": 0.85, "vaporwave": 0.45 }, "weight": 0.3 }
       ]
     },
-    "motion": {
+    "drive": {
       "components": [
-        { "path": "rhythmicGrammar.syncopation", "weight": 0.25 },
-        { "path": "rhythmicGrammar.brokenBeat", "weight": 0.2 },
-        { "path": "moodDimensions.arousal", "weight": 0.2 },
-        { "path": "productionEvidence.sidechain", "weight": 0.15 },
+        { "path": "rhythmicGrammar.fourOnFloor", "weight": 0.35 },
+        { "path": "rhythmicGrammar.kickPeriodicity", "weight": 0.2 },
+        { "path": "rhythmicGrammar.confidence", "weight": 0.15 },
+        { "path": "moodDimensions.arousal", "weight": 0.15 },
+        { "path": "productionEvidence.sidechain", "weight": 0.15 }
+      ]
+    },
+    "syncopation": {
+      "components": [
+        { "path": "rhythmicGrammar.syncopation", "weight": 0.35 },
+        { "path": "rhythmicGrammar.brokenBeat", "weight": 0.25 },
+        { "path": "rhythmicGrammar.swing", "weight": 0.15 },
         { "genrePriors": { "uk garage": 0.6, "2-step": 0.55, "2 step": 0.55, "speed garage": 0.55,
-            "garage house": 0.5, "eurodance": 0.7, "trance": 0.6, "electroclash": 0.65, "y2k": 0.8 }, "weight": 0.3 }
+            "garage house": 0.5 }, "weight": 0.25 }
       ]
     },
     "intimacy": {
       "components": [
-        { "path": "productionEvidence.stereoWidth", "weight": 0.35, "invert": true },
-        { "path": "productionEvidence.reverb", "weight": 0.35, "invert": true },
-        { "path": "moodDimensions.warmth", "weight": 0.3 }
+        { "path": "moodDimensions.spaciousness", "weight": 0.5, "invert": true },
+        { "path": "moodDimensions.warmth", "weight": 0.35 },
+        { "path": "moodDimensions.aggression", "weight": 0.15, "invert": true }
       ]
     },
     "urbanity": {
@@ -70,13 +77,27 @@
     "tension": {
       "components": [
         { "path": "moodDimensions.tension", "weight": 0.7 },
-        { "path": "productionEvidence.distortion", "weight": 0.3 }
+        { "path": "moodDimensions.aggression", "weight": 0.3 }
       ]
     },
     "weight": {
       "components": [
         { "path": "moodDimensions.weight", "weight": 0.7 },
         { "path": "moodDimensions.warmth", "weight": 0.3 }
+      ]
+    },
+    "density": {
+      "components": [
+        { "path": "measurements.transientDensity", "weight": 0.5 },
+        { "path": "moodDimensions.arousal", "weight": 0.2 },
+        { "genrePriors": { "shoegaze": 0.85, "noise": 0.8, "wall of sound": 0.8, "maximalist": 0.75,
+            "ambient": 0.15, "drone": 0.2, "minimal": 0.2, "minimal techno": 0.25 }, "weight": 0.3 }
+      ]
+    },
+    "clarity": {
+      "components": [
+        { "path": "moodDimensions.aggression", "weight": 0.6, "invert": true },
+        { "path": "measurements.transientDensity", "weight": 0.4, "invert": true }
       ]
     }
   }

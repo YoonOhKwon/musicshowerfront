@@ -63,17 +63,21 @@ test("anime derives from a strong kawaii or magical-girl signal, not a separate 
 });
 
 test("y2k needs UK garage-adjacent lineage plus real motion evidence", () => {
+  // STEP 2: UK Garage's genre-prior lives on the syncopation axis (2-step swing/displacement),
+  // not drive -- so the real signal that must accompany the genre match is rhythmicGrammar's
+  // syncopation/brokenBeat/swing, not production sidechain (which is drive's signal and carries
+  // no UK Garage prior at all).
   const engine = new AestheticEvidence.Engine(axisEngine);
   const state = {
     genre: { primary: "UK Garage", family: "Electronic / Club", confidence: 0.8, uncertain: false },
     moodDimensions: { brightness: 0.6, valence: 0.5 },
-    productionEvidence: { sidechain: 0.6 },
+    rhythmicGrammar: { syncopation: 0.6, brokenBeat: 0.5, swing: 0.4 },
     instrumentationEvidence: {}
   };
   const result = engine.evaluate(state);
   assert.ok(result.y2k !== null && result.y2k > 0);
-  const noProduction = engine.evaluate({ ...state, productionEvidence: {} });
-  assert.equal(noProduction.y2k, null, "genre alone (no rhythm/production evidence) must not carry motion");
+  const noRhythmEvidence = engine.evaluate({ ...state, rhythmicGrammar: {} });
+  assert.equal(noRhythmEvidence.y2k, null, "genre alone (no rhythm evidence) must not carry motion");
 });
 
 test("uncertain or low-confidence genre disables all aesthetic evidence", () => {
