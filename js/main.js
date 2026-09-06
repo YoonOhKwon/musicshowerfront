@@ -50,17 +50,76 @@ function setup() {
 // same as a classifier or DSP read, rather than being handed a shortcut. First capture at 30s (the
 // same point genre/context language is already opening up); re-captured every 45s afterward so the
 // evidence genuinely tracks a "still listening" cadence instead of a one-shot snapshot.
-const deepListenState = { active: false, lastTriggeredAt: 0 };
+const deepListenState = {
+  active: false,
+  lastTriggeredAt: 0,
+  activeListeningMs: 0,
+  lastTickAt: 0,
+  audible: null,
+  silenceStartedAt: 0,
+  captureReadyAt: 30000,
+  sessionKey: null,
+  requestSequence: 0,
+  controller: null
+};
+
+function resetDeepListenRuntime() {
+  deepListenState.controller?.abort();
+  deepListenState.active = false;
+  deepListenState.lastTriggeredAt = 0;
+  deepListenState.activeListeningMs = 0;
+  deepListenState.lastTickAt = performance.now();
+  deepListenState.audible = null;
+  deepListenState.silenceStartedAt = 0;
+  deepListenState.captureReadyAt = 30000;
+  const uniqueSession = globalThis.crypto?.randomUUID?.() ||
+    `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  deepListenState.sessionKey = `${uniqueSession}:${getSemanticState()?.sessionId || 0}`.slice(0, 40);
+  deepListenState.requestSequence += 1;
+  deepListenState.controller = null;
+}
 
 function updateWordSpawner() {
   if (!audioStarted) return;
   const now = millis();
+  const state = getSemanticState();
+  const tickAt = performance.now();
+  const tickDelta = deepListenState.lastTickAt ? Math.min(250, Math.max(0, tickAt - deepListenState.lastTickAt)) : 0;
+  deepListenState.lastTickAt = tickAt;
+  const audible = state.expressionFeatures?.audible !== false;
 
-  if (!deepListenState.active && typeof mlAudioWindow !== "undefined" && mlAudioWindow) {
-    const sessionMs = performance.now() - (pcmCaptureMetrics?.startedAt || performance.now());
-    const dueAt = deepListenState.lastTriggeredAt ? deepListenState.lastTriggeredAt + 45000 : 30000;
+  const lifecycle = typeof getTrackLifecycleEngine === "function" ? getTrackLifecycleEngine() : null;
+  if (lifecycle) {
+    const features = {
+      bpm: typeof bpm !== "undefined" ? bpm : 0,
+      bpmConfidence: typeof bpmConfidence !== "undefined" ? bpmConfidence : 0,
+      spectralNovelty: state.novelty?.score || 0
+    };
+    lifecycle.tick({ isAudible: audible, now: Date.now(), features });
+  }
+
+  if (audible) {
+    const resumedAfterLongGap = deepListenState.audible === false &&
+      tickAt - deepListenState.silenceStartedAt >= 3000;
+    // A long pause leaves silence in the rolling PCM buffer. Wait for a fresh 30-second window
+    // after resumption rather than asking Flamingo to interpret a stale/silent mixed segment.
+    if (resumedAfterLongGap) deepListenState.captureReadyAt = deepListenState.activeListeningMs + 30000;
+    deepListenState.activeListeningMs += tickDelta;
+  } else if (deepListenState.audible !== false) {
+    deepListenState.silenceStartedAt = tickAt;
+  }
+  deepListenState.audible = audible;
+
+  if (audible && !deepListenState.active && typeof mlAudioWindow !== "undefined" && mlAudioWindow) {
+    const sessionMs = deepListenState.activeListeningMs;
+    const cadenceDueAt = deepListenState.lastTriggeredAt ? deepListenState.lastTriggeredAt + 45000 : 30000;
+    const dueAt = Math.max(cadenceDueAt, deepListenState.captureReadyAt);
     if (sessionMs > dueAt) { deepListenState.lastTriggeredAt = sessionMs; triggerDeepAnalysisUpload(); }
   }
+
+  // Silence and pauses are listening gaps, not low-energy musical statements. Existing words
+  // finish naturally, but new words and Deep Listen captures wait for sound to resume.
+  if (!audible) return;
 
   const arousal = getActiveMoodProfile().arousal || 0.5;
   const densityFactor = WordLifecycle.densityFactor(floatingWords.length, CONFIG.visual.maxFloatingWords);
@@ -92,21 +151,96 @@ function pcmToWav(pcm, sampleRate) {
 
 function triggerDeepAnalysisUpload() {
   if (!mlAudioWindow) return;
+  const sessionId = getSemanticState().sessionId;
+  const sessionKey = deepListenState.sessionKey || String(sessionId);
+  const requestSequence = ++deepListenState.requestSequence;
+  const lifecycle = typeof getTrackLifecycleEngine === "function" ? getTrackLifecycleEngine() : null;
+  const trackEpoch = lifecycle ? lifecycle.getTrackEpoch() : 1;
+  const requestId = `flam-req-${trackEpoch}-${requestSequence}-${Date.now()}`;
   const pcm = mlAudioWindow.latestNative(30);
   if (!pcm || pcm.length < audioContext.sampleRate * 5) return;
   deepListenState.active = true;
+  const controller = new AbortController();
+  deepListenState.controller = controller;
   const buffer = pcmToWav(pcm, audioContext.sampleRate);
-  console.log("[Deep Listen] capturing 30s and uploading to /api/deep-analysis...");
-  fetch("/api/deep-analysis", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: buffer })
+  console.log(`[Deep Listen] capturing 30s audio (trackEpoch=${trackEpoch}) and uploading to /api/deep-analysis...`);
+  fetch("/api/deep-analysis", { method: "POST", headers: {
+    "Content-Type": "audio/wav",
+    "X-Music-Shower-Session": sessionKey,
+    "X-Music-Shower-Segment": String(requestSequence),
+    "X-Music-Shower-Track-Epoch": String(trackEpoch),
+    "X-Music-Shower-Request-Id": requestId,
+    "X-Music-Shower-Active-Ms": String(Math.round(deepListenState.activeListeningMs))
+  }, body: buffer, signal: controller.signal })
     .then(res => res.json())
     .then(data => {
+      if (!audioStarted || getSemanticState().sessionId !== sessionId || deepListenState.requestSequence !== requestSequence) return;
+      if (lifecycle && !lifecycle.validateResponse(data.trackEpoch)) {
+        console.warn(`[Deep Listen] Stale response dropped: packet trackEpoch ${data.trackEpoch} !== current trackEpoch ${lifecycle.getTrackEpoch()}`);
+        return;
+      }
       if (data.error) { console.error("[Deep Listen] server reported an error:", data.error); return; }
       console.log("[Deep Listen] caption:", data.caption);
       console.log(`[Deep Listen] ${data.observations?.length || 0} observation(s) ->`, data.observations);
-      if (Array.isArray(data.observations)) applyDirectAudioObservations(data.observations);
+      if (Array.isArray(data.observations)) {
+        applyDirectAudioObservations(data.observations, {
+          observationId: data.observationId,
+          structuredPacket: data.structuredPacket,
+          sessionId,
+          trackEpoch: data.trackEpoch,
+          requestId: data.requestId,
+          audioSegmentId: data.segmentId || null
+        });
+      }
+
+      // Asynchronous background Korean realization expansion (bypasses regular language pool cooldown)
+      if (data.structuredPacket) {
+        const toExpand = [];
+        const categories = ["aestheticConcepts", "impressions", "contextHypotheses"];
+        for (const catKey of categories) {
+          const poolKey = catKey === "aestheticConcepts" ? "aesthetic" : catKey === "impressions" ? "impression" : "context";
+          for (const raw of (data.structuredPacket[catKey] || [])) {
+            const text = typeof raw === "string" ? raw : raw?.text;
+            if (text && !/[가-힣]/.test(text)) {
+              toExpand.push({ text, category: poolKey });
+            }
+          }
+        }
+        if (toExpand.length > 0) {
+          fetch("/api/realize-direct-audio", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ concepts: toExpand, sessionId, trackEpoch })
+          })
+            .then(res => res.json())
+            .then(resData => {
+              if (!resData.realizations || (lifecycle && lifecycle.getTrackEpoch() !== resData.trackEpoch)) return;
+              const reservoir = typeof getFlamingoWordReservoir === "function" ? getFlamingoWordReservoir() : null;
+              const realizer = typeof DirectAudioRealizer !== "undefined" ? DirectAudioRealizer : null;
+              for (const [conceptText, family] of Object.entries(resData.realizations)) {
+                realizer?.registerFamily(conceptText, family);
+                if (reservoir) {
+                  const normKey = realizer ? realizer.normalizeKey(conceptText) : conceptText.toLowerCase().trim();
+                  const entry = reservoir.conceptRegistry.get(normKey);
+                  if (entry) {
+                    entry.family = [...new Set([...entry.family, ...family])];
+                  }
+                }
+              }
+            })
+            .catch(() => {});
+        }
+      }
     })
-    .catch(error => console.error("[Deep Listen] request failed (is flamingo_server.py running on :5005?):", error))
-    .finally(() => { deepListenState.active = false; });
+    .catch(error => {
+      if (error.name !== "AbortError") console.error("[Deep Listen] request failed (is flamingo_server.py running on :5005?):", error);
+    })
+    .finally(() => {
+      if (deepListenState.requestSequence === requestSequence) {
+        deepListenState.active = false;
+        deepListenState.controller = null;
+      }
+    });
 }
 
 function draw() {
@@ -161,7 +295,16 @@ function drawAIStatus() {
   textSize(12);
   textFont("Arial");
   fill(255, 255, 255, 145);
-  text(labels[state.status] || labels[state.ml.status] || "로컬 분석 준비", width - 24, 24);
+  const lifecycle = typeof getTrackLifecycleEngine === "function" ? getTrackLifecycleEngine() : null;
+  const reservoir = typeof getFlamingoWordReservoir === "function" ? getFlamingoWordReservoir() : null;
+  let statusText = labels[state.status] || labels[state.ml.status] || "로컬 분석 준비";
+  if (lifecycle) {
+    statusText += ` · [${lifecycle.getState()} e:${lifecycle.getTrackEpoch()}]`;
+    if (reservoir && reservoir.conceptRegistry.size > 0) {
+      statusText += ` · 🦩${reservoir.conceptRegistry.size}`;
+    }
+  }
+  text(statusText, width - 24, 24);
   pop();
 }
 

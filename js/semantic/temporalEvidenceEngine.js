@@ -40,6 +40,7 @@ const TemporalEvidence = (() => {
       this.pendingByFacet = new Map();
       this.liveEvents = new Map();
       this.trackTraits = new Map();
+      this.deepListeningMemory = new Map();
       this.historicalEvents = [];
       this.startedAt = 0;
       this.revision = 0;
@@ -65,18 +66,72 @@ const TemporalEvidence = (() => {
           continue;
         }
         presentKeys.add(key);
-        const observations = previousHistory && at - previousHistory.lastSeenAt <= this.contextMs
-          ? previousHistory.observations + 1 : 1;
+        const obsId = item.observationId || (Array.isArray(item.source) ? (item.source.includes("directAudio") ? item.claimId || "directAudio-event" : null) : item.source === "directAudio" ? item.claimId || "directAudio-event" : null);
+        const isEventBased = Boolean(obsId);
+
+        let observations = 1;
+        const memoryEntry = isEventBased ? this.deepListeningMemory.get(key) : null;
+        const priorHistory = previousHistory || (memoryEntry ? {
+          observations: memoryEntry.observations,
+          firstSeenAt: memoryEntry.firstSeenAt,
+          lastSeenAt: memoryEntry.lastSeenAt,
+          lastObservationId: memoryEntry.lastObservationId,
+          seenObservationIds: memoryEntry.seenObservationIds
+        } : null);
+
+        const seenObservationIds = priorHistory?.seenObservationIds instanceof Set
+          ? new Set(priorHistory.seenObservationIds)
+          : new Set(priorHistory?.lastObservationId ? [priorHistory.lastObservationId] : []);
+
+        const memoryWindow = isEventBased ? 90000 : this.contextMs;
+        if (priorHistory && at - priorHistory.lastSeenAt <= memoryWindow) {
+          if (isEventBased) {
+            if (obsId && seenObservationIds.has(obsId)) {
+              // Event-based observation seen again (even in alternating A -> B -> A sequence):
+              // Do NOT increment temporal observation count!
+              observations = priorHistory.observations;
+            } else {
+              if (obsId) {
+                seenObservationIds.add(obsId);
+                if (seenObservationIds.size > 128) {
+                  const first = seenObservationIds.values().next().value;
+                  seenObservationIds.delete(first);
+                }
+              }
+              observations = priorHistory.observations + 1;
+            }
+          } else {
+            observations = priorHistory.observations + 1;
+          }
+        } else if (isEventBased && obsId) {
+          seenObservationIds.add(obsId);
+        }
+
         const history = {
-          firstSeenAt: observations > 1 ? previousHistory.firstSeenAt : at,
+          firstSeenAt: observations > 1 || (priorHistory && isEventBased) ? priorHistory.firstSeenAt : at,
           lastSeenAt: at,
           observations,
-          peakConfidence: Math.max(previousHistory?.peakConfidence || 0, clamp(item.confidence)),
+          lastObservationId: obsId || priorHistory?.lastObservationId || null,
+          seenObservationIds,
+          peakConfidence: Math.max(priorHistory?.peakConfidence || 0, clamp(item.confidence)),
           provenance: itemProvenance
         };
         history.provenance.firstSeenAt = history.firstSeenAt;
         history.provenance.peakConfidence = history.peakConfidence;
         this.history.set(key, history);
+        if (isEventBased) {
+          this.deepListeningMemory.set(key, {
+            key,
+            text: item.text,
+            category: item.category,
+            firstSeenAt: history.firstSeenAt,
+            lastSeenAt: at,
+            observations,
+            lastObservationId: obsId,
+            seenObservationIds,
+            confidence: clamp(item.confidence)
+          });
+        }
         const stableForMs = at - history.firstSeenAt;
         const temporalStability = clamp(Math.min(1, observations / (layer === "LIVE" ? 1 : 6)) * 0.55 +
           Math.min(1, stableForMs / (layer === "FACT" ? this.musicalMs : this.contextMs)) * 0.45);
@@ -110,9 +165,10 @@ const TemporalEvidence = (() => {
         list.sort((a, b) => b.semanticConfidence - a.semanticConfidence);
         const challenger = list[0];
         const current = this.stableByFacet.get(facet);
-        const minimum = { FACT: 0.58, CONTEXT: 0.66, AESTHETIC: 0.62, IMPRESSION: 0.56 }[challenger.layer] ?? 0.58;
-        const neededObservations = challenger.layer === "FACT" ? 2 : 3;
-        const neededMs = ["CONTEXT", "AESTHETIC", "IMPRESSION"].includes(challenger.layer) ? 5500 : 0;
+        const isDirectAudio = challenger.sourceFamily === "directAudio" || challenger.source === "directAudio" || challenger.resolutionMomentum === true;
+        const minimum = isDirectAudio ? 0.48 : ({ FACT: 0.58, CONTEXT: 0.66, AESTHETIC: 0.62, IMPRESSION: 0.56 }[challenger.layer] ?? 0.58);
+        const neededObservations = isDirectAudio ? 1 : (challenger.layer === "FACT" ? 2 : 3);
+        const neededMs = isDirectAudio ? 0 : (["CONTEXT", "AESTHETIC", "IMPRESSION"].includes(challenger.layer) ? 5500 : 0);
         const eligible = challenger.semanticConfidence >= minimum && challenger.temporal.observations >= neededObservations &&
           challenger.temporal.stableForMs >= neededMs;
         if (!current && eligible) this.stableByFacet.set(facet, challenger);
@@ -172,7 +228,11 @@ const TemporalEvidence = (() => {
       // A factual detector disappearing means the current claim is unsupported. Keep the old
       // state internally for challenger hysteresis, but do not keep rendering it.
       const visibleStable = stable.filter(item => item.layer !== "FACT" || presentKeys.has(keyFor(item)));
-      const displayCandidates = [...liveEvents, ...visibleStable, ...visibleTraits].filter((item, index, all) =>
+      const activeDirectAudio = evaluated.filter(item =>
+        (item.sourceFamily === "directAudio" || item.source === "directAudio" || item.resolutionMomentum === true) &&
+        (item.confidence ?? 0.6) >= 0.45
+      );
+      const displayCandidates = [...liveEvents, ...activeDirectAudio, ...visibleStable, ...visibleTraits].filter((item, index, all) =>
         all.findIndex(other => keyFor(other) === keyFor(item)) === index);
       return {
         windows: { fastMs: this.fastMs, musicalMs: this.musicalMs, contextMs: this.contextMs },

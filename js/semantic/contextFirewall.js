@@ -90,7 +90,7 @@ const ContextFirewall = (() => {
     const rejected = [];
     for (const candidate of evidence.candidates || []) {
       const family = String(candidate.relationFamily || "").toUpperCase();
-      if (family === "AESTHETIC_ASSOCIATION" || family === "PRIMARY_GENRE" || !family) {
+      if (family === "AESTHETIC_ASSOCIATION" || family === "PRIMARY_GENRE" || !family || candidate.openWorld || candidate.source === "directAudio") {
         candidates.push(candidate);
         continue;
       }

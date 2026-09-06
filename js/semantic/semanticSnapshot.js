@@ -72,7 +72,8 @@ const SemanticSnapshot = (() => {
       snapshot.primitives?.role?.bassFunction || "",
       snapshot.primitives?.pulse?.accentPeriodicity ?? "",
       ...(snapshot.detectedIdioms || []).map(item => item.text),
-      ...(snapshot.impressionConcepts || []).map(item => item.id)
+      ...(snapshot.impressionConcepts || []).map(item => item.id),
+      snapshot.directAudioEvidence?.observationId || ""
     ].join("|");
     let hash = 2166136261;
     for (const character of compact) {
@@ -337,6 +338,21 @@ const SemanticSnapshot = (() => {
         capsule: state.verifiedClaims.capsule || null
       };
     }
+    if ((state.directAudioCandidates || []).length || (state.directAudioUncertainties || []).length) {
+      const directAudioCandidates = state.directAudioCandidates || [];
+      snapshot.directAudioEvidence = {
+        audible: directAudioCandidates.filter(c => c.layer === "FACT" || c.category === "production" || c.category === "rhythm").map(c => c.text),
+        genre: directAudioCandidates.filter(c => c.category === "genre").map(c => c.text),
+        context: directAudioCandidates.filter(c => ["scene", "era", "culture", "lineage"].includes(c.category)).map(c => c.text),
+        aesthetic: directAudioCandidates.filter(c => c.layer === "AESTHETIC" || c.category === "association").map(c => c.text),
+        impression: directAudioCandidates.filter(c => c.layer === "IMPRESSION" || c.category === "mood").map(c => c.text),
+        details: directAudioCandidates.slice(0, 16).map(c => [c.category, c.text,
+          Number.isFinite(c.confidence) ? c.confidence.toFixed(2) : null,
+          typeof c.reasoningHints === "string" ? c.reasoningHints : null].filter(Boolean).join(" | ")),
+        uncertainties: (state.directAudioUncertainties || []).slice(0, 8),
+        observationId: state.directAudioObservationId || null
+      };
+    }
     if (!Object.keys(snapshot.rhythmGrammarDiagnostics || {}).length) delete snapshot.rhythmGrammarDiagnostics;
     if (!state.genreReasoning) {
       delete snapshot.genreReasoning;
@@ -352,7 +368,7 @@ const SemanticSnapshot = (() => {
 
   const DELTA_ROOTS = new Set(["measurements", "moodDimensions", "rhythmicGrammar", "productionEvidence",
     "performance", "arrangement", "primitives", "detectedIdioms", "impressionConcepts", "primaryGenre",
-    "genreFamily", "currentSection"]);
+    "genreFamily", "currentSection", "directAudioEvidence"]);
   function flatten(value, prefix = "", output = {}) {
     if (value === null || value === undefined || typeof value !== "object") {
       if (prefix) output[prefix] = value;
@@ -389,6 +405,7 @@ const SemanticSnapshot = (() => {
       family: snapshot.genreFamily || "Unknown",
       idioms: (snapshot.detectedIdioms || []).slice(0, 8).map(item => [item.text, item.confidence, item.anchors]),
       impressions: (snapshot.impressionConcepts || []).slice(0, 5).map(item => [item.id, item.text, item.confidence, item.anchors]),
+      directAudio: snapshot.directAudioEvidence || null,
       instruments: (snapshot.instrumentation?.observed || []).slice(0, 6).map(item => [item.id || item.label, item.confidence]),
       section: snapshot.currentSection?.state || "unknown"
     };

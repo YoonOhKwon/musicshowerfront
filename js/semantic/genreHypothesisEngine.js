@@ -1,5 +1,6 @@
 const GenreHypotheses = (() => {
   const Facets = typeof SemanticFacets !== "undefined" ? SemanticFacets : require("./semanticFacets");
+  const GenreLabels = typeof GenreLabelShape !== "undefined" ? GenreLabelShape : require("./genreLabelShape");
   const clamp = value => Math.min(1, Math.max(0, Number(value) || 0));
 
   const normalize = value => String(value || "").toLowerCase().replace(/[\s_&-]+/g, "");
@@ -114,6 +115,30 @@ const GenreHypotheses = (() => {
         evidenceGroups: { classifier: { matched: true, score: item.semanticConfidence, required: true } },
         matchedEvidenceGroups: ["classifier"], supportingEvidence: [{ path: "classifierGenre.topK",
           value: item.classifierConfidence, label: item.genre, source: "genre-classifier" }], contradictingEvidence: [] }));
+
+      // Ingest open-world concept hypotheses from OpenWorldConceptRegistry or state
+      const openWorldItems = Array.isArray(state.openWorldConcepts)
+        ? state.openWorldConcepts
+        : (state.openWorldRegistry?.byType ? state.openWorldRegistry.byType("genre") : []);
+      for (const ow of openWorldItems) {
+        if (!ow?.canonicalLabel || !GenreLabels.isPlausibleGenreLabel(ow.canonicalLabel)) continue;
+        const confidence = clamp(ow.confidence ?? 0.6);
+        candidates.push({
+          genre: ow.canonicalLabel,
+          semanticConfidence: confidence,
+          classifierConfidence: 0.5,
+          kind: "open-world",
+          openWorld: true,
+          status: ow.status || "emerging",
+          temporalSupport: ow.temporalSupport || 1,
+          evidenceCoverage: 0.75,
+          independentEvidenceCount: Math.max(1, ow.sources?.length || (ow.source ? 1 : 1)),
+          independentEvidenceFamilies: Array.isArray(ow.sources) ? ow.sources : ["openWorld"],
+          supportingEvidence: ow.supportingObservations || [],
+          contradictingEvidence: ow.contradictions || []
+        });
+      }
+
       const relations = [];
       const rejectedHypotheses = [];
       for (const rule of this.rules.rules || []) {

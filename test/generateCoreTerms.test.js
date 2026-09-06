@@ -17,13 +17,10 @@ test("every classifier-recognized core genre has a known, human-verified Korean 
   assert.deepEqual(unmapped, [], `add these to KOREAN_TRANSLITERATION in scripts/generate-core-terms.cjs: ${unmapped.join(", ")}`);
 });
 
-// Regression coverage for the project-transformation ask: -코어 expressiveness should track what
-// the classifier genuinely recognizes (400-class Discogs-EffNet manifest), not only whatever a
-// human remembered to hand-curate into data/approvedCoreTerms.json.
-test("a classifier-derived core term (e.g. 메탈코어/Metalcore) is now accepted by safeText(), not just the original 11 hand-curated ones", () => {
+// The generated catalog improves normalization for classifier-recognized terms, but it is no
+// longer the ceiling of what the listening system may express.
+test("classifier-derived and not-yet-cataloged core terms both pass text hygiene", () => {
   assert.equal(Facets.safeText("메탈코어 질감", "association"), true);
   assert.equal(Facets.safeText("그라인드코어 리듬", "association"), true);
-  // A genuinely-unlisted, invented "-코어" coinage must still be rejected -- this expands the
-  // ceiling to real classifier vocabulary, it does not remove the gate against fabrication.
-  assert.equal(Facets.safeText("헬로키티코어", "association"), false);
+  assert.equal(Facets.safeText("아직등록되지않은코어", "association"), true);
 });

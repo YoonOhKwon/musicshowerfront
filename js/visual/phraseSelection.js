@@ -51,9 +51,10 @@ const PhraseSelection = (() => {
     // has actually been shown recently -- never all the way to zero, a stock phrase used sparingly
     // is still a legitimate impression.
     const clichePenalty = OPEN_LAYERS.has(item.layer) ? Math.max(0.25, 1 - Cliche.score(item.text, recent) * 0.75) : 1;
+    const resolutionMomentum = item.resolutionMomentum ? 2.0 : 1.0;
     return Math.max(0.005, (item.weight || item.score || 0.6) * quality * temporal * primitivePenalty * sourcePriority *
       tierFactor * familyPenalty * semanticFamilyPenalty * reservoirFitness * genericAncestorPenalty *
-      songUsePenalty * exhaustionPenalty * facetNeed * evidenceReservoir * clichePenalty * (typeFactor[item.type] || 1) /
+      songUsePenalty * exhaustionPenalty * facetNeed * evidenceReservoir * clichePenalty * resolutionMomentum * (typeFactor[item.type] || 1) /
       (1 + samePerspective * 0.22 + sameType * 0.08 + sameLayer * 0.13 + sameDistance * 0.08 + sameSource * 0.07));
   }
   // How settled the engine's OWN genre read already is, right now -- not "how long has the session
@@ -81,7 +82,7 @@ const PhraseSelection = (() => {
     return { LIVE: 0.06, FACT: 0.34, CONTEXT: 0.18, AESTHETIC: 0.21, IMPRESSION: 0.21 };
   }
   function choose(source = [], recent = [], random = Math.random, options = {}) {
-    const { changing = false, active = [], observationSeconds = Infinity, avoidFacets = [], evidenceReadiness = 0 } = options;
+    const { changing = false, active = [], observationSeconds = Infinity, avoidFacets = [], evidenceReadiness = 0, progressiveEngine = null } = options;
     // A confident, temporally-stable genre read earns the deeper layers sooner than the clock
     // alone would grant -- readiness in [0,1] scales elapsed time up to 2x, so an ambiguous track
     // (readiness 0) is governed purely by observationSeconds as before, while a track the engine
@@ -110,12 +111,29 @@ const PhraseSelection = (() => {
     const recentFamilies = new Set(recent.slice(-4).map(item => Quality.semanticFamily(item)));
     const familyFresh = available.filter(item => !recentFamilies.has(Quality.semanticFamily(item)));
     if (familyFresh.length) available = familyFresh;
-    const ratios = layerRatios(effectiveSeconds, changing);
+    const ratios = progressiveEngine && typeof progressiveEngine.getLayerWeights === "function"
+      ? progressiveEngine.getLayerWeights({ changing })
+      : layerRatios(effectiveSeconds, changing);
     const presentLayers = [...new Set(available.map(item => item.layer))];
-    const layerShare = layer => (ratios[layer] || 0.02) /
-      (1 + recent.filter(item => Layers.decorate(item).layer === layer).length * 0.9);
-    let layerCursor = random() * presentLayers.reduce((sum, layer) => sum + layerShare(layer), 0);
-    const layer = presentLayers.find(name => (layerCursor -= layerShare(name)) <= 0) || presentLayers.at(-1);
+    const activeTokens = active.filter(item => item && typeof item === "object" && item.text);
+    const activeLayerCounts = Object.fromEntries(Layers.names.map(name => [name,
+      activeTokens.filter(item => Layers.decorate(item).layer === name).length]));
+    // Selection follows the composition currently visible on screen, not only historical output.
+    // When Deep Listen opens AESTHETIC/IMPRESSION, their positive occupancy deficit makes the next
+    // vacancies fill with interpretive language instead of waiting through another full history cycle.
+    const layerShare = layer => {
+      const target = Number(ratios[layer]) || 0;
+      if (target <= 0) return 0;
+      const occupancy = activeTokens.length ? activeLayerCounts[layer] / activeTokens.length : 0;
+      const deficit = Math.max(0, target - occupancy);
+      const surplus = Math.max(0, occupancy - target);
+      const recentCount = recent.filter(item => Layers.decorate(item).layer === layer).length;
+      return target * (1 + deficit * 4.5) / ((1 + surplus * 3) * (1 + recentCount * 0.55));
+    };
+    const eligibleLayers = presentLayers.filter(layer => layerShare(layer) > 0);
+    if (!eligibleLayers.length) return undefined;
+    let layerCursor = random() * eligibleLayers.reduce((sum, layer) => sum + layerShare(layer), 0);
+    const layer = eligibleLayers.find(name => (layerCursor -= layerShare(name)) <= 0) || eligibleLayers.at(-1);
     let layerPool = available.filter(item => item.layer === layer);
     // The first FACT after a few seconds should reveal a musical idiom/instrument/production
     // reading when one exists, before falling back to another raw level adjective.

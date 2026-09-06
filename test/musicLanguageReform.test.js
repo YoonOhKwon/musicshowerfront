@@ -287,24 +287,36 @@ test("nine genre fixtures surface different grounded idioms without unsupported 
   }
 });
 
-test("'-코어' vocabulary is an external, curated whitelist honored by safeText, not a hardcoded 4-term array", () => {
+test("the historical '-코어' catalog remains a useful compatibility index, not an admission boundary", () => {
   assert.ok(approvedCoreTerms.entries.length >= 11, "data/approvedCoreTerms.json should carry the expanded scene list");
   for (const entry of approvedCoreTerms.entries) {
     assert.ok(Array.isArray(entry.aliases) && entry.aliases.length, `${entry.term} needs an English alias for grounding`);
     assert.ok(entry.genreFamily, `${entry.term} needs a genreFamily for grounding`);
-    assert.ok(Facets.safeText(entry.term, "genre"), `${entry.term} should be accepted as a registered scene term`);
+    assert.ok(Facets.safeText(entry.term, "genre"), `${entry.term} should remain accepted`);
   }
 });
 
-test("safeText rejects arbitrary invented '-코어' coinages that are not registered in approvedCoreTerms.json", () => {
-  for (const invented of ["유리코어", "네온코어", "헬로키티코어", "달빛코어"])
-    assert.equal(Facets.safeText(invented, "genre"), false, `${invented} must not be accepted as an established term`);
-  // A registered term embedded in a longer phrase must still pass -- only unregistered coinages are blocked.
+test("safeText treats unfamiliar '-코어' spellings as open-world vocabulary and leaves truth to evidence gates", () => {
+  for (const unfamiliar of ["유리코어", "네온코어", "헬로키티코어", "달빛코어"])
+    assert.equal(Facets.safeText(unfamiliar, "genre"), true, `${unfamiliar} must not fail only because it is unregistered`);
   assert.ok(Facets.safeText("글리치코어 계열", "genre"));
-  assert.equal(Facets.safeText("글리치코어 유리코어 계열", "genre"), false, "one invented term must fail the whole phrase");
+  assert.ok(Facets.safeText("글리치코어 유리코어 계열", "genre"));
 });
 
-test("safeText's other filters (AI-poetry blocklist in strict facets, song identification, era year) are unaffected by the whitelist externalization", () => {
+test("an unfamiliar genre still needs evidence even though its spelling is allowed", () => {
+  const unsupported = Facets.token("아직등록되지않은코어", "genre", 0.9, []);
+  assert.equal(Facets.support(unsupported, {
+    snapshot: { primaryGenre: "House", confidence: 0.82 }
+  }).supported, false);
+
+  const directlyHeard = Facets.token("아직등록되지않은코어", "genre", 0.68,
+    ["directAudioEvidence.genre"], { source: "directAudio", sourceFamily: "directAudio" });
+  assert.equal(Facets.support(directlyHeard, {
+    snapshot: { directAudioEvidence: { genre: ["아직등록되지않은코어"] } }
+  }).supported, true);
+});
+
+test("safeText's actual safety filters remain intact after opening the vocabulary", () => {
   // "mood" moved into the open layer in a later round (test/clicheScore.test.js) -- the
   // AI-poetry blocklist there is now a graded cliche penalty, not an instant veto, so this
   // check moved to a strict-layer facet ("rhythm") to keep testing what it originally meant.

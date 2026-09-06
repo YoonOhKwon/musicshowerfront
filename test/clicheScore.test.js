@@ -16,9 +16,9 @@ test("safeText no longer vetoes the same phrases in the open layer (mood/associa
   assert.ok(Facets.safeText("저중력 부유감", "mood"));
 });
 
-test("safeText's other filters (song identification, *core whitelist, era year) still apply in the open layer", () => {
+test("safeText keeps identity hygiene while leaving open-world genre spelling available", () => {
   assert.equal(Facets.safeText("이 곡은 재즈입니다", "mood"), false);
-  assert.equal(Facets.safeText("유리코어 감성", "association"), false);
+  assert.ok(Facets.safeText("유리코어 감성", "association"));
   assert.ok(Facets.safeText("하드코어 감성", "association"));
 });
 

@@ -71,5 +71,47 @@ test("selectionStatsOf never divides by zero on an empty candidate list", () => 
   const stats = Inspector.selectionStatsOf([], new Set());
   assert.equal(stats.candidateCount, 0);
   assert.equal(stats.selectionRate, 0);
+  assert.equal(stats.flamingoCount, 0);
+  assert.equal(stats.flamingoSelectedCount, 0);
   assert.deepEqual(stats.topDropped, []);
+});
+
+test("isMusicFlamingo detects candidates originating from Music Flamingo across multiple evidence channels", () => {
+  // Direct source
+  assert.equal(Inspector.isMusicFlamingo({ text: "베이퍼웨이브 미학", source: "directAudio" }), true);
+  // sourceModel
+  assert.equal(Inspector.isMusicFlamingo({ text: "퓨처 펑크", sourceModel: "music-flamingo" }), true);
+  // observationId
+  assert.equal(Inspector.isMusicFlamingo({ text: "시티팝", observationId: "obs-flam-12345" }), true);
+  // anchors
+  assert.equal(Inspector.isMusicFlamingo({ text: "신스 텍스처", anchors: ["directAudioEvidence.audible"] }), true);
+  // provenance
+  assert.equal(Inspector.isMusicFlamingo({ text: "프렌치 하우스", provenance: { source: ["directAudio"] } }), true);
+  // diagnostics.claimsUsed
+  assert.equal(Inspector.isMusicFlamingo({ text: "해적 라디오", diagnostics: { claimsUsed: ["audio-caption-1"] } }), true);
+  // openWorldConcept match
+  const semantic = {
+    openWorldConcepts: [
+      { canonicalLabel: "Mallsoft", sourceFamily: "directAudio" }
+    ]
+  };
+  assert.equal(Inspector.isMusicFlamingo({ text: "Mallsoft 계열" }, semantic), true);
+
+  // Local DSP / MIR (not Flamingo)
+  assert.equal(Inspector.isMusicFlamingo({ text: "4/4 킥", source: "local", anchors: ["rhythm.kick"] }), false);
+  assert.equal(Inspector.isMusicFlamingo({ text: "120 BPM", source: "rhythm", anchors: ["audio.bpm"] }), false);
+});
+
+test("selectionStatsOf reports flamingoCount and flamingoSelectedCount correctly", () => {
+  const candidates = [
+    { text: "flam-1", source: "directAudio", layer: "AESTHETIC" },
+    { text: "flam-2", sourceModel: "music-flamingo", layer: "CONTEXT" },
+    { text: "local-1", source: "local", layer: "FACT" },
+    { text: "local-2", source: "rhythm", layer: "FACT" }
+  ];
+  const stats = Inspector.selectionStatsOf(candidates, new Set(["flam-1", "local-1"]));
+  assert.equal(stats.candidateCount, 4);
+  assert.equal(stats.selectedCount, 2);
+  assert.equal(stats.flamingoCount, 2);
+  assert.equal(stats.flamingoSelectedCount, 1);
 });

@@ -187,7 +187,7 @@ const LanguageLayerPolicy = (() => {
     genreContextEvidence: "context", trackContext: "context", distinctive: "context",
     temporalState: "temporal", detectedIdioms: "semantic", impressionConcepts: "semantic",
     "primitives.form": "semantic", "primitives.arrangement": "semantic",
-    embeddingEvidence: "semantic"
+    embeddingEvidence: "semantic", directAudioEvidence: "directAudio"
   });
   const rootOf = path => path.startsWith("primitives.")
     ? path.split(".").slice(0, 2).join(".") : path.split(".")[0];

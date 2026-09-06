@@ -61,6 +61,46 @@ test("language request preserves Sol and explicit prefix while bounding recent m
   assert.equal(validateLanguageInput(withExtra).snapshot.rhythm.pcm, undefined);
 });
 
+test("direct Flamingo evidence survives sanitization and explicitly requests Korean realization", () => {
+  const requestInput = input();
+  requestInput.snapshot.directAudioEvidence = {
+    audible: ["granular percussion"],
+    genre: ["Mallsoft"],
+    context: ["abandoned retail ambience"],
+    aesthetic: ["degraded commercial nostalgia"],
+    impression: ["comforting yet emotionally vacant"],
+    details: ["association | degraded commercial nostalgia | 0.66 | filtered loops and softened transients"],
+    uncertainties: ["genre boundary between Mallsoft and Slushwave"],
+    observationId: "flam-open-world-1"
+  };
+  const clean = validateLanguageInput(requestInput);
+  assert.deepEqual(clean.snapshot.directAudioEvidence.genre, ["Mallsoft"]);
+  assert.deepEqual(clean.snapshot.directAudioEvidence.aesthetic, ["degraded commercial nostalgia"]);
+  assert.equal(clean.snapshot.directAudioEvidence.observationId, "flam-open-world-1");
+  assert.deepEqual(clean.snapshot.directAudioEvidence.uncertainties, ["genre boundary between Mallsoft and Slushwave"]);
+
+  const request = createLanguageRequest(requestInput);
+  const modelPayload = JSON.parse(request.input[1].content);
+  assert.deepEqual(modelPayload.snapshot.directAudioEvidence.impression, ["comforting yet emotionally vacant"]);
+  assert.match(request.input[0].content[0].text, /KOREAN display language/);
+  assert.match(request.input[0].content[0].text, /-core\/\-코어/);
+});
+
+test("semantic snapshot exposes direct-listening evidence and its reasoning without PCM", () => {
+  const state = profile();
+  state.directAudioObservationId = "flam-42";
+  state.directAudioCandidates = [{
+    text: "degraded commercial nostalgia", category: "association", layer: "AESTHETIC",
+    confidence: 0.66, reasoningHints: "filtered loops and softened transients"
+  }];
+  state.directAudioUncertainties = ["Mallsoft와 Slushwave 경계"];
+  const snapshot = Snapshot.serialize(state);
+  assert.deepEqual(snapshot.directAudioEvidence.aesthetic, ["degraded commercial nostalgia"]);
+  assert.match(snapshot.directAudioEvidence.details[0], /filtered loops/);
+  assert.deepEqual(snapshot.directAudioEvidence.uncertainties, ["Mallsoft와 Slushwave 경계"]);
+  assert.equal(snapshot.directAudioEvidence.observationId, "flam-42");
+});
+
 test("every call reason resolves to the single merged tuning profile", () => {
   const { callMode, CALL_TUNING } = require("../lib/languageService");
   for (const reason of ["pool-low", "pool-ready", "semantic-change", "initial-generation", "semantic-event", undefined])

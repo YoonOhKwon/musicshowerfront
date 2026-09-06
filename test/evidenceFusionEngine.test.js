@@ -47,6 +47,15 @@ test("a directAudio-only observation still passes through at its own (reduced) c
   assert.ok(Math.abs(fused.confidence - 0.6) < 0.01, `single source passes through unweighted, got ${fused.confidence}`);
 });
 
+test("the same Flamingo observation cannot become two independent sources through the local group", () => {
+  const direct = { text: "Mallsoft", category: "genre", confidence: 0.65,
+    source: "directAudio", sourceFamily: "directAudio" };
+  const [fused] = new EvidenceFusion.Engine().fuse({ local: [direct], directAudio: [direct] });
+  assert.equal(fused.independentEvidenceCount, 1);
+  assert.deepEqual(Object.keys(fused.sourceFamilies), ["directAudio"]);
+  assert.equal(fused.confidence, 0.65);
+});
+
 test("unrelated items from different sources are kept separate, not merged", () => {
   const engine = new EvidenceFusion.Engine();
   const fused = engine.fuse({

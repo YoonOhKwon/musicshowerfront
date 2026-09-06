@@ -30,10 +30,10 @@ let subgenreSearcher = new SubgenreSearch.Searcher();
 let semanticEvidenceReady = false;
 // Latest direct-audio-caption observations (js/main.js's periodic Flamingo capture, via
 // lib/directAudioReview.js's toObservations()) -- a candidate array, same shape every other
-// evidence source produces. It persists across ticks (not consumed once) so the SAME candidates
-// keep flowing into updateTemporalEvidence() every 500ms until a fresh caption replaces them --
-// temporalEvidenceEngine's existing observation-count/stability gates (unmodified) are what turn
-// that repetition into a genuinely earned, stable claim, not a one-shot injection.
+// evidence source produces. Momentary FACT/LIVE observations follow the latest segment, while
+// track-level genre/context/aesthetic/impression hypotheses can survive briefly with decaying
+// confidence. Repetition across ticks keeps the same observation id, so temporalEvidenceEngine
+// never mistakes memory for an independently re-heard claim.
 let directAudioCandidates = [];
 const expressionHistory = new MusicExpressionEngine.FeatureHistory();
 let expressionWaveform = null;
@@ -49,6 +49,53 @@ let aestheticEvidenceEngine = new AestheticEvidence.Engine();
 const mirEngine = new MIREngine.Engine();
 const conceptEmbeddingEngine = new ConceptEmbeddingEngine.Engine();
 let musicalIdiomEngine = new MusicalIdioms.Engine();
+const OpenWorld = typeof OpenWorldConceptRegistry !== "undefined" ? OpenWorldConceptRegistry : (() => {
+  try { return require("./openWorldConceptRegistry"); } catch { return null; }
+})();
+const Progressive = typeof ProgressiveListening !== "undefined" ? ProgressiveListening : (() => {
+  try { return require("./progressiveListeningEngine"); } catch { return null; }
+})();
+const TrackLifecycle = typeof TrackLifecycleEngine !== "undefined" ? TrackLifecycleEngine : (() => {
+  try { return require("./trackLifecycleEngine"); } catch { return null; }
+})();
+const FlamingoReservoir = typeof FlamingoWordReservoir !== "undefined" ? FlamingoWordReservoir : (() => {
+  try { return require("./flamingoWordReservoir"); } catch { return null; }
+})();
+let openWorldRegistry = OpenWorld ? new OpenWorld.Registry() : null;
+let progressiveListeningEngine = Progressive ? new Progressive.Engine() : null;
+let trackLifecycleEngine = TrackLifecycle ? new TrackLifecycle.LifecycleEngine() : null;
+let flamingoWordReservoir = FlamingoReservoir ? new FlamingoReservoir.Reservoir() : null;
+
+if (trackLifecycleEngine) {
+  trackLifecycleEngine.onResetTrack = (newEpoch, reason) => {
+    flamingoWordReservoir?.reset(newEpoch);
+    directAudioCandidates = [];
+    if (semanticState) {
+      semanticState.directAudioCandidates = [];
+      semanticState.flamingoReservoirCandidates = [];
+      semanticState.trackEpoch = newEpoch;
+      semanticState.lifecycleState = trackLifecycleEngine.getState();
+    }
+    progressiveListeningEngine?.reset();
+    if (typeof resetFloatingSemanticVisuals === "function") resetFloatingSemanticVisuals();
+  };
+  trackLifecycleEngine.onAudioRemoved = (reason) => {
+    flamingoWordReservoir?.reset(trackLifecycleEngine.getTrackEpoch());
+    directAudioCandidates = [];
+    if (semanticState) {
+      semanticState.directAudioCandidates = [];
+      semanticState.flamingoReservoirCandidates = [];
+      semanticState.lifecycleState = trackLifecycleEngine.getState();
+    }
+    progressiveListeningEngine?.reset();
+  };
+}
+const DirectContinuity = typeof DirectAudioContinuity !== "undefined" ? DirectAudioContinuity : (() => {
+  try { return require("./directAudioContinuity"); } catch { return null; }
+})();
+const DirectGenreLabels = typeof GenreLabelShape !== "undefined" ? GenreLabelShape : (() => {
+  try { return require("./genreLabelShape"); } catch { return null; }
+})();
 let currentModelInstruments = [];
 let currentEventInstruments = [];
 let currentModelInstrumentsAt = 0;
@@ -124,6 +171,7 @@ function createInitialSemanticState(sessionId = 0) {
     zeroShot: { available: false, active: false, candidates: [] },
     conceptEmbedding: { available: false, reason: "concept-text-embeddings-not-bundled", candidates: [] },
     mir: null, temporalEvidence: null, evidenceFusion: [], stateV2: null,
+    directAudioCandidates: [], directAudioObservationId: null, directAudioUncertainties: [],
     trackCharacter: TrackCharacter.rawProfile(),
     distinctive: { basis: "absolute character only", genreRelativeAvailable: false, statements: [] },
     semanticEpoch: 0,
@@ -280,6 +328,9 @@ function beginSemanticSession(inputMode = "unknown") {
   lastAppliedAnalysisWindowId = 0;
   lastZeroShotAt = 0;
   latestRollingEmbedding = [];
+  directAudioCandidates = [];
+  openWorldRegistry?.reset();
+  progressiveListeningEngine?.reset();
   semanticEvidenceReady = false;
   semanticState = createInitialSemanticState(semanticSessionId);
   phrasePoolEngine?.reset(semanticSessionId);
@@ -287,6 +338,7 @@ function beginSemanticSession(inputMode = "unknown") {
   semanticState.inputMode = inputMode;
   semanticScheduler?.reset();
   if (typeof resetFloatingSemanticVisuals === "function") resetFloatingSemanticVisuals();
+  if (typeof resetDeepListenRuntime === "function") resetDeepListenRuntime();
   syncMLState();
   refreshSemanticWords();
   return semanticSessionId;
@@ -311,10 +363,14 @@ function endSemanticSession() {
   mirEngine.reset();
   musicModelBridge?.resetSession();
   latestRollingEmbedding = [];
+  directAudioCandidates = [];
+  openWorldRegistry?.reset();
+  progressiveListeningEngine?.reset();
   semanticEvidenceReady = false;
   semanticState = createInitialSemanticState(semanticSessionId);
   phrasePoolEngine?.reset(semanticSessionId);
   if (typeof resetFloatingSemanticVisuals === "function") resetFloatingSemanticVisuals();
+  if (typeof resetDeepListenRuntime === "function") resetDeepListenRuntime();
 }
 
 function updateSemanticRuntime(now = performance.now()) {
@@ -613,7 +669,12 @@ function applyGenreHypotheses() {
 
 function updateTemporalEvidence() {
   const now = Date.now();
-  const local = SemanticFacetManager.base(semanticState);
+  if (DirectContinuity) directAudioCandidates = DirectContinuity.active(directAudioCandidates, { now });
+  if (semanticState) semanticState.directAudioCandidates = directAudioCandidates;
+  // Direct-listening candidates have their own fusion group below. Excluding them from `local`
+  // prevents one Flamingo hearing from masquerading as two independent evidence sources.
+  const local = SemanticFacetManager.base(semanticState).filter(item =>
+    item.source !== "directAudio" && item.sourceFamily !== "directAudio");
   const genreModel = semanticState.genre?.uncertain ? [] : (semanticState.genreReasoning?.hypotheses || []).slice(0, 5).map((item, index) =>
     SemanticFacets.token(item.genre, "genre", item.semanticConfidence,
       (item.supportingEvidence || []).map(evidence => evidence.path === "classifierGenre.topK" ? "genreEvidence" : evidence.path)
@@ -661,6 +722,20 @@ function updateTemporalEvidence() {
       language: semanticState.language?.status || "fallback"
     }
   }, now);
+  if (openWorldRegistry) {
+    openWorldRegistry.tick(now);
+    semanticState.openWorldConcepts = openWorldRegistry.all();
+  }
+  if (progressiveListeningEngine) {
+    const observationSeconds = semanticState.expressionFeatures?.observationSeconds ?? (temporal.elapsedMs || 0) / 1000;
+    progressiveListeningEngine.update({
+      state: semanticState,
+      observationSeconds,
+      semanticChange: Boolean(semanticState.semanticChange?.changed),
+      sectionChange: Boolean(semanticState.novelty?.transitionDetected)
+    }, now);
+    semanticState.progressiveReadiness = progressiveListeningEngine.readiness;
+  }
 }
 
 function refreshSlowSemanticState() {
@@ -878,8 +953,101 @@ function refreshSemanticWords(force = false) {
 // Called by js/main.js whenever a fresh Flamingo caption is parsed (lib/directAudioReview.js's
 // toObservations()). Replaces the whole set -- a stale caption's claims must not linger once a
 // newer one exists, since temporalEvidenceEngine reads whatever this holds on every tick.
-function applyDirectAudioObservations(candidates = []) {
-  directAudioCandidates = Array.isArray(candidates) ? candidates : [];
+function applyDirectAudioObservations(candidates = [], metadata = {}) {
+  if (metadata?.sessionId !== undefined && metadata?.sessionId !== null &&
+      Number(metadata.sessionId) !== Number(semanticState?.sessionId)) return false;
+
+  const currentEpoch = trackLifecycleEngine ? trackLifecycleEngine.getTrackEpoch() : (metadata?.trackEpoch || 0);
+  if (metadata?.trackEpoch !== undefined && Number(metadata.trackEpoch) !== currentEpoch) {
+    if (trackLifecycleEngine) trackLifecycleEngine.staleResponseDropCount += 1;
+    return false;
+  }
+
+  const observationId = metadata?.observationId || (candidates[0]?.observationId) || `obs-flam-${Date.now()}`;
+  const independenceGroup = metadata?.independenceGroup || (candidates[0]?.independenceGroup) || observationId;
+  const audioSegmentId = metadata?.audioSegmentId || (candidates[0]?.audioSegmentId) || null;
+  const trackEpoch = metadata?.trackEpoch !== undefined ? Number(metadata.trackEpoch) : currentEpoch;
+  const requestId = metadata?.requestId || (candidates[0]?.requestId) || null;
+
+  // Ingest into track-scoped FlamingoWordReservoir
+  if (flamingoWordReservoir && metadata?.structuredPacket) {
+    flamingoWordReservoir.ingestPacket(metadata.structuredPacket, {
+      trackEpoch,
+      observationId,
+      timestamp: Date.now()
+    });
+  }
+
+  const incomingDirectAudioCandidates = (Array.isArray(candidates) ? candidates : []).map(item => {
+    const common = { ...item, observationId, independenceGroup, audioSegmentId, trackEpoch, requestId, resolutionMomentum: true };
+    if (item.category !== "genre" || !DirectGenreLabels || DirectGenreLabels.isPlausibleGenreLabel(item.text)) return common;
+    const category = DirectGenreLabels.fallbackCategory(item.text);
+    const anchor = category === "production" ? "directAudioEvidence.audible"
+      : category === "association" ? "directAudioEvidence.aesthetic" : "directAudioEvidence.impression";
+    const { category: ignoredCategory, layer: ignoredLayer, anchors: ignoredAnchors,
+      confidence: ignoredConfidence, weight: ignoredWeight, ...meta } = common;
+    return SemanticFacets.token(item.text, category, Math.min(item.confidence ?? 0.55, 0.58), [anchor], {
+      ...meta, evidenceType: "misfiledGenreDescription", reclassifiedFrom: "genre",
+      requiresKoreanRealization: !/[가-힣]/.test(String(item.text || ""))
+    });
+  });
+  directAudioCandidates = DirectContinuity
+    ? DirectContinuity.merge(directAudioCandidates, incomingDirectAudioCandidates)
+    : incomingDirectAudioCandidates;
+
+  if (semanticState) {
+    semanticState.directAudioCandidates = directAudioCandidates;
+    semanticState.directAudioObservationId = observationId;
+    semanticState.flamingoReservoirCandidates = flamingoWordReservoir ? flamingoWordReservoir.getCandidates() : [];
+    semanticState.directAudioUncertainties = (metadata?.structuredPacket?.uncertainties || [])
+      .filter(item => typeof item === "string" && item.trim()).slice(0, 8);
+  }
+
+  if (openWorldRegistry) {
+    // Only the fresh capture is proposed. Re-retaining an older candidate is memory, not a new
+    // independent observation, and must never inflate temporal or cross-source support.
+    for (const item of incomingDirectAudioCandidates) {
+      const type = item.category === "genre" ? "genre"
+        : ["scene", "era", "culture", "lineage"].includes(item.category) ? item.category
+        : item.category === "mood" ? "impression"
+        : item.category === "association" ? "aesthetic"
+        : "production-style";
+      openWorldRegistry.propose({
+        label: item.text,
+        conceptType: type,
+        source: item.source || "directAudio",
+        sourceFamily: item.sourceFamily || "directAudio",
+        sourceModel: item.sourceModel || metadata?.provider || "music-flamingo",
+        observationId,
+        independenceGroup,
+        audioSegmentId,
+        confidence: item.confidence ?? 0.65,
+        supportingEvidence: item.anchors || [],
+        reasoningHints: item.reasoningHints || null
+      });
+    }
+  }
+
+  if (progressiveListeningEngine) {
+    progressiveListeningEngine.noteDeepListen(observationId, metadata?.structuredPacket || {});
+  }
+
+  if (typeof updateTemporalEvidence === "function") {
+    try { updateTemporalEvidence(); } catch { /* safe */ }
+  }
+
+  if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+    try {
+      window.dispatchEvent(new CustomEvent("deepListenResolution", {
+        detail: { observationId, candidateCount: directAudioCandidates.length, timestamp: Date.now() }
+      }));
+    } catch { /* safe */ }
+  }
+
+  if (phrasePoolEngine && semanticState) {
+    refreshSemanticWords(true);
+  }
+  return true;
 }
 
 function noteSemanticPhraseUsed(text) {
@@ -895,6 +1063,25 @@ function getSemanticState() {
   return semanticState || createInitialSemanticState();
 }
 
+function getProgressiveListeningEngine() {
+  return progressiveListeningEngine;
+}
+
+function getTrackLifecycleEngine() {
+  return trackLifecycleEngine;
+}
+
+function getFlamingoWordReservoir() {
+  return flamingoWordReservoir;
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { createInitialSemanticState };
+  module.exports = {
+    createInitialSemanticState,
+    getProgressiveListeningEngine,
+    getOpenWorldConceptRegistry,
+    getTrackLifecycleEngine,
+    getFlamingoWordReservoir,
+    applyDirectAudioObservations
+  };
 }

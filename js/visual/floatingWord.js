@@ -36,10 +36,12 @@ function getNextWordLane(activeWords = [], direction = 1) {
 class FloatingWord {
   constructor(wordToken, activeWords = []) {
     const token = typeof wordToken === "object" ? wordToken : { text: String(wordToken) };
+    this.token = { ...token };
     this.text = String(token.text || "");
     this.visual = getVisualProfile(token);
     this.textStyle = layerTextStyle(token);
     const treatment = PhraseSelection.treatment(token);
+    this.layer = (typeof LanguageLayerPolicy !== "undefined" ? LanguageLayerPolicy.decorate(token) : token).layer || "FACT";
     const sizeLimit = width * 0.76 / Math.max(1, this.text.length * 0.92);
     this.size = Math.min(sizeLimit, random(CONFIG.visual.wordMinSize, CONFIG.visual.wordMaxSize) * this.visual.scale * treatment.scale);
     this.halfWidth = Math.max(this.size, this.text.length * this.size * 0.48);

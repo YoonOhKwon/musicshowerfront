@@ -63,3 +63,20 @@ test("evidenceReadiness pulls the layer schedule toward a later time band at the
   assert.ok(fullReadiness.genre > noReadiness.genre * 1.2,
     `expected readiness to raise CONTEXT share, got ${noReadiness.genre} -> ${fullReadiness.genre}`);
 });
+
+test("visible-layer occupancy prioritizes a newly available deep-listening layer", () => {
+  const candidates = [
+    { text: "단단한 킥", category: "production", layer: "FACT", weight: 1 },
+    { text: "빛바랜 상업 공간의 미학", category: "association", layer: "AESTHETIC", weight: 1 }
+  ];
+  const active = Array.from({ length: 8 }, (_, index) => ({
+    text: `현재 사실 ${index}`, category: "production", layer: "FACT"
+  }));
+  const progressiveEngine = { getLayerWeights: () => ({
+    LIVE: 0, FACT: 0.35, CONTEXT: 0.15, AESTHETIC: 0.35, IMPRESSION: 0.15
+  }) };
+  const selected = Selection.choose(candidates, [], () => 0.99, {
+    active, observationSeconds: 60, progressiveEngine
+  });
+  assert.equal(selected.layer, "AESTHETIC");
+});

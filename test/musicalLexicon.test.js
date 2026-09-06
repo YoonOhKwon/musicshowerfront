@@ -63,7 +63,9 @@ test("invalid primitive combinations do not leak specific idioms", () => {
   assert.ok(!engine.evaluate(value, { primary: "Jazz", confidence: .8 }).some(item => item.text === "집단 즉흥"));
   value.role.foundationLayer = null;
   assert.ok(!engine.evaluate(value, { primary: "Jazz", confidence: .8 }).some(item => /베이스/.test(item.text)));
-  assert.equal(Facets.safeText("몽환코어", "genre"), false);
+  // Vocabulary hygiene is open-world; whether this unfamiliar term is musically supported is a
+  // separate critic/evidence decision, just like the invalid primitive checks above.
+  assert.equal(Facets.safeText("몽환코어", "genre"), true);
   assert.equal(Facets.safeText("브레이크코어", "genre"), true);
 });
 
@@ -82,4 +84,5 @@ test("app loads primitive extraction before idiom naming and fusion", () => {
   const html = fs.readFileSync(path.resolve(__dirname, "../index.html"), "utf8");
   assert.ok(html.indexOf("musicalPrimitiveEngine.js") < html.indexOf("musicalIdiomEngine.js"));
   assert.ok(html.indexOf("musicalIdiomEngine.js") < html.indexOf("evidenceFusionEngine.js"));
+  assert.ok(html.indexOf("directAudioContinuity.js") < html.indexOf("semanticEngine.js"));
 });

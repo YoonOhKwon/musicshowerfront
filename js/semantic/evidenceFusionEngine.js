@@ -5,13 +5,18 @@ const EvidenceFusion = (() => {
     rhythm: 0.86, context: 0.76, local: 0.72, production: 0.78
   });
   const keyFor = item => `${item.category || "live"}:${String(item.text || "").trim().toLowerCase()}`;
-  const dependencyFamily = (source, item) => item.evidenceFamily ||
+  const dependencyFamily = (source, item) => item.evidenceFamily || item.sourceFamily ||
     (item.category === "genre" && ["local", "genreModel"].includes(source) ? "genre-classifier" : source);
 
   class Engine {
     fuse(groups = {}, at = Date.now()) {
       const map = new Map();
       for (const [source, items] of Object.entries(groups)) {
+        // Anti-hallucination firewall: phrased words or displayed language outputs
+        // must NEVER become upstream evidence.
+        if (["words", "language", "phrasePool", "displayed", "llm-output"].includes(source)) {
+          continue;
+        }
         for (const item of items || []) {
           if (!item?.text || !item?.category) continue;
           const key = keyFor(item);

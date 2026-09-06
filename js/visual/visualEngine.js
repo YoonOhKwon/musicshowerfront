@@ -14,8 +14,9 @@ function selectWeightedWord() {
     changing: state.expressionFeatures?.changing,
     observationSeconds: state.expressionFeatures?.observationSeconds ?? (state.temporalEvidence?.elapsedMs || 0) / 1000,
     evidenceReadiness,
-    active: floatingWords.map(word => word.text),
-    avoidFacets: [...spawnBatchFacets]
+    active: floatingWords.map(word => word.token || { text: word.text, layer: word.layer }),
+    avoidFacets: [...spawnBatchFacets],
+    progressiveEngine: typeof getProgressiveListeningEngine === "function" ? getProgressiveListeningEngine() : null
   });
 }
 
@@ -91,6 +92,12 @@ function drawSemanticDebugPanel() {
   const timings = state.ml.timings || {};
   const character = state.trackCharacter || {};
   const performanceState = RuntimePerformance.snapshot();
+  const lifecycle = typeof getTrackLifecycleEngine === "function" ? getTrackLifecycleEngine() : null;
+  const reservoir = typeof getFlamingoWordReservoir === "function" ? getFlamingoWordReservoir() : null;
+  const compact = (value, limit = 30) => {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    return text.length > limit ? `${text.slice(0, Math.max(1, limit - 1))}…` : text;
+  };
   const lines = [
     `FPS ${Math.round(frameRate())}`,
     `DSP rms ${state.audio.rms.toFixed(3)}  flux ${state.audio.flux.toFixed(4)}  centroid ${Math.round(state.audio.centroid)}Hz`,
@@ -101,11 +108,13 @@ function drawSemanticDebugPanel() {
     `ML heads I ${Math.round(timings.instrumentMs || 0)}  M ${Math.round(timings.moodMs || 0)}  roundtrip ${Math.round(timings.roundTripMs || 0)}ms`,
     `MAIN transfer ${Math.round(timings.transferDispatchMs || 0)}ms  long ${Math.round(performanceState.longTaskP90Ms || 0)}ms  MIR ${(performanceState.mirP90Ms || 0).toFixed(2)}ms  SEM ${(performanceState.semanticP90Ms || 0).toFixed(2)}ms  heap ${performanceState.memoryMB ? performanceState.memoryMB.toFixed(0) : "--"}MB`,
     state.ml.error ? `ML error ${state.ml.error}` : "ML error --",
+    `LIFECYCLE ${lifecycle ? lifecycle.getState() : "NONE"}  epoch ${lifecycle ? lifecycle.getTrackEpoch() : 1}  section ${lifecycle ? lifecycle.getSectionEpoch() : 1}  audible ${(lifecycle ? (lifecycle.getActiveAudioMs() / 1000).toFixed(1) : "0")}s  drops ${lifecycle ? lifecycle.staleResponseDropCount : 0}`,
+    `FLAMINGO reservoir: F:${reservoir ? reservoir.pools.fact.length : 0} G:${reservoir ? reservoir.pools.genre.length : 0} C:${reservoir ? reservoir.pools.context.length : 0} A:${reservoir ? reservoir.pools.aesthetic.length : 0} I:${reservoir ? reservoir.pools.impression.length : 0} total:${reservoir ? reservoir.conceptRegistry.size : 0}`,
     `GENRE ${state.genre.primary}  calibrated ${Math.round(state.genre.confidence * 100)}%  raw ${Math.round((state.genre.rawConfidence || 0) * 100)}%`,
     `certainty ${state.genre.certainty || "unknown"}  stability ${state.genre.stability.toFixed(2)}  agreement ${(state.genre.temporalAgreement || 0).toFixed(2)}`,
     `novelty ${state.novelty.score.toFixed(2)}  transition ${state.novelty.transitionDetected ? "YES" : "no"}`,
     `epoch ${state.semanticEpoch || 0}  change ${(state.semanticChange?.score || 0).toFixed(2)}  phrases ${state.language?.phraseCount || 0}`,
-    `V2 stable ${state.stateV2?.temporal?.stable?.length || 0}  memory ${state.stateV2?.temporal?.trackMemory?.length || 0}  fused genre ${(state.temporalEvidence?.evaluated || []).filter(item => item.category === "genre").slice(0, 3).map(item => `${item.text} ${Math.round(item.confidence * 100)}%(${Array.isArray(item.source) ? item.source.join("+") : String(item.source || "")})`).join(" · ") || "--"}`,
+    `V2 stable ${state.stateV2?.temporal?.stable?.length || 0}  memory ${state.stateV2?.temporal?.trackMemory?.length || 0}  fused genre ${(state.temporalEvidence?.evaluated || []).filter(item => item.category === "genre").slice(0, 3).map(item => `${compact(item.text)} ${Math.round(item.confidence * 100)}%(${compact(Array.isArray(item.source) ? item.source.join("+") : item.source, 18)})`).join(" · ") || "--"}`,
     `character rhythm ${(character.rhythm?.rhythmicComplexity || 0).toFixed(2)}  tonal ${(character.harmony?.tonalness || 0).toFixed(2)}  rough ${(character.timbre?.roughness || 0).toFixed(2)}`,
     `instrument ${state.instruments.slice(0, 3).map(item => `${item.label} ${Math.round(item.confidence * 100)}%`).join(" · ") || "--"}`,
     `mood A ${state.mood.fused.arousal.toFixed(2)}  V ${state.mood.fused.valence.toFixed(2)}  T ${state.mood.fused.tension.toFixed(2)}`,
@@ -117,13 +126,17 @@ function drawSemanticDebugPanel() {
   push();
   rectMode(CORNER);
   noStroke();
-  fill(5, 7, 18, 215);
-  rect(18, 150, Math.min(800, width - 36), 416, 12);
+  const panelWidth = Math.min(800, width - 36);
+  const maxLineCharacters = Math.max(28, Math.floor((panelWidth - 28) / 7.2));
+  const visibleLines = lines.map(line => line.length > maxLineCharacters
+    ? `${line.slice(0, Math.max(1, maxLineCharacters - 1))}…` : line);
+  fill(5, 7, 18, 255);
+  rect(18, 150, panelWidth, 452, 12);
   fill(210, 235, 255, 220);
   textAlign(LEFT, TOP);
   textFont("monospace");
   textSize(12);
-  text(lines.join("\n"), 32, 165);
+  text(visibleLines.join("\n"), 32, 165);
   pop();
 }
 

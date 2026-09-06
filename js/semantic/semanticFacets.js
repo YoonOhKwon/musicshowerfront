@@ -20,12 +20,10 @@ const SemanticFacets = (() => {
       value !== "Unknown" && (typeof value !== "number" || Number.isFinite(value)) &&
       (typeof value !== "object" || Object.keys(value).length > 0);
   }
-  // "-코어" is an open-ended coinage pattern (헬로키티코어, 유리코어, ...) that AI language models
-  // love to invent on the spot. Real scene terms are a closed, curated list, not a pattern the
-  // critic can validate structurally — so this is the one vocabulary check backed by external
-  // data rather than a regex. data/approvedCoreTerms.json is the source of truth; this module only
-  // keeps a small safe default until that data is loaded (Node: synchronously at require time;
-  // browser: via setApprovedCoreTerms() once semanticEngine.js's async fetch resolves).
+  // Historical compatibility index. It is still loaded for aliases, reports and migration tools,
+  // but it is no longer an admission whitelist. Genre vocabulary is open-world: an unfamiliar
+  // scene name is judged by evidence, temporal corroboration and contradiction checks downstream,
+  // never by whether a developer happened to register its spelling in advance.
   let approvedCoreTerms = new Map([
     ["브레이크코어", { aliases: ["breakcore"], genreFamily: "Breakcore" }],
     ["하드코어", { aliases: ["hardcore"], genreFamily: "Hardcore" }],
@@ -52,7 +50,7 @@ const SemanticFacets = (() => {
   // lives -- confident poetic compression, not measurement. Its structural limits (word count)
   // are looser than the strict/context layers', but this is still real-text hygiene, not content
   // moderation: control characters, run-on narrative-length text and the song-identification /
-  // *core whitelist checks below apply identically everywhere.
+  // evidence checks downstream apply identically everywhere.
   const OPEN_LAYERS = new Set(["AESTHETIC", "IMPRESSION"]);
   function safeText(text, category) {
     const openLayer = OPEN_LAYERS.has(Layers.facetLayers[category]);
@@ -66,53 +64,57 @@ const SemanticFacets = (() => {
     // since a played-out phrase used sparingly still reads as a legitimate impression.
     if (!openLayer && /과열된|냉각된|저중력|무중력|분홍빛|보랏빛|유리.*(?:기억|고독|슬픔)|압축된 고독|금속성 황홀|차가운 황홀|purple memory|glass loneliness|heated tension|weightless sadness/i.test(text)) return false;
     if (/이 곡은|제작한|작곡한|발매된|의 곡|made by|composed by|released in/i.test(text)) return false;
-    const coreTerms = text.match(/[가-힣A-Za-z]+코어/gu) || [];
-    if (coreTerms.some(term => !approvedCoreTerms.has(term))) return false;
+    // Do not use spelling (including the productive "-코어" suffix) as a truth boundary.
+    // Unsupported genre inventions are rejected by support()/LanguageCritic; grounded unfamiliar
+    // terms are allowed to enter the reversible OpenWorldConceptRegistry belief lifecycle.
     // A decade is a style reference; a precise recording year is not recoverable.
     if (category === "era" && /(?:18|19|20)\d{2}(?!\d|년대|s)/.test(text)) return false;
     return true;
   }
   const anchorGroups = {
-    genre: ["rhythm", "harmony", "timbre", "production", "instrumentation", "rhythmicGrammar", "primitives.pulse", "primitives.texture", "primitives.role", "primitives.tonal", "primitives.harmony", "primitives.melody", "primitives.bass", "primitives.production"],
-    rhythm: ["rhythm", "rhythmicGrammar", "measurements", "primitives.pulse"],
-    instrumentation: ["instrumentation", "instrumentationEvidence", "instrumentEvents", "primitives.texture", "primitives.role"],
-    performance: ["performance", "instrumentation", "instrumentationEvidence", "instrumentEvents", "primitives.role", "primitives.tonal", "primitives.melody", "primitives.bass", "primitives.articulation"],
-    arrangement: ["arrangement", "instrumentation", "texture", "primitives.texture", "primitives.role", "primitives.form", "primitives.arrangement"],
-    production: ["productionEvidence", "production", "measurements", "timbre", "primitives.production"],
-    dynamics: ["measurements", "dynamics"],
-    mood: ["moodDimensions", "mood", "timbre", "harmony", "productionEvidence", "rhythmicGrammar", "primitives.harmony", "primitives.production", "impressionConcepts"],
-    live: ["measurements", "instrumentEvents", "rhythmicGrammar", "currentSection", "performance"],
-    lineage: ["genreContextEvidence", "primaryGenre", "genreEvidence", "rhythm", "production", "harmony", "instrumentation"],
-    era: ["genreContextEvidence", "primaryGenre", "genreEvidence", "productionEvidence", "production", "instrumentation"],
-    scene: ["genreContextEvidence", "primaryGenre", "genreEvidence", "rhythmicGrammar", "rhythm", "production", "instrumentation"],
-    culture: ["genreContextEvidence", "primaryGenre", "genreEvidence", "productionEvidence", "instrumentation", "moodDimensions"],
-    association: ["genreContextEvidence", "primaryGenre", "genreEvidence", "instrumentation", "productionEvidence", "production", "moodDimensions"]
+    genre: ["rhythm", "harmony", "timbre", "production", "instrumentation", "rhythmicGrammar", "primitives.pulse", "primitives.texture", "primitives.role", "primitives.tonal", "primitives.harmony", "primitives.melody", "primitives.bass", "primitives.production", "directAudioEvidence"],
+    rhythm: ["rhythm", "rhythmicGrammar", "measurements", "primitives.pulse", "directAudioEvidence"],
+    instrumentation: ["instrumentation", "instrumentationEvidence", "instrumentEvents", "primitives.texture", "primitives.role", "directAudioEvidence"],
+    performance: ["performance", "instrumentation", "instrumentationEvidence", "instrumentEvents", "primitives.role", "primitives.tonal", "primitives.melody", "primitives.bass", "primitives.articulation", "directAudioEvidence"],
+    arrangement: ["arrangement", "instrumentation", "texture", "primitives.texture", "primitives.role", "primitives.form", "primitives.arrangement", "directAudioEvidence"],
+    production: ["productionEvidence", "production", "measurements", "timbre", "primitives.production", "directAudioEvidence"],
+    dynamics: ["measurements", "dynamics", "directAudioEvidence"],
+    mood: ["moodDimensions", "mood", "timbre", "harmony", "productionEvidence", "rhythmicGrammar", "primitives.harmony", "primitives.production", "impressionConcepts", "directAudioEvidence"],
+    live: ["measurements", "instrumentEvents", "rhythmicGrammar", "currentSection", "performance", "directAudioEvidence"],
+    lineage: ["genreContextEvidence", "primaryGenre", "genreEvidence", "rhythm", "production", "harmony", "instrumentation", "directAudioEvidence"],
+    era: ["genreContextEvidence", "primaryGenre", "genreEvidence", "productionEvidence", "production", "instrumentation", "directAudioEvidence"],
+    scene: ["genreContextEvidence", "primaryGenre", "genreEvidence", "rhythmicGrammar", "rhythm", "production", "instrumentation", "directAudioEvidence"],
+    culture: ["genreContextEvidence", "primaryGenre", "genreEvidence", "productionEvidence", "instrumentation", "moodDimensions", "directAudioEvidence"],
+    association: ["genreContextEvidence", "primaryGenre", "genreEvidence", "instrumentation", "productionEvidence", "production", "moodDimensions", "directAudioEvidence"]
   };
   function support(candidate, context = {}) {
     const snapshot = context.snapshot || {}, normalized = Layers.decorate(candidate);
     const category = normalized.category, anchors = normalized.anchors || [];
+    const isDirectAudio = normalized.sourceFamily === "directAudio" || normalized.source === "directAudio" ||
+      anchors.some(path => String(path).startsWith("directAudioEvidence"));
     const values = anchors.map(path => read(snapshot, path));
     const hasSnapshot = Object.keys(snapshot).length > 0;
     const invalidAnchors = hasSnapshot ? values.filter(value => !meaningful(value)).length : 0;
-    const groups = new Set(anchors.filter((path, i) => meaningful(values[i])).map(path =>
+    const groups = new Set(anchors.filter((path, i) => isDirectAudio || meaningful(values[i])).map(path =>
       path.startsWith("primitives.") ? path.split(".").slice(0, 2).join(".") : path.split(".")[0]));
-    const groupMatch = [...groups].some(group => anchorGroups[category]?.includes(group));
+    if (isDirectAudio) groups.add("directAudioEvidence");
+    const groupMatch = isDirectAudio || [...groups].some(group => anchorGroups[category]?.includes(group));
     const confidence = clamp(normalized.confidence);
     const known = context.eligibleTexts?.includes(normalized.text);
     const scoring = Layers.evidenceScore(normalized, snapshot, read);
     // Anchor COUNT is no longer a gate — three strong, independent axes beat five weak anchors.
     // What must hold is: at least one resolvable anchor, independent axes (or a clearly
     // above-threshold score on a single axis), facet-appropriate evidence, and no contradiction.
-    const axisCount = scoring.axes.length;
-    const requiredAxes = normalized.layer === "LIVE" || normalized.primitive ? 1 : 2;
-    const enoughAxes = axisCount >= requiredAxes || (requiredAxes === 2 && axisCount >= 1 &&
+    const axisCount = scoring.axes.length + (isDirectAudio ? 1 : 0);
+    const requiredAxes = normalized.layer === "LIVE" || normalized.primitive || isDirectAudio ? 1 : 2;
+    const enoughAxes = isDirectAudio || axisCount >= requiredAxes || (requiredAxes === 2 && axisCount >= 1 &&
       scoring.score >= scoring.threshold + 0.06 && normalized.source !== "llm");
     // An anchor that fails to resolve already costs evidenceScore; it must not annihilate a
     // candidate whose other anchors are real. What is still required is that SOMETHING resolved.
-    const resolvedAnchors = scoring.resolvedAnchors ?? (anchors.length - invalidAnchors);
-    const resolvedRatioPass = !anchors.length || scoring.resolvedAnchorRatio >= 0.34;
-    const confidencePass = confidence >= (normalized.layer === "FACT" ? 0.62 : 0.48);
-    const scorePass = Boolean(known) || scoring.score >= scoring.threshold;
+    const resolvedAnchors = isDirectAudio ? Math.max(1, anchors.length) : (scoring.resolvedAnchors ?? (anchors.length - invalidAnchors));
+    const resolvedRatioPass = isDirectAudio || !anchors.length || scoring.resolvedAnchorRatio >= 0.34;
+    const confidencePass = isDirectAudio ? confidence >= 0.45 : confidence >= (normalized.layer === "FACT" ? 0.62 : 0.48);
+    const scorePass = Boolean(known) || isDirectAudio || scoring.score >= scoring.threshold;
     let supported = Boolean(known) || (!hasSnapshot && category === "genre") ||
       (resolvedAnchors >= 1 && resolvedRatioPass && enoughAxes && groupMatch && confidencePass && scorePass);
     let reason = supported ? "grounded" : !resolvedAnchors ? "no-anchor-resolved"
@@ -139,7 +141,7 @@ const SemanticFacets = (() => {
     };
     if (scoring.contradiction >= 0.5) { supported = false; reason = "contradicted-by-snapshot"; }
     if (!gates.relationEdgePass) { supported = false; reason = "relation-edge-support-low"; }
-    if ((contextual.has(category) || ["CONTEXT", "AESTHETIC"].includes(normalized.layer)) && !known) {
+    if ((contextual.has(category) || ["CONTEXT", "AESTHETIC"].includes(normalized.layer)) && !known && !isDirectAudio) {
       const genreGrounded = snapshot.confidence >= (normalized.layer === "AESTHETIC" ? 0.62 : 0.6) &&
         Boolean(snapshot.primaryGenre) &&
         [...groups].some(g => ["primaryGenre", "genreEvidence", "genreHierarchy", "genreContextEvidence"].includes(g));
@@ -165,16 +167,16 @@ const SemanticFacets = (() => {
       gates.liveDeltaPass = metadataPass || resolvedDeltaPass;
       gate(gates.liveDeltaPass, "live-transition-without-delta");
     }
-    if (category === "association" && normalized.kind === "artist") {
+    if (category === "association" && normalized.kind === "artist" && !isDirectAudio) {
       gate(/(?:연상|계열|문법)$/.test(normalized.text) && confidence >= 0.68 && snapshot.confidence >= 0.65 &&
         [...groups].some(g => ["instrumentation", "instrumentationEvidence", "rhythmicGrammar"].includes(g)) &&
         [...groups].some(g => ["production", "productionEvidence", "genreContextEvidence", "genreHierarchy"].includes(g)),
         "artist-is-not-identification");
     }
-    if (category === "association" && normalized.kind !== "artist" && !known) {
+    if (category === "association" && normalized.kind !== "artist" && !known && !isDirectAudio) {
       gate(confidence >= 0.5 && /미학|연상|계열|감성|인접성|문화|aesthetic/i.test(normalized.text), "aesthetic-association-unqualified");
     }
-    if (category === "instrumentation" && !known) {
+    if (category === "instrumentation" && !known && !isDirectAudio) {
       gate((snapshot.instrumentation?.observed || []).some(item =>
         item.confidence >= 0.35 && [item.label, item.id].some(label => String(label).toLowerCase() === normalized.text.toLowerCase())),
         "instrument-not-observed");

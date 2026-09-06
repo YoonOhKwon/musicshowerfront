@@ -32,9 +32,11 @@ const LanguageCritic = (() => {
     const item = Layers.decorate({ ...(typeof candidate === "object" ? candidate : {}), text, category },
       { snapshot: context.snapshot });
     const anchors = item.anchors;
+    const isDirectAudio = item.sourceFamily === "directAudio" || item.source === "directAudio" ||
+      item.resolutionMomentum === true || anchors.some(a => String(a).startsWith("directAudioEvidence"));
     const knownVocabulary = Expressions.vocabulary[category]?.includes(text);
     const eligible = context.eligibleTexts;
-    let relevant = eligible ? eligible.some(item => semanticKey(item) === semanticKey(text)) : Boolean(knownVocabulary || category === "genre");
+    let relevant = isDirectAudio || (eligible ? eligible.some(item => semanticKey(item) === semanticKey(text)) : Boolean(knownVocabulary || category === "genre"));
     const evidence = Facets.support(item, { ...context,
       eligibleTexts: relevant ? [text] : [] });
     // Tracks WHY relevance ended up where it did, so a rejection can name the real cause
@@ -46,12 +48,12 @@ const LanguageCritic = (() => {
       if (!relevant) relevanceViaEvidence = true;
     } else if (!relevant && !knownVocabulary) { relevant = evidence.supported; relevanceViaEvidence = true; }
     // Exact claims always need their dedicated gate, even if they appear in a local pool.
-    if (/솔로|solo|워킹 베이스|walking bass|트리오|trio|사이드체인|sidechain|필터 스윕|filter sweep|스테레오|stereo|보컬 찹|vocal chop|샘플 기반|sample.based/i.test(text) ||
-        Facets.contextual.has(category)) relevant = relevant && evidence.supported;
+    if (!isDirectAudio && (/솔로|solo|워킹 베이스|walking bass|트리오|trio|사이드체인|sidechain|필터 스윕|filter sweep|스테레오|stereo|보컬 찹|vocal chop|샘플 기반|sample.based/i.test(text) ||
+        Facets.contextual.has(category))) relevant = relevant && evidence.supported;
     const recentSimilarity = recent.reduce((max, item) => Math.max(max, similarity(text, item?.text || item)), 0);
     const musicalFit = clamp(item.musicalFit ?? 0.85), clarity = clamp(item.clarity ?? 0.95);
     const naturalness = clamp(item.languageQuality ?? 0.95);
-    const confidence = candidate?.confidence === undefined ? (knownVocabulary ? 0.8 : 0) : clamp(item.confidence);
+    const confidence = candidate?.confidence === undefined ? (knownVocabulary ? 0.8 : (item.openWorld || isDirectAudio ? 0.7 : 0)) : clamp(item.confidence);
     // Novelty is measured against what the screen actually said recently, at concept level:
     // "달콤한 향수" and "달콤한 회고" are not two fresh phrases.
     const localNovelty = Quality.novelty(item, recent);
@@ -72,7 +74,7 @@ const LanguageCritic = (() => {
       (mechanicalPhrase || (!plainVocabulary && specificity < 0.42) || (abstractTerms >= 2 && evidenceAxes < 2));
     const factPoetry = item.layer === "FACT" && /향수|낭만|애상|낙관주의|부유감|미학|감성/.test(text);
     const factLicense = Firewall.inspect(text, context.snapshot?.verifiedClaims || context.verifiedClaims);
-    const unlicensedFact = (item.layer === "FACT" || item.layer === "LIVE") && !factLicense.licensed;
+    const unlicensedFact = (item.layer === "FACT" || item.layer === "LIVE") && !factLicense.licensed && !isDirectAudio;
     const aiCliche = item.source === "llm" && ["AESTHETIC", "IMPRESSION"].includes(item.layer) &&
       AI_CLICHE_FAMILIES.has(semanticFamily) && independentEvidenceAxes < 2;
     const aiClichePenalty = (AI_CLICHE_FAMILIES.has(semanticFamily) ? Math.min(0.24, recentFamilyCount * 0.1) : 0) +

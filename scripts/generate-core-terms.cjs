@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 // Regenerates data/approvedCoreTerms.json's classifier-derived entries from the REAL 400-class
-// Discogs-EffNet genre list this project's ML model actually recognizes
-// (models/music-shower/assets/discogs-effnet-bsdynamic-1.json), instead of relying only on
-// whatever a human remembered to hand-curate. semanticFacets.js's safeText() vetoes any "*코어"
-// neologism not in this file's `term` list -- the point of this script is that the ceiling on
-// what "-코어" genres are expressible should track what the classifier can genuinely recognize,
-// not a small fixed list someone has to remember to update by hand.
+// Discogs-EffNet genre list this project's ML model recognizes
+// (models/music-shower/assets/discogs-effnet-bsdynamic-1.json). The output is a compatibility
+// index for Korean aliases, family hints and diagnostics -- never an admission whitelist or the
+// ceiling of what Flamingo/the language system may discover and express.
 //
 // This does NOT invent transliterations at runtime: KOREAN_TRANSLITERATION below is a fixed,
 // human-verified map from each real classifier "-core" class to its standard Korean rendering.
@@ -13,8 +11,7 @@
 //
 // Usage: node scripts/generate-core-terms.cjs [--write]
 // Without --write, prints what would change (dry run) and exits 0. Never runs automatically as
-// part of npm run check -- this is a deliberate, human-reviewed regeneration step, run when the
-// classifier model changes.
+// part of npm run check; run it when the classifier manifest changes.
 const fs = require("fs");
 const path = require("path");
 

@@ -3,7 +3,41 @@ const SemanticFacetManager = (() => {
   const Expressions = typeof MusicExpressionEngine !== "undefined" ? MusicExpressionEngine : require("./musicExpressionEngine");
   const Layers = typeof LanguageLayerPolicy !== "undefined" ? LanguageLayerPolicy : require("./languageLayerPolicy");
   const Quality = typeof PhraseQuality !== "undefined" ? PhraseQuality : require("./phraseQuality");
+  const GenreLabels = typeof GenreLabelShape !== "undefined" ? GenreLabelShape : require("./genreLabelShape");
+  const DirectAudioRealizer = (typeof globalThis !== "undefined" && globalThis.DirectAudioRealizer)
+    ? globalThis.DirectAudioRealizer
+    : (typeof require !== "undefined" ? (() => { try { return require("../../lib/directAudioRealizer"); } catch { return null; } })() : null);
   const decorateAll = candidates => (candidates || []).filter(Boolean).map(item => Layers.decorate(item));
+  const normalize = text => String(text || "").toLowerCase().replace(/[\s_&'().,\-]+/g, "");
+  function realizeOpenWorldGenre(item, state) {
+    if (item.category !== "genre" || (item.source !== "directAudio" && item.sourceFamily !== "directAudio")) return item;
+    const concept = (state.openWorldConcepts || []).find(candidate =>
+      ["genre", "microgenre"].includes(candidate.conceptType) &&
+      normalize(candidate.canonicalLabel) === normalize(item.sourceText || item.text));
+    if (!concept) return item;
+    const label = concept.canonicalLabel || item.text;
+    const text = concept.status === "stable" ? label
+      : concept.status === "provisional" ? `${label} 계열`
+        : concept.status === "emerging" ? `${label} 가능성` : `${label} 연상`;
+    return Layers.decorate({ ...item, text, canonicalText: label, beliefStatus: concept.status });
+  }
+  function realizeCandidate(item, state) {
+    if (item.requiresKoreanRealization === true) {
+      const family = Array.isArray(item.realizations) && item.realizations.length
+        ? item.realizations
+        : (DirectAudioRealizer ? DirectAudioRealizer.realize(item.canonicalText || item.sourceText || item.text, item.category) : []);
+      if (family && family.length && /[가-힣]/.test(family[0])) {
+        return Layers.decorate({
+          ...item,
+          canonicalText: item.canonicalText || item.sourceText || item.text,
+          text: family[0],
+          requiresKoreanRealization: false,
+          realizations: family
+        });
+      }
+    }
+    return realizeOpenWorldGenre(item, state);
+  }
   function base(state) {
     const generated = Expressions.generate(state);
     if (state.expressionFeatures?.audible === false) return decorateAll(generated);
@@ -12,11 +46,18 @@ const SemanticFacetManager = (() => {
       ...(state.arrangementFacetCandidates || []), ...(state.detectedIdioms || []),
       ...(state.primitiveObservationCandidates || []),
       ...(state.impressionFacetCandidates || []), ...(state.composedFactCandidates || []),
-      ...(state.liveEventCandidates || []), ...(state.aestheticConceptCandidates || [])].slice(0, 140));
+      ...(state.liveEventCandidates || []), ...(state.aestheticConceptCandidates || []),
+      ...(state.directAudioCandidates || []),
+      ...(state.flamingoReservoirCandidates || [])].slice(0, 160));
   }
   function local(state) {
     const stabilized = state.stateV2?.displayCandidates;
-    return Array.isArray(stabilized) && stabilized.length ? decorateAll(stabilized.slice(0, 120)) : base(state);
+    const candidates = Array.isArray(stabilized) && stabilized.length
+      ? decorateAll(stabilized.slice(0, 120)) : base(state);
+    return candidates
+      .map(item => realizeCandidate(item, state))
+      .filter(item => item.requiresKoreanRealization !== true &&
+        (item.category !== "genre" || GenreLabels.isPlausibleGenreLabel(item.canonicalText || item.sourceText || item.text)));
   }
   function group(candidates) {
     const output = Facets.empty();

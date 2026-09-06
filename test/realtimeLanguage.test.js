@@ -108,7 +108,9 @@ test("category scheduling is independent of pool size and adapts to musical chan
   // per-item share, so it now draws well above a flat per-category split; "live" shares LIVE's
   // layer budget across 20 items instead of getting item-count-proportional priority.
   assert.ok(stable.genre > 1800 && stable.genre < 2500, `genre share drifted: ${stable.genre}`);
-  assert.ok(stable.live > 700 && stable.live < 1400, `live share drifted: ${stable.live}`);
+  // With no observationSeconds supplied this is the mature-listening band, where LIVE deliberately
+  // falls to about 6% while FACT remains largest and deep interpretation has opened up.
+  assert.ok(stable.live > 400 && stable.live < 900, `live share drifted: ${stable.live}`);
   assert.ok(changing.live + changing.dynamics > stable.live + stable.dynamics);
 });
 

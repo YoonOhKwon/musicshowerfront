@@ -5,6 +5,7 @@ const cors = require("cors");
 const OpenAI = require("openai");
 const { createLanguageService, emptyTokenUsage, CALL_TUNING: CallTuning } = require("./lib/languageService");
 const DirectAudioReview = require("./lib/directAudioReview");
+const DirectAudioRealizer = require("./lib/directAudioRealizer");
 
 require("dotenv").config({ quiet: true });
 
@@ -353,7 +354,7 @@ app.post("/api/language-pool", async (req, res) => {
 // Periodic direct-audio (Music Flamingo) capture, called from js/main.js every ~30-45s of
 // listening. A caption never becomes a display-ready word here: reviewCaption() classifies each
 // sentence (musical/cultural-or-historical/impression) and toObservations() turns the
-// keyword-anchored ones into candidate-shaped observations at reduced, source-differentiated
+// structured or open-world claims into candidate-shaped observations at reduced, source-differentiated
 // confidence (lib/directAudioReview.js) -- js/main.js feeds those into
 // applyDirectAudioObservations(), which joins the SAME evidence-fusion/temporal-stability pipeline
 // every other source goes through (js/semantic/semanticEngine.js's updateTemporalEvidence()). The
@@ -363,20 +364,104 @@ app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" })
   try {
     console.log(`[deep-analysis] received ${req.body.length} bytes, forwarding to Flamingo server (localhost:5005)...`);
     const audioSha256 = crypto.createHash("sha256").update(req.body).digest("hex");
+    const observationId = `flam-${audioSha256.slice(0, 10)}-${Date.now()}`;
+    const sessionId = String(req.get("X-Music-Shower-Session") || "").slice(0, 40) || null;
+    const segmentId = String(req.get("X-Music-Shower-Segment") || "").slice(0, 40) || observationId;
+    const trackEpoch = Number(req.get("X-Music-Shower-Track-Epoch") || 0);
+    const requestId = String(req.get("X-Music-Shower-Request-Id") || observationId);
+    const activeAudioMs = Math.max(0, Number(req.get("X-Music-Shower-Active-Ms")) || 0);
     const flamingoRes = await fetch("http://localhost:5005/analyze", {
       method: "POST",
-      headers: { "Content-Type": "audio/wav", "Content-Length": req.body.length },
+      headers: {
+        "Content-Type": "audio/wav", "Content-Length": req.body.length,
+        "X-Music-Shower-Session": sessionId || "",
+        "X-Music-Shower-Segment": segmentId,
+        "X-Music-Shower-Track-Epoch": String(trackEpoch),
+        "X-Music-Shower-Request-Id": requestId,
+        "X-Music-Shower-Active-Ms": String(Math.round(activeAudioMs))
+      },
       body: req.body
     });
     if (!flamingoRes.ok) throw new Error("Flamingo server error: " + await flamingoRes.text());
-    const { caption } = await flamingoRes.json();
-    const review = DirectAudioReview.reviewCaption({ caption, provider: "music-flamingo", audioSha256 }, {});
-    const observations = DirectAudioReview.toObservations(review);
-    console.log(`[deep-analysis] caption received (${caption.length} chars), ${observations.length} observation(s) extracted`);
-    res.json({ ...review, observations });
+    const flamingoData = await flamingoRes.json();
+    const caption = flamingoData.caption || "";
+    const structuredPacket = flamingoData.structuredPacket || null;
+    const review = DirectAudioReview.reviewCaption({ caption, structuredPacket, provider: "music-flamingo",
+      audioSha256, observationId, audioSegmentId: segmentId, sessionId, activeAudioMs, trackEpoch, requestId,
+      continuity: flamingoData.continuity || null }, {});
+    const observations = DirectAudioReview.toObservations(review, { trackEpoch, requestId });
+    console.log(`[deep-analysis] id=${observationId} caption received (${caption.length} chars), ${observations.length} observation(s) extracted`);
+    res.json({ ...review, observations, observationId, sessionId, segmentId, trackEpoch, requestId, activeAudioMs });
   } catch (error) {
     console.error("[deep-analysis error] (is flamingo_server.py running on :5005?)", error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Asynchronous LLM realization endpoint that converts Flamingo concepts into rich Korean
+// concept families while BYPASSING the ~45s regular language pool cooldown.
+app.post("/api/realize-direct-audio", async (req, res) => {
+  try {
+    const { concepts = [], sessionId = null, trackEpoch = 0 } = req.body || {};
+    if (!Array.isArray(concepts) || !concepts.length) {
+      return res.json({ realizations: {}, trackEpoch });
+    }
+
+    const realizations = {};
+    const unhandled = [];
+
+    // First, pass through fast zero-latency dictionary / rule realizer
+    for (const item of concepts) {
+      const text = typeof item === "string" ? item : item.text;
+      const category = typeof item === "object" ? item.category : "aesthetic";
+      if (!text) continue;
+      const fastFamily = DirectAudioRealizer.realize(text, category);
+      if (fastFamily && fastFamily.length) {
+        realizations[text] = fastFamily;
+      } else {
+        unhandled.push({ text, category });
+      }
+    }
+
+    // If client exists and there are concepts that could benefit from rich LLM expansion
+    if (client && concepts.length > 0) {
+      try {
+        const prompt = `You are Music Shower's direct audio language specialist.
+Convert the following music concepts (identified by Music Flamingo) into concise, natural, evocative Korean phrases suitable for a real-time synesthetic visualizer.
+Rules:
+- For each concept, produce 2 to 4 distinct Korean expressions (1-4 words each).
+- Make phrases musically accurate, sensory, and culturally resonant.
+- DO NOT invent generic poetry or unrelated scenery.
+- Return JSON mapping each concept exactly to an array of Korean strings.
+
+Concepts:
+${JSON.stringify(concepts.map(c => typeof c === "string" ? { text: c } : { text: c.text, category: c.category }))}`;
+
+        const response = await client.chat.completions.create({
+          model: LANGUAGE_MODEL,
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" },
+          temperature: 0.7,
+          max_tokens: 800
+        });
+        const content = response.choices?.[0]?.message?.content;
+        if (content) {
+          const parsed = JSON.parse(content);
+          for (const [k, v] of Object.entries(parsed)) {
+            if (Array.isArray(v) && v.length) {
+              realizations[k] = v.filter(s => typeof s === "string" && s.trim());
+            }
+          }
+        }
+      } catch (llmErr) {
+        console.warn("[realize-direct-audio] LLM expansion failed, using fast realizer fallback:", llmErr.message);
+      }
+    }
+
+    res.json({ realizations, trackEpoch, sessionId });
+  } catch (err) {
+    console.error("[realize-direct-audio error]", err);
+    res.status(500).json({ error: err.message });
   }
 });
 

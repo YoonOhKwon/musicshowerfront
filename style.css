@@ -186,6 +186,49 @@ button:disabled { cursor: wait; opacity: 0.65; }
 .languageInspectorCandidate strong { display: block; font-size: 16px; font-weight: 500; }
 .languageInspectorCandidate small { display: block; margin-top: 4px; color: #a395ad; font-size: 10px; }
 .languageInspectorCandidate[data-selected="true"] strong { color: #f3c5dd; }
+.languageInspectorCandidate[data-flamingo="true"] {
+  border-left: 4px solid #ff4f8b;
+  padding-left: 12px;
+  background: rgba(255, 79, 139, 0.09);
+  border-radius: 6px;
+  margin: 3px 0;
+}
+.languageInspectorCandidate[data-flamingo="true"] strong {
+  color: #ff5ea0;
+  text-shadow: 0 0 12px rgba(255, 94, 160, 0.45);
+}
+.languageInspectorCandidate[data-flamingo="true"][data-selected="true"] strong {
+  color: #ff8cb7;
+  text-shadow: 0 0 16px rgba(255, 120, 180, 0.7);
+}
+.languageInspectorCandidate[data-flamingo="true"] small {
+  color: #f7b5cf;
+}
+.flamingoBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff4f8b 0%, #d82b6b 100%);
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+  box-shadow: 0 0 10px rgba(255, 79, 139, 0.5);
+}
+.flamingoLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(255, 79, 139, 0.12);
+  border: 1px solid rgba(255, 79, 139, 0.3);
+  border-radius: 6px;
+  color: #ffb8d4;
+  font-size: 11px;
+}
 /* Immersive playback: no status overlay; keyboard/focus keeps stop discoverable. */
 body:not(.semanticDebug) .audioStatus[data-state="active"] {
   clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden;

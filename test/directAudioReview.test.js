@@ -2,12 +2,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { reviewCaption, toObservations, split } = require('../lib/directAudioReview');
 
-test('direct caption is review-only and separates cultural claims', () => {
+test('direct caption is auto-fused and separates cultural claims without human approval gate', () => {
   const result = reviewCaption({ provider: 'research', audioSha256: 'abc', caption: 'A 140 BPM kick groove. 1990년대 영국 클럽의 향수.' });
-  assert.equal(result.status, 'human-review-required');
+  assert.equal(result.status, 'auto-fused');
+  assert.equal(result.approvedForDisplay, true);
   assert.equal(result.metrics.musicalClaimCount, 1);
   assert.equal(result.metrics.culturalClaimCount, 1);
-  assert.equal(result.claims.every(x => x.approved === false), true);
 });
 test('caption parsing is bounded and does not become a giant prompt', () => {
   assert.equal(split('word\n'.repeat(100)).length, 40);
@@ -47,15 +47,45 @@ test('a sentence classified as cultural is labeled from the cultural keyword tha
   assert.equal(observation.category, 'association');
 });
 
-test('an impression-type claim (matches neither MUSICAL nor CULTURAL) produces no observation -- honestly dropped, not force-labeled', () => {
+test('an open-world impression survives as source evidence and waits for Korean realization', () => {
   const review = reviewCaption({ caption: 'It feels quietly wistful and warm.' });
   assert.equal(review.claims[0].type, 'impression');
-  assert.deepEqual(toObservations(review), []);
+  const [observation] = toObservations(review);
+  assert.equal(observation.text, 'It feels quietly wistful and warm');
+  assert.equal(observation.layer, 'IMPRESSION');
+  assert.equal(observation.requiresKoreanRealization, true);
 });
 
-test('an unmatched sentence of a recognized type (no real keyword to anchor a label to) also produces no observation', () => {
+test('an unfamiliar but valid musical description is retained instead of being limited to local priors', () => {
   const review = { claims: [{ id: 'x', text: 'something with no real keyword', type: 'musical-claim' }] };
-  assert.deepEqual(toObservations(review), []);
+  const [observation] = toObservations(review);
+  assert.equal(observation.text, 'something with no real keyword');
+  assert.equal(observation.requiresKoreanRealization, true);
+});
+
+test('structured English descriptions wait for Korean realization while international genre labels can display', () => {
+  const review = reviewCaption({ structuredPacket: {
+    audibleObservations: [{ text: 'granular percussion', category: 'production', confidence: 0.72 }],
+    genreHypotheses: [{ label: 'Mallsoft', confidence: 0.74 }],
+    contextHypotheses: [{ text: 'abandoned retail ambience', category: 'scene', confidence: 0.63 }],
+    aestheticConcepts: [{ text: 'degraded commercial nostalgia', confidence: 0.66 }],
+    impressions: [{ text: 'comforting yet emotionally vacant', confidence: 0.64 }]
+  }});
+  const observations = toObservations(review);
+  assert.equal(observations.find(item => item.category === 'genre').requiresKoreanRealization, false);
+  assert.ok(observations.filter(item => item.category !== 'genre').every(item => item.requiresKoreanRealization));
+});
+
+test('a sentence misplaced in genreHypotheses is preserved as evidence but cannot become GENRE', () => {
+  const sentence = 'Lush atmospheric synth pads provide harmonic support';
+  const observations = toObservations(reviewCaption({ structuredPacket: {
+    genreHypotheses: [{ label: sentence, confidence: 0.65 }]
+  }}));
+  assert.equal(observations.length, 1);
+  assert.equal(observations[0].category, 'production');
+  assert.equal(observations[0].reclassifiedFrom, 'genre');
+  assert.equal(observations[0].requiresKoreanRealization, true);
+  assert.ok(!observations.some(item => item.category === 'genre'));
 });
 
 // Regression coverage for a real gap found against an ACTUAL Flamingo output (from a live run of
