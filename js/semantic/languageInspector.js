@@ -189,6 +189,15 @@ const LanguageInspector = (() => {
     const selectionDetails = element("details");
     selectionDetails.open = true;
     selectionDetails.append(element("summary", "선별 통계"), element("pre", "", "languageInspectorSelectionStats"));
+    // Independent of whether phraseSelection/critic ever picked a Flamingo concept for display --
+    // the floating-word competition has far more FACT supply than AESTHETIC/IMPRESSION, so a real,
+    // rich Flamingo capture can easily go unselected for the whole gap until the next one. This
+    // shows exactly what Music Flamingo + the Korean realizer produced, unfiltered by that
+    // competition, so "did Flamingo actually say anything interesting" is never in question.
+    const flamingoPoolDetails = element("details", undefined, "languageInspectorFlamingoPoolSection");
+    flamingoPoolDetails.open = true;
+    flamingoPoolDetails.append(element("summary", "🦩 Flamingo 전처리 단어 풀 (선택 여부와 무관한 전체 결과)"),
+      element("pre", "", "languageInspectorFlamingoPool"));
     const details = element("details");
     details.append(element("summary", "전송한 의미 스냅샷"), element("pre", "", "languageInspectorSnapshot"));
     const note = element("p", undefined, "languageInspectorNote");
@@ -202,7 +211,8 @@ const LanguageInspector = (() => {
       element("span", " 핫핑크 배지/색상 표시 단어: Music Flamingo (직접 음향 청취 모델) 유래")
     );
     note.append(legend);
-    panel.append(header, status, tokenDetails, selectionDetails, details, note, element("div", undefined, "languageInspectorCandidates"));
+    panel.append(header, status, tokenDetails, selectionDetails, flamingoPoolDetails, details, note,
+      element("div", undefined, "languageInspectorCandidates"));
     panel.addEventListener("keydown", event => { if (event.key === "Escape") toggle(); });
     document.body.append(panel);
   }
@@ -216,13 +226,15 @@ const LanguageInspector = (() => {
     const projectTokens = tokens.projectSession || tokens.languageSession || {};
     const semantic = getSemanticState();
     const primaryHypothesis = semantic.genreReasoning?.primary;
+    const classifier = semantic.classifierGenre || semantic.genre || {};
+    const history = semantic.genreEvidence || {};
     const temporal = semantic.temporalEvidence || {};
     const count = value => Math.max(0, Number(value) || 0).toLocaleString("ko-KR");
     const percent = value => `${Math.round(Math.max(0, Number(value) || 0) * 100)}%`;
     panel.querySelector(".languageInspectorStatus").textContent = [
       `Provider: ${state.provider || "--"} · ${state.model || "--"}`,
       `State: ${state.status || "idle"} · epoch ${semantic.semanticEpoch || 0} · fingerprint ${state.fingerprint || "--"}`,
-      `Primary: ${primaryHypothesis?.genre || "--"} · semantic ${(primaryHypothesis?.semanticConfidence || 0).toFixed(2)} · stability ${(primaryHypothesis?.temporalStability || 0).toFixed(2)} · coverage ${(primaryHypothesis?.evidenceCoverage || 0).toFixed(2)}`,
+      `Primary: ${primaryHypothesis?.genre || "--"} · semantic ${(primaryHypothesis?.semanticConfidence || 0).toFixed(2)} · raw ${(classifier?.rawTopScore ?? classifier?.rawConfidence ?? 0).toFixed(3)} · margin ${(classifier?.margin || 0).toFixed(3)} · entropy ${(classifier?.entropy ?? classifier?.rawEntropy ?? 0).toFixed(2)} · patches ${history?.independentPatchCount ?? classifier?.independentPatchCount ?? 0}`,
       `Challengers: ${(semantic.genreReasoning?.challengers || []).slice(0, 4).map(item => `${item.genre} ${(Number(item.semanticConfidence) || 0).toFixed(2)}/${(Number(item.temporalStability) || 0).toFixed(2)}`).join(" · ") || "--"}`,
       `Temporal: LIVE ${(temporal.liveEvents || []).length} · short ${(temporal.shortTermStates || []).length} · traits ${(temporal.trackTraits || []).length} · stale ${(temporal.stale || []).length} · suppressed ${(temporal.suppressed || []).length} · contradictions ${(temporal.contradictions || []).length}`,
       `Facets: ${SemanticFacets.names.join(" / ")}`,
@@ -243,7 +255,35 @@ const LanguageInspector = (() => {
         ? "캐시에서 재사용한 결과는 새 LLM 토큰으로 계산하지 않습니다." : "Responses API가 반환한 usage 기준입니다."
     }, null, 2);
     panel.querySelector(".languageInspectorSnapshot").textContent = JSON.stringify(inspection.snapshot, null, 2);
-    const nextSignature = JSON.stringify([state.fingerprint, state.provider, inspection.selected?.map(item => item.text), feedback.length, feedback.at(-1)?.at]);
+    const reservoir = typeof getFlamingoWordReservoir === "function" ? getFlamingoWordReservoir() : null;
+    const flamingoPoolEl = panel.querySelector(".languageInspectorFlamingoPool");
+    if (flamingoPoolEl) {
+      const concepts = reservoir?.conceptRegistry?.size ? [...reservoir.conceptRegistry.values()] : [];
+      const inspect = typeof reservoir.inspect === "function" ? reservoir.inspect() : {};
+      flamingoPoolEl.textContent = !concepts.length
+        ? "아직 Music Flamingo 캡처가 없습니다."
+        : [
+            `trackEpoch ${reservoir.trackEpoch} · 캡처 ${reservoir.packetCount}회 · 개념 ${inspect.canonicalConceptCount ?? concepts.length} · 클러스터 ${inspect.semanticClusterCount ?? concepts.length} · 표면 ${inspect.surfacePhraseCount ?? 0}`,
+            "",
+            ...concepts
+              .sort((a, b) => (b.confidence || 0) - (a.confidence || 0))
+              .map(entry => {
+                const variants = (entry.family && entry.family.length ? entry.family : [entry.canonicalText]).join(" / ");
+                const held = typeof reservoir.isPromotionEligible === "function" && !reservoir.isPromotionEligible(entry)
+                  ? " · 보류(단발 저확신)" : "";
+                return `[${entry.category}/${entry.layer}] "${entry.canonicalText}" 확신 ${(entry.confidence || 0).toFixed(2)} · 사용 ${entry.usageCount || 0}회 · 표현 ${entry.family?.length || 1}개${held}\n  → ${variants}`;
+              })
+          ].join("\n");
+    }
+    // A track boundary can leave the provider/fingerprint unchanged for a moment while the new
+    // audio is still collecting evidence. Include the lifecycle identity so an old Flamingo genre
+    // row cannot remain painted merely because the candidate signature happens to be identical.
+    const lifecycle = typeof getTrackLifecycleEngine === "function" ? getTrackLifecycleEngine() : null;
+    const trackEpoch = semantic.trackEpoch ?? lifecycle?.getTrackEpoch() ?? 0;
+    const nextSignature = JSON.stringify([
+      semantic.sessionId, trackEpoch, semantic.semanticEpoch,
+      state.fingerprint, state.provider, inspection.selected?.map(item => item.text), feedback.length, feedback.at(-1)?.at
+    ]);
     if (nextSignature === signature) return;
     signature = nextSignature;
     panel.querySelector(".languageInspectorSnapshot").textContent = JSON.stringify(inspection.snapshot, null, 2);

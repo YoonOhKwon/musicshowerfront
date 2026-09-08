@@ -1,0 +1,208 @@
+W0906 17:25:06.480000 27584 Lib\site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Loading weights:   0%|          | 0/830 [00:00<?, ?it/s]Loading weights:   5%|▍         | 39/830 [00:00<00:02, 364.94it/s]Loading weights:  10%|█         | 86/830 [00:00<00:01, 408.65it/s]Loading weights:  16%|█▌        | 134/830 [00:00<00:01, 434.41it/s]Loading weights:  21%|██▏       | 178/830 [00:00<00:01, 431.88it/s]Loading weights:  27%|██▋       | 224/830 [00:00<00:01, 439.00it/s]Loading weights:  33%|███▎      | 270/830 [00:00<00:01, 445.19it/s]Loading weights:  38%|███▊      | 315/830 [00:00<00:01, 443.69it/s]Loading weights:  43%|████▎     | 361/830 [00:00<00:01, 444.96it/s]Loading weights:  49%|████▉     | 408/830 [00:00<00:00, 449.53it/s]Loading weights:  55%|█████▍    | 453/830 [00:01<00:00, 445.10it/s]Loading weights:  60%|██████    | 498/830 [00:02<00:02, 114.75it/s]Loading weights:  64%|██████▍   | 531/830 [00:02<00:03, 93.46it/s] Loading weights:  67%|██████▋   | 556/830 [00:03<00:03, 87.55it/s]Loading weights:  69%|██████▉   | 575/830 [00:03<00:03, 83.37it/s]Loading weights:  71%|███████   | 591/830 [00:03<00:03, 78.56it/s]Loading weights:  73%|███████▎  | 604/830 [00:03<00:02, 78.79it/s]Loading weights:  74%|███████▍  | 616/830 [00:03<00:02, 72.42it/s]Loading weights:  75%|███████▌  | 626/830 [00:04<00:03, 61.59it/s]Loading weights:  77%|███████▋  | 636/830 [00:04<00:03, 61.91it/s]Loading weights:  78%|███████▊  | 647/830 [00:04<00:02, 64.79it/s]Loading weights:  79%|███████▉  | 655/830 [00:04<00:02, 59.81it/s]Loading weights:  80%|███████▉  | 662/830 [00:04<00:03, 51.87it/s]Loading weights:  81%|████████  | 671/830 [00:05<00:02, 56.28it/s]Loading weights:  82%|████████▏ | 678/830 [00:05<00:02, 56.84it/s]Loading weights:  83%|████████▎ | 685/830 [00:05<00:02, 49.21it/s]Loading weights:  84%|████████▍ | 696/830 [00:05<00:02, 58.47it/s]Loading weights:  85%|████████▌ | 707/830 [00:05<00:01, 66.10it/s]Loading weights:  86%|████████▌ | 715/830 [00:05<00:01, 65.68it/s]Loading weights:  87%|████████▋ | 722/830 [00:05<00:01, 59.70it/s]Loading weights:  88%|████████▊ | 732/830 [00:05<00:01, 65.81it/s]Loading weights:  90%|████████▉ | 743/830 [00:06<00:01, 72.47it/s]Loading weights:  90%|█████████ | 751/830 [00:06<00:01, 69.90it/s]Loading weights:  91%|█████████▏| 759/830 [00:06<00:01, 61.39it/s]Loading weights:  93%|█████████▎| 768/830 [00:06<00:01, 61.06it/s]Loading weights:  94%|█████████▍| 779/830 [00:06<00:00, 66.16it/s]Loading weights:  95%|█████████▍| 786/830 [00:06<00:00, 62.17it/s]Loading weights:  96%|█████████▌| 793/830 [00:07<00:00, 52.91it/s]Loading weights:  97%|█████████▋| 804/830 [00:07<00:00, 60.22it/s]Loading weights:  98%|█████████▊| 815/830 [00:07<00:00, 66.07it/s]Loading weights:  99%|█████████▉| 822/830 [00:07<00:00, 64.60it/s]Loading weights: 100%|██████████| 830/830 [00:07<00:00, 111.84it/s]
+Some parameters are on the meta device because they were offloaded to the cpu.
+127.0.0.1 - - [06/Sep/2026 17:26:39] "POST /analyze HTTP/1.1" 200 -
+[transformers] This is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (1200). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+127.0.0.1 - - [06/Sep/2026 17:37:14] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:37:40] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:38:09] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:38:39] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:39:14] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:40:07] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:40:38] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:41:08] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:41:39] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:43:11] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:43:42] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:44:44] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:45:13] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [06/Sep/2026 17:45:13] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [06/Sep/2026 17:45:13] "POST /analyze HTTP/1.1" 409 -
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 55862)
+Traceback (most recent call last):
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 647, in do_POST
+    print("Running Flamingo structured deep-listening inference...", flush=True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 594, in run_inference
+    stopping_criteria=StoppingCriteriaList([CancelWhenSuperseded(cancel_event)]),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CancelledInference: superseded during generation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 440, in handle
+    self.handle_one_request()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 428, in handle_one_request
+    method()
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 668, in do_POST
+    }).encode('utf-8'))
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 495, in send_error
+    self.wfile.write(body)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다
+----------------------------------------
+127.0.0.1 - - [06/Sep/2026 17:46:17] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:47:51] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:48:22] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:49:55] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:51:22] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:51:52] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:52:22] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:52:53] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:53:22] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:53:52] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:54:43] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:55:13] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:55:43] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:56:13] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [06/Sep/2026 17:56:31] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [06/Sep/2026 17:56:31] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [06/Sep/2026 17:56:31] "POST /analyze HTTP/1.1" 409 -
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 60070)
+Traceback (most recent call last):
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 647, in do_POST
+    tmp_path = tmp.name
+               ^^^^^^^^^
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 572, in run_inference
+    ).to(model.device)
+        ^^^^^^^^^^^^^^^
+CancelledInference: superseded during preprocessing
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 440, in handle
+    self.handle_one_request()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 428, in handle_one_request
+    method()
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 668, in do_POST
+    "continuity": {"sessionId": session_id or None, "segmentId": segment_id or None,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 495, in send_error
+    self.wfile.write(body)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다
+----------------------------------------
+127.0.0.1 - - [07/Sep/2026 00:47:40] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:48:07] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:48:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:49:32] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [07/Sep/2026 00:49:32] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [07/Sep/2026 00:49:32] "POST /analyze HTTP/1.1" 409 -
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 63902)
+Traceback (most recent call last):
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 647, in do_POST
+    request_id = f"local-{track_epoch}-{time.time_ns()}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 594, in run_inference
+    print(
+        ^^^
+CancelledInference: superseded during generation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 440, in handle
+    self.handle_one_request()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 428, in handle_one_request
+    method()
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 668, in do_POST
+    flush=True,
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 495, in send_error
+    self.wfile.write(body)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다
+----------------------------------------
+127.0.0.1 - - [07/Sep/2026 00:50:38] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:51:08] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:51:38] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:52:08] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:53:27] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:55:01] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:55:32] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:56:03] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 00:58:00] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:01:55] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:03:08] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:03:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:04:06] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:04:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:05:10] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:05:37] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:06:38] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:07:09] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:08:07] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:08:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:09:05] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:10:15] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:10:46] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:11:15] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:11:43] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [07/Sep/2026 01:11:43] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [07/Sep/2026 01:11:43] "POST /analyze HTTP/1.1" 409 -
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 51339)
+Traceback (most recent call last):
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 647, in do_POST
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 594, in run_inference
+    {"type": "audio", "path": tmp_path}
+CancelledInference: superseded during generation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 440, in handle
+    self.handle_one_request()
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 428, in handle_one_request
+    method()
+  File "C:\Users\yoono\Downloads\music shower\scripts\flamingo_server.py", line 668, in do_POST
+    return
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\http\server.py", line 495, in send_error
+    self.wfile.write(body)
+  File "C:\Users\yoono\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다
+----------------------------------------
+127.0.0.1 - - [07/Sep/2026 01:11:54] code 501, message Unsupported method ('GET')
+127.0.0.1 - - [07/Sep/2026 01:11:54] "GET / HTTP/1.1" 501 -
+127.0.0.1 - - [07/Sep/2026 01:15:28] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:16:31] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:17:07] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:17:34] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:18:05] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:18:35] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:19:06] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:19:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:20:06] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [07/Sep/2026 01:20:35] "POST /analyze HTTP/1.1" 200 -

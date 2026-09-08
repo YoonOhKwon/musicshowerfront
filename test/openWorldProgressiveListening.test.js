@@ -88,7 +88,7 @@ test('4. Taxonomy-absent genres (Mallsoft, Singeli, Zamrock) create open-world c
   assert.ok(concept, 'concept node should be created');
   assert.equal(concept.canonicalLabel, 'Mallsoft');
   assert.equal(concept.openWorld, true);
-  assert.equal(concept.status, 'provisional', 'first observation with temporal support >= 1 is provisional');
+  assert.equal(concept.status, 'provisional', 'a sufficiently confident first observation is provisional');
   assert.equal(registry.realizePhrase(concept), 'Mallsoft 계열');
 
   // Second observation corroborating the open-world genre
@@ -102,6 +102,23 @@ test('4. Taxonomy-absent genres (Mallsoft, Singeli, Zamrock) create open-world c
   });
   assert.equal(updated.status, 'stable');
   assert.equal(registry.realizePhrase(updated), 'Mallsoft');
+});
+
+test('4b. A single low-confidence open-world genre remains emerging until repeated', () => {
+  const registry = new OpenWorldConceptRegistry.Registry();
+  let concept = registry.propose({
+    label: 'Uncatalogued Pulse', conceptType: 'genre', source: 'directAudio',
+    observationId: 'weak-1', audioSegmentId: 'segment-1', confidence: 0.40
+  });
+  assert.equal(concept.status, 'emerging');
+  assert.equal(concept.temporalSupport, 1);
+
+  concept = registry.propose({
+    label: 'Uncatalogued Pulse', conceptType: 'genre', source: 'directAudio',
+    observationId: 'weak-2', audioSegmentId: 'segment-2', confidence: 0.44
+  });
+  assert.equal(concept.status, 'provisional');
+  assert.equal(concept.temporalSupport, 2);
 });
 
 test('5. Unregistered genre or core candidate is not rejected purely for missing local taxonomy', () => {
@@ -182,13 +199,30 @@ test('7. Deep Listen result arrival progressively increases aesthetic and contex
   const preWeights = engine.getLayerWeights();
 
   // Deep listen arrives at 30s
-  engine.noteDeepListen('flam-30s');
+  engine.noteDeepListen('flam-30s', {
+    contextHypotheses: [{ text: 'independent scene relation' }],
+    aestheticConcepts: [{ text: 'porous night texture' }, { text: 'soft metallic distance' }],
+    impressions: [{ text: 'restless suspension' }, { text: 'guarded warmth' }]
+  });
   engine.update({ state, observationSeconds: 30 });
   const postWeights = engine.getLayerWeights();
 
   assert.ok(postWeights.AESTHETIC > preWeights.AESTHETIC, 'AESTHETIC share must increase after deep listen');
   assert.ok(postWeights.IMPRESSION > preWeights.IMPRESSION, 'IMPRESSION share must increase after deep listen');
-  assert.ok(postWeights.FACT >= 0.30, 'FACT share must never drop below floor');
+  assert.ok(postWeights.FACT >= 0.15, 'FACT keeps a compact safety floor after interpretive evidence arrives');
+  assert.ok(postWeights.FACT < preWeights.FACT, 'FACT yields space as deep-listening resolution matures');
+});
+
+test('7b. repeated surface copies do not masquerade as semantic richness', () => {
+  const engine = new ProgressiveListening.Engine();
+  engine.noteDeepListen('duplicate-window', {
+    genreHypotheses: Array.from({ length: 8 }, () => ({ label: 'Ambient' })),
+    aestheticConcepts: Array.from({ length: 6 }, () => ({ text: 'misty distance' }))
+  }, 30000);
+  assert.equal(engine.deepListenEvidence.genreRichness, 0.5,
+    'one unique genre is half of the two-concept richness target, regardless of copies');
+  assert.equal(engine.deepListenEvidence.aestheticRichness, 0.5);
+  assert.ok(engine.deepListenEvidence.duplicateRatio > 0.8);
 });
 
 test('8. Semantic change temporarily elevates LIVE/FACT share, then recovers interpretive layers', () => {
@@ -200,7 +234,10 @@ test('8. Semantic change temporarily elevates LIVE/FACT share, then recovers int
   };
 
   // Established late listening at 45s
-  engine.noteDeepListen('obs-1');
+  engine.noteDeepListen('obs-1', {
+    aestheticConcepts: [{ text: 'porous night texture' }, { text: 'soft metallic distance' }],
+    impressions: [{ text: 'restless suspension' }, { text: 'guarded warmth' }]
+  });
   engine.update({ state, observationSeconds: 45 }, 1000);
   const stableWeights = engine.getLayerWeights();
 
@@ -436,7 +473,11 @@ test('15. End-to-end Progressive Listening timeline scenario (5s -> 15s -> 30s d
   assert.ok(r15.genre > r5.genre, '15s: genre readiness starts growing');
 
   // T = 30s: First deep listen arrives with structured packet
-  engine.noteDeepListen('obs-flam-1', 30000);
+  engine.noteDeepListen('obs-flam-1', {
+    aestheticConcepts: [{ text: 'porous night texture' }, { text: 'soft metallic distance' }],
+    impressions: [{ text: 'restless suspension' }],
+    contextHypotheses: [{ text: 'independent scene relation' }]
+  }, 30000);
   const state30s = {
     ...state15s,
     openWorldConcepts: [
@@ -449,7 +490,7 @@ test('15. End-to-end Progressive Listening timeline scenario (5s -> 15s -> 30s d
   const w30 = engine.getLayerWeights();
   assert.ok(r30.aesthetic > 0.40, '30s: aesthetic readiness rises on deep listen');
   assert.ok(w30.AESTHETIC > 0.15, '30s: aesthetic layer is now sampled');
-  assert.ok(w30.FACT >= 0.30, '30s: FACT layer never drops below floor');
+  assert.ok(w30.FACT >= 0.15, '30s: FACT keeps its adaptive safety floor');
 
   // T = 60s: Section transition / drop occurs
   const r60 = engine.update({ state: state30s, observationSeconds: 60, sectionChange: true }, 60000);
@@ -462,7 +503,19 @@ test('15. End-to-end Progressive Listening timeline scenario (5s -> 15s -> 30s d
   const r75 = engine.update({ state: state30s, observationSeconds: 75, sectionChange: false }, 75000);
   const w75 = engine.getLayerWeights();
   assert.ok(w75.AESTHETIC > w60.AESTHETIC, '75s: interpretive layers smoothly recover');
-  assert.ok(w75.FACT >= 0.30, '75s: FACT floor remains guaranteed throughout');
+  assert.ok(w75.FACT >= 0.15, '75s: FACT floor remains present without dominating mature interpretation');
+});
+
+test('15b. Fully mature listening converges near the intended 5/15/23/30/27 layer portrait', () => {
+  const engine = new ProgressiveListening.Engine();
+  engine.readiness = { live: 1, fact: 1, genre: 1, context: 1, aesthetic: 1, impression: 1 };
+  const weights = engine.getLayerWeights();
+
+  assert.ok(weights.LIVE >= 0.04 && weights.LIVE <= 0.06);
+  assert.ok(weights.FACT >= 0.14 && weights.FACT <= 0.17);
+  assert.ok(weights.CONTEXT >= 0.22 && weights.CONTEXT <= 0.25);
+  assert.ok(weights.AESTHETIC >= 0.29 && weights.AESTHETIC <= 0.32);
+  assert.ok(weights.IMPRESSION >= 0.25 && weights.IMPRESSION <= 0.28);
 });
 
 test('16. Music Flamingo structured observations flow seamlessly into displayCandidates, Manager.local, Critic.rank, and PhrasePool selection without whitelist or anchor blockers', () => {

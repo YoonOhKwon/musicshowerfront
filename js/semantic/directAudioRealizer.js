@@ -15,49 +15,9 @@
   }
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
 
-  // Dictionary of known recurring musical concepts and idioms to Korean realization families
+  // FACT-only technical families. Subjective layers stay in the original English until the
+  // external realizer returns; this dictionary must not author AESTHETIC/IMPRESSION/CONTEXT.
   const KNOWN_EXPRESSIONS = {
-    // Aesthetics & Textures
-    "nocturnal atmosphere": ["야간의 공기감", "밤의 부유감", "어두운 밤빛 정서", "심야의 공간감"],
-    "nocturnal urban atmosphere": ["밤거리의 공기감", "네온빛 도시감", "심야 도심의 정서", "도시적인 야간 정경"],
-    "late-night urban atmosphere": ["심야 도심의 공기감", "밤거리의 매끈한 질감", "차가운 도심의 윤기"],
-    "glossy late-night urban atmosphere": ["도시적인 야간의 광택", "밤거리의 매끈한 질감", "네온빛 도시감", "차가운 도심의 윤기"],
-    "liquid atmospheric textures": ["액체처럼 흐르는 질감", "유려한 대기감", "부드러운 잔향 층", "물결치는 공간감"],
-    "atmospheric textures": ["공기감 있는 질감", "넓게 번지는 대기감", "유려한 질감 층"],
-    "digital nostalgia": ["디지털 노스탤지어", "오래된 데이터의 향수", "픽셀의 잔향", "가상 공간의 그리움"],
-    "internet nostalgia": ["인터넷 노스탤지어", "초기 웹의 아련함", "가상 공간의 잔향"],
-    "neon city aesthetics": ["네온빛 도시 감성", "도심의 네온 질감", "밤의 사이버 감각"],
-    "japanese bubble era resonance": ["일본 버블기의 잔향", "시티팝 시대의 여운", "황금기의 잔향"],
-    "lo-fi tape warmth": ["로파이 테이프의 온기", "카세트 테이프 질감", "아날로그 테이프 여운"],
-    "vintage cassette warmth": ["빈티지 카세트 온기", "아날로그 테이프 질감", "바랜 녹음의 여운"],
-    "spacious reverb tails": ["넓은 잔향의 여운", "깊은 공간의 울림", "확산되는 잔향"],
-    "crystalline synth textures": ["수정처럼 맑은 신스", "투명한 신스 질감", "빛나는 건반 텍스처"],
-    "distorted industrial textures": ["왜곡된 인더스트리얼 질감", "거친 금속성 질감", "산업적 파열음"],
-    "minimalist ambient space": ["미니멀한 앰비언트 공간", "정적인 여백", "절제된 공간감"],
-
-    // Impressions & Emotional Dynamics
-    "melancholic propulsion": ["질주하는 애상", "추진력 속의 쓸쓸함", "달리면서 남는 애수", "들뜬 우울감"],
-    "melancholic yet propulsive": ["질주하는 애상", "추진력 속의 쓸쓸함", "속도감 있는 아련함", "들뜬 우울감"],
-    "bittersweet euphoric rush": ["달콤씁쓸한 고양감", "벅차오르는 애수", "아련한 도취감"],
-    "euphoric melancholy": ["도취적인 애상", "황홀한 우울감", "환희 속의 쓸쓸함"],
-    "weightless drift": ["무중력의 부유감", "가벼운 부유 상태", "공중에 뜬 듯한 정서"],
-    "contemplative solitude": ["사색적인 고독", "혼자만의 침잠", "고요한 사색"],
-    "hypnotic trance": ["최면적인 몰입", "반복 속의 도취", "집중된 트랜스감"],
-    "urgent tension": ["긴박한 긴장감", "몰아치는 초조함", "팽팽한 긴장"],
-    "playful bounce": ["경쾌한 탄력", "장난스런 리듬감", "통통 튀는 활력"],
-    "dreamy haze": ["몽환적인 아지랑이", "꿈결 같은 흐릿함", "아련한 안개감"],
-    "ethereal floating": ["에테리얼한 부유감", "천상의 공기감", "아득한 떠돎"],
-
-    // Context & Lineage
-    "uk rave lineage": ["UK 레이브의 계보", "영국 레이브의 잔향", "초기 레이브 사운드"],
-    "french filter house lineage": ["프렌치 필터 하우스 계보", "필터 하우스의 잔향", "파리지앵 디스코 감각"],
-    "chicago footwork tradition": ["시카고 풋워크 전통", "풋워크 리듬 계보", "폴리리듬 풋워크"],
-    "detroit techno heritage": ["디트로이트 테크노 유산", "기계적 미래주의", "모터시티의 잔향"],
-    "south african club scene": ["남아공 클럽 씬", "더반 사운드 계보", "현대 아프리칸 클럽"],
-    "japanese city pop influence": ["일본 시티팝의 영향", "시티팝 감성의 차용", "80년대 도시 대중음악"],
-    "memphis rap underground": ["멤피스 랩 언더그라운드", "로우 파이 테이프 힙합", "남부 언더그라운드 잔향"],
-
-    // Audible Facts & Observations
     "deep sub-bass": ["깊은 서브베이스", "저역대 중량감", "단단한 서브 우퍼"],
     "rolling 808 sub-bass": ["구르는 808 서브", "지속적인 808 베이스", "깊은 808 저음"],
     "chopped vocal samples": ["잘게 쪼갠 보컬 샘플", "보컬 찹 레이어", "반복되는 보컬 조각"],
@@ -67,7 +27,17 @@
     "filtered disco loops": ["필터링된 디스코 루프", "먹먹하게 걸린 디스코 샘플", "필터 스윕 루프"],
     "four-on-the-floor kick": ["4/4 정박 킥", "직선적인 4/4 비트", "일정한 클럽 킥"],
     "driving offbeat hi-hats": ["오프비트 하이햇", "질주감을 주는 엇박 햇", "경쾌한 16비트 햇"],
-    "sidechain compression pumping": ["사이드체인 펌핑", "숨쉬는 컴프레션", "강한 펌핑 질감"]
+    "sidechain compression pumping": ["사이드체인 펌핑", "숨쉬듯 오르내리는 컴프레션", "주기적으로 눌리는 음압"],
+    // Faithful surface families for recurring Music Flamingo sentence shapes. These are
+    // translations of the supplied relation, not locally invented interpretations: every
+    // subject, qualifier, metre and mix-position claim remains present in each variant.
+    "steady 4/4 drum beat": ["안정적인 4/4 드럼 비트", "일정하게 이어지는 사분의 사박 드럼", "고른 4/4 드럼 박자"],
+    "bright synth pads": ["밝은 음색의 신스 패드", "환한 신스 패드 레이어", "명료하게 들리는 신스 패드"],
+    "female japanese vocals": ["일본어 여성 보컬", "여성 보컬의 일본어 가창", "일본어로 노래하는 여성 보컬"],
+    "drums and synths in a balanced mix": ["드럼과 신스가 균형 잡힌 믹스", "드럼·신스의 고른 믹스 밸런스", "드럼과 신스가 균형을 이루는 배치"],
+    "vocals sit centrally in the mix": ["믹스 중앙에 자리한 보컬", "중앙에 배치된 보컬", "믹스의 센터에 놓인 보컬"],
+    "bright and airy": ["밝고 공기감 있는 인상", "환한 음색과 가벼운 공기감", "밝게 트인 질감"],
+    "melodic and uplifting": ["선율적이고 고양감 있는 인상", "멜로디와 고양감이 함께하는 흐름", "선율이 살아 있는 상승감"]
   };
 
   // Word token mapping for compositional translation
@@ -89,7 +59,6 @@
     gritty: "거친",
     distorted: "왜곡된",
     clean: "정갈한",
-    dreamy: "몽환적인",
     hypnotic: "최면적인",
     minimal: "미니멀한",
     dense: "밀도 높은",
@@ -103,16 +72,29 @@
     bittersweet: "달콤씁쓸한",
     urgent: "긴박한",
     playful: "장난스런",
-    ethereal: "아득한",
     lofi: "로파이",
     "lo-fi": "로파이",
-    funky: "펑키한",
-    groovy: "그루비한",
     subtle: "섬세한",
     raw: "날것의",
-    futuristic: "미래적인",
-    retro: "레트로",
-    nostalgic: "향수를 자극하는"
+    steady: "안정적인",
+    airy: "공기감 있는",
+    melodic: "선율적인",
+    uplifting: "고양감 있는",
+    balanced: "균형 잡힌",
+    central: "중앙의",
+    female: "여성",
+    male: "남성",
+    japanese: "일본어"
+  };
+
+  const ADJECTIVE_VARIANTS = {
+    bright: ["밝은", "환한", "명료한"],
+    steady: ["안정적인", "일정한", "고른"],
+    balanced: ["균형 잡힌", "고르게 맞물린", "밸런스가 맞는"],
+    spacious: ["여백 있는", "넓게 트인", "공간감 있는"],
+    dark: ["어두운", "낮게 가라앉은", "짙은"],
+    warm: ["따뜻한", "온기 있는", "포근한"],
+    clean: ["정갈한", "깨끗한", "선명한"]
   };
 
   const NOUN_MAP = {
@@ -151,8 +133,17 @@
     vocals: "보컬",
     reverb: "잔향",
     delay: "딜레이",
-    loop: "루프"
+    loop: "루프",
+    beat: "비트",
+    mix: "믹스",
+    drum: "드럼",
+    synth: "신스",
+    vocal: "보컬",
+    melody: "멜로디",
+    flow: "흐름"
   };
+
+  const GRAMMAR_TOKENS = new Set(["a", "an", "the", "and", "or", "in", "on", "at", "of", "with", "to"]);
 
   function normalizeKey(str) {
     if (typeof str !== "string") return "";
@@ -162,6 +153,13 @@
       .replace(/\s+/g, " ")
       .trim();
   }
+
+  // Dictionary keys may contain notation punctuation ("4/4") or idiomatic hyphens
+  // ("four-on-the-floor"). Index them through the same canonicalizer as incoming text so
+  // exact families remain reachable without damaging their display spelling.
+  const NORMALIZED_KNOWN_EXPRESSIONS = Object.fromEntries(
+    Object.entries(KNOWN_EXPRESSIONS).map(([key, family]) => [normalizeKey(key), family])
+  );
 
   function cleanPhrase(str) {
     if (typeof str !== "string") return "";
@@ -181,47 +179,47 @@
 
     const adjs = [];
     const nouns = [];
+    const literals = [];
+    const unknown = [];
 
     for (const t of tokens) {
       if (ADJECTIVE_MAP[t]) {
-        adjs.push(ADJECTIVE_MAP[t]);
+        adjs.push({ source: t, text: ADJECTIVE_MAP[t] });
       } else if (NOUN_MAP[t]) {
         nouns.push(NOUN_MAP[t]);
+      } else if (/^\d+(?:\/\d+)?$/.test(t)) {
+        literals.push(t);
+      } else if (!GRAMMAR_TOKENS.has(t)) {
+        unknown.push(t);
       }
     }
 
-    if (!nouns.length && !adjs.length) {
+    // A real noun is required, never substituted with a generic filler ("공기감"/"질감"/"정서")
+    // when the actual noun goes unrecognized. "late-2010s digital production trends" losing
+    // everything but "digital" into "디지털 질감" is a confident translation of a DIFFERENT,
+    // blander idea -- worse than admitting this dictionary can't cover it and keeping the
+    // original English (realize()'s final fallback) until the async LLM realization arrives.
+    if (!nouns.length || unknown.length) {
       return [];
     }
 
-    const primaryNoun = nouns[nouns.length - 1] || (category === "aesthetic" ? "공기감" : category === "impression" ? "정서" : "질감");
-    const primaryAdj = adjs[0] || "";
-    const secondaryAdj = adjs[1] || "";
+    const nounPhrase = [...literals, ...nouns].join(" ");
+    const adjectivePhrase = adjs.map(item => item.text).join(" ");
 
     const variations = [];
-    if (primaryAdj && primaryNoun) {
-      variations.push(`${primaryAdj} ${primaryNoun}`);
-      if (secondaryAdj) {
-        variations.push(`${primaryAdj} ${secondaryAdj} ${primaryNoun}`);
-        variations.push(`${secondaryAdj} ${primaryNoun}`);
-      } else {
-        // Add expressive variants
-        if (category === "aesthetic") {
-          variations.push(`${primaryAdj} 분위기`);
-          variations.push(`${primaryAdj} 질감`);
-        } else if (category === "impression") {
-          variations.push(`${primaryAdj} 무드`);
-          variations.push(`${primaryAdj} 감각`);
-        } else {
-          variations.push(`${primaryAdj} 사운드`);
+    if (adjectivePhrase) {
+      variations.push(`${adjectivePhrase} ${nounPhrase}`);
+      if (adjs.length === 1) {
+        for (const alternative of ADJECTIVE_VARIANTS[adjs[0].source] || []) {
+          variations.push(`${alternative} ${nounPhrase}`);
         }
       }
-    } else if (primaryNoun) {
+    } else {
       if (category === "context") {
-        variations.push(`${primaryNoun} 계열`);
-        variations.push(`${primaryNoun} 스타일`);
+        variations.push(`${nounPhrase} 계열`);
+        variations.push(`${nounPhrase} 스타일`);
       } else {
-        variations.push(primaryNoun);
+        variations.push(nounPhrase);
       }
     }
 
@@ -231,11 +229,13 @@
   class Realizer {
     constructor(options = {}) {
       this.cache = new Map(); // conceptKey -> [korean phrases]
+      this.externallyRealized = new Set();
       this.cacheLimit = options.cacheLimit || 500;
     }
 
     clear() {
       this.cache.clear();
+      this.externallyRealized.clear();
     }
 
     // Main synchronous realization method
@@ -249,42 +249,39 @@
       }
 
       const key = normalizeKey(text);
-      if (this.cache.has(key)) {
+      if (this.cache.has(key) && (this.externallyRealized.has(key) ||
+          !["aesthetic", "impression", "context", "genre", "microgenre"].includes(category))) {
         return this.cache.get(key);
       }
 
-      // Check known expressions dictionary
-      if (KNOWN_EXPRESSIONS[key]) {
-        const family = [...KNOWN_EXPRESSIONS[key]];
+      // Exact, meaning-preserving translations are safe in every layer. They alter wording only;
+      // the audio model remains the sole author of the concept itself.
+      if (NORMALIZED_KNOWN_EXPRESSIONS[key]) {
+        const family = [...NORMALIZED_KNOWN_EXPRESSIONS[key]];
         this._setCache(key, family);
         return family;
       }
 
-      // Special handling for genre:
-      if (category === "genre" || category === "microgenre") {
-        // Open-world genres often display well in English, plus a Koreanized descriptor
-        const family = [text];
-        if (KNOWN_EXPRESSIONS[key]) {
-          family.push(...KNOWN_EXPRESSIONS[key]);
-        }
-        this._setCache(key, family);
-        return family;
+      // Genre/context names and subjective language are model-owned. Until the asynchronous
+      // external realizer returns, preserve the exact Flamingo concept instead of replacing it
+      // with a developer-authored dictionary phrase or morphological mood/aesthetic template.
+      if (["genre", "microgenre", "context", "aesthetic", "impression"].includes(category)) {
+        return [text];
       }
 
-      // Morphological composition
       const composed = composeKoreanFamily(key, category);
       if (composed.length > 0) {
         this._setCache(key, composed);
         return composed;
       }
 
-      // Fallback: If nothing matched, provide concise contextual Korean wrapper
-      const fallbackSuffix = category === "aesthetic" ? "적 분위기"
-        : category === "impression" ? "적 감각"
-        : category === "context" ? " 계열"
-        : " 요소";
-
-      const simpleFallback = [`${text}${fallbackSuffix}`];
+      // Fallback: nothing recognized well enough to compose a real Korean phrase. Do NOT stitch a
+      // Korean grammatical suffix onto untranslated English (e.g. "energetic yet contemplative적
+      // 감각", "a global internet-driven music culture 요소") -- that reads as broken hybrid
+      // grammar, worse than plain English. Keep it in English as an honest interim; the async LLM
+      // realization path (registerFamily(), triggered from js/main.js's /api/realize-direct-audio
+      // call) replaces this with real Korean once it arrives.
+      const simpleFallback = [text];
       this._setCache(key, simpleFallback);
       return simpleFallback;
     }
@@ -295,6 +292,7 @@
       if (!key || !Array.isArray(family) || !family.length) return;
       const valid = family.filter(f => typeof f === "string" && f.trim() && /[가-힣]/.test(f));
       if (valid.length) {
+        this.externallyRealized.add(key);
         this._setCache(key, valid);
       }
     }
@@ -316,6 +314,8 @@
     defaultRealizer,
     realize: (text, category) => defaultRealizer.realize(text, category),
     registerFamily: (conceptText, family) => defaultRealizer.registerFamily(conceptText, family),
+    realizeFact: (text) => defaultRealizer.realize(text, "fact"),
+    realizeExternalConcept: (text, category) => defaultRealizer.realize(text, category),
     normalizeKey,
     cleanPhrase,
     KNOWN_EXPRESSIONS

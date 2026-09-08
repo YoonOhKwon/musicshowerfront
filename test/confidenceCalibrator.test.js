@@ -28,3 +28,23 @@ test("close cross-family candidates are marked hybrid", () => {
   assert.equal(result.hybrid, true);
   assert.equal(result.certainty, "hybrid");
 });
+
+test("raw score, margin and entropy stay inspectable beside heuristic semantic confidence", () => {
+  const result = ConfidenceCalibration.calibrate({
+    predictions: [
+      { label: "House", confidence: 0.09 },
+      { label: "Techno", confidence: 0.055 },
+      { label: "Jazz", confidence: 0.02 }
+    ],
+    familyFor
+  });
+  assert.equal(result.rawTopScore, 0.09);
+  assert.equal(result.runnerUpScore, 0.055);
+  assert.ok(result.margin > 0);
+  assert.ok(result.normalizedMargin > 0);
+  assert.ok(result.entropy > 0);
+  assert.equal(result.reliability, result.semanticConfidence);
+  assert.equal(result.displayConfidence, result.semanticConfidence);
+  assert.ok(result.semanticConfidence > result.rawTopScore,
+    "the heuristic may be larger than the raw head score, so it must not replace raw diagnostics");
+});

@@ -3,12 +3,11 @@ const assert = require("node:assert/strict");
 const AestheticEvidence = require("../js/semantic/aestheticEvidenceEngine");
 const AestheticAxisEngine = require("../js/semantic/aestheticAxisEngine");
 const aestheticAxes = require("../data/aestheticAxes.json");
-const aestheticRegions = require("../data/aestheticRegions.json");
 
 // Real data, not a hand-rolled stub -- these are the exact axis weights/regions production and
 // the language-reform fixtures load, so a passing test here is a real guarantee, not an artifact
 // of a convenient fake.
-const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
+const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
 
 function futureFunkState(overrides = {}) {
   return {

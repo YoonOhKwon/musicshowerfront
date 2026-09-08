@@ -177,7 +177,8 @@ class ThermalProceduralBackground {
     const renderStartedAt = performance.now();
     this.update();
     if (this.failed || !this.layer || !this.shaderProgram) return this.renderFallback();
-    const inferenceActive = getSemanticState().ml?.inferenceActive;
+    const inferenceActive = getSemanticState().ml?.inferenceActive ||
+      (typeof isDeepListenGpuBusy === "function" && isDeepListenGpuBusy());
     const frameStride = inferenceActive ? Math.max(2, this.profile.frameStride) : this.profile.frameStride;
     if (frameCount % frameStride !== 0 && this.lastRenderedFrame >= 0) {
       image(this.layer, 0, 0, width, height);

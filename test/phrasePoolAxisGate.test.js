@@ -15,37 +15,15 @@ async function establishRemotePool(engine) {
   assert.equal(engine.hasRemotePool, true, "test setup: the forced first call must establish a real remote pool");
 }
 
-test("a routine pool-low top-up skips the remote call when local candidates already cover the current axis territory", async () => {
+test("an unconsumed context-only remote pool is complete even when below the old generic low-watermark", async () => {
   const { generator, count } = counter();
   const engine = new PhrasePool.Engine({ generator, poolSize: 40, minimumIntervalMs: 0, stableDelayMs: 0, lowWatermark: 999 });
-  await establishRemotePool(engine);
+  const state = profile();
+  await engine.regenerate({ state, sessionId: 1, epoch: 1, force: true });
   assert.equal(count(), 1);
-  const coveredState = { ...profile(), genreContextEvidence: { axisSignature: "nostalgia:2|warmth:2",
-    candidates: [{ text: "따뜻한 아날로그 온기", category: "association", layer: "AESTHETIC", confidence: 0.6, weight: 0.6, source: "aesthetic-axis" }] } };
-  await engine.regenerate({ state: coveredState, sessionId: 1, epoch: 1 });
-  assert.equal(engine.state.reason, "pool-low", "the second call must actually be the routine top-up case this gate targets");
-  assert.equal(count(), 1, "local open-layer coverage for this axis territory means no fresh remote call is needed");
-});
-
-test("without local open-layer coverage for the current axis territory, a pool-low top-up still calls through as before", async () => {
-  const { generator, count } = counter();
-  const engine = new PhrasePool.Engine({ generator, poolSize: 40, minimumIntervalMs: 0, stableDelayMs: 0, lowWatermark: 999 });
-  await establishRemotePool(engine);
-  assert.equal(count(), 1);
-  const uncoveredState = { ...profile(), genreContextEvidence: { axisSignature: "nostalgia:2|warmth:2", candidates: [] } };
-  await engine.regenerate({ state: uncoveredState, sessionId: 1, epoch: 1 });
-  assert.equal(engine.state.reason, "pool-low");
-  assert.equal(count(), 2, "no local open-layer coverage and no prior cache hit means the call still goes through");
-});
-
-test("without an axis signature at all (axis engine not wired), behavior is unaffected -- still calls through on pool-low", async () => {
-  const { generator, count } = counter();
-  const engine = new PhrasePool.Engine({ generator, poolSize: 40, minimumIntervalMs: 0, stableDelayMs: 0, lowWatermark: 999 });
-  await establishRemotePool(engine);
-  assert.equal(count(), 1);
-  await engine.regenerate({ state: profile(), sessionId: 1, epoch: 1 });
-  assert.equal(engine.state.reason, "pool-low");
-  assert.equal(count(), 2);
+  assert.ok(engine.pool.every(item => item.layer === "CONTEXT"));
+  await engine.regenerate({ state, sessionId: 1, epoch: 1 });
+  assert.equal(count(), 1, "a complete permitted CONTEXT pool must not trigger requests for forbidden filler layers");
 });
 
 test("a semantic-change reason still calls through even when local candidates cover the axis territory", async () => {

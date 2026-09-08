@@ -16,7 +16,11 @@ function selectWeightedWord() {
     evidenceReadiness,
     active: floatingWords.map(word => word.token || { text: word.text, layer: word.layer }),
     avoidFacets: [...spawnBatchFacets],
-    progressiveEngine: typeof getProgressiveListeningEngine === "function" ? getProgressiveListeningEngine() : null
+    progressiveEngine: typeof getProgressiveListeningEngine === "function" ? getProgressiveListeningEngine() : null,
+    semanticEpoch: state.semanticEpoch,
+    domainDiversity: true,
+    localMaterialPriority: true,
+    now: Date.now()
   });
 }
 
@@ -28,7 +32,7 @@ function createWord() {
   if (recentWordTexts.length > CONFIG.visual.recentWordMemory) recentWordTexts.shift();
   recentWordTokens.push(selected);
   if (recentWordTokens.length > CONFIG.visual.recentWordMemory) recentWordTokens.shift();
-  noteSemanticPhraseUsed(selected.text);
+  noteSemanticPhraseUsed(selected);
   spawnBatchFacets.add(PhraseQuality.musicalFacet(selected));
   floatingWords.push(new FloatingWord(selected, floatingWords));
   return true;

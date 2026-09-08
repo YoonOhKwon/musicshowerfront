@@ -1,0 +1,6 @@
+AI Music Synesthesia running at http://localhost:3000
+AI configured: true
+AI model: gpt-5.6-sol (medium)
+AI max output tokens: 10000
+Language pool model: gpt-5.6-sol | fast=undefined deep=undefined
+Build: 2026.09.06.audio-priority-v23

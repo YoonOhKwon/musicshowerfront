@@ -9,6 +9,8 @@ const PhrasePool = (() => {
   const ReservoirModule = typeof CandidateReservoir !== "undefined" ? CandidateReservoir : require("./candidateReservoir");
   const EvidenceModule = typeof EvidenceReservoir !== "undefined" ? EvidenceReservoir : require("./evidenceReservoir");
   const ProfileModule = typeof SongLanguageProfile !== "undefined" ? SongLanguageProfile : require("./songLanguageProfile");
+  const Scheduler = typeof WordPoolScheduler !== "undefined" ? WordPoolScheduler
+    : (typeof require === "function" ? require("./wordPoolScheduler") : null);
   const GENERIC = Critic.GENERIC;
   const clone = value => JSON.parse(JSON.stringify(value));
   const similarity = Critic.similarity;
@@ -29,6 +31,9 @@ const PhrasePool = (() => {
   };
   const CREATIVE_EVENT_PATH = /^(?:primaryGenre|genreFamily|currentSection\.(?:state|novelty)|instrumentEvents|performance\.(?:soloInstrument|leadInstrument|bassFunction)|arrangement\.(?:densityDelta|layerEntry|layerExit|foregroundChange|instrumentRoleChange)|impressionConcepts)/;
   const meaningfulCreativeDelta = value => Boolean(value?.changes?.some(change => CREATIVE_EVENT_PATH.test(change.path)));
+  const audioIsAudible = state => state?.expressionFeatures?.audible !== false ||
+    (typeof hasCurrentAudioSignal === "function" && hasCurrentAudioSignal()) ||
+    (typeof getSoundCloudPlaybackState === "function" && getSoundCloudPlaybackState()?.transport === "playing");
 
   function isAcceptable(text, context = {}) {
     const clean = Critic.normalize(text);
@@ -107,6 +112,11 @@ const PhrasePool = (() => {
     }
 
     reset(sessionId = 0) {
+      // A track reset may keep the same semantic session and semantic epoch.  The session/epoch
+      // pair therefore cannot identify an in-flight language request by itself: a late response
+      // from Song A could otherwise be accepted after Song B has already reset the pool.  This
+      // generation changes on every reset and is captured by regenerate() below.
+      this.resetGeneration = (this.resetGeneration || 0) + 1;
       const tokenUsage = this.state?.tokenUsage || {
         request: emptyTokenUsage(), languageSession: emptyTokenUsage(), projectSession: emptyTokenUsage()
       };
@@ -144,7 +154,7 @@ const PhrasePool = (() => {
 
     context(state) {
       const localCandidates = Manager.local(state);
-      return { hasEvidence: state.expressionFeatures?.audible !== false && ((state.expressionFeatures?.sampleCount || 0) > 0 || (state.trackCharacter?.confidence || 0) > 0.12 || Boolean(state.ml?.lastUpdated)),
+      return { hasEvidence: audioIsAudible(state) && ((state.expressionFeatures?.sampleCount || 0) > 0 || (state.trackCharacter?.confidence || 0) > 0.12 || Boolean(state.ml?.lastUpdated)),
         snapshot: Snapshot.serialize(state, state.distinctive), eligibleTexts: localCandidates.map(item => item.text), localCandidates };
     }
 
@@ -185,7 +195,9 @@ const PhrasePool = (() => {
       this.installedAt = Date.now();
       this.generatedAt = payload.generatedAt || this.installedAt;
       this.sourceSnapshot = payload.snapshot;
-      const decorated = payload.selected.slice(0, this.poolSize).map(item => Layers.decorate({ ...item, epoch, source }));
+      const decorated = payload.selected.slice(0, this.poolSize)
+        .map(item => Layers.decorate({ ...item, epoch, source }))
+        .filter(item => Manager.ownershipAllowed(item));
       this.pool = source === "remote-generative"
         ? this.reservoir.replace(decorated, { epoch, at: this.installedAt, defaultTtlMs: 60000 })
         : decorated;
@@ -209,7 +221,7 @@ const PhrasePool = (() => {
         epoch, "live-expression", selected.length ? "current-audio" : "awaiting-audio", { error: this.state.error });
     }
 
-    async regenerate({ state = {}, semanticTokens = [], sessionId = 0, epoch = 0, force = false } = {}) {
+    async regenerate({ state = {}, semanticTokens = [], sessionId = 0, epoch = 0, trackEpoch = 0, force = false } = {}) {
       if (sessionId !== this.sessionId) this.reset(sessionId);
       const now = Date.now();
       this.latestState = state;
@@ -224,7 +236,12 @@ const PhrasePool = (() => {
       if (this.epoch !== epoch) this.consecutiveFailures = Math.floor(this.consecutiveFailures / 2);
       if (!this.hasRemotePool || !this.pool.length || now - this.installedAt > 60000) this.fallback(state, semanticTokens, epoch, context);
       const changed = this.epoch !== epoch;
-      const low = this.remaining() < this.lowWatermark;
+      // Under the ownership contract the generic remote provider may return only CONTEXT. A
+      // legitimate one-item context pool is complete, not "starved"; refill it when consumed,
+      // rather than repeatedly asking the provider to manufacture forbidden layers.
+      const contextOnlyRemote = this.hasRemotePool && this.pool.length > 0 &&
+        this.pool.every(item => Layers.decorate(item).layer === "CONTEXT");
+      const low = this.remaining() < (contextOnlyRemote ? 1 : this.lowWatermark);
       if (!context.hasEvidence || (state.expressionFeatures && state.expressionFeatures.observationSeconds < 20) || now - this.epochStartedAt < this.stableDelayMs) {
         this.state.status = "stabilizing";
         return this.snapshot();
@@ -269,12 +286,13 @@ const PhrasePool = (() => {
         this.state.reason = reason;
         return this.snapshot();
       }
-      const request = { sessionId, epoch };
+      const resetGeneration = this.resetGeneration;
+      const request = { sessionId, epoch, trackEpoch, resetGeneration };
       this.activeRequest = request;
       this.lastRequestAt = now;
       this.state = { ...this.state, status: "generating", reason, error: null, cache: "miss" };
       const input = { snapshot, recentPhrases: this.recent.slice(-24), recentArtDirections: this.worldHistory.slice(-6),
-        candidateCount: 32, sessionId, semanticEpoch: epoch, reason,
+        candidateCount: 32, sessionId, trackEpoch, semanticEpoch: epoch, reason,
         songLanguageProfile: {
           dominantConcepts: (this.currentSongProfile?.dominantConcepts || []).slice(0, 12),
           alreadyUsedConcepts: (this.currentSongProfile?.recentConcepts || []).slice(-20),
@@ -286,7 +304,8 @@ const PhrasePool = (() => {
         baselineFingerprint: this.lastSentSnapshot?.fingerprint || null,
         stableContext: Snapshot.stableContext(snapshot),
         semanticDelta };
-      const stillCurrent = () => this.sessionId === sessionId && this.desiredEpoch === epoch && Date.now() - now < 60000;
+      const stillCurrent = () => this.sessionId === sessionId && this.desiredEpoch === epoch &&
+        this.resetGeneration === resetGeneration && Date.now() - now < 60000;
       try {
         const generated = await this.provider.generate(input);
         if (!stillCurrent()) return this.snapshot();
@@ -363,7 +382,7 @@ const PhrasePool = (() => {
       const live = prepared.localCandidates.map(item => Layers.decorate({ ...item, epoch: this.desiredEpoch }));
       const current = prepared;
       if (this.hasRemotePool) this.pool = this.reservoir.snapshot({ epoch: this.epoch });
-      const enrichment = this.latestState.expressionFeatures?.audible !== false && this.hasRemotePool && this.epoch === this.desiredEpoch && Date.now() - this.installedAt < 60000
+      const enrichment = audioIsAudible(this.latestState) && this.hasRemotePool && this.epoch === this.desiredEpoch && Date.now() - this.installedAt < 60000
         ? Critic.rank(this.pool.filter(item => this.isFresh(item, this.sourceSnapshot, this.generatedAt, current.snapshot)), { context: current, limit: this.poolSize }).selected : [];
       // Revalidate every facet against current evidence; event words have a short lifetime.
       const merged = new Map(this.rankLocal(live, current, 80).selected.map(item => [Critic.semanticKey(item), item]));
@@ -411,6 +430,7 @@ const PhrasePool = (() => {
         creativeReservoir: this.reservoir.stats(), evidenceReservoir: this.evidenceReservoir.stats(),
         songLanguageProfile: this.currentSongProfile },
         snapshot: Snapshot.serialize(this.latestState), selected,
+        wordPoolDecision: Scheduler?.debugDecision?.() || { ranked: [], considered: 0 },
         candidates: [...selected, ...installed, ...attempted] });
     }
   }

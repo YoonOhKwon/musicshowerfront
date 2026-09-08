@@ -1,17 +1,22 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const GenreContext = require("../js/semantic/genreContextEngine");
-const Validator = require("../js/semantic/knowledgeConsistencyValidator");
+const GenreHypotheses = require("../js/semantic/genreHypothesisEngine");
 const AestheticAxisEngine = require("../js/semantic/aestheticAxisEngine");
-const genreCompositions = require("../data/genreCompositions.json");
 const genreContextKnowledge = require("../data/genreContextKnowledge.json");
+const genreHierarchy = require("../data/genreHierarchy.json");
 const aestheticAxes = require("../data/aestheticAxes.json");
-const aestheticRegions = require("../data/aestheticRegions.json");
+
+// data/genreCompositions.json is gone. It named "Future Funk 계열" and "French House 계열" when the
+// classifier's top-K matched a written-down label combination -- a second hardcoded genre-name
+// table alongside compositeGenreRules.json, patching the same hole in the same closed-world way.
+// Composite naming now lives in genreHypothesisEngine, where the NAME comes from a listener.
 
 function nuDiscoState(overrides = {}) {
   return {
     genre: { primary: "Nu Disco", family: "Pop / Internet", confidence: 0.8, uncertain: false,
-      topK: [{ label: "Nu Disco", confidence: 0.4 }, { label: "Vaporwave", confidence: 0.25 }, { label: "City Pop", confidence: 0.2 }] },
+      topK: [{ label: "Nu Disco", confidence: 0.4 }, { label: "Vaporwave", confidence: 0.25 },
+        { label: "City Pop", confidence: 0.2 }] },
     rhythmicGrammar: { fourOnFloor: 0.8 },
     productionEvidence: { sampleBased: 0.75 },
     moodDimensions: {}, instruments: [], expressionFeatures: {},
@@ -19,45 +24,57 @@ function nuDiscoState(overrides = {}) {
   };
 }
 
-test("400-class-absent genre (Future Funk) is inferred from a top-K label combination plus real evidence, not just genre.primary", () => {
-  const engine = new GenreContext.Engine(genreContextKnowledge, null, genreCompositions);
+test("genreContextEngine no longer emits composition-named genres at all", () => {
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
+  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
   const result = engine.evaluate(nuDiscoState());
-  const composed = result.candidates.find(item => item.source === "genre-composition");
-  assert.ok(composed, `expected a composition candidate; got ${JSON.stringify(result.candidates.map(c => c.text))}`);
-  assert.equal(composed.text, "Future Funk 계열");
-  assert.equal(composed.category, "lineage");
+  assert.ok(!result.candidates.some((item) => item.source === "genre-composition"),
+    "the top-K label combination alone must never produce a genre name");
+  assert.ok(!result.candidates.some((item) => /Future Funk|French House/.test(item.text || "")));
 });
 
-test("composition confidence is always capped well below the primary genre's own confidence (never overwrites the HUD genre)", () => {
-  const engine = new GenreContext.Engine(genreContextKnowledge, null, genreCompositions);
-  const result = engine.evaluate(nuDiscoState());
-  const composed = result.candidates.find(item => item.source === "genre-composition");
-  assert.ok(composed.confidence < nuDiscoState().genre.confidence * 0.7);
+test("the engine no longer accepts a compositions table even if one is handed to it", () => {
+  const engine = new GenreContext.Engine(genreContextKnowledge, null);
+  assert.equal(engine.compositions, undefined,
+    "there is no table slot left to re-introduce hardcoded genre names through");
+  assert.equal(typeof engine.compositionCandidates, "undefined");
 });
 
-test("composition rule needs minTopKCount matched labels, not just one incidental overlap", () => {
-  const engine = new GenreContext.Engine(genreContextKnowledge, null, genreCompositions);
-  // Only one of Future Funk's three requiresTopK labels present (minTopKCount is 2).
-  const result = engine.evaluate(nuDiscoState({ genre: { ...nuDiscoState().genre, topK: [{ label: "Nu Disco", confidence: 0.5 }] } }));
-  assert.ok(!result.candidates.some(item => item.source === "genre-composition"));
+test("the same evidence still reaches a composite -- through a listener naming it, not a table", () => {
+  // The exact top-K the deleted rule keyed on. It produces nothing on its own...
+  const bare = new GenreHypotheses.Engine({}, genreHierarchy).evaluate({
+    classifierGenre: { primary: "Nu Disco", uncertain: false, semanticConfidence: 0.8, confidence: 0.8,
+      topK: [{ label: "Nu Disco", confidence: 0.4 }, { label: "Vaporwave", confidence: 0.25 },
+        { label: "City Pop", confidence: 0.2 }] },
+    rhythmicGrammar: { fourOnFloor: 0.8 }, productionEvidence: { sampleBased: 0.75 },
+    openWorldConcepts: []
+  }, 0);
+  assert.equal(bare.hypotheses.some((item) => item.genre === "Future Funk"), false);
+
+  // ...and reaches the same name once Music Flamingo actually says it.
+  const named = new GenreHypotheses.Engine({}, genreHierarchy).evaluate({
+    classifierGenre: { primary: "Nu Disco", uncertain: false, semanticConfidence: 0.8, confidence: 0.8,
+      topK: [{ label: "Nu Disco", confidence: 0.4 }, { label: "Vaporwave", confidence: 0.25 },
+        { label: "City Pop", confidence: 0.2 }] },
+    rhythmicGrammar: { fourOnFloor: 0.8 }, productionEvidence: { sampleBased: 0.75 },
+    openWorldConcepts: [{ canonicalLabel: "Future Funk", conceptType: "genre", confidence: 0.68,
+      status: "provisional", sources: ["directAudio"], temporalSupport: 2,
+      relatedLabels: [{ label: "City Pop", type: "genre", relationType: "lineage", confidence: 0.6 },
+        { label: "Nu Disco", type: "genre", relationType: "lineage", confidence: 0.6 }] }]
+  }, 0);
+  const composite = named.hypotheses.find((item) => item.genre === "Future Funk");
+  assert.ok(composite);
+  assert.equal(composite.kind, "composite");
+  assert.deepEqual([...composite.independentEvidenceFamilies].sort(), ["deepListen", "genreModel"]);
 });
 
-test("composition rule still needs its own real audio evidence -- top-K overlap alone is not enough", () => {
-  const engine = new GenreContext.Engine(genreContextKnowledge, null, genreCompositions);
-  const weakEvidence = nuDiscoState({ productionEvidence: {}, rhythmicGrammar: {} });
-  const result = engine.evaluate(weakEvidence);
-  assert.ok(!result.candidates.some(item => item.source === "genre-composition"));
-});
-
-test("without a wired compositions table, genreContextEngine behaves exactly as before", () => {
-  const engine = new GenreContext.Engine(genreContextKnowledge);
-  const result = engine.evaluate(nuDiscoState());
-  assert.ok(!result.candidates.some(item => item.source === "genre-composition"));
-});
-
-test("the open layer (aesthetic-axis candidates) fires even when genre is uncertain or below the 0.75 context gate", () => {
-  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
-  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine, genreCompositions);
+test("an uncertain genre still yields no genre-IDENTITY claim, and no local aesthetic either", () => {
+  // This used to assert the opposite half: that axis-based aesthetic candidates fired regardless
+  // of genre confidence, so the open layer was never silent. That was the right instinct about
+  // gating and the wrong source of words -- the phrases came from a 27-entry table keyed to axis
+  // thresholds. The open layer is still ungated by genre; it is now filled by Music Flamingo.
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
+  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
   const uncertainState = {
     genre: { primary: "City Pop", family: "Pop / Internet", confidence: 0.3, uncertain: true },
     rhythmicGrammar: { fourOnFloor: 0.75 },
@@ -66,28 +83,19 @@ test("the open layer (aesthetic-axis candidates) fires even when genre is uncert
     instruments: [], expressionFeatures: {}
   };
   const result = engine.evaluate(uncertainState);
-  assert.ok(result.candidates.some(item => item.source === "aesthetic-axis"),
-    `expected axis-based candidates despite uncertain genre; got ${JSON.stringify(result.candidates)}`);
-  // But no genre-IDENTITY claim (lineage/era/scene/culture rule or relation) may appear --
-  // those still require a confident, non-uncertain genre.
-  assert.ok(!result.candidates.some(item => ["evidence-gated-prior", "genre-relation", "genre-composition"].includes(item.source)));
+  assert.equal(result.candidates.filter((item) => item.source === "aesthetic-axis").length, 0,
+    "strong axis evidence is still evidence, and still not a phrase");
+  assert.ok(!result.candidates.some((item) =>
+    ["evidence-gated-prior", "genre-relation", "genre-composition"].includes(item.source)));
+  // The measurement the axis engine exists for survives and is still exposed.
+  assert.equal(typeof result.axisSignature, "string");
 });
 
-test("middle-layer candidates (rules/relations/compositions) still require genre.confidence >= 0.75, unaffected by the open-layer change", () => {
-  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
-  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine, genreCompositions);
+test("middle-layer candidates still require genre.confidence >= 0.75, unaffected by the removal", () => {
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
+  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
   const lowConfidence = nuDiscoState({ genre: { ...nuDiscoState().genre, confidence: 0.6, uncertain: false } });
   const result = engine.evaluate(lowConfidence);
-  assert.ok(!result.candidates.some(item => item.source === "genre-composition"));
-});
-
-test("validateGenreCompositions enforces the tentative 계열/경향 suffix and a reachable minTopKCount", () => {
-  const good = Validator.validateGenreCompositions(genreCompositions, {});
-  assert.deepEqual(good, []);
-  const badSuffix = Validator.validateGenreCompositions({ rules: [{ text: "Future Funk", requiresTopK: ["Nu Disco"], minTopKCount: 1,
-    requires: [{ path: "productionEvidence.sampleBased", min: 0.7 }, { path: "rhythmicGrammar.fourOnFloor", min: 0.7 }] }] }, {});
-  assert.ok(badSuffix.some(item => item.code === "composition-text-not-tentative"));
-  const badMinCount = Validator.validateGenreCompositions({ rules: [{ text: "Test 계열", requiresTopK: ["Nu Disco"], minTopKCount: 3,
-    requires: [{ path: "productionEvidence.sampleBased", min: 0.7 }, { path: "rhythmicGrammar.fourOnFloor", min: 0.7 }] }] }, {});
-  assert.ok(badMinCount.some(item => item.code === "composition-min-topk-unreachable"));
+  assert.ok(!result.candidates.some((item) =>
+    ["evidence-gated-prior", "genre-relation"].includes(item.source)));
 });

@@ -59,17 +59,19 @@ test("high genre entropy and a thin margin suppress distant context", () => {
   assert.equal(stable.pass, true);
 });
 
-test("relational FACT and distinctive aesthetic appear on a rich local fixture", () => {
+test("relational FACT remains local while local AESTHETIC/IMPRESSION stay empty", () => {
   const state = profile("futurefunk");
   const generated = Manager.base(state);
-  assert.ok(state.composedFactCandidates.some(item => item.text === "보컬 중심의 신스층"));
-  assert.ok(generated.some(item => item.source === "aesthetic-induction" || item.source === "local-grammar"));
+  assert.ok(state.composedFactCandidates.some(item => item.relationId === "vocal.synth.layer"
+    || item.text === "보컬 중심의 신스층"));
+  assert.equal(state.composedFactCandidates.some(item => /후렴|벌스|chorus|verse/i.test(item.text)), false);
+  assert.equal(generated.some(item => ["AESTHETIC", "IMPRESSION"].includes(item.layer)), false);
   const accepted = Critic.rank(generated, {
     context: { snapshot: Snapshot.serialize(state), eligibleTexts: generated.map(item => item.text) },
     limit: 100
   }).selected;
   assert.ok(accepted.some(item => item.layer === "FACT" && item.source === "fact-composition"));
-  assert.ok(accepted.some(item => item.layer === "AESTHETIC" && /미학|감성|이미지/.test(item.text)));
+  assert.equal(accepted.some(item => ["AESTHETIC", "IMPRESSION"].includes(item.layer)), false);
 });
 
 test("LIVE requires a real delta and keeps realizations under one genome", () => {

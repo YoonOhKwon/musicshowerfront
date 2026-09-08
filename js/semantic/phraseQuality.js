@@ -18,45 +18,18 @@ const PhraseQuality = (() => {
   const stem = text => String(text || "").toLowerCase()
     .replace(/(?:적인|스러운|스럽다|하는|한|의|을|를|이|가|은|는|들|感|감)$/g, "")
     .replace(/[\s·・,.]/g, "");
+  const Cluster = typeof SemanticConceptCluster !== "undefined" ? SemanticConceptCluster
+    : (typeof require === "function" ? require("./semanticConceptCluster") : null);
 
-  // Concepts that mean nearly the same thing should not read as brand new language.
-  const SYNONYMS = [
+  const SYNONYMS = Cluster?.SYNONYMS || [
     ["향수", "노스탤지", "회고", "추억", "nostalg"],
     ["애상", "쓸쓸", "멜랑", "우수", "슬픔"],
     ["경쾌", "들뜬", "발랄", "상쾌"],
-    ["몽환", "꿈결", "환상", "夢"],
     ["긴장", "조임", "불안"],
-    ["질주", "돌진", "폭주"],
-    ["낭만", "로맨"]
+    ["질주", "돌진", "폭주"]
   ];
   const ALIASES = new Map([
-    ["kawaii", "kawaii"], ["카와이", "kawaii"],
-    ["futurefunk", "futurefunk"], ["퓨처펑크", "futurefunk"],
-    ["citypop", "citypop"], ["시티팝", "citypop"],
-    ["ukgarage", "ukgarage"], ["ukg", "ukgarage"], ["유케이개러지", "ukgarage"],
-    ["nostalgia", "nostalgia"], ["nostalgic", "nostalgia"], ["노스탤지어", "nostalgia"],
-    ["향수", "nostalgia"], ["회고", "nostalgia"],
     ["높은음압", "highloudness"], ["큰음압", "highloudness"], ["매우높은라우드니스", "highloudness"]
-  ]);
-  const SEMANTIC_FAMILIES = Object.freeze([
-    ["nostalgia", /향수|노스탤|회고|추억|retro|레트로/i],
-    ["bittersweet", /애상|멜랑|쓸쓸|우수|bittersweet/i],
-    ["dreamlike", /몽환|꿈결|dream/i],
-    ["neon-city", /네온|chrome|크롬|도시의 밤|야경/i],
-    ["light-glass", /빛|잔광|유리|투명|반짝|glow|glass/i],
-    ["warmth", /따뜻|온기|포근|warm/i],
-    ["coldness", /차가|냉기|cold/i],
-    ["space-reverb", /공간|잔향|리버브|공백|여백|부유|space|reverb/i],
-    ["energy-drive", /질주|추진|에너지|폭주|drive|propulsion/i],
-    ["density-pressure", /압력|압축|조밀|밀도|과밀/i],
-    ["brightness", /밝|찬란|경쾌|brigh/i],
-    ["darkness", /어두|암흑|dark/i],
-    ["swing-shuffle", /스윙|셔플|swing|shuffle/i],
-    ["broken-beat", /브레이크|브로큰|2-step|2-Step|엇갈린/i],
-    ["sample-loop", /샘플|루프|sample|loop/i],
-    ["bass-motion", /베이스|저역|bass/i],
-    ["harmonic-motion", /화성|코드|조성|harmon|chord|tonal/i],
-    ["melodic-motion", /선율|멜로디|모티프|melod|motif/i]
   ]);
   const literalKey = input => String(typeof input === "object" ? input?.text : input || "")
     .toLowerCase().replace(/\s+/g, " ").trim();
@@ -79,12 +52,9 @@ const PhraseQuality = (() => {
   }
   function semanticFamily(input = {}) {
     if (typeof input === "object" && input.semanticFamily) return String(input.semanticFamily).toLowerCase();
-    const text = String(typeof input === "object" ? input.text : input || "");
-    const found = SEMANTIC_FAMILIES.find(([, pattern]) => pattern.test(text));
-    if (found) return found[0];
     const relation = relationFamily(input);
     if (relation !== "NONE") return `relation:${relation.toLowerCase()}`;
-    return `concept:${normalizedCore(input)}`;
+    return Cluster ? `cluster:${Cluster.clusterKey(input)}` : `concept:${normalizedCore(input)}`;
   }
   function normalizedCore(input) {
     const text = String(typeof input === "object" ? input.text : input || "").toLowerCase().trim();
@@ -102,18 +72,24 @@ const PhraseQuality = (() => {
     if (["PRIMARY_GENRE", "PARENT", "LINEAGE", "ADJACENCY", "ERA", "SCENE", "CULTURE", "ARTIST",
       "SOURCE", "INFLUENCE", "RHYTHMIC_AFFINITY", "COMPOSITION"].includes(family)) return "CONTEXT";
     if (typeof input === "object" && (input.category || input.facet) === "mood") return "IMPRESSION";
-    if (core === "nostalgia" || String(core).startsWith("syn:0")) return "IMPRESSION";
     if (core === "highloudness") return "FACT";
     return "UNSPECIFIED";
   }
   function conceptKey(input) {
+    const family = relationFamily(input);
+    const explicitId = typeof input === "object"
+      ? (input.conceptId || input.relationId || null) : null;
+    const mappedId = !explicitId && typeof LocalSurfaceRealizer !== "undefined"
+      ? LocalSurfaceRealizer.conceptIdOf(input) : null;
+    const conceptId = explicitId || mappedId;
+    if (conceptId) {
+      const layer = inferredLayer(input, family);
+      return `${String(conceptId).toLowerCase()}|${family}|${layer}`;
+    }
     const text = String(typeof input === "object" ? input.text : input || "");
     const value = text.toLowerCase();
     const group = SYNONYMS.findIndex(list => list.some(word => value.includes(word)));
     const core = group >= 0 ? `syn:${group}` : normalizedCore(input);
-    let family = relationFamily(input);
-    if (family === "NONE" && ["futurefunk", "citypop", "ukgarage"].includes(core)) family = "PRIMARY_GENRE";
-    if (family === "NONE" && core === "kawaii") family = "AESTHETIC_ASSOCIATION";
     const layer = inferredLayer(input, family, core);
     return `${core}|${family}|${layer}`;
   }
@@ -232,7 +208,7 @@ const PhraseQuality = (() => {
 
   return { specificity, novelty, contrastiveness, blend, literalKey, conceptKey, sameConcept, normalizedCore, relationFamily,
     musicalFacet, specificityTier,
-    semanticFamily, stem, isPrimitive, isGeneric, GENERIC, PRIMITIVE, ALIASES, SEMANTIC_FAMILIES };
+    semanticFamily, stem, isPrimitive, isGeneric, GENERIC, PRIMITIVE, ALIASES };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = PhraseQuality;

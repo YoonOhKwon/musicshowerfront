@@ -4,6 +4,10 @@ const PhraseSelection = (() => {
   const Quality = typeof PhraseQuality !== "undefined" ? PhraseQuality : require("../semantic/phraseQuality");
   const Genome = typeof PhraseGenome !== "undefined" ? PhraseGenome : require("../semantic/phraseGenome");
   const Cliche = typeof ClicheScore !== "undefined" ? ClicheScore : require("../semantic/clicheScore");
+  const Surface = typeof LocalSurfaceRealizer !== "undefined" ? LocalSurfaceRealizer
+    : (typeof require === "function" ? require("../semantic/localSurfaceRealizer") : null);
+  const Scheduler = typeof WordPoolScheduler !== "undefined" ? WordPoolScheduler
+    : (typeof require === "function" ? require("../semantic/wordPoolScheduler") : null);
   const typeFactor = { single: 1.1, fragment: 1, nominal: 0.8, micro: 0.42 };
   const OPEN_LAYERS = new Set(["AESTHETIC", "IMPRESSION"]);
   function weight(candidate, recent = [], options = {}) {
@@ -27,13 +31,17 @@ const PhraseSelection = (() => {
     // Raw single-axis descriptors stay available (they carry the first seconds and every
     // fallback) but they must not out-compete language that actually synthesises features.
     const primitivePenalty = item.primitive ? 0.45 : 1;
+    // Music Flamingo is a dedicated audio model listening to the actual recording, so it belongs
+    // with the strongest evidence sources -- not in the unlisted `|| 1` bucket it used to fall
+    // into, which priced it below every local heuristic (idiom outweighed it by 86%) and made the
+    // deep-listen pool effectively unselectable no matter how good its concepts were.
     const sourcePriority = ({ idiom: 1.38, rhythm: 1.3, instrument: 1.25, production: 1.22,
       "primitive-observation": 1.26,
-      "live-event": 1.32, "fact-composition": 1.28, arrangement: 1.15,
+      directAudio: 1.3, "music-flamingo": 1.3,
+      "live-event": 1.32, "fact-composition": 1.28, "material-relation": 1.28, arrangement: 1.15,
       "local-grammar": 1.18, "aesthetic-induction": 1.16, primitive: 0.72 })[item.source] || 1;
     const familyPenalty = family === "NONE" ? 1 : 1 / (1 + sameRelationFamily * (family === "ARTIST" ? 2.4 : 0.85));
-    const semanticFamilyPenalty = 1 / (1 + sameSemanticFamily *
-      (["dreamlike", "neon-city", "light-glass", "space-reverb", "warmth"].includes(semanticFamily) ? 1.65 : 0.72));
+    const semanticFamilyPenalty = 1 / (1 + sameSemanticFamily * 0.72);
     const reservoirFitness = item.source === "remote-generative"
       ? (0.35 + 0.65 * (item.freshness ?? 1)) *
         (0.65 + 0.35 * (item.groundingScore ?? item.evidenceScore ?? item.confidence ?? 0.6)) *
@@ -109,8 +117,28 @@ const PhraseSelection = (() => {
     const globallyFresh = available.filter(item => !recentConcepts.has(Quality.conceptKey(item)));
     if (globallyFresh.length) available = globallyFresh;
     const recentFamilies = new Set(recent.slice(-4).map(item => Quality.semanticFamily(item)));
-    const familyFresh = available.filter(item => !recentFamilies.has(Quality.semanticFamily(item)));
+    // A Music Flamingo capture yields only a handful of AESTHETIC/IMPRESSION concepts every
+    // ~30-45s, far fewer than the continuously-regenerated local FACT supply -- once the one
+    // family they belong to has been shown, this filter would otherwise starve the whole open
+    // layer for the entire gap until the next capture. FlamingoWordReservoir's own phrase-family
+    // rotation already keeps repeat display from looking identical, so direct-audio open-layer
+    // concepts are exempt from this coarser, freely-generated-language dedup.
+    const exemptFromFamilyFilter = item => item.resolutionMomentum && OPEN_LAYERS.has(item.layer);
+    const familyFresh = available.filter(item =>
+      exemptFromFamilyFilter(item) || !recentFamilies.has(Quality.semanticFamily(item)));
     if (familyFresh.length) available = familyFresh;
+    if (Scheduler) {
+      const prepared = Scheduler.prepare(available, recent, {
+        now: options.now, semanticEpoch: options.semanticEpoch, changing,
+        preferLocal: false,
+        domainDiversity: options.domainDiversity === true
+      });
+      if (options.domainDiversity === true) available = prepared.items;
+      else {
+        const scores = new Map(prepared.items.map(item => [item.text, item.selectionScore]));
+        available = available.map(item => ({ ...item, selectionScore: scores.get(item.text) || item.selectionScore }));
+      }
+    }
     const ratios = progressiveEngine && typeof progressiveEngine.getLayerWeights === "function"
       ? progressiveEngine.getLayerWeights({ changing })
       : layerRatios(effectiveSeconds, changing);
@@ -121,6 +149,8 @@ const PhraseSelection = (() => {
     // Selection follows the composition currently visible on screen, not only historical output.
     // When Deep Listen opens AESTHETIC/IMPRESSION, their positive occupancy deficit makes the next
     // vacancies fill with interpretive language instead of waiting through another full history cycle.
+    const localReady = options.localMaterialPriority === true
+      && available.filter(item => item.layer === "LIVE" || item.layer === "FACT").length >= 3;
     const layerShare = layer => {
       const target = Number(ratios[layer]) || 0;
       if (target <= 0) return 0;
@@ -128,7 +158,10 @@ const PhraseSelection = (() => {
       const deficit = Math.max(0, target - occupancy);
       const surplus = Math.max(0, occupancy - target);
       const recentCount = recent.filter(item => Layers.decorate(item).layer === layer).length;
-      return target * (1 + deficit * 4.5) / ((1 + surplus * 3) * (1 + recentCount * 0.55));
+      const localBias = localReady && (layer === "LIVE" || layer === "FACT") ? 1.18
+        : localReady && (layer === "CONTEXT" || layer === "AESTHETIC" || layer === "IMPRESSION") ? 0.82
+          : 1;
+      return target * localBias * (1 + deficit * 4.5) / ((1 + surplus * 3) * (1 + recentCount * 0.55));
     };
     const eligibleLayers = presentLayers.filter(layer => layerShare(layer) > 0);
     if (!eligibleLayers.length) return undefined;
@@ -165,11 +198,20 @@ const PhraseSelection = (() => {
     const overPrimitiveBudget = recent.length >= 6 && recentPrimitives / recent.length > primitiveBudget;
     const synthesised = facetPool.filter(item => !item.primitive);
     const pool = overPrimitiveBudget && synthesised.length ? synthesised : facetPool;
-    const effective = item => weight(item, recent, temporalOptions) /
-      (1 + recent.filter(previous => Quality.sameConcept(previous, item)).length * 3);
+    const effective = item => {
+      const scheduled = item.selectionScore || (Scheduler
+        ? Scheduler.score(item, { recent, now: options.now, semanticEpoch: options.semanticEpoch, changing })
+        : 1);
+      return weight(item, recent, temporalOptions) * (0.5 + scheduled) /
+        (1 + recent.filter(previous => Quality.sameConcept(previous, item)).length * 3);
+    };
     let cursor = random() * pool.reduce((sum, item) => sum + effective(item), 0);
-    for (const item of pool) { cursor -= effective(item); if (cursor <= 0) return item; }
-    return pool.at(-1);
+    for (const item of pool) { cursor -= effective(item); if (cursor <= 0) return realizeSurface(item, recent, options); }
+    return realizeSurface(pool.at(-1), recent, options);
+  }
+  function realizeSurface(item, recent, options = {}) {
+    if (!item || !Surface) return item;
+    return Surface.pickFromRecent(item, recent, options.claims);
   }
   function treatment(token = {}) {
     const type = token.type || (String(token.text || "").length > 20 ? "micro" : "fragment");

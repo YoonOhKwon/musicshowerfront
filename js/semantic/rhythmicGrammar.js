@@ -4,11 +4,12 @@ const RhythmicGrammar = (() => {
     "productionEvidence.sidechain": { min: 0, max: 1, nullable: true, method: "beat-aligned envelope" },
     "productionEvidence.sampleBased": { min: 0, max: 0.9, nullable: true, method: "repetition + synth/sampler/computer instrumentation evidence" },
     "productionEvidence.vocalChop": { min: 0, max: 0.86, nullable: true, method: "voice confidence + onset rate" },
-    "productionEvidence.stereoWidth": { available: false, nullable: true },
-    "productionEvidence.reverb": { available: false, nullable: true },
-    "productionEvidence.distortion": { available: false, nullable: true }
+    "productionEvidence.stereoWidth": { min: 0, max: 1, nullable: true, method: "L/R correlation; mono_input stays unavailable" },
+    "productionEvidence.reverb": { min: 0, max: 1, nullable: true, method: "onset decay + smearing; low confidence stays null" },
+    "productionEvidence.distortion": { min: 0, max: 1, nullable: true, method: "crest/flatness/clip; brightness is not distortion" }
   });
   const Facets = typeof SemanticFacets !== "undefined" ? SemanticFacets : require("./semanticFacets");
+  const Production = typeof ProductionEvidence !== "undefined" ? ProductionEvidence : require("./productionEvidenceEngine");
   const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
   const median = xs => {
     if (!xs.length) return null;
@@ -237,8 +238,10 @@ const RhythmicGrammar = (() => {
     const vocalChop = Number.isFinite(context.voiceConfidence) && Number.isFinite(context.onsetRate) &&
       context.voiceConfidence >= 0.6 && context.onsetRate > 2.5
       ? Math.min(0.86, Facets.clamp(context.voiceConfidence * 0.5 + Facets.clamp((context.onsetRate - 1.5) / 3) * 0.5)) : null;
+    const measured = Production.analyze(features, frames, context);
     return { filterSweep, pumping: features.pumping ?? null, sidechain, sampleBased, vocalChop,
-      stereoWidth: null, reverb: null, distortion: null, sourceSeparation: false };
+      stereoWidth: measured.stereoWidth, reverb: measured.reverb, distortion: measured.distortion,
+      reports: measured.reports, sourceSeparation: false };
   }
   // Averages the beat-relative energy trajectory across recent beat windows and looks for the
   // duck-then-recover shape characteristic of sidechain ducking, not just generic energy variance.

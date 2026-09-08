@@ -2229,15 +2229,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "House",
-          "Techno",
-          "Disco"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "house_clap_backbeat",
@@ -2260,15 +2252,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "House",
-          "Techno",
-          "Disco"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "pumping_groove",
@@ -2343,7 +2327,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "garage_two_step",
@@ -2380,7 +2365,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "garage_kick_gap_pattern",
@@ -2448,14 +2434,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 8000,
-      "requiredContext": {
-        "genreFamilies": [
-          "UK Garage",
-          "Garage"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "broken_garage_groove",
@@ -2486,7 +2465,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "amen_style_break",
@@ -2526,7 +2506,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "rolling_break",
@@ -2798,16 +2779,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Jazz",
-          "Bebop",
-          "Cool Jazz",
-          "Swing"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "comping_displacement",
@@ -2839,7 +2811,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "laid_back_phrasing",
@@ -2862,17 +2835,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Jazz",
-          "Bebop",
-          "Cool Jazz",
-          "Blues",
-          "Soul"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "pedal_tone_center",
@@ -3579,7 +3542,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "citypop_smooth_harmonic_motion",
@@ -3615,16 +3579,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
-      "requiredContext": {
-        "genreFamilies": [
-          "City Pop",
-          "AOR",
-          "Jazz Funk",
-          "Fusion Jazz"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "citypop_melodic_bassline",
@@ -3658,15 +3613,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
-      "requiredContext": {
-        "genreFamilies": [
-          "City Pop",
-          "AOR",
-          "Jazz Funk"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "citypop_studio_sheen",
@@ -3707,7 +3654,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "citypop_ensemble_pocket",
@@ -3742,6 +3690,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
+      "kind": "CONTEXTUAL_INTERPRETATION",
       "requiredContext": {
         "genreFamilies": [
           "City Pop",
@@ -3796,7 +3745,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "futurefunk_rhythmic_vocal_sampling",
@@ -3835,14 +3785,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 8000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Future Funk",
-          "Vaporwave"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "futurefunk_citypop_sampling_lineage",
@@ -3884,7 +3827,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "bebop_fast_walking_pulse",
@@ -3916,13 +3860,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 8000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Bebop"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "cool_jazz_relaxed_tempo",
@@ -3954,13 +3892,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Cool Jazz"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "fusion_dense_harmonic_rhythm",
@@ -3993,14 +3925,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Jazz Fusion",
-          "Fusion Jazz"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "soul_warm_pocket",
@@ -4038,7 +3963,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "disco_four_floor_strings",
@@ -4076,7 +4002,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "techno_hypnotic_repetition",
@@ -4108,13 +4035,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Techno"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "trance_uplifting_buildup",
@@ -4146,13 +4067,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 8000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Trance"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "vaporwave_slowed_nostalgia",
@@ -4190,7 +4105,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "synthwave_gated_drums",
@@ -4222,13 +4138,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Synthwave"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "hiphop_boom_bap_pocket",
@@ -4266,7 +4176,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "rnb_smooth_vocal_led_texture",
@@ -4298,13 +4209,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "R&B"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "rock_driving_backbeat",
@@ -4337,14 +4242,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Rock",
-          "Indie Rock"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "metal_dense_distortion_wall",
@@ -4376,13 +4274,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 8000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Metal"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "pop_bright_hook_production",
@@ -4414,13 +4306,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Pop"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "guitar_comping_role",
@@ -4928,7 +4814,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "lofi_dusty_beat",
@@ -4968,7 +4855,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "breakcore_extreme_density",
@@ -5001,14 +4889,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 6000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Breakcore",
-          "Glitchcore"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "glitch_fragmented_micro_edit",
@@ -5050,7 +4931,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "postrock_slow_build_swell",
@@ -5082,13 +4964,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 12000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Post-Rock"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "dreampop_hazy_layering",
@@ -5132,7 +5008,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "cooljazz_understated_lead",
@@ -5165,6 +5042,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
+      "kind": "CONTEXTUAL_INTERPRETATION",
       "requiredContext": {
         "genreFamilies": [
           "Cool Jazz"
@@ -5203,13 +5081,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Jazz Fusion"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "synthwave_bright_arp_layer",
@@ -5247,7 +5119,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "rnb_lush_chord_bed",
@@ -5279,13 +5152,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
-      "requiredContext": {
-        "genreFamilies": [
-          "R&B"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "indierock_loose_energy",
@@ -5317,13 +5184,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Indie Rock"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "metal_precise_double_kick_feel",
@@ -5355,13 +5216,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 8000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Metal"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "pop_concise_hook_structure",
@@ -5393,13 +5248,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Pop"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "ukgarage_vocal_garage_texture",
@@ -5439,7 +5288,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "future_garage_atmospheric_space",
@@ -5477,7 +5327,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "frenchhouse_filtered_loop",
@@ -5515,7 +5366,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "soul_gospel_vocal_led_warmth",
@@ -5548,14 +5400,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 10000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Soul",
-          "Gospel"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "choral_dense_voice_blend",
@@ -5588,6 +5433,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 12000,
+      "kind": "CONTEXTUAL_INTERPRETATION",
       "requiredContext": {
         "genreFamilies": [
           "Choral",
@@ -5628,6 +5474,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 11000,
+      "kind": "CONTEXTUAL_INTERPRETATION",
       "requiredContext": {
         "genreFamilies": [
           "Baroque",
@@ -5673,7 +5520,8 @@
         ],
         "minConfidence": 0.6
       },
-      "contextMode": "REQUIRED"
+      "contextMode": "REQUIRED",
+      "kind": "CONTEXTUAL_INTERPRETATION"
     },
     {
       "id": "dixieland_collective_drive",
@@ -5706,6 +5554,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000,
+      "kind": "CONTEXTUAL_INTERPRETATION",
       "requiredContext": {
         "genreFamilies": [
           "Dixieland",
@@ -5921,14 +5770,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 13000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Ambient",
-          "Drone"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "techno_minimal_loop_focus",
@@ -5961,14 +5803,7 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 11000,
-      "requiredContext": {
-        "genreFamilies": [
-          "Techno",
-          "Minimal"
-        ],
-        "minConfidence": 0.6
-      },
-      "contextMode": "REQUIRED"
+      "kind": "ACOUSTIC_MATERIAL"
     },
     {
       "id": "harmony_major_tendency",
@@ -6289,6 +6124,81 @@
       ],
       "confidenceRule": "min",
       "ttlMs": 9000
+    },
+    {
+      "id": "rhythm.two_step_topology",
+      "kind": "ACOUSTIC_MATERIAL",
+      "facet": "rhythm",
+      "semanticFamily": "broken-pulse",
+      "neutralText": "킥-스네어가 엇갈린 펄스",
+      "required": [
+        {
+          "path": "pulse.breakDensity",
+          "min": 0.5
+        },
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.4
+        }
+      ],
+      "contradicting": [
+        {
+          "path": "pulse.kickPeriodicity",
+          "min": 0.55
+        }
+      ],
+      "anchors": [
+        "pulse.breakDensity",
+        "pulse.shuffleStrength"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "rhythm.swing_pulse",
+      "kind": "ACOUSTIC_MATERIAL",
+      "facet": "rhythm",
+      "semanticFamily": "swing-pulse",
+      "neutralText": "스윙 셔플 펄스",
+      "required": [
+        {
+          "path": "pulse.shuffleStrength",
+          "min": 0.5
+        },
+        {
+          "path": "texture.voiceCount",
+          "min": 4
+        }
+      ],
+      "anchors": [
+        "pulse.shuffleStrength",
+        "texture.voiceCount"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 9000
+    },
+    {
+      "id": "rhythm.comping_pattern",
+      "kind": "ACOUSTIC_MATERIAL",
+      "facet": "performance",
+      "semanticFamily": "accompaniment",
+      "neutralText": "엇박에 놓인 반주",
+      "required": [
+        {
+          "path": "pulse.accentPlacement",
+          "min": 0.48
+        },
+        {
+          "path": "instrument.presenceConfidence",
+          "min": 0.45
+        }
+      ],
+      "anchors": [
+        "pulse.accentPlacement",
+        "instrument.presenceConfidence"
+      ],
+      "confidenceRule": "min",
+      "ttlMs": 8000
     }
   ]
 }

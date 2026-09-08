@@ -150,13 +150,14 @@ test("critic does not substitute invented language to evade repetition", () => {
   assert.deepEqual(ranked.selected.map(item => item.text), ["차분함"]);
 });
 
-test("one remote batch supplies many words, pool-low triggers only after cooldown", async () => {
+test("a generic remote batch retains only model-permitted CONTEXT and refills after consumption", async () => {
   let calls = 0;
   const provider = { generate: async () => { calls++; return payload(); } };
   const engine = new Pool.Engine({ provider, stableDelayMs: 0, lowWatermark: 1 });
   await engine.regenerate({ state: profile(), sessionId: 1, epoch: 1 });
   assert.equal(engine.state.provider, "remote-generative");
-  assert.equal(engine.state.selectedCount, payload().candidates.length);
+  assert.equal(engine.state.selectedCount, payload().candidates.filter(item => item.category === "genre").length);
+  assert.ok(engine.pool.every(item => item.layer === "CONTEXT"));
   for (let i = 0; i < 100; i++) await engine.regenerate({ state: profile(), sessionId: 1, epoch: 1 });
   assert.equal(calls, 1);
   for (const item of engine.pool) engine.noteUsed(item.text);

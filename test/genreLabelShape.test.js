@@ -12,7 +12,8 @@ test("open-world genre admission accepts unknown names without consulting a cata
 test("a Flamingo listening sentence is not a genre label", () => {
   const sentence = "Lush atmospheric synth pads provide harmonic support";
   assert.equal(GenreLabels.isPlausibleGenreLabel(sentence), false);
-  assert.equal(GenreLabels.fallbackCategory(sentence), "production");
+  assert.equal(GenreLabels.fallbackCategory(sentence), null,
+    "an unknown shape must be quarantined, not remapped onto an existing FACT category");
 });
 
 test("a malformed open-world record cannot take over the primary genre downstream", () => {

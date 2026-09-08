@@ -1,0 +1,106 @@
+Loading Music Flamingo model (This will take a minute)...
+Music Flamingo quantization: NF4 4-bit; placement: audio-priority
+Music Flamingo device map: {"lm_head": 0, "model.audio_tower": 0, "model.language_model.embed_tokens": "cpu", "model.language_model.layers": 0, "model.language_model.norm": 0, "model.language_model.rotary_emb": 0, "model.multi_modal_projector": 0, "model.pos_emb": 0}
+CUDA after load: allocated=5.65 GiB, reserved=5.80 GiB
+Model loaded successfully. Starting server...
+[Music Flamingo] text context budget: 8192 tokens
+Flamingo server serving at port 5005
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=3175; generation budget=512
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 8->5
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{"genreHypotheses": ["jazz", "jazz fusion", "jazz big band"], "audibleObservations": [{"text": "steady 4/4 swing", "category": "rhythm", "confidence": 0.9, "reasoning": "consistent pulse with swing eighth notes and occasional syncopated accents"}, {"text": "bright brass timbre", "category": "instrumentation", "confidence": 0.8, "reasoning": "trumpet and trombone lead lines with clear articulation and dynamic swells"}, {"text": "walking bass line", "category": "bass motion", "confidence": 0.9, "reasoning": "steady quarter‑note walking bass that outlines the harmony"}, {"text": "tight drum kit groove", "category": "drums", "confidence": 0.8, "reasoning": "snare on 2 and 4, ride cymbal providing swing eighth‑note pulse"}, {"text": "improvised solo sections", "category": "performance", "confidence": 0.7, "reasoning": "clear solo passages where individual instruments take melodic lead"}, {"text": "dynamic ensemble swells", "category": "arrangement", "confidence": 0.8, "reasoning": "gradual crescendos and decrescendos that shape phrases"}, {"text": "polished studio production", "category": "production", "confidence": 0.9, "reasoning": "clear separation of instruments, balanced stereo imaging, and subtle reverb on brass"}, {"text": "major‑key harmonic progressions", "category": "harmony", "confidence": 0.8, "reasoning": "bright, consonant chord changes typical of swing and big‑band charts"}], "aestheticConcepts": ["energetic and sophisticated", "bright and uplifting", "classic swing atmosphere"], "impressions": ["playful and lively", "improvisational freedom"], "contextHypotheses": [{"text": "modern big‑band revival", "category": "scene", "confidence": 0.6, "reasoning": "combines traditional swing feel with contemporary fusion elements"}, {"text": "mid‑20th‑century jazz heritage", "category": "era", "confidence": 0.7, "reasoning": "evokes the sound of classic swing orchestras while incorporating modern harmonic
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 swing",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "consistent pulse with swing eighth notes and occasional syncopated"
+    },
+    {
+      "text": "bright brass timbre",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "trumpet and trombone lead lines with clear articulation and dynamic"
+    },
+    {
+      "text": "walking bass line",
+      "category": "production",
+      "confidence": 0.9,
+      "reasoningHints": "steady quarter‑note walking bass that outlines the harmony"
+    },
+    {
+      "text": "tight drum kit groove",
+      "category": "production",
+      "confidence": 0.8,
+      "reasoningHints": "snare on 2 and 4 ride cymbal providing swing eighth‑note pulse"
+    },
+    {
+      "text": "improvised solo sections",
+      "category": "performance",
+      "confidence": 0.7,
+      "reasoningHints": "clear solo passages where individual instruments take melodic lead"
+    }
+  ],
+  "genreHypotheses": [
+    {
+      "label": "jazz",
+      "confidence": 0.65,
+      "reasoningHints": ""
+    },
+    {
+      "label": "jazz fusion",
+      "confidence": 0.65,
+      "reasoningHints": ""
+    },
+    {
+      "label": "jazz big band",
+      "confidence": 0.65,
+      "reasoningHints": ""
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "modern big‑band revival",
+      "category": "scene",
+      "confidence": 0.6,
+      "reasoningHints": "combines traditional swing feel with contemporary fusion elements"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "energetic and sophisticated",
+      "confidence": 0.62,
+      "reasoningHints": ""
+    },
+    {
+      "text": "bright and uplifting",
+      "confidence": 0.62,
+      "reasoningHints": ""
+    },
+    {
+      "text": "classic swing atmosphere",
+      "confidence": 0.62,
+      "reasoningHints": ""
+    }
+  ],
+  "impressions": [
+    {
+      "text": "playful and lively",
+      "confidence": 0.6,
+      "reasoningHints": ""
+    },
+    {
+      "text": "improvisational freedom",
+      "confidence": 0.6,
+      "reasoningHints": ""
+    }
+  ],
+  "uncertainties": []
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 58.4s. Packet parsed: ['audibleObservations', 'genreHypotheses', 'contextHypotheses', 'aestheticConcepts', 'impressions', 'uncertainties']

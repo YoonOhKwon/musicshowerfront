@@ -30,29 +30,20 @@ test("lexicon schema always has neutral musical terminology and valid primitive 
   }
 });
 
-test("neutral labels survive low genre confidence while specialization is gated", () => {
-  const low = engine.evaluate(profile(), { primary: "Jazz", family: "Jazz", confidence: .4 });
-  assert.ok(low.some(item => item.text === "다성적 짜임새" && item.neutral));
-  assert.ok(!low.some(item => !item.neutral));
-  const high = engine.evaluate(profile(), { primary: "Jazz", family: "Jazz", confidence: .75 });
-  assert.ok(high.some(item => item.text === "집단 즉흥" && !item.neutral));
-});
-
-// Regression coverage for a v19 side effect: semanticEngine.js split what used to be one field
-// (genre.fineCandidates, fed by broad neighborhood search) into two -- fineCandidates is now
-// taxonomy-only, and the old neighborhood-search alternatives moved to genre.relatedCandidates.
-// genreValues() (used to gate idiom specialization) must read both, or a genre reachable only
-// through neighborhood search silently loses specialization with no test failure, since existing
-// tests always put the matching name directly in `primary`.
-test("idiom specialization fires for a genre reachable only through genre.relatedCandidates", () => {
-  const viaPrimary = engine.evaluate(profile(), { primary: "Jazz", family: "Jazz", confidence: .75 });
-  assert.ok(viaPrimary.some(item => item.text === "집단 즉흥" && !item.neutral));
-  const viaRelated = engine.evaluate(profile(), {
+test("the same primitives yield identical FACT wording regardless of the genre label", () => {
+  const jazz = engine.evaluate(profile(), { primary: "Jazz", family: "Jazz", confidence: .75 });
+  const house = engine.evaluate(profile(), { primary: "House", family: "Electronic", confidence: .75 });
+  const related = engine.evaluate(profile(), {
     primary: "Unlisted Fusion Genre", family: "Unlisted", confidence: .75,
     relatedCandidates: [{ label: "Jazz" }]
   });
-  assert.ok(viaRelated.some(item => item.text === "집단 즉흥" && !item.neutral),
-    "Jazz specialization must fire even though it only appears in relatedCandidates, not primary/family");
+  const texts = value => value.map(item => item.text).sort();
+  assert.deepEqual(texts(jazz), texts(house));
+  assert.deepEqual(texts(jazz), texts(related));
+  assert.ok(jazz.some(item => item.text === "다성적 짜임새" && item.neutral));
+  assert.ok(!jazz.some(item => item.text === "집단 즉흥"),
+    "genre must not specialize FACT wording; 집단 즉흥 is a Jazz-conditioned alias");
+  assert.ok(jazz.every(item => item.neutral));
 });
 
 test("invalid primitive combinations do not leak specific idioms", () => {

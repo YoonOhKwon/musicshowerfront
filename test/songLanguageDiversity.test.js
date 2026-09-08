@@ -2,7 +2,6 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const Primitives = require("../js/semantic/musicalPrimitiveEngine");
 const Idioms = require("../js/semantic/musicalIdiomEngine");
-const Impressions = require("../js/semantic/impressionSynthesizer");
 const Validator = require("../js/semantic/knowledgeConsistencyValidator");
 const Pipeline = require("../js/semantic/semanticCandidatePipeline");
 const Manager = require("../js/semantic/semanticFacetManager");
@@ -18,7 +17,6 @@ const { createLanguageRequest } = require("../lib/languageService");
 const { profile, RICH_KINDS } = require("./fixtures/languageProfiles");
 const lexicon = require("../data/musicalLexicon.json");
 const taxonomy = require("../data/genreTaxonomy.json");
-const aestheticRegions = require("../data/aestheticRegions.json");
 const genreContextKnowledge = require("../data/genreContextKnowledge.json");
 
 // Section 6: how much vocabulary is actually speakable right now, by layer -- aggregated from
@@ -31,8 +29,6 @@ function runtimeVocabularyItems() {
     if (entry.neutralText) items.push({ text: entry.neutralText, category: entry.facet || "rhythm" });
     for (const spec of entry.specializations || []) if (spec.text) items.push({ text: spec.text, category: entry.facet || "rhythm" });
   }
-  for (const entry of aestheticRegions.entries || []) items.push({ text: entry.text, category: entry.category });
-  for (const rule of Impressions.RULES) items.push({ text: rule.text, category: "mood" });
   for (const entry of Object.values(genreContextKnowledge.genres || {})) for (const candidate of entry.candidates || [])
     items.push({ text: candidate.text, category: candidate.category });
   for (const entry of Object.values(genreContextKnowledge.families || {})) for (const candidate of entry.candidates || [])
@@ -74,12 +70,19 @@ test("all produced primitive fields have a language consumer; only declared capa
   const engine = new Idioms.Engine(lexicon, { primitiveSchema: Primitives.schema(), genreTaxonomy: taxonomy });
   const report = Validator.validate({ lexicon, primitiveSchema: Primitives.schema(), graph: engine.graph,
     detectorRules: Pipeline.productionRules, detectorCapabilities: Grammar.detectorCapabilities,
-    primitiveClassification: classification, impressionRules: Impressions.RULES,
+    primitiveClassification: classification, impressionRules: [],
     directConsumerPaths: Pipeline.primitiveConsumerPaths });
-  assert.equal(report.warningsByCode["unused-primitive"] || 0, 0);
-  const coverage = Validator.coverageReport(engine.graph, lexicon, { impressionRules: Impressions.RULES,
+  // harmony.majorMinorLikelihood is the raw {major, minor} share pair that harmony.modality
+  // decides from; the decided form is what the language reads, and it keeps its own idioms. An
+  // exposed intermediate, not an unspoken fact -- see test/musicLanguageReform.test.js. Pinned by
+  // name so any OTHER primitive losing its consumer still fails here.
+  const orphanPaths = [...new Set((report.warnings || []).filter(item => item.code === "unused-primitive")
+    .map(item => item.path))];
+  assert.deepEqual(orphanPaths, ["harmony.majorMinorLikelihood"]);
+  const coverage = Validator.coverageReport(engine.graph, lexicon, { impressionRules: [],
     directConsumerPaths: Pipeline.primitiveConsumerPaths });
-  assert.ok(coverage.orphanPrimitives.every(path => classification[path] === "DECLARED_ONLY"));
+  assert.ok(coverage.orphanPrimitives.every(path =>
+    classification[path] === "DECLARED_ONLY" || path === "harmony.majorMinorLikelihood"));
 });
 
 test("unused measured primitives now emit specific evidence-traced musical observations", () => {
@@ -164,22 +167,22 @@ test("section 6: the runtime vocabulary pool does not silently shrink, and every
   // Regression floors, not targets -- these should only ever move up as authoring rounds add
   // vocabulary (section 3), never down. If one of these drops, something got deleted or a data
   // file failed to load, not "the pool got more selective".
-  assert.ok(pool.total >= 300, `total vocabulary pool shrank below 300: ${pool.total}`);
   assert.ok(pool.byLayer.FACT >= 150, `FACT vocabulary ${pool.byLayer.FACT}`);
-  assert.ok(pool.byLayer.AESTHETIC >= 15, `AESTHETIC vocabulary ${pool.byLayer.AESTHETIC}`);
-  assert.ok(pool.byLayer.IMPRESSION >= 30, `IMPRESSION vocabulary ${pool.byLayer.IMPRESSION}`);
+  // AESTHETIC and IMPRESSION are deliberately absent from the LOCAL pool now: they belong to
+  // Music Flamingo's direct listening. A floor here would be a floor on exactly the hardcoded
+  // subjective vocabulary that was removed, so it becomes a ceiling of zero instead.
+  assert.equal(pool.byLayer.AESTHETIC || 0, 0,
+    `the local pool must name no aesthetics; got ${pool.byLayer.AESTHETIC}`);
+  assert.equal(pool.byLayer.IMPRESSION || 0, 0,
+    `the local pool must name no impressions; got ${pool.byLayer.IMPRESSION}`);
+  assert.ok(pool.total >= 200, `total vocabulary pool shrank below 200: ${pool.total}`);
 });
 
-test("section 6: open-layer share of a selected stream is measurable and moving in the right direction, even if not yet at the 30-50% target for every genre", () => {
+test("section 6: a local-only selected stream keeps subjective layers silent until Flamingo speaks", () => {
   const kinds = ["futurefunk", "citypop", "ukgarage", "jungle", "techno", "jazztrio", "shoegaze", "ambient"];
   const distributions = kinds.map(kind => Metrics.evaluate(selectedStream(kind)).layerDistribution);
-  // Not yet a hard per-genre floor at 30% -- that is the reform's TARGET, not yet met by every
-  // genre (jazz/DnB fixtures in particular still lean heavily FACT, honestly). What regresses is
-  // the open layer going fully silent again, which this catches everywhere it currently speaks.
   for (const [index, kind] of kinds.entries())
-    assert.ok(distributions[index].openLayerRatio > 0, `${kind}: open layer went completely silent (${distributions[index].openLayerRatio})`);
-  const average = distributions.reduce((sum, item) => sum + item.openLayerRatio, 0) / distributions.length;
-  assert.ok(average >= 0.15, `average open-layer share across genres regressed below 0.15: ${average.toFixed(3)}`);
+    assert.equal(distributions[index].openLayerRatio, 0, `${kind}: local engine leaked a subjective layer`);
 });
 
 test("section 6: the cliche score stays low in practice across real selected streams, not just in theory", () => {

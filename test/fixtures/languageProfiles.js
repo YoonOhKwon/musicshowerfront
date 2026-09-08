@@ -45,10 +45,8 @@ const genreContextKnowledge = require("../../data/genreContextKnowledge.json");
 const musicalLexicon = require("../../data/musicalLexicon.json");
 const genreTaxonomy = require("../../data/genreTaxonomy.json");
 const aestheticAxes = require("../../data/aestheticAxes.json");
-const aestheticRegions = require("../../data/aestheticRegions.json");
-const genreCompositions = require("../../data/genreCompositions.json");
-const aestheticAxisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
-const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, aestheticAxisEngine, genreCompositions);
+const aestheticAxisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
+const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, aestheticAxisEngine);
 const aestheticEvidenceEngine = new AestheticEvidence.Engine(aestheticAxisEngine);
 const musicalIdiomEngine = new MusicalIdioms.Engine(musicalLexicon,
   { primitiveSchema: require("../../js/semantic/musicalPrimitiveEngine").schema(), genreTaxonomy });
@@ -472,10 +470,9 @@ const TEMPORAL_EVIDENCE = {
 function applyTemporalEvidence(state, kind) {
   const evidence = TEMPORAL_EVIDENCE[kind];
   if (!evidence) return;
-  const { leadTransitionRate, stereoWidth, foregroundLikelihood, dominanceChange, verifiedEnsembleSize,
+  const { leadTransitionRate, foregroundLikelihood, dominanceChange, verifiedEnsembleSize,
     deltaEnergy, deltaTransientDensity, deltaCentroid, flux, instrumentEvents } = evidence;
   state.instrumentation = { ...(state.instrumentation || {}), leadTransitionRate };
-  state.productionEvidence = { ...(state.productionEvidence || {}), stereoWidth };
   state.performance = { ...(state.performance || {}), foregroundLikelihood, dominanceChange };
   state.arrangement = { ...(state.arrangement || {}), ...(verifiedEnsembleSize ? { verifiedEnsembleSize } : {}) };
   state.expressionFeatures = { ...(state.expressionFeatures || {}), deltaEnergy, deltaTransientDensity, deltaCentroid, flux };

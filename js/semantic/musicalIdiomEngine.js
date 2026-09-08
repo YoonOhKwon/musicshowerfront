@@ -1,6 +1,6 @@
 // Evidence-gated bridge from measurable musical primitives to conventional musical language.
-// The graph is compiled from the primitive schema, genre taxonomy and idiom rules.  Genre is a
-// context multiplier only: it may specialise wording, but can never satisfy missing audio evidence.
+// The graph is compiled from the primitive schema, genre taxonomy and idiom rules.  Genre labels
+// are ignored at evaluate-time: FACT wording comes only from acoustic primitives.
 const MusicalIdioms = (() => {
   const clamp = value => Math.min(1, Math.max(0, Number(value) || 0));
 
@@ -127,12 +127,23 @@ const MusicalIdioms = (() => {
   // fire just because that generic evidence happened to be present in an unrelated genre. Genre
   // context here is a second, independent requirement on top of the evidence -- never a
   // substitute for it.
+  function materialKind(entry = {}) {
+    if (entry.kind === "ACOUSTIC_MATERIAL" || entry.kind === "CONTEXTUAL_INTERPRETATION") return entry.kind;
+    if (entry.requiredContext || entry.contextMode === "REQUIRED") return "CONTEXTUAL_INTERPRETATION";
+    return "ACOUSTIC_MATERIAL";
+  }
+
+  function appliesGenreGate(entry = {}) {
+    return materialKind(entry) === "CONTEXTUAL_INTERPRETATION";
+  }
+
   function contextGatePasses(entry, genre) {
+    if (!appliesGenreGate(entry)) return true;
     const required = entry.requiredContext;
     // contextMode is a declared contract, so it is enforced rather than documented: an entry that
     // says its genre context is REQUIRED must fail closed if the gate itself is missing or empty,
     // instead of silently degrading into an ungated, leak-prone rule (section 2-3).
-    const strict = entry.contextMode === "REQUIRED";
+    const strict = entry.contextMode === "REQUIRED" || appliesGenreGate(entry);
     if (!required) return !strict;
     const families = required.genreFamilies || required.genres || (required.genre ? [required.genre] : []);
     if (!families.length) return !strict;
@@ -164,7 +175,8 @@ const MusicalIdioms = (() => {
       this.graph = compileGraph(this.lexicon, this.options);
       return this;
     }
-    evaluate(primitives = {}, genre = {}) {
+    evaluate(primitives = {}, _genre = {}) {
+      const genre = {};
       const result = [];
       for (const entry of this.lexicon.entries) {
         // Dormant knowledge stays in the lexicon and in the graph, but never speaks: it is
@@ -193,7 +205,8 @@ const MusicalIdioms = (() => {
           ...passedSupport.map(item => item.test.path)])];
         const ttlMs = Math.max(2000, Number(entry.ttlMs || entry.persistenceMs) || (entry.facet === "live" ? 5000 : 12000));
         result.push({
-          id: entry.id, idiomId: entry.id, primitiveId: requiredTests.map(item => item.path),
+          id: entry.id, idiomId: entry.id, conceptId: entry.id, kind: materialKind(entry),
+          primitiveId: requiredTests.map(item => item.path),
           text: wording.text, category: entry.facet || "arrangement", facet: entry.facet || "arrangement",
           confidence, neutral: wording.neutral, source: "idiom", semanticFamily: familyFor(entry),
           anchors: anchorPaths.map(path => `primitives.${path}`),
@@ -211,7 +224,8 @@ const MusicalIdioms = (() => {
     }
   }
 
-  return { Engine, condition, read, compileGraph, familyFor, genreValues, contextGatePasses, contextMultiplier };
+  return { Engine, condition, read, compileGraph, familyFor, genreValues, contextGatePasses,
+    contextMultiplier, materialKind, appliesGenreGate };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = MusicalIdioms;

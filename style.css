@@ -7,6 +7,18 @@
 
 * { box-sizing: border-box; }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html,
 body {
   width: 100%;
@@ -21,6 +33,100 @@ canvas {
   inset: 0;
   z-index: 0;
   display: block;
+}
+
+.embedded-controls,
+.embedded-controls body {
+  min-height: 100%;
+  height: auto;
+  overflow: auto;
+  background: transparent;
+}
+
+.embedded-controls canvas,
+.embedded-controls .trackStatusInspectorBanner {
+  display: none !important;
+}
+
+.embedded-controls .launcher {
+  position: static;
+  width: 100%;
+  padding: 14px;
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.embedded-controls .eyebrow,
+.embedded-controls .description,
+.embedded-controls .hint {
+  display: none;
+}
+
+.embedded-controls h1 {
+  margin-bottom: 14px;
+  font-size: 25px;
+}
+
+.embedded-controls .qualityControl {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.embedded-controls .actions {
+  margin-top: 6px;
+  gap: 7px;
+}
+
+.embedded-controls .actions button {
+  flex: 1;
+  padding: 11px 8px;
+  font-size: 11px;
+}
+
+.embedded-controls .soundCloudConnect {
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.embedded-controls .soundCloudForm {
+  flex-direction: column;
+}
+
+.embedded-controls .audioStatus,
+.embedded-controls .soundCloudAnalysisButton,
+.embedded-controls .stopButton,
+.embedded-controls .soundCloudDock {
+  position: static;
+  width: calc(100% - 28px);
+  max-width: none;
+  margin: 10px 14px;
+  transform: none;
+}
+
+.embedded-controls .stopButton {
+  opacity: 1 !important;
+}
+
+.embedded-controls .soundCloudDock {
+  grid-template-columns: 42px minmax(0, 1fr);
+}
+
+.embedded-controls .soundCloudTransport,
+.embedded-controls .soundCloudChangeForm {
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+}
+
+.embedded-controls body:not(.semanticDebug) .audioStatus[data-state="active"] {
+  width: calc(100% - 28px);
+  height: auto;
+  overflow: visible;
+  clip-path: none;
 }
 
 .launcher {
@@ -117,6 +223,83 @@ button:disabled { cursor: wait; opacity: 0.65; }
 .secondaryButton { background: rgba(255, 255, 255, 0.075); }
 .secondaryButton:hover { background: rgba(255, 255, 255, 0.13); }
 
+.soundCloudConnect {
+  margin-top: 18px;
+  padding: 15px;
+  border: 1px solid rgba(255, 96, 24, 0.3);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 88, 18, 0.1), rgba(255, 255, 255, 0.035));
+  text-align: left;
+}
+
+.soundCloudConnectHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.soundCloudMark,
+.soundCloudSource { color: #ff6b24; }
+.soundCloudConnectHeading strong { font-size: 13px; }
+.soundCloudConnectHeading small { margin-left: auto; color: rgba(255, 255, 255, 0.5); font-size: 10px; }
+.soundCloudConnectHeading small[data-state="ready"] { color: #aaf1ca; }
+.soundCloudConnectHeading small[data-state="missing"] { color: #ffb5a0; }
+
+.soundCloudForm,
+.soundCloudChangeForm {
+  display: flex;
+  gap: 8px;
+}
+
+.soundCloudForm input,
+.soundCloudChangeForm input {
+  min-width: 0;
+  flex: 1;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  outline: none;
+  color: #fff;
+  background: rgba(5, 5, 12, 0.58);
+  font: inherit;
+  font-size: 12px;
+}
+
+.soundCloudForm input:focus,
+.soundCloudChangeForm input:focus { border-color: rgba(255, 107, 36, 0.75); }
+.soundCloudButton { padding: 10px 15px; border-color: rgba(255, 107, 36, 0.55); background: rgba(255, 87, 20, 0.7); }
+.soundCloudConnect > p { margin: 9px 2px 0; color: rgba(255, 255, 255, 0.42); font-size: 10px; line-height: 1.5; }
+
+.soundCloudDock {
+  position: fixed;
+  z-index: 14;
+  left: 18px;
+  bottom: 18px;
+  display: grid;
+  grid-template-columns: 54px minmax(150px, 1fr) auto;
+  gap: 12px;
+  width: min(860px, calc(100vw - 36px));
+  padding: 13px;
+  border: 1px solid rgba(255, 115, 50, 0.38);
+  border-radius: 20px;
+  background: rgba(11, 9, 18, 0.9);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px);
+}
+
+.soundCloudDock[hidden] { display: none; }
+.soundCloudDock img { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; }
+.soundCloudNowPlaying { display: grid; min-width: 0; align-content: center; text-align: left; }
+.soundCloudNowPlaying strong { overflow: hidden; color: #fff; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.soundCloudNowPlaying > span:not(.soundCloudSource) { color: rgba(255, 255, 255, 0.52); font-size: 10px; }
+.soundCloudSource { font-size: 9px; font-weight: 800; letter-spacing: 0.13em; }
+.soundCloudNowPlaying a { width: fit-content; color: #ff9a69; font-size: 10px; text-decoration: none; }
+.soundCloudTransport { display: flex; align-items: center; gap: 6px; }
+.soundCloudTransport button,
+.soundCloudChangeForm button { padding: 9px 12px; background: rgba(255, 255, 255, 0.07); font-size: 11px; }
+.soundCloudChangeForm { grid-column: 2 / -1; }
+
 .hint {
   margin: 16px 0 0;
   color: rgba(255, 255, 255, 0.42);
@@ -143,6 +326,27 @@ button:disabled { cursor: wait; opacity: 0.65; }
 .audioStatus[data-state="active"] { color: #a5f4ff; border-color: rgba(94, 223, 255, 0.22); }
 .audioStatus[data-state="error"] { color: #ffb2c7; border-color: rgba(255, 100, 145, 0.28); }
 
+.soundCloudAnalysisButton {
+  position: fixed;
+  z-index: 15;
+  left: 50%;
+  bottom: 68px;
+  padding: 11px 18px;
+  transform: translateX(-50%);
+  border-color: rgba(94, 223, 255, 0.42);
+  background: rgba(26, 86, 106, 0.9);
+  color: #eaffff;
+}
+
+.soundCloudAnalysisButton[hidden] { display: none; }
+
+.embedded-controls .soundCloudAnalysisButton {
+  position: static;
+  width: calc(100% - 28px);
+  margin: 4px 14px 10px;
+  transform: none;
+}
+
 .stopButton {
   position: fixed;
   right: 22px;
@@ -156,8 +360,15 @@ button:disabled { cursor: wait; opacity: 0.65; }
 .stopButton[hidden] { display: none; }
 
 @media (max-width: 620px) {
-  .launcher { padding: 34px 20px 28px; border-radius: 24px; }
+  .launcher { max-height: calc(100vh - 24px); overflow: auto; padding: 28px 18px 24px; border-radius: 24px; }
   .actions { flex-direction: column; }
+  .soundCloudConnectHeading { flex-wrap: wrap; }
+  .soundCloudConnectHeading small { width: 100%; margin-left: 24px; }
+  .soundCloudForm { flex-direction: column; }
+  .soundCloudDock { grid-template-columns: 46px minmax(0, 1fr); }
+  .soundCloudDock img { width: 46px; height: 46px; }
+  .soundCloudTransport { grid-column: 1 / -1; flex-wrap: wrap; }
+  .soundCloudChangeForm { grid-column: 1 / -1; }
   .description br { display: none; }
   .audioStatus { left: 14px; right: 100px; max-width: none; transform: none; text-align: left; }
   .stopButton { right: 14px; }
@@ -229,6 +440,25 @@ button:disabled { cursor: wait; opacity: 0.65; }
   color: #ffb8d4;
   font-size: 11px;
 }
+.trackStatusInspector {
+  position: fixed; z-index: 30; inset: 20px auto 20px 20px;
+  width: min(480px, calc(100vw - 40px)); overflow: auto;
+  padding: 22px; border: 1px solid #5e4366; border-radius: 18px;
+  background: rgba(13, 10, 22, 0.98); color: #e6dfeb; box-shadow: 0 20px 80px #0009;
+}
+.trackStatusInspector[hidden] { display: none; }
+.trackStatusInspector header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.trackStatusInspector h2 { margin: 0 auto 0 0; font-size: 17px; }
+.trackStatusInspector button { padding: 8px 11px; background: #302039; font-size: 12px; }
+.trackStatusInspector pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.7; }
+.trackStatusInspectorFlamingo { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ffffff1a; }
+.trackStatusInspectorBanner {
+  padding: 10px 12px; margin-bottom: 12px; border-radius: 10px;
+  background: rgba(255, 79, 139, 0.16); border: 1px solid rgba(255, 79, 139, 0.4);
+  color: #ffd7e6; font-size: 12px; line-height: 1.5;
+  transition: opacity 0.4s ease;
+}
+.trackStatusInspectorBanner[hidden] { display: none; }
 /* Immersive playback: no status overlay; keyboard/focus keeps stop discoverable. */
 body:not(.semanticDebug) .audioStatus[data-state="active"] {
   clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden;

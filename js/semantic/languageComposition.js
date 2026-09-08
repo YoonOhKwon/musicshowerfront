@@ -1,12 +1,12 @@
-// Slow-tick composition: claims, composed FACT, LIVE events, aesthetic concepts,
-// context admit/expand. Never called from the audio callback.
+// Slow-tick composition: claims, composed FACT and LIVE events. AESTHETIC/IMPRESSION
+// are intentionally absent: their semantic source is Music Flamingo, not local rules.
 const LanguageComposition = (() => {
   const Claims = typeof VerifiedClaims !== "undefined" ? VerifiedClaims : require("./verifiedClaimStore");
   const Firewall = typeof ContextFirewall !== "undefined" ? ContextFirewall : require("./contextFirewall");
   const Facts = typeof FactComposer !== "undefined" ? FactComposer : require("./factComposer");
   const Live = typeof LiveEventGrammar !== "undefined" ? LiveEventGrammar : require("./liveEventGrammar");
-  const Aesthetic = typeof AestheticConceptEngine !== "undefined" ? AestheticConceptEngine : require("./aestheticConceptEngine");
   const Lexicon = typeof ContextLexicalExpansion !== "undefined" ? ContextLexicalExpansion : require("./contextLexicalExpansion");
+  const Surface = typeof LocalSurfaceRealizer !== "undefined" ? LocalSurfaceRealizer : require("./localSurfaceRealizer");
 
   function apply(state = {}) {
     state.verifiedClaims = Claims.collect(state);
@@ -16,8 +16,11 @@ const LanguageComposition = (() => {
       state.verifiedClaims = Claims.collect(state);
     }
     state.composedFactCandidates = Facts.compose(state);
+    if (state.detectedIdioms) {
+      state.detectedIdioms = Surface.applyToItems(state.detectedIdioms, { claims: state.verifiedClaims });
+    }
     state.liveEventCandidates = Live.realize(state);
-    state.aestheticConceptCandidates = Aesthetic.induce(state);
+    state.aestheticConceptCandidates = [];
     state.languagePlan = plan(state);
     return state;
   }
@@ -29,12 +32,8 @@ const LanguageComposition = (() => {
     const compositions = [];
     const byType = type => items.filter(item => item.type === type).sort((a, b) => b.confidence - a.confidence);
     const facts = [...byType("MUSICAL_FACT"), ...byType("PRODUCTION_FACT"), ...byType("ACOUSTIC_FACT")];
-    if (facts.length >= 2)
-      compositions.push({
-        claims: facts.slice(0, 3).map(item => item.id),
-        operator: "FUSION",
-        targetLayer: "AESTHETIC"
-      });
+    // FACT combinations may be exposed to a future external impression interpreter, but the
+    // local planner must not decide what they feel like or which aesthetic they imply.
     const contrast = [items.find(item => item.concept === "bright_timbre"),
       items.find(item => item.concept === "dark_timbre" || item.concept === "sparse_texture")]
       .filter(Boolean);

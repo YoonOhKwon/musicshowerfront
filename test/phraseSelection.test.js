@@ -80,3 +80,66 @@ test("visible-layer occupancy prioritizes a newly available deep-listening layer
   });
   assert.equal(selected.layer, "AESTHETIC");
 });
+
+test("a Flamingo (resolutionMomentum) AESTHETIC/IMPRESSION concept is exempt from the recent-family dedup that would otherwise starve it between captures", () => {
+  const recent = [
+    { text: "몽환적인 안개", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike" },
+    { text: "아지랑이", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike" },
+    { text: "흐릿한 정서", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike" },
+    { text: "꿈결 같은 기분", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike" }
+  ];
+  // A fresh Flamingo impression sharing the SAME family as everything just shown -- Flamingo has
+  // no idea what the local engine just displayed, and with only ~2 impressions per capture this
+  // is the common case, not an edge case.
+  const flamingoItem = { text: "아득한 정서", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike",
+    resolutionMomentum: true, source: "directAudio", sourceFamily: "directAudio", weight: 0.8, confidence: 0.8 };
+
+  const picked = Selection.choose([flamingoItem], recent, () => 0, { observationSeconds: 60 });
+  assert.ok(picked, "a resolutionMomentum open-layer item must survive the family filter even when its family was just shown");
+  assert.equal(picked.text, "아득한 정서");
+});
+
+test("a NON-Flamingo AESTHETIC concept sharing a just-shown family is still filtered out (the exemption is narrow)", () => {
+  const recent = [
+    { text: "몽환적인 안개", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike" },
+    { text: "아지랑이", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike" },
+    { text: "흐릿한 정서", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike" },
+    { text: "꿈결 같은 기분", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike" }
+  ];
+  // A same-family local candidate PLUS an unrelated-family FACT candidate: the FACT item keeps
+  // `available` non-empty on its own, so the soft "fall back to everyone if the filter would empty
+  // the whole pool" escape hatch does not mask whether the AESTHETIC item specifically got dropped.
+  const localItem = { text: "안개 낀 감성", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike",
+    weight: 0.8, confidence: 0.8 };
+  const unrelatedFact = { text: "킥 밀도 상승", category: "rhythm", layer: "FACT", semanticFamily: "rhythm-only",
+    weight: 0.8, confidence: 0.8 };
+
+  let sawAesthetic = false, sawFact = false;
+  for (let i = 0; i < 300; i++) {
+    const picked = Selection.choose([localItem, unrelatedFact], recent, Math.random, { observationSeconds: 60 });
+    if (picked?.text === "안개 낀 감성") sawAesthetic = true;
+    if (picked?.text === "킥 밀도 상승") sawFact = true;
+  }
+  assert.equal(sawAesthetic, false, "ordinary local/LLM open-layer language must still respect the recent-family dedup");
+  assert.equal(sawFact, true, "the unrelated-family candidate should still be selectable (sanity check on the test setup)");
+});
+
+test("with an unrelated candidate present too, the SAME Flamingo concept still gets through where the local one could not", () => {
+  const recent = [
+    { text: "몽환적인 안개", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike" },
+    { text: "아지랑이", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike" },
+    { text: "흐릿한 정서", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike" },
+    { text: "꿈결 같은 기분", category: "mood", layer: "IMPRESSION", semanticFamily: "dreamlike" }
+  ];
+  const flamingoItem = { text: "안개 낀 감성", category: "association", layer: "AESTHETIC", semanticFamily: "dreamlike",
+    resolutionMomentum: true, source: "directAudio", sourceFamily: "directAudio", weight: 0.8, confidence: 0.8 };
+  const unrelatedFact = { text: "킥 밀도 상승", category: "rhythm", layer: "FACT", semanticFamily: "rhythm-only",
+    weight: 0.8, confidence: 0.8 };
+
+  let sawAesthetic = false;
+  for (let i = 0; i < 300; i++) {
+    const picked = Selection.choose([flamingoItem, unrelatedFact], recent, Math.random, { observationSeconds: 60 });
+    if (picked?.text === "안개 낀 감성") sawAesthetic = true;
+  }
+  assert.equal(sawAesthetic, true, "the resolutionMomentum exemption must let the Flamingo concept surface even with a same-family recent history");
+});

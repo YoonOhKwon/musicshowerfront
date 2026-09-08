@@ -1,6 +1,6 @@
 # Music Shower · Music Language Engine
 
-Music Shower는 음악에서 관측한 정보를 **장르·계보·리듬·악기·연주·편곡·프로덕션·다이내믹·분위기·시대·씬·문화·연상·현재 변화**의 14개 관점으로 보여줍니다. 실시간 분석은 브라우저에서 무료로 실행되고, 선택한 AI 모드는 20~45초 분석 요약을 근거가 있는 열린 음악 용어로 보강합니다. 원본 오디오는 전송하지 않습니다. API를 기다리거나 호출에 실패해도 실시간 단어와 시각화는 계속됩니다. 전체 구현·성능·장르별 경로는 [V2 재건축 보고서](docs/MUSIC_INTELLIGENCE_V2.md)에 정리했습니다.
+Music Shower는 음악에서 관측한 정보를 **장르·계보·리듬·악기·연주·편곡·프로덕션·다이내믹·분위기·시대·씬·문화·연상·현재 변화**의 14개 관점으로 보여줍니다. 실시간 분석은 브라우저에서 실행되고 Music Flamingo의 직접 청취가 이를 보강합니다. 계층별로 누가 어떤 의미를 만들 수 있는지는 [의미 출력 소유권 원칙](docs/SEMANTIC_OWNERSHIP.md)이 정하며, 이 문서가 이전 설계 문서보다 우선합니다.
 
 ## 실행
 
@@ -10,6 +10,21 @@ npm start
 ```
 
 `http://localhost:3000`을 열고 탭/시스템 오디오 또는 음원 파일을 선택합니다. AI 보강에는 `.env`의 `OPENAI_API_KEY`가 필요합니다. 비용 없는 실행은 시작 화면의 `실시간 분석 · 비용 없음` 또는 `?language=local`을 선택합니다.
+
+### SoundCloud 외부 탭 연결
+
+SoundCloud Pro나 API 키 없이 별도로 열린 SoundCloud 탭을 연결합니다. [확장 프로그램 설치 안내](chrome-extension/README.md)에 따라 `chrome-extension` 폴더를 Chrome에 한 번 로드합니다.
+
+1. Music Shower 시작 화면에서 트랙 URL을 넣어 SoundCloud 탭을 엽니다.
+2. SoundCloud 탭에서 `Music Shower · SoundCloud Tab Bridge` 확장 아이콘을 누릅니다.
+3. 확장이 해당 탭의 오디오 스트림과 재생 이벤트를 `localhost:3000`의 Music Shower로 전달합니다.
+
+- 재생·일시정지·종료는 SoundCloud 탭의 미디어 요소와 Media Session 상태에서 읽습니다. 일시정지와 트랙 종료는 `trackEpoch`, Flamingo 풀, 누적 청취 기억을 시간 제한 없이 보존합니다.
+- 이어 재생과 같은 곡의 처음부터 재생은 기존 풀을 유지합니다.
+- 트랙 URL 또는 현재 미디어 메타데이터가 바뀔 때만 `trackEpoch`를 증가시키고 Flamingo 풀·대기 중인 이전 응답·Deep Listen 버퍼를 초기화합니다.
+- 확장 연결 종료나 SoundCloud 탭 닫기는 SoundCloud 분석 세션 전체를 끝냅니다.
+
+탭 캡처 중 SoundCloud 원래 탭의 소리가 Chrome에 의해 음소거될 수 있으므로 Music Shower의 Web Audio 출력으로 같은 오디오를 다시 들려줍니다. 이 연결은 Chrome 116 이상 전용입니다.
 
 ## V2 음악 지능 파이프라인
 
@@ -39,7 +54,7 @@ Shared 경로에서는 ML Worker가 링의 일관된 최신 구간을 직접 읽
 
 ## 음악 원형과 관용어
 
-장르를 모르는 경우에도 DSP 문장만 남지 않도록 박 조직, 짜임새, 역할, 화성·선율, 발음, 형식, 프로덕션의 7개 장르 중립 원형을 계산합니다. [musicalLexicon.json](data/musicalLexicon.json)은 모든 규칙에 중립 음악 용어를 두며, 장르 확신도가 충분할 때만 같은 원형을 가리키는 전문 용어로 바꿉니다. 계산할 수 없는 음정 장식·미분음·정확한 반복 마디 같은 값은 0으로 꾸미지 않고 `null`입니다.
+장르를 모르는 경우에도 DSP 문장만 남지 않도록 박 조직, 짜임새, 역할, 화성·선율, 발음, 형식, 프로덕션의 7개 장르 중립 원형을 계산합니다. [musicalLexicon.json](data/musicalLexicon.json)의 실행 경로는 장르 중립 음악 용어만 사용합니다. 개발자가 적은 장르 특화 문구는 출력에 사용하지 않습니다. 계산할 수 없는 음정 장식·미분음·정확한 반복 마디 같은 값은 0으로 꾸미지 않고 `null`입니다.
 
 Floating Word는 생성 순간의 의미 토큰을 소유합니다. 이후 의미 epoch나 후보 풀이 바뀌어도 흐려지거나 제거되지 않으며, 짧은 진입 fade 뒤 화면을 완전히 벗어날 때까지 같은 불투명도를 유지합니다. 최대 개수에 도달하면 새 생성을 늦출 뿐 기존 단어를 밀어내지 않습니다. 오디오 중지·새 트랙 시작은 명시적 전체 초기화입니다.
 
@@ -85,6 +100,23 @@ V2.1 배경은 정적 이미지가 아니라 GPU 절차적 셰이더입니다. �
 
 오디오는 AudioWorklet에서 native-rate mono PCM 블록으로 수집합니다. Web Worker가 16kHz sinc 리샘플링과 Essentia 호환 128×96 mel patch 생성을 담당합니다. 추론은 WebGPU를 먼저 시도하고 실패하면 WASM으로 자동 전환합니다. 두 백엔드 모두 실패해도 시각화는 DSP 모드로 계속 동작합니다. 세부 규격과 라이선스는 [docs/MODELS.md](docs/MODELS.md)를 참고하세요.
 
+### Music Flamingo GPU/RAM 배치
+
+`scripts/flamingo_server.py`는 CUDA 환경에서 기본적으로 `audio-priority` 배치를 사용합니다. 오디오 인코더와 멀티모달 연결부는 BF16 GPU에 남기고, 큰 Qwen 언어 디코더는 NF4로 양자화하며, 토큰 임베딩만 시스템 RAM으로 보냅니다. 12GB GPU에서 오디오 해석 정밀도를 우선하면서도 CPU로 디코더 층을 왕복시키지 않아 지연 증가를 최소화하는 구성입니다.
+
+```powershell
+$env:MUSIC_FLAMINGO_PLACEMENT = "audio-priority"
+$env:MUSIC_FLAMINGO_4BIT_QUANT_TYPE = "nf4"
+$env:MUSIC_FLAMINGO_EMPTY_CACHE = "1"
+& .research-venv\Scripts\python.exe scripts\flamingo_server.py
+```
+
+시작 로그에는 실제 device map과 로드 후 CUDA 할당량이 표시됩니다. 혼합 배치를 지원하지 않는 런타임이면 자동으로 `balanced` NF4로 돌아갑니다. 분석이 끝날 때 사용하지 않는 CUDA activation/cache를 반환하고, 새 캡처가 오면 이전 생성 요청을 중단해 오래된 곡이 GPU를 붙잡지 않도록 합니다. 브라우저도 Flamingo 추론 중에는 로컬 WebGPU 추론을 잠시 양보하지만, 오디오 캡처와 고정 크기 PCM 링버퍼는 계속 유지합니다.
+
+장르 분석의 첫 캡처는 반드시 후보 없는 블라인드 청취입니다. 이후에는 블라인드와 후보 보조 청취를 번갈아 수행하되, Discogs 분류기가 `probable` 이상이고 모호성 검사를 통과했을 때만 Flamingo가 섞이기 전 원본 Top-K를 작은 `classifier-only` 자문 정보로 전달합니다. 이 목록은 정답이 아니라 반박 가능한 가설이며, 후보를 본 Flamingo 응답은 분류기와 독립된 두 표로 계산하지 않고 `assistedFusion` 한 계열로 할인합니다. 단발성 0.5 미만 장르 가설은 기록에는 남아도 트랙 장르로 승격되지 않으며, 서로 다른 구간의 반복 확인 또는 독립 청취 근거가 있어야 승격될 수 있습니다. 특정 장르 조합을 이름으로 매핑하는 하드코딩 규칙은 사용하지 않습니다.
+
+코드 업데이트 후에는 3000번 Node 서비스도 한 번 재시작해야 브라우저가 새 버전의 WAV 절단·요청 취소·응답 정리 로직을 받습니다. 현재 빌드 식별자는 `/api/health`의 `buildVersion`에서 확인할 수 있습니다.
+
 ## 언어 API와 기존 분석 API의 분리
 
 `js/config.js`의 다음 설정은 기본적으로 꺼져 있습니다.
@@ -118,7 +150,7 @@ URL의 `?quality=performance|balanced|quality`로도 고정할 수 있습니다.
 
 고정 Discogs 400 분류기는 실제 동작합니다. 반면 CLAP 호환 오디오·텍스트 인코더와 동일 공간의 검증된 텍스트 임베딩은 아직 번들하지 않았으므로 zero-shot은 정직하게 `unavailable`입니다. 차원과 모델 출처가 정확히 일치하는 자산만 활성화되며, 다른 임베딩 공간의 값을 섞어 가짜 결과를 만들지 않습니다.
 
-고정 분류기의 Top-K와 Track Character를 데이터 기반 microgenre neighborhood에 연결해 `fineCandidates`를 생성합니다. 이는 관련 후보 탐색이지 zero-shot 확정 판정이 아니며, HUD의 기본 장르를 강제로 덮어쓰지 않습니다.
+프로젝트 내부의 microgenre neighborhood·장르 별칭·장르 계층 데이터는 더 이상 런타임 장르명 생성이나 승격에 사용하지 않습니다. 장르명은 사전학습 분류기와 Music Flamingo의 출력에서만 들어옵니다.
 
 ## 검증
 

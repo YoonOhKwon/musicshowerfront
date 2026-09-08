@@ -6,13 +6,9 @@ let musicModelBridge = null;
 let genreTracker = null;
 let noveltyDetector = null;
 let temporalModelAggregator = null;
-let genreFamilyLookup = new Map();
-let genreAliasLookup = new Map();
-let genreTaxonomyData = {};
-let genreContextKnowledgeData = {};
-let genreCompositionsData = null;
-let compositeGenreRulesData = {};
-let genreHierarchyData = {};
+// Populated only from the currently loaded classifier model's own label metadata. No project
+// taxonomy, alias table or developer-authored family mapping may name the genre.
+let modelGenreFamilyLookup = new Map();
 let zeroShotClassifier = new ZeroShotGenre.Classifier();
 let semanticRuntimeInitialized = false;
 let semanticInferencePending = false;
@@ -26,6 +22,12 @@ let remoteLanguageProvider = null;
 let distinctiveTracker = null;
 let phrasePoolEngine = null;
 let latestRollingEmbedding = [];
+// Language has its own track lifetime.  A track boundary can happen without starting a new
+// semantic session (and before the classifier has produced a new semantic epoch), so sessionId /
+// semanticEpoch alone are not sufficient to keep late word-pool promises from Song A out of Song B.
+let trackLanguageGeneration = 0;
+const conceptExpansionControllers = new Map();
+const MAX_CONCEPT_EXPANSIONS_IN_FLIGHT = 2;
 let subgenreSearcher = new SubgenreSearch.Searcher();
 let semanticEvidenceReady = false;
 // Latest direct-audio-caption observations (js/main.js's periodic Flamingo capture, via
@@ -61,33 +63,127 @@ const TrackLifecycle = typeof TrackLifecycleEngine !== "undefined" ? TrackLifecy
 const FlamingoReservoir = typeof FlamingoWordReservoir !== "undefined" ? FlamingoWordReservoir : (() => {
   try { return require("./flamingoWordReservoir"); } catch { return null; }
 })();
+const GenreHistory = typeof GenreEvidenceHistory !== "undefined" ? GenreEvidenceHistory : (() => {
+  try { return require("./genreEvidenceHistory"); } catch { return null; }
+})();
 let openWorldRegistry = OpenWorld ? new OpenWorld.Registry() : null;
 let progressiveListeningEngine = Progressive ? new Progressive.Engine() : null;
 let trackLifecycleEngine = TrackLifecycle ? new TrackLifecycle.LifecycleEngine() : null;
 let flamingoWordReservoir = FlamingoReservoir ? new FlamingoReservoir.Reservoir() : null;
+let genreEvidenceHistory = GenreHistory ? new GenreHistory.History() : null;
+// The T-panel's "reset just happened" banner (js/semantic/trackStatusInspector.js) needs to know
+// WHAT was cleared, not just that a reset occurred -- captured here, right before the reservoir is
+// actually wiped, since afterward there is nothing left to describe.
+let lastFlamingoReset = null;
+function captureFlamingoResetSummary(reason) {
+  const concepts = flamingoWordReservoir?.conceptRegistry ? [...flamingoWordReservoir.conceptRegistry.values()] : [];
+  lastFlamingoReset = {
+    at: Date.now(),
+    reason: reason || "unknown",
+    clearedCount: concepts.length,
+    sampleTexts: concepts.slice(0, 5).map(entry => entry.canonicalText)
+  };
+}
+
+function cancelConceptExpansions() {
+  for (const controller of conceptExpansionControllers.values()) controller.abort();
+  conceptExpansionControllers.clear();
+}
+
+let lastPublishedWordPoolSignature = "";
+let lastPublishedWordPoolAt = 0;
+function publishLiveWordPool(words = [], force = false) {
+  if (typeof window === "undefined" || typeof fetch !== "function") return;
+  const tokens = (Array.isArray(words) ? words : []).map(item => ({
+    text: String(item?.text || "").trim(),
+    layer: item?.layer || "FACT",
+    type: item?.type || (String(item?.text || "").length > 20 ? "micro" : "fragment"),
+    glow: Number(item?.glow) || 1
+  })).filter(item => item.text);
+  const signature = JSON.stringify(tokens);
+  const now = Date.now();
+  if (!force && signature === lastPublishedWordPoolSignature && now - lastPublishedWordPoolAt < 1500) return;
+
+  lastPublishedWordPoolSignature = signature;
+  lastPublishedWordPoolAt = now;
+  fetch("/api/live-word-pool", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      tokens,
+      sessionId: semanticState?.sessionId ?? null,
+      semanticEpoch: semanticState?.semanticEpoch || 0,
+      trackEpoch: trackLifecycleEngine ? trackLifecycleEngine.getTrackEpoch() : (semanticState?.trackEpoch || 0)
+    })
+  }).catch(error => console.warn("[word-pool bridge] publish failed:", error.message || error));
+}
+
+function resetTrackLanguage(newEpoch, reason = "track_reset") {
+  trackLanguageGeneration += 1;
+  phrasePoolEngine?.reset(semanticSessionId);
+  if (!semanticState) return;
+
+  // Force a new language epoch at the same moment as the audio lifecycle epoch.  This prevents
+  // the old genre/context card from surviving the gap before the local classifier has caught up.
+  const semanticEpoch = (Number(semanticState.semanticEpoch) || 0) + 1;
+  semanticState.semanticEpoch = semanticEpoch;
+  semanticState.semanticChange = {
+    score: 1,
+    changed: true,
+    epoch: semanticEpoch,
+    reason,
+    components: { trackBoundary: 1 }
+  };
+  semanticState.words = [];
+  semanticState.trackEpoch = newEpoch;
+  semanticState.language = {
+    ...(semanticState.language || {}),
+    status: "fallback",
+    phraseCount: 0,
+    remaining: 0,
+    reason,
+    semanticEpoch
+  };
+  publishLiveWordPool([], true);
+  syncMLState();
+}
 
 if (trackLifecycleEngine) {
   trackLifecycleEngine.onResetTrack = (newEpoch, reason) => {
+    cancelConceptExpansions();
+    captureFlamingoResetSummary(reason);
     flamingoWordReservoir?.reset(newEpoch);
+    genreEvidenceHistory?.reset();
     directAudioCandidates = [];
+    resetTrackLanguage(newEpoch, reason || "track_changed");
     if (semanticState) {
       semanticState.directAudioCandidates = [];
       semanticState.flamingoReservoirCandidates = [];
+      semanticState.flamingoIngestion = null;
       semanticState.trackEpoch = newEpoch;
       semanticState.lifecycleState = trackLifecycleEngine.getState();
     }
     progressiveListeningEngine?.reset();
-    if (typeof resetFloatingSemanticVisuals === "function") resetFloatingSemanticVisuals();
+    // Keep words already rendered on the canvas alive until their normal lifecycle expires. The
+    // Flamingo reservoir and language pool are track-scoped data; clearing them must not erase
+    // visual continuity for a word that was already visible before the boundary.
   };
   trackLifecycleEngine.onAudioRemoved = (reason) => {
+    cancelConceptExpansions();
+    captureFlamingoResetSummary(reason || "audio_removed");
     flamingoWordReservoir?.reset(trackLifecycleEngine.getTrackEpoch());
+    genreEvidenceHistory?.reset();
     directAudioCandidates = [];
+    resetTrackLanguage(trackLifecycleEngine.getTrackEpoch(), reason || "audio_removed");
     if (semanticState) {
       semanticState.directAudioCandidates = [];
       semanticState.flamingoReservoirCandidates = [];
+      semanticState.flamingoIngestion = null;
       semanticState.lifecycleState = trackLifecycleEngine.getState();
     }
     progressiveListeningEngine?.reset();
+    // Audio removal invalidates semantic candidates, but does not retroactively remove words
+    // that are already in flight on screen. A fresh session still performs the full visual reset.
   };
 }
 const DirectContinuity = typeof DirectAudioContinuity !== "undefined" ? DirectAudioContinuity : (() => {
@@ -100,23 +196,6 @@ let currentModelInstruments = [];
 let currentEventInstruments = [];
 let currentModelInstrumentsAt = 0;
 let currentInstrumentObservationId = null;
-const discogsParentFamily = {
-  "blues": "Jazz / Soul",
-  "brass & military": "Acoustic / Traditional",
-  "children's": "Acoustic / Traditional",
-  "classical": "Acoustic / Traditional",
-  "electronic": "Electronic / Club",
-  "folk, world, & country": "Acoustic / Traditional",
-  "funk / soul": "Jazz / Soul",
-  "hip hop": "Hip-Hop / Rap",
-  "jazz": "Jazz / Soul",
-  "latin": "Latin / Brazilian",
-  "pop": "Pop / Internet",
-  "reggae": "Acoustic / Traditional",
-  "rock": "Rock / Metal",
-  "stage & screen": "Ambient / Cinematic"
-};
-
 function createInitialSemanticState(sessionId = 0) {
   const localMood = { valence: 0.5, arousal: 0, tension: 0, warmth: 0.5, brightness: 0.5, spaciousness: 0.5 };
   const genre = {
@@ -172,6 +251,7 @@ function createInitialSemanticState(sessionId = 0) {
     conceptEmbedding: { available: false, reason: "concept-text-embeddings-not-bundled", candidates: [] },
     mir: null, temporalEvidence: null, evidenceFusion: [], stateV2: null,
     directAudioCandidates: [], directAudioObservationId: null, directAudioUncertainties: [],
+    flamingoReservoirCandidates: [], flamingoIngestion: null,
     trackCharacter: TrackCharacter.rawProfile(),
     distinctive: { basis: "absolute character only", genreRelativeAvailable: false, statements: [] },
     semanticEpoch: 0,
@@ -184,59 +264,23 @@ function createInitialSemanticState(sessionId = 0) {
 }
 
 async function loadSemanticData() {
-  const [taxonomyResponse, aliasResponse, embeddingResponse, neighborhoodResponse, contextResponse, lexiconResponse,
-    coreTermsResponse, aestheticAxesResponse, aestheticRegionsResponse, genreCompositionsResponse,
-    compositeRulesResponse, genreHierarchyResponse] = await Promise.all([
-    fetch("./data/genreTaxonomy.json"),
-    fetch("./data/genreAliases.json"),
-    fetch("./data/genreEmbeddings.json"),
-    fetch("./data/genreNeighborhoods.json"),
-    fetch("./data/genreContextKnowledge.json"),
+  const [lexiconResponse, coreTermsResponse] = await Promise.all([
     fetch("./data/musicalLexicon.json"),
-    fetch("./data/approvedCoreTerms.json"),
-    fetch("./data/aestheticAxes.json"),
-    fetch("./data/aestheticRegions.json"),
-    fetch("./data/genreCompositions.json"),
-    fetch("./data/compositeGenreRules.json"),
-    fetch("./data/genreHierarchy.json")
+    fetch("./data/approvedCoreTerms.json")
   ]);
   if (coreTermsResponse.ok) SemanticFacets.setApprovedCoreTerms((await coreTermsResponse.json())?.entries);
-  if (aestheticAxesResponse.ok && aestheticRegionsResponse.ok) {
-    aestheticAxisEngine = new AestheticAxisEngine.Engine(await aestheticAxesResponse.json(), await aestheticRegionsResponse.json());
-    aestheticEvidenceEngine = new AestheticEvidence.Engine(aestheticAxisEngine);
-  }
-  if (genreCompositionsResponse.ok) genreCompositionsData = await genreCompositionsResponse.json();
-  if (compositeRulesResponse.ok) compositeGenreRulesData = await compositeRulesResponse.json();
-  if (genreHierarchyResponse.ok) genreHierarchyData = await genreHierarchyResponse.json();
-  genreHypothesisEngine.configure(compositeGenreRulesData, genreHierarchyData);
-  if (taxonomyResponse.ok) {
-    const taxonomy = await taxonomyResponse.json();
-    genreTaxonomyData = taxonomy;
-    genreFamilyLookup = new Map();
-    for (const [family, labels] of Object.entries(taxonomy)) {
-      for (const label of labels) genreFamilyLookup.set(label.toLowerCase(), family);
-    }
-  }
-  if (aliasResponse.ok) {
-    genreAliasLookup = new Map(Object.entries(await aliasResponse.json()).map(([key, value]) => [key.toLowerCase(), value]));
-  }
-  if (embeddingResponse.ok) {
-    const database = await embeddingResponse.json();
-    zeroShotClassifier = new ZeroShotGenre.Classifier(database);
-  }
-  if (contextResponse.ok) {
-    genreContextKnowledgeData = await contextResponse.json();
-    genreContextEngine = new GenreContext.Engine(genreContextKnowledgeData, aestheticAxisEngine, genreCompositionsData);
-  }
-  if (neighborhoodResponse.ok) subgenreSearcher = new SubgenreSearch.Searcher(await neighborhoodResponse.json());
+  // The old taxonomy/alias/hierarchy/neighborhood/context/aesthetic JSON files remain available
+  // for historical tests and migration, but are not runtime authorities. Genre names now enter
+  // only through pretrained classifier metadata, Music Flamingo, or external model reasoning.
+  genreHypothesisEngine.configure({}, {});
   if (lexiconResponse.ok) musicalIdiomEngine.setLexicon(await lexiconResponse.json());
-  musicalIdiomEngine.setContext({ primitiveSchema: MusicalPrimitives.schema(), genreTaxonomy: genreTaxonomyData });
+  musicalIdiomEngine.setContext({ primitiveSchema: MusicalPrimitives.schema(), genreTaxonomy: {} });
   semanticState.knowledgeConsistency = KnowledgeConsistency.validate({
     lexicon: musicalIdiomEngine.lexicon,
     primitiveSchema: MusicalPrimitives.schema(),
     detectorRules: SemanticCandidatePipeline.productionRules,
     detectorCapabilities: RhythmicGrammar.detectorCapabilities,
-    contextKnowledge: genreContextKnowledgeData,
+    contextKnowledge: {},
     graph: musicalIdiomEngine.graph,
     directConsumerPaths: SemanticCandidatePipeline.primitiveConsumerPaths
   });
@@ -245,15 +289,12 @@ async function loadSemanticData() {
 function canonicalGenre(label) {
   const clean = String(label || "").trim();
   const [parent, specific] = clean.includes("---") ? clean.split("---", 2) : ["", clean];
-  const canonical = genreAliasLookup.get(specific.toLowerCase()) || specific;
-  if (parent && !genreFamilyLookup.has(canonical.toLowerCase())) {
-    genreFamilyLookup.set(canonical.toLowerCase(), discogsParentFamily[parent.toLowerCase()] || "Unknown");
-  }
-  return canonical;
+  if (parent && specific) modelGenreFamilyLookup.set(specific.toLowerCase(), parent.trim());
+  return specific.trim();
 }
 
 function genreFamily(label) {
-  return genreFamilyLookup.get(canonicalGenre(label).toLowerCase()) || "Unknown";
+  return modelGenreFamilyLookup.get(canonicalGenre(label).toLowerCase()) || "Unknown";
 }
 
 async function initializeSemanticRuntime() {
@@ -305,7 +346,10 @@ async function initializeSemanticRuntime() {
     if (mlAudioWindow?.shared) musicModelBridge.attachSharedRing(mlAudioWindow.descriptor());
   }
   syncMLState();
-  refreshSemanticWords();
+  // Loading an idle embedded controls frame must not erase the word pool
+  // produced by the active analyzer in another tab/window. A real audio
+  // session publishes its own fresh pool from beginSemanticSession().
+  if (typeof audioStarted !== "undefined" && audioStarted) refreshSemanticWords();
 }
 
 function beginSemanticSession(inputMode = "unknown") {
@@ -329,8 +373,15 @@ function beginSemanticSession(inputMode = "unknown") {
   lastZeroShotAt = 0;
   latestRollingEmbedding = [];
   directAudioCandidates = [];
+  cancelConceptExpansions();
   openWorldRegistry?.reset();
   progressiveListeningEngine?.reset();
+  // A brand new audio source (not a mid-session track boundary) must never inherit the previous
+  // source's trackEpoch, lifecycle state, or Flamingo reservoir -- those belong to session-level
+  // reset (onResetTrack/onAudioRemoved handle the mid-session case already).
+  trackLifecycleEngine?.resetAll(semanticSessionId);
+  flamingoWordReservoir?.reset(1);
+  genreEvidenceHistory?.reset();
   semanticEvidenceReady = false;
   semanticState = createInitialSemanticState(semanticSessionId);
   phrasePoolEngine?.reset(semanticSessionId);
@@ -364,11 +415,20 @@ function endSemanticSession() {
   musicModelBridge?.resetSession();
   latestRollingEmbedding = [];
   directAudioCandidates = [];
+  cancelConceptExpansions();
   openWorldRegistry?.reset();
   progressiveListeningEngine?.reset();
+  // A brand new audio source (not a mid-session track boundary) must never inherit the previous
+  // source's trackEpoch, lifecycle state, or Flamingo reservoir -- those belong to session-level
+  // reset (onResetTrack/onAudioRemoved handle the mid-session case already).
+  trackLifecycleEngine?.resetAll(semanticSessionId);
+  flamingoWordReservoir?.reset(1);
+  genreEvidenceHistory?.reset();
   semanticEvidenceReady = false;
   semanticState = createInitialSemanticState(semanticSessionId);
   phrasePoolEngine?.reset(semanticSessionId);
+  // Keep the last processed pool available to the 3D front after capture
+  // stops. The next real audio session replaces it explicitly.
   if (typeof resetFloatingSemanticVisuals === "function") resetFloatingSemanticVisuals();
   if (typeof resetDeepListenRuntime === "function") resetDeepListenRuntime();
 }
@@ -405,6 +465,7 @@ function syncMLState() {
     status: modelState.status,
     inferenceLatency: modelState.latencyMs || 0,
     inferenceActive: Boolean(musicModelBridge?.inFlight),
+    flamingoPriority: typeof isDeepListenGpuBusy === "function" && isDeepListenGpuBusy(),
     timings: modelState.timings || {},
     error: modelState.error || null,
     performanceLevel: semanticPerformanceLevel || "high",
@@ -504,14 +565,20 @@ function refreshRealtimeExpressions() {
   const spectrum = MusicExpressionEngine.measureSpectrum(expressionSpectrum, audioContext.sampleRate, analyser.fftSize);
   const rhythm = getRhythmProfile();
   const recentOnsets = beatTimestamps.values().filter(at => performance.now() - at <= 2500).length / 2.5;
+  const captureDebug = typeof getAudioCaptureDebugState === "function" ? getAudioCaptureDebugState() : null;
+  const captureSignal = typeof hasCurrentAudioSignal === "function" && hasCurrentAudioSignal();
+  const measurementWithCaptureFallback = captureSignal && measurement.rms < 0.001
+    ? { ...measurement, rms: captureDebug?.rms || measurement.rms, peak: Math.max(measurement.peak || 0, captureDebug?.peak || 0) }
+    : measurement;
   const features = expressionHistory.update({
-    ...semanticState.audio, ...latestMeasuredFeatures, ...measurement, ...spectrum,
-    energy: SignalMath.clamp(measurement.rms * 2 + SignalMath.clamp(recentOnsets / 4.2) * 0.15),
+    ...semanticState.audio, ...latestMeasuredFeatures, ...measurementWithCaptureFallback, ...spectrum,
+    energy: SignalMath.clamp(measurementWithCaptureFallback.rms * 2 + SignalMath.clamp(recentOnsets / 4.2) * 0.15),
     tempoStability: rhythm.stability, onsetRate: recentOnsets,
     transientDensity: SignalMath.clamp(recentOnsets / 4.2),
     harmonicMovement: semanticState.trackCharacter?.harmony?.harmonicMotion || 0,
     pumping: semanticState.trackCharacter?.dynamics?.pumping || 0
   });
+  if (captureSignal) features.audible = true;
   semanticState.expressionFeatures = features;
   semanticState.analysisWindow = expressionHistory.summary();
   semanticState.moodDimensions = {
@@ -564,11 +631,21 @@ function refreshRealtimeExpressions() {
     repetition: semanticState.trackCharacter?.structure?.repetition,
     electronicConfidence,
     voiceConfidence: semanticState.instrumentationEvidence?.voice,
-    onsetRate: recentOnsets
+    onsetRate: recentOnsets,
+    stereo: features.stereo || (typeof getAudioCaptureDebugState === "function" ? getAudioCaptureDebugState()?.stereo : null)
   });
   applyGenreHypotheses();
-  semanticState.aestheticEvidence = aestheticEvidenceEngine.evaluate(semanticState);
-  semanticState.genreContextEvidence = genreContextEngine.evaluate(semanticState);
+  // Local measurements stop at FACT/LIVE. They are not converted into developer-authored mood,
+  // aesthetic, scene, era or lineage language. Runtime-discovered external relations are merged
+  // below when available.
+  semanticState.aestheticEvidence = {};
+  semanticState.genreContextEvidence = {
+    genre: semanticState.genre?.uncertain ? null : semanticState.genre?.primary || null,
+    confidence: 0,
+    basis: "external model context only",
+    matchedPriors: [],
+    candidates: []
+  };
   if (semanticState.genreReasoning?.relations?.length) {
     const combined = [...(semanticState.genreContextEvidence.candidates || []), ...semanticState.genreReasoning.relations];
     const best = new Map();
@@ -632,7 +709,8 @@ function applyGenreHypotheses() {
     ...(semanticState.classifierGenre || semanticState.genre),
     family: genreFamily(primary.genre),
     primary: primary.genre,
-    displayLabel: uncertain ? `${genreFamily(primary.genre)} 계열` : primary.genre,
+    displayLabel: uncertain && genreFamily(primary.genre) !== "Unknown"
+      ? `${genreFamily(primary.genre)} 계열` : uncertain ? `${primary.genre} 가능성` : primary.genre,
     confidence: semanticConfidence,
     semanticConfidence,
     stability: primary.temporalStability || 0,
@@ -724,7 +802,7 @@ function updateTemporalEvidence() {
   }, now);
   if (openWorldRegistry) {
     openWorldRegistry.tick(now);
-    semanticState.openWorldConcepts = openWorldRegistry.all();
+    semanticState.openWorldConcepts = openWorldRegistry.all({ compact: true });
   }
   if (progressiveListeningEngine) {
     const observationSeconds = semanticState.expressionFeatures?.observationSeconds ?? (temporal.elapsedMs || 0) / 1000;
@@ -758,10 +836,8 @@ function updateTrackCharacterAndEpoch(embedding = latestRollingEmbedding, diagno
   semanticState.distinctive = distinctiveTracker.observe(semanticState.trackCharacter);
   // Neighborhood search produces alternatives, not taxonomic children. Keep it out of
   // `subgenreCandidates`; only GenreHypotheses' explicit hierarchy may populate that field.
-  semanticState.genre.relatedCandidates = subgenreSearcher.search({
-    topK: semanticState.genre.topK,
-    character: semanticState.trackCharacter
-  });
+  // Developer-authored neighborhood tables cannot propose genre names.
+  semanticState.genre.relatedCandidates = [];
   if (!semanticEvidenceReady && semanticState.trackCharacter.confidence > 0.12) {
     semanticEvidenceReady = true;
     semanticState.semanticEpoch = semanticChangeDetector.advance();
@@ -783,6 +859,10 @@ function updateTrackCharacterAndEpoch(embedding = latestRollingEmbedding, diagno
 
 function requestMusicModelInference() {
   if (!semanticState || !audioStarted) return;
+  // The local WebGPU models and Music Flamingo share one physical GPU. Preserve playback and
+  // Flamingo headroom while a deep-listen request is active; the fixed audio ring keeps recording
+  // and the next scheduled local pass catches up from the latest window after Flamingo returns.
+  if (typeof isDeepListenGpuBusy === "function" && isDeepListenGpuBusy()) return;
   const sessionId = semanticState.sessionId;
   if (!semanticState.ml.ready || semanticInferencePending || audioAnalysis.samples < CONFIG.ai.minimumSamples) return;
   const manifest = musicModelBridge.manifest;
@@ -823,9 +903,27 @@ function applyMusicModelResult(result, manifest) {
     topK: CONFIG.ml.genre.topK,
     activation: manifest.activations?.genre || "sigmoid"
   }).map(item => ({ ...item, label: canonicalGenre(item.label) }));
+  const patchPredictions = GenreClassifier.classify(currentOutputs.genre, manifest.labels.genre, {
+    topK: CONFIG.ml.genre.topK,
+    activation: manifest.activations?.genre || "sigmoid"
+  }).map(item => ({ ...item, label: canonicalGenre(item.label) }));
+  if (patchPredictions.length && genreEvidenceHistory) {
+    const patchTop = patchPredictions[0]?.confidence || 0;
+    const patchSecond = patchPredictions[1]?.confidence || 0;
+    genreEvidenceHistory.recordLocalPatch({
+      topK: patchPredictions.map(item => ({ label: item.label, score: item.confidence })),
+      rawTopScore: patchTop,
+      runnerUpScore: patchSecond,
+      margin: Math.max(0, patchTop - patchSecond),
+      entropy: ConfidenceCalibration.normalizedEntropy(patchPredictions),
+      sectionId: outputs.diagnostics?.sectionCount || 0,
+      embedding: currentOutputs.embedding
+    });
+  }
   if (predictions.length) {
     semanticState.classifierGenre = createCalibratedGenreState(predictions, outputs.diagnostics);
     semanticState.genre = { ...semanticState.classifierGenre };
+    semanticState.genreEvidence = genreEvidenceHistory ? genreEvidenceHistory.snapshot() : null;
   }
   const embedding = outputs.embedding;
   semanticState.conceptEmbedding = {
@@ -833,32 +931,10 @@ function applyMusicModelResult(result, manifest) {
     candidates: conceptEmbeddingEngine.classify(embedding)
   };
   const now = Date.now();
-  const zeroShotTriggered =
-    semanticState.genre.confidence < CONFIG.ml.zeroShot.confidenceTrigger ||
-    semanticState.genre.entropy > CONFIG.ml.zeroShot.entropyTrigger;
-  const shouldUseZeroShot =
-    CONFIG.ml.zeroShot.enabled &&
-    zeroShotClassifier.available &&
-    semanticPerformanceGovernor.profile().zeroShotAllowed &&
-    embedding?.length &&
-    zeroShotTriggered &&
-    now - lastZeroShotAt >= CONFIG.ml.zeroShot.cooldown;
-  semanticState.zeroShot.active = Boolean(shouldUseZeroShot);
-  semanticState.zeroShot.candidates = shouldUseZeroShot
-    ? zeroShotClassifier.classify(embedding, CONFIG.ml.genre.topK)
-    : [];
-  if (shouldUseZeroShot) lastZeroShotAt = now;
-  if (semanticState.zeroShot.candidates.length) {
-    const fused = evidenceFusionEngine.fuse({
-      genreModel: predictions.map(item => ({ text: item.label, category: "genre", confidence: item.confidence })),
-      embedding: semanticState.zeroShot.candidates.map(item => ({ text: item.label, category: "genre", confidence: item.confidence }))
-    });
-    semanticState.classifierGenre = createCalibratedGenreState(
-      fused.map(item => ({ label: item.text, confidence: item.confidence })),
-      outputs.diagnostics
-    );
-    semanticState.genre = { ...semanticState.classifierGenre };
-  }
+  // The project-local zero-shot label database is not a pretrained listening model. Keep it out
+  // of genre naming; the bundled classifier and Music Flamingo remain the two audio listeners.
+  semanticState.zeroShot.active = false;
+  semanticState.zeroShot.candidates = [];
   // Presence uses the fast temporal window, while entrances/exits/performance use the newest raw
   // inference. Holding one raw result between model runs must not count as multiple observations.
   const instrumentOutput = currentOutputs.instrument || [];
@@ -913,11 +989,20 @@ function createCalibratedGenreState(predictions, diagnostics = {}) {
       : (primaryUnknown || semanticConfidence < 0.34) && tracked.family !== "Unknown"
         ? `${tracked.family} 계열`
         : tracked.primary;
+  const history = genreEvidenceHistory ? genreEvidenceHistory.snapshot() : {};
   return {
     ...tracked,
     ...calibrated,
     confidence: semanticConfidence,
     semanticConfidence,
+    reliability: calibrated.reliability ?? semanticConfidence,
+    displayConfidence: semanticConfidence,
+    rawTopScore: calibrated.rawTopScore ?? primaryRaw,
+    runnerUpScore: calibrated.runnerUpScore ?? 0,
+    normalizedMargin: calibrated.normalizedMargin ?? 0,
+    independentPatchCount: history.independentPatchCount || 0,
+    sectionAgreement: history.sectionAgreement || 0,
+    conflictingSectionCount: history.conflictingSectionCount || 0,
     temporalStability: tracked.stability,
     unknown: primaryUnknown,
     uncertain: primaryUnknown || semanticConfidence < 0.34,
@@ -931,21 +1016,32 @@ function createCalibratedGenreState(predictions, diagnostics = {}) {
 
 function refreshSemanticWords(force = false) {
   if (!semanticState || !phrasePoolEngine) return;
+  // A surface family can rotate or be replaced by the Korean realizer without changing the
+  // stabilized evidence in stateV2. Always project the live reservoir immediately before the
+  // phrase pool is rebuilt so stateV2 cannot pin an older wording.
+  semanticState.flamingoReservoirCandidates = flamingoWordReservoir ? flamingoWordReservoir.getCandidates() : [];
   const sessionId = semanticState.sessionId;
   const epoch = semanticState.semanticEpoch;
+  const trackEpoch = trackLifecycleEngine ? trackLifecycleEngine.getTrackEpoch() : (semanticState.trackEpoch || 0);
+  const languageGeneration = trackLanguageGeneration;
   const semanticTokens = []; // Legacy poetic dictionary is not a display-language source.
   const generation = phrasePoolEngine.regenerate({
     state: semanticState,
     semanticTokens,
     sessionId,
     epoch,
+    trackEpoch,
     force
   });
   semanticState.words = phrasePoolEngine.snapshot();
+  publishLiveWordPool(semanticState.words);
   syncMLState();
   generation.then(words => {
     if (!semanticSessionGuard.isCurrent(sessionId) || semanticState.semanticEpoch !== epoch) return;
+    if (trackLanguageGeneration !== languageGeneration) return;
+    if (trackLifecycleEngine && trackLifecycleEngine.getTrackEpoch() !== trackEpoch) return;
     semanticState.words = words;
+    publishLiveWordPool(words, true);
     syncMLState();
   });
 }
@@ -970,27 +1066,38 @@ function applyDirectAudioObservations(candidates = [], metadata = {}) {
   const requestId = metadata?.requestId || (candidates[0]?.requestId) || null;
 
   // Ingest into track-scoped FlamingoWordReservoir
-  if (flamingoWordReservoir && metadata?.structuredPacket) {
-    flamingoWordReservoir.ingestPacket(metadata.structuredPacket, {
+  if (!flamingoWordReservoir && FlamingoReservoir?.Reservoir) {
+    flamingoWordReservoir = new FlamingoReservoir.Reservoir({ trackEpoch });
+  }
+  let reservoirPacket = metadata?.structuredPacket || null;
+  const structuredCount = FlamingoReservoir?.packetConceptCount
+    ? FlamingoReservoir.packetConceptCount(reservoirPacket || {}) : 0;
+  let usedObservationFallback = false;
+  if (flamingoWordReservoir && structuredCount === 0 && candidates.length &&
+      FlamingoReservoir?.packetFromObservations) {
+    reservoirPacket = FlamingoReservoir.packetFromObservations(candidates);
+    usedObservationFallback = FlamingoReservoir.packetConceptCount(reservoirPacket) > 0;
+  }
+  // The response has already passed the lifecycle guard above. If the reservoir alone drifted to
+  // another epoch (for example after a late initialization/reset callback), realign that internal
+  // store to the authoritative current track instead of silently rejecting every future packet.
+  if (flamingoWordReservoir && flamingoWordReservoir.trackEpoch !== trackEpoch) {
+    flamingoWordReservoir.reset(trackEpoch);
+  }
+  const reservoirAccepted = Boolean(flamingoWordReservoir && reservoirPacket &&
+    flamingoWordReservoir.ingestPacket(reservoirPacket, {
       trackEpoch,
       observationId,
-      timestamp: Date.now()
-    });
-  }
+      audioSegmentId,
+      timestamp: Date.now(),
+      listeningMode: metadata?.continuity?.listeningMode || "independent"
+    }));
 
   const incomingDirectAudioCandidates = (Array.isArray(candidates) ? candidates : []).map(item => {
     const common = { ...item, observationId, independenceGroup, audioSegmentId, trackEpoch, requestId, resolutionMomentum: true };
-    if (item.category !== "genre" || !DirectGenreLabels || DirectGenreLabels.isPlausibleGenreLabel(item.text)) return common;
-    const category = DirectGenreLabels.fallbackCategory(item.text);
-    const anchor = category === "production" ? "directAudioEvidence.audible"
-      : category === "association" ? "directAudioEvidence.aesthetic" : "directAudioEvidence.impression";
-    const { category: ignoredCategory, layer: ignoredLayer, anchors: ignoredAnchors,
-      confidence: ignoredConfidence, weight: ignoredWeight, ...meta } = common;
-    return SemanticFacets.token(item.text, category, Math.min(item.confidence ?? 0.55, 0.58), [anchor], {
-      ...meta, evidenceType: "misfiledGenreDescription", reclassifiedFrom: "genre",
-      requiresKoreanRealization: !/[가-힣]/.test(String(item.text || ""))
-    });
-  });
+    if (item.category === "genre" && DirectGenreLabels && !DirectGenreLabels.isPlausibleGenreLabel(item.text)) return null;
+    return common;
+  }).filter(Boolean);
   directAudioCandidates = DirectContinuity
     ? DirectContinuity.merge(directAudioCandidates, incomingDirectAudioCandidates)
     : incomingDirectAudioCandidates;
@@ -999,6 +1106,16 @@ function applyDirectAudioObservations(candidates = [], metadata = {}) {
     semanticState.directAudioCandidates = directAudioCandidates;
     semanticState.directAudioObservationId = observationId;
     semanticState.flamingoReservoirCandidates = flamingoWordReservoir ? flamingoWordReservoir.getCandidates() : [];
+    semanticState.flamingoIngestion = {
+      accepted: reservoirAccepted,
+      usedObservationFallback,
+      structuredConceptCount: structuredCount,
+      receivedObservationCount: Array.isArray(candidates) ? candidates.length : 0,
+      reservoirConceptCount: flamingoWordReservoir?.conceptRegistry?.size || 0,
+      trackEpoch,
+      observationId,
+      updatedAt: Date.now()
+    };
     semanticState.directAudioUncertainties = (metadata?.structuredPacket?.uncertainties || [])
       .filter(item => typeof item === "string" && item.trim()).slice(0, 8);
   }
@@ -1012,7 +1129,7 @@ function applyDirectAudioObservations(candidates = [], metadata = {}) {
         : item.category === "mood" ? "impression"
         : item.category === "association" ? "aesthetic"
         : "production-style";
-      openWorldRegistry.propose({
+      const proposed = openWorldRegistry.propose({
         label: item.text,
         conceptType: type,
         source: item.source || "directAudio",
@@ -1022,14 +1139,64 @@ function applyDirectAudioObservations(candidates = [], metadata = {}) {
         independenceGroup,
         audioSegmentId,
         confidence: item.confidence ?? 0.65,
-        supportingEvidence: item.anchors || [],
-        reasoningHints: item.reasoningHints || null
+        supportingEvidence: [...(item.anchors || []), ...(item.supportRefs || [])],
+        reasoningHints: item.reasoningHints || null,
+        conditionedOnClassifier: Boolean(item.conditionedOnClassifier),
+        conditioningSources: Array.isArray(item.conditioningSources) ? item.conditioningSources : [],
+        conditioningCandidateLabels: Array.isArray(item.conditioningCandidateLabels)
+          ? item.conditioningCandidateLabels : []
       });
+      // World-knowledge expansion is external-model work. There is no local registry of names
+      // that can declare a candidate already understood; the registry itself guards re-entry.
+      if (proposed && !proposed.expansionRequested && proposed.status !== "emerging" &&
+          (type === "genre" || type === "microgenre") &&
+          typeof fetch === "function") {
+        const expansionKey = `${semanticState?.sessionId || 0}:${trackEpoch}:${proposed.id}`;
+        if (conceptExpansionControllers.has(expansionKey)) continue;
+        while (conceptExpansionControllers.size >= MAX_CONCEPT_EXPANSIONS_IN_FLIGHT) {
+          const [oldestKey, oldestController] = conceptExpansionControllers.entries().next().value;
+          oldestController.abort();
+          conceptExpansionControllers.delete(oldestKey);
+        }
+        const expansionController = new AbortController();
+        conceptExpansionControllers.set(expansionKey, expansionController);
+        const expansionSessionId = semanticState?.sessionId;
+        fetch("/api/expand-concept", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ concept: item.text, conceptType: type }),
+          signal: expansionController.signal
+        }).then(res => res.json()).then(data => {
+          if (semanticState?.sessionId === expansionSessionId &&
+              (!trackLifecycleEngine || trackLifecycleEngine.getTrackEpoch() === trackEpoch) &&
+              data?.expansions) openWorldRegistry.proposeExpansion(item.text, data.expansions);
+        }).catch(() => { /* world-knowledge expansion is a nicety, never a requirement */ })
+          .finally(() => {
+            if (conceptExpansionControllers.get(expansionKey) === expansionController) {
+              conceptExpansionControllers.delete(expansionKey);
+            }
+          });
+      }
     }
   }
 
   if (progressiveListeningEngine) {
     progressiveListeningEngine.noteDeepListen(observationId, metadata?.structuredPacket || {});
+  }
+  if (genreEvidenceHistory && metadata?.structuredPacket) {
+    genreEvidenceHistory.recordFlamingo({
+      hypotheses: metadata.structuredPacket.genreHypotheses,
+      signatureRelations: metadata.structuredPacket.signatureRelations,
+      uncertainties: metadata.structuredPacket.uncertainties,
+      listeningMode: metadata.continuity?.listeningMode,
+      independent: metadata.continuity?.independent !== false &&
+        metadata.continuity?.listeningMode !== "assisted" &&
+        !metadata.continuity?.genreAdvisoryUsed,
+      provisional: metadata.continuity?.listenDepth === "first-impression" ||
+        (metadata.structuredPacket.genreHypotheses || []).some(item => item?.provisional),
+      observationId,
+      segmentId: audioSegmentId
+    });
+    if (semanticState) semanticState.genreEvidence = genreEvidenceHistory.snapshot();
   }
 
   if (typeof updateTemporalEvidence === "function") {
@@ -1050,13 +1217,69 @@ function applyDirectAudioObservations(candidates = [], metadata = {}) {
   return true;
 }
 
-function noteSemanticPhraseUsed(text) {
+function noteSemanticPhraseUsed(candidate) {
+  const text = typeof candidate === "object" ? candidate?.text : candidate;
+  const surfaceConceptKey = typeof candidate === "object" ? candidate?.surfaceConceptKey : null;
   phrasePoolEngine?.noteUsed(text);
-  if (semanticState) semanticState.words = phrasePoolEngine?.snapshot() || [];
+  const rotated = flamingoWordReservoir?.noteUsed(text, surfaceConceptKey) || false;
+  if (rotated && semanticState) {
+    semanticState.flamingoReservoirCandidates = flamingoWordReservoir.getCandidates();
+    refreshSemanticWords(false);
+  } else if (semanticState) {
+    semanticState.words = phrasePoolEngine?.snapshot() || [];
+  }
 }
 
 function getLanguageInspectionState() {
   return phrasePoolEngine?.inspection() || { state: {}, snapshot: null, artDirection: [], candidates: [], selected: [] };
+}
+
+// CONTEXT's third stage: the reconciliation of the classifier's reading and Music Flamingo's,
+// as produced by /api/compose-genre. This is an INTERPRETATION of two existing readings, not a
+// new observation of the audio, so it is filed with both of its inputs declared as conditioning
+// sources and its own independence group. It can therefore surface a name neither source could
+// state alone without ever counting as a third witness for one -- `independenceGroups` and
+// `conditionedOnClassifier` in openWorldConceptRegistry are what keep that honest.
+function applyComposedGenre(composite = [], meta = {}) {
+  if (!openWorldRegistry || !Array.isArray(composite) || !composite.length) return 0;
+  const trackEpoch = trackLifecycleEngine ? trackLifecycleEngine.getTrackEpoch() : 1;
+  if (meta.trackEpoch !== undefined && Number(meta.trackEpoch) !== trackEpoch) return 0;
+  const observationId = meta.observationId || `compose-${trackEpoch}-${Date.now()}`;
+  let accepted = 0;
+  for (const item of composite.slice(0, 3)) {
+    const label = String(item?.label || "").trim();
+    if (!label || (DirectGenreLabels && !DirectGenreLabels.isPlausibleGenreLabel(label))) continue;
+    // A conflict is a report that the two readings cannot both be true. It belongs in the record
+    // as an uncertainty, not as a confident new name for the music.
+    const confidence = item.relation === "conflict"
+      ? Math.min(0.4, Number(item.confidence) || 0.3)
+      : Math.min(0.8, Number(item.confidence) || 0.55);
+    openWorldRegistry.propose({
+      label,
+      conceptType: "genre",
+      source: "genre-composition-llm",
+      sourceFamily: "llmComposite",
+      sourceModel: meta.model || "llm-composer",
+      observationId,
+      independenceGroup: `llm-composite:${observationId}`,
+      audioSegmentId: meta.audioSegmentId || null,
+      confidence,
+      supportingEvidence: Array.isArray(item.reconciles) ? item.reconciles : [],
+      reasoningHints: item.relation || null,
+      conditionedOnClassifier: true,
+      conditioningSources: ["genre-classifier", "music-flamingo"],
+      conditioningCandidateLabels: Array.isArray(item.reconciles) ? item.reconciles.slice(0, 6) : [],
+      synthesized: Boolean(item.synthesized),
+      independent: false
+    });
+    accepted += 1;
+  }
+  if (semanticState && Array.isArray(meta.uncertainties) && meta.uncertainties.length) {
+    semanticState.genreCompositionUncertainties = meta.uncertainties.slice(0, 5);
+  }
+  genreEvidenceHistory?.recordAdjudication({ composite, uncertainties: meta.uncertainties });
+  if (semanticState && genreEvidenceHistory) semanticState.genreEvidence = genreEvidenceHistory.snapshot();
+  return accepted;
 }
 
 function getSemanticState() {
@@ -1075,6 +1298,10 @@ function getFlamingoWordReservoir() {
   return flamingoWordReservoir;
 }
 
+function getLastFlamingoReset() {
+  return lastFlamingoReset;
+}
+
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     createInitialSemanticState,
@@ -1082,6 +1309,8 @@ if (typeof module !== "undefined" && module.exports) {
     getOpenWorldConceptRegistry,
     getTrackLifecycleEngine,
     getFlamingoWordReservoir,
+    getGenreEvidenceHistory: () => genreEvidenceHistory,
+    getLastFlamingoReset,
     applyDirectAudioObservations
   };
 }

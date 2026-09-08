@@ -175,33 +175,17 @@ const KnowledgeConsistency = (() => {
     return issues;
   }
 
-  // Section 4: data/genreCompositions.json's own structural contract, on top of the generic
-  // path-existence walk validateContextKnowledge() already performs on it (its `rules[].requires`
-  // entries have the exact same {path,min,max} shape, so that walk applies unchanged). A
-  // composition-inferred name is a hypothesis about an unlabeled genre, never a fact -- it must
-  // always carry a tentative 계열/경향 suffix, and minTopKCount must be reachable at all.
-  function validateGenreCompositions(compositions = {}, detectorCapabilities = {}) {
-    const issues = [...validateContextKnowledge(compositions, detectorCapabilities)];
-    for (const [index, rule] of (compositions.rules || []).entries()) {
-      const where = `compositions.rules[${index}]`;
-      if (!/(?:계열|경향)$/.test(rule.text || ""))
-        issues.push(issue("error", "composition-text-not-tentative",
-          `${where} ("${rule.text}") is a composition-inferred genre name and must end in 계열/경향.`, { text: rule.text, location: where }));
-      if (!Array.isArray(rule.requiresTopK) || !rule.requiresTopK.length)
-        issues.push(issue("error", "composition-topk-empty", `${where} has no requiresTopK labels.`, { location: where }));
-      if (Number.isFinite(rule.minTopKCount) && Array.isArray(rule.requiresTopK) && rule.minTopKCount > rule.requiresTopK.length)
-        issues.push(issue("error", "composition-min-topk-unreachable",
-          `${where} requires minTopKCount ${rule.minTopKCount} but only lists ${rule.requiresTopK.length} labels.`, { location: where }));
-    }
-    return issues;
-  }
+  // Section 4 validated data/genreCompositions.json's structural contract. That file is gone --
+  // no table of approved genre names remains to validate. Genre naming is now the classifier
+  // model's and Music Flamingo's judgment, corroborated in genreHypothesisEngine, and a
+  // hypothesis is checked by evidence at runtime rather than by a schema at build time.
+
 
   function validate({ lexicon = {}, primitiveSchema = {}, detectorRules = [], detectorCapabilities = {},
-    contextKnowledge = null, genreCompositions = null, graph = null, graphScale = { min: 300, max: 2000 }, primitiveClassification = {},
+    contextKnowledge = null, graph = null, graphScale = { min: 300, max: 2000 }, primitiveClassification = {},
     impressionRules = [], directConsumerPaths = [] } = {}) {
     const rawIssues = [...validateLexicon(lexicon, primitiveSchema), ...validateDetectorRules(detectorRules, detectorCapabilities),
       ...(contextKnowledge ? validateContextKnowledge(contextKnowledge, detectorCapabilities) : []),
-      ...(genreCompositions ? validateGenreCompositions(genreCompositions, detectorCapabilities) : []),
       ...validateGraphConsumers(graph, { primitiveSchema, classification: primitiveClassification, lexicon, impressionRules,
         directConsumerPaths }),
       ...validateGenreNaming(lexicon)];
@@ -470,7 +454,7 @@ const KnowledgeConsistency = (() => {
 
   return { validate, validateLexicon, validateDetectorRules, validateContextKnowledge, validateGraphConsumers,
     validateGenreNaming, validateClaimArchitecture, validateCategorySuffix, validateGeneratedVocabulary,
-    validateGenreCompositions, classifyPrimitives, summarizeClassification, coverageReport,
+    classifyPrimitives, summarizeClassification, coverageReport,
     primitivePathSet, rangeFor, CONTEXT_PATHS, REAL_DETECTOR_PATHS, SEVERITY_TIER };
 })();
 

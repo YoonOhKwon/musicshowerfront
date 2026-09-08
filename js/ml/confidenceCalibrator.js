@@ -24,6 +24,7 @@ const ConfidenceCalibration = (() => {
     const rawStrength = clamp((top - 0.012) / 0.105);
     const marginStrength = clamp(margin / Math.max(0.008, top * 0.32));
     const entropy = normalizedEntropy(ranked);
+    const normalizedMargin = top > 0 ? clamp(margin / top) : 0;
     const topFamily = ranked[0] ? familyFor(ranked[0].label) : "Unknown";
     const total = ranked.reduce((sum, item) => sum + Math.max(0, item.confidence), 0) || 1;
     const familyConsistency = clamp(ranked
@@ -46,11 +47,14 @@ const ConfidenceCalibration = (() => {
     return {
       confidence: semanticConfidence,
       semanticConfidence,
-      // Compatibility diagnostics. These values may gate a takeover but cannot change the
-      // semantic confidence above.
+      reliability: semanticConfidence,
+      displayConfidence: semanticConfidence,
       temporalStability: clamp(stability),
       rawConfidence: top,
+      rawTopScore: top,
+      runnerUpScore: second,
       margin,
+      normalizedMargin,
       entropy,
       temporalAgreement: clamp(temporalAgreement),
       familyConsistency,

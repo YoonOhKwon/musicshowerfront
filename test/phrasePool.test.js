@@ -82,3 +82,21 @@ test("old local generation result cannot enter a new audio session", async () =>
   await oldGeneration;
   assert.deepEqual(engine.snapshot(), []);
 });
+
+test("late language result cannot enter a new track in the same semantic session", async () => {
+  let release;
+  const generator = {
+    state: { status: "ready" },
+    generate: () => new Promise(resolve => { release = resolve; })
+  };
+  const engine = new PhrasePool.Engine({ generator, poolSize: 40, minimumIntervalMs: 0 });
+  const oldGeneration = engine.regenerate({ state: state(), sessionId: 7, epoch: 3, trackEpoch: 1, force: true });
+
+  // A real track boundary keeps the semantic session and may even reuse the same semantic epoch.
+  // The pool reset generation must still invalidate Song A's in-flight response.
+  engine.reset(7);
+  release(Array.from({ length: 20 }, (_, index) => `이전 트랙 장르 문장 ${index}`));
+  await oldGeneration;
+  assert.deepEqual(engine.snapshot(), []);
+  assert.equal(engine.state.reason, "session-reset");
+});

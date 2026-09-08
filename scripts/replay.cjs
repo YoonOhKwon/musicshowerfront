@@ -31,12 +31,9 @@ const ReplayRecorder = require("../js/debug/replayRecorder");
 const GenreHypotheses = require("../js/semantic/genreHypothesisEngine");
 
 const aestheticAxesData = require("../data/aestheticAxes.json");
-const aestheticRegionsData = require("../data/aestheticRegions.json");
 const genreContextKnowledge = require("../data/genreContextKnowledge.json");
-const genreCompositions = require("../data/genreCompositions.json");
 const musicalLexicon = require("../data/musicalLexicon.json");
 const genreTaxonomy = require("../data/genreTaxonomy.json");
-const compositeGenreRules = require("../data/compositeGenreRules.json");
 const genreHierarchy = require("../data/genreHierarchy.json");
 
 function parseArgs(argv) {
@@ -82,10 +79,10 @@ const idiomEngine = new MusicalIdioms.Engine(musicalLexicon, { primitiveSchema: 
 // the axis-signature-based call-gating cache behave exactly as they would across a real session,
 // not as if every frame were the first one ever seen.
 function buildEngines() {
-  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxesData, aestheticRegionsData);
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxesData);
   const aestheticEvidenceEngine = new AestheticEvidence.Engine(axisEngine);
-  const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, axisEngine, genreCompositions);
-  const genreHypothesisEngine = new GenreHypotheses.Engine(compositeGenreRules, genreHierarchy);
+  const genreContextEngine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
+  const genreHypothesisEngine = new GenreHypotheses.Engine({}, genreHierarchy);
   return { axisEngine, aestheticEvidenceEngine, genreContextEngine, genreHypothesisEngine };
 }
 

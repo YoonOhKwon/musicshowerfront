@@ -5,7 +5,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const GenreHypotheses = require("../js/semantic/genreHypothesisEngine");
-const rules = require("../data/compositeGenreRules.json");
 const hierarchy = require("../data/genreHierarchy.json");
 
 const normalize = value => GenreHypotheses.normalize(value);
@@ -59,7 +58,7 @@ function temporalLeaks(snapshot = {}) {
 
 function auditEntry(entry = {}) {
   const state = stateFromFeedback(entry);
-  const engine = new GenreHypotheses.Engine(rules, hierarchy);
+  const engine = new GenreHypotheses.Engine({}, hierarchy);
   const result = engine.evaluate(state, Number.isFinite(Date.parse(entry.at)) ? Date.parse(entry.at) : 0);
   const genreVote = entry.perspective === "genre";
   const hypothesis = genreVote ? result.hypotheses.find(item => normalize(item.genre) === normalize(entry.text)) : null;

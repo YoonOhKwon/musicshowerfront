@@ -4,7 +4,6 @@ const Facets = require("../js/semantic/semanticFacets");
 const approvedCoreTerms = require("../data/approvedCoreTerms.json");
 const Primitives = require("../js/semantic/musicalPrimitiveEngine");
 const Idioms = require("../js/semantic/musicalIdiomEngine");
-const Impressions = require("../js/semantic/impressionSynthesizer");
 const Validator = require("../js/semantic/knowledgeConsistencyValidator");
 const Grammar = require("../js/semantic/rhythmicGrammar");
 const Pipeline = require("../js/semantic/semanticCandidatePipeline");
@@ -45,26 +44,25 @@ test("compiled idiom knowledge is a growing evidence graph, not a string bag", (
     assert.ok(engine.graph.stats.edgeTypes[edge] > 0, edge);
 });
 
-test("the same shuffled primitive specializes by exact context, while genre never replaces evidence", () => {
+test("the same shuffled primitive names the same FACT regardless of genre label", () => {
   const value = Primitives.empty();
   Object.assign(value.pulse, { shuffleStrength: .78, metricStability: .72, pulsePresence: .75 });
-  assert.ok(engine.evaluate(value, { primary: "UK Garage", confidence: .82 }).some(item => item.text === "2-Step 스윙"));
-  assert.ok(engine.evaluate(value, { primary: "Jazz", confidence: .82 }).some(item => item.text === "스윙 그루브"));
+  const texts = genre => engine.evaluate(value, genre).map(item => item.text).sort();
+  assert.deepEqual(texts({ primary: "UK Garage", confidence: .82 }), texts({ primary: "Jazz", confidence: .82 }));
+  assert.ok(texts({ primary: "Jazz", confidence: .82 }).includes("셔플 그루브"));
   assert.ok(!engine.evaluate(Primitives.empty(), { primary: "UK Garage", confidence: .99 }).some(item => item.text === "2-Step 스윙"));
+  assert.ok(!engine.evaluate(Primitives.empty(), { primary: "Jazz", confidence: .99 }).some(item => item.text === "스윙 그루브"));
 });
 
-test("impressions require multiple axes and carry epoch-bound expiry metadata", () => {
+test("IMPRESSION has no local vocabulary left to synthesize from", () => {
+  // impressionSynthesizer.js held 53 hand-authored Korean impression phrases, fired by feature
+  // thresholds. IMPRESSION belongs to Music Flamingo's direct listening, so the module is gone
+  // and the pipeline no longer produces the layer locally at all.
+  assert.throws(() => require("../js/semantic/impressionSynthesizer"), /Cannot find module/);
   const state = profile("futurefunk");
-  state.semanticEpoch = 31;
-  const result = Impressions.evaluate(state, 1000);
-  assert.ok(result.concepts.length > 0);
-  for (const concept of result.concepts) {
-    assert.ok(concept.anchors.length >= 2);
-    assert.ok(new Set(concept.anchors.map(path => path.split(".")[0])).size >= 2);
-    assert.equal(concept.semanticEpoch, 31);
-    assert.equal(concept.expiresAt, concept.timestamp + concept.ttlMs);
-  }
-  assert.equal(Impressions.evaluate({ moodDimensions: { brightness: .9 } }).concepts.length, 0);
+  Pipeline.populate(state, {});
+  assert.deepEqual(state.impressionConcepts, []);
+  assert.deepEqual(state.impressionFacetCandidates, []);
 });
 
 test("knowledge validator catches the historic sampleBased mismatch and accepts the repaired pipeline", () => {
@@ -78,7 +76,7 @@ test("knowledge validator catches the historic sampleBased mismatch and accepts 
   assert.equal(missing.ok, false);
   const current = Validator.validate({ lexicon, primitiveSchema: Primitives.schema(), graph: engine.graph,
     detectorRules: Pipeline.productionRules, detectorCapabilities: Grammar.detectorCapabilities,
-    primitiveClassification, impressionRules: Impressions.RULES, directConsumerPaths: Pipeline.primitiveConsumerPaths });
+    primitiveClassification, impressionRules: [], directConsumerPaths: Pipeline.primitiveConsumerPaths });
   assert.equal(current.ok, true);
   assert.equal(Grammar.detectorCapabilities["productionEvidence.sampleBased"].max, .9);
   // The exact warning families `scripts/knowledge-coverage.cjs` reports must also be visible from
@@ -86,8 +84,26 @@ test("knowledge validator catches the historic sampleBased mismatch and accepts 
   // read `warningsByCode`, which spans every non-error tier, so a family cannot hide from one
   // consumer by sitting in a severity the other happens not to look at.
   const byCode = current.warningsByCode;
-  assert.equal(byCode["unused-primitive"] || 0, 0,
-    "every currently produced primitive must have an idiom, impression or direct musical observation consumer");
+  // `harmony.majorMinorLikelihood` has no language consumer and deliberately never gets one.
+  // harmonicMotionEngine computes majorShare/minorShare once and exposes them two ways: as this
+  // raw pair, and as the `harmony.modality` decision (`majorShare >= minorShare ? "major" :
+  // "minor"`). It is the same quantity in two forms, and the decided form is what the language
+  // reads -- harmony_major_tendency and harmony_minor_tendency both fire off `harmony.modality`.
+  // So this is an intermediate that happens to be exposed, not an unspoken fact: an idiom here
+  // would say what those two already say, from the same measurement, and compete with them in
+  // selection. Pinned by name so any OTHER primitive losing its consumer still fails this test.
+  const orphans = (current.warningsByCode["unused-primitive"] || 0);
+  const orphanPaths = [...new Set((current.warnings || []).filter(item => item.code === "unused-primitive")
+    .map(item => item.path))];
+  assert.deepEqual(orphanPaths, ["harmony.majorMinorLikelihood"],
+    `only the known exposed-intermediate may lack a consumer; got ${JSON.stringify(orphanPaths)}`);
+  assert.ok(orphans > 0 === orphanPaths.length > 0);
+  // The guarantee that makes the above safe: the DECIDED form really is consumed, so removing
+  // the local impression vocabulary cost major/minor no expressiveness at all.
+  const spokenByIdiom = new Set(engine.graph.edges
+    .filter(edge => edge.from === "primitive:harmony.modality").map(edge => edge.to));
+  assert.ok(spokenByIdiom.size >= 2,
+    "major/minor must still be sayable locally through harmony.modality's own idioms");
   // A dead idiom is a HIGH warning, so a check that only read `warnings` would report zero while
   // the real problem was still there. Whatever the count is, the two views must agree.
   assert.equal(current.warnings.filter(item => item.code === "idiom-requires-declared-only").length, 0);
@@ -117,7 +133,8 @@ test("semantic-family cooldown is stronger for repeated AI-aesthetic cliché fam
     evidenceScore: .8, source: "llm", anchors: ["space.spaciousness", "production.reverb"] };
   const unrelated = { text: "워킹 베이스", category: "performance", layer: "FACT", confidence: .8,
     evidenceScore: .8, source: "idiom" };
-  assert.equal(Quality.semanticFamily(candidate), "space-reverb");
+  assert.match(Quality.semanticFamily(candidate), /^cluster:/,
+    "cooldown identity is a lexical cluster, not a developer-named aesthetic family");
   const repeated = Selection.weight(candidate, [candidate], { observationSeconds: 30 });
   const fresh = Selection.weight(candidate, [unrelated], { observationSeconds: 30 });
   assert.ok(repeated < fresh * .5);
@@ -158,8 +175,8 @@ test("same-genre fixtures with different evidence do not converge on the same la
   assert.ok(overlapRatio <= 0.55, `Future Funk A/B idiom overlap too high: ${overlapRatio} (${overlap.join(", ")})`);
   assert.ok(idiomsA.size - overlap.length >= 4, "A must keep several idioms B does not have");
   // The genre label alone must not be why they diverge -- each side needs its OWN real evidence.
-  assert.ok(idiomsB.has("City Pop 샘플링 계보") || idiomsB.has("선율적 베이스 라인"), "B's own evidence should surface");
-  assert.ok(idiomsA.has("French House 계보 프로덕션") || idiomsA.has("클랩 백비트"), "A's own evidence should surface");
+  assert.ok(idiomsB.has("선율적 베이스") || idiomsB.has("노래하는 베이스"), "B's own evidence should surface");
+  assert.ok(idiomsA.has("필터 루프") || idiomsA.has("정박 4박"), "A's own evidence should surface");
 });
 
 test("City Pop, Jazz and the DnB family each stay differentiated within themselves (section 20)", () => {
@@ -204,28 +221,27 @@ test("a sustained multi-voice texture is never reported as a specific instrument
     assert.ok(!ballad.has(text), `a piano trio must not surface "${text}"`);
 });
 
-test("the same uneven-subdivision primitive specializes per context, never per genre label alone (section 34)", () => {
+test("the same uneven-subdivision primitive is genre-free; extra detectors may still change FACT", () => {
   const engine = new Idioms.Engine(lexicon, { primitiveSchema: Primitives.schema(), genreTaxonomy: taxonomy });
   const evenValue = Primitives.empty();
   Object.assign(evenValue.pulse, { subdivisionRatio: 1.85, pulsePresence: .7, onsetDensity: .5, metricStability: .5 });
-  const jazz = engine.evaluate(evenValue, { primary: "Jazz", confidence: .82 }).map(item => item.text);
-  const blues = engine.evaluate(evenValue, { primary: "Blues", confidence: .82 }).map(item => item.text);
-  const garage = engine.evaluate({ ...evenValue, pulse: { ...evenValue.pulse, breakDensity: .55, kickPeriodicity: .2, shuffleStrength: .5 } },
-    { primary: "UK Garage", confidence: .82 }).map(item => item.text);
-  assert.ok(jazz.some(text => /스윙/.test(text)), `Jazz should read the swing feel: ${jazz.join(", ")}`);
-  assert.ok(garage.some(text => /2-Step|스윙/.test(text)), `UK Garage should read a 2-step-family feel: ${garage.join(", ")}`);
-  // Neutral text must survive even for a genre with no specialization rule for this idiom.
-  assert.ok(blues.length > 0, "an ungrounded-for-this-genre specialization still returns neutral text, not nothing");
+  const texts = (value, genre) => engine.evaluate(value, genre).map(item => item.text).sort();
+  assert.deepEqual(texts(evenValue, { primary: "Jazz", confidence: .82 }),
+    texts(evenValue, { primary: "Blues", confidence: .82 }));
+  const garageValue = { ...evenValue, pulse: { ...evenValue.pulse, breakDensity: .55, kickPeriodicity: .2, shuffleStrength: .5 } };
+  assert.deepEqual(texts(garageValue, { primary: "UK Garage", confidence: .82 }),
+    texts(garageValue, { primary: "Jazz", confidence: .82 }),
+    "adding detectors may change FACT; swapping only the genre label must not");
+  assert.ok(texts(evenValue, { primary: "Blues", confidence: .82 }).length > 0,
+    "neutral musical language still survives when no genre specialization is allowed");
 });
 
 test("genre-loaded idioms never leak into an unrelated genre's real fixture (section 18)", () => {
   const forbidden = {
-    futurefunk: ["어쿠스틱 포크 질감", "빅밴드 스윙 펄스", "라이드 중심 스윙"],
-    citypop: ["보컬 개러지 텍스처", "어쿠스틱 포크 질감", "복합 박자 경향"],
-    ukgarage: ["워킹 베이스", "어쿠스틱 포크 질감", "라이드 중심 스윙"],
+    futurefunk: ["어쿠스틱 포크 질감", "빅밴드 스윙 펄스", "French House 계보 프로덕션"],
+    citypop: ["보컬 개러지 텍스처", "어쿠스틱 포크 질감", "2-Step 스윙"],
+    ukgarage: ["워킹 베이스", "어쿠스틱 포크 질감", "빅밴드 스윙 펄스"],
     jazztrio: ["French House 계보 프로덕션", "2-Step 스윙", "신스웨이브 아르페지오 레이어"],
-    // The new same-genre partners must obey the same gates: a slow City Pop ballad is still not
-    // folk, and a piano trio is still not a big band or a club record.
     citypopb: ["어쿠스틱 포크 질감", "빅밴드 스윙 펄스", "2-Step 스윙", "디스코 지속 레이어"],
     jazzballad: ["신스웨이브 아르페지오 레이어", "French House 계보 프로덕션", "빅밴드 스윙 펄스", "보컬 개러지 텍스처"]
   };
@@ -236,7 +252,7 @@ test("genre-loaded idioms never leak into an unrelated genre's real fixture (sec
   }
 });
 
-test("a requiredContext gate blocks a genre-loaded idiom even when its evidence is fully satisfied", () => {
+test("a requiredContext genre gate stays dormant because FACT evaluation ignores genre", () => {
   const gated = { id: "gate-test", facet: "production", neutralText: "가짜 신스웨이브 표현",
     required: [{ path: "production.brightness", min: 0.5 }],
     requiredContext: { genreFamilies: ["Synthwave"], minConfidence: 0.6 }, minConfidence: 0.3 };
@@ -244,12 +260,10 @@ test("a requiredContext gate blocks a genre-loaded idiom even when its evidence 
     { primitiveSchema: Primitives.schema(), genreTaxonomy: taxonomy });
   const value = Primitives.empty();
   Object.assign(value.production, { brightness: 0.9 });
-  assert.equal(engine.evaluate(value, { primary: "Future Funk", confidence: 0.9 }).length, 0,
-    "evidence alone must not satisfy a requiredContext gate for a different genre");
-  assert.equal(engine.evaluate(value, { primary: "Synthwave", confidence: 0.3 }).length, 0,
-    "low genre confidence must not satisfy the gate either");
-  assert.equal(engine.evaluate(value, { primary: "Synthwave", confidence: 0.75 }).length, 1,
-    "real evidence PLUS real genre confidence together satisfy the gate");
+  assert.equal(engine.evaluate(value, { primary: "Future Funk", confidence: 0.9 }).length, 0);
+  assert.equal(engine.evaluate(value, { primary: "Synthwave", confidence: 0.3 }).length, 0);
+  assert.equal(engine.evaluate(value, { primary: "Synthwave", confidence: 0.75 }).length, 0,
+    "genre-conditioned FACT must not fire even when the matching genre label is supplied");
 });
 
 test("false positives: weak evidence must not earn a confident idiom just because the genre matches (section 35)", () => {
@@ -271,12 +285,12 @@ test("false positives: weak evidence must not earn a confident idiom just becaus
   assert.ok(!ambientWeak.some(text => /긴 잔향/.test(text)), "reverb confidence below threshold must not claim long reverb as fact");
 });
 
-test("nine genre fixtures surface different grounded idioms without unsupported solo claims", () => {
+test("nine acoustic fixtures surface grounded genre-neutral idioms without unsupported solo claims", () => {
   const expected = {
     futurefunk: ["샘플 루프", "밝고 매끈한 프로덕션"], citypop: ["싱코페이션 그루브"],
-    ukgarage: ["2-Step 스윙"], jungle: ["롤링 브레이크"], liquiddnb: ["롤링 브레이크", "고속의 평온"],
-    funk: ["펑키 베이스"], jazztrio: ["워킹 베이스", "집단 즉흥"],
-    shoegaze: ["겹겹의 사운드 월"], ambient: ["자유 리듬", "잔향 속의 공백"]
+    ukgarage: ["셔플 그루브"], jungle: ["롤링 브레이크"], liquiddnb: ["롤링 브레이크", "긴 잔향 공간"],
+    funk: ["싱코페이트 베이스 그루브"], jazztrio: ["순차 진행 베이스", "빠른 화성 이동"],
+    shoegaze: ["겹겹의 사운드 월"], ambient: ["자유 리듬", "깊은 공간감"]
   };
   for (const [name, terms] of Object.entries(expected)) {
     const state = profile(name);

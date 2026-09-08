@@ -1,17 +1,24 @@
 const path = require("path");
 const crypto = require("crypto");
+const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const { WebSocketServer, WebSocket } = require("ws");
+const { RealtimeMusicSession } = require("./lib/realtimeMusicSession");
+const { analyzeStreamAudio } = require("./lib/streamDeepAnalysis");
+const { inferStreamModels } = require("./lib/streamModelService");
 const { createLanguageService, emptyTokenUsage, CALL_TUNING: CallTuning } = require("./lib/languageService");
 const DirectAudioReview = require("./lib/directAudioReview");
 const DirectAudioRealizer = require("./lib/directAudioRealizer");
+const GenreAdvisory = require("./js/semantic/genreAdvisory");
+const GenreLabels = require("./js/semantic/genreLabelShape");
 
 require("dotenv").config({ quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BUILD_VERSION = "2026.09.06.genre-reasoning-v19";
+const BUILD_VERSION = "2026.09.09.front3-model-pool-v36";
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-sol";
 const REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || "medium";
 const MAX_OUTPUT_TOKENS = Math.max(256, Number(process.env.OPENAI_MAX_OUTPUT_TOKENS) || 10000);
@@ -34,6 +41,65 @@ app.use((req, res, next) => {
 });
 app.use(cors());
 app.use(express.json({ limit: "250kb" }));
+
+const LIVE_WORD_LAYERS = new Set(["LIVE", "FACT", "CONTEXT", "AESTHETIC", "IMPRESSION"]);
+const LIVE_WORD_TYPES = new Set(["single", "fragment", "nominal", "micro"]);
+let liveWordPool = {
+  revision: 0,
+  updatedAt: null,
+  sessionId: null,
+  semanticEpoch: 0,
+  trackEpoch: 0,
+  tokens: []
+};
+let liveWordPoolSignature = "[]";
+
+function normalizeLiveWordToken(item) {
+  if (!item || typeof item !== "object") return null;
+  const text = String(item.text || "").replace(/\s+/g, " ").trim().slice(0, 80);
+  if (!text) return null;
+
+  const requestedLayer = String(item.layer || "FACT").toUpperCase();
+  const requestedType = String(item.type || (text.length > 20 ? "micro" : "fragment")).toLowerCase();
+  const token = {
+    text,
+    layer: LIVE_WORD_LAYERS.has(requestedLayer) ? requestedLayer : "FACT",
+    type: LIVE_WORD_TYPES.has(requestedType) ? requestedType : "fragment"
+  };
+  if (Number.isFinite(Number(item.glow))) token.glow = Math.max(0.1, Math.min(4, Number(item.glow)));
+  return token;
+}
+
+function updateLiveWordPool({ tokens: inputTokens, sessionId = null, semanticEpoch = 0, trackEpoch = 0 } = {}) {
+  const tokens = (Array.isArray(inputTokens) ? inputTokens : [])
+    .map(normalizeLiveWordToken)
+    .filter(Boolean)
+    .slice(0, 100);
+  const signature = JSON.stringify(tokens);
+  const revision = signature === liveWordPoolSignature
+    ? liveWordPool.revision
+    : liveWordPool.revision + 1;
+  liveWordPoolSignature = signature;
+  liveWordPool = {
+    revision,
+    updatedAt: Date.now(),
+    sessionId,
+    semanticEpoch: Number(semanticEpoch) || 0,
+    trackEpoch: Number(trackEpoch) || 0,
+    tokens
+  };
+  return liveWordPool;
+}
+
+app.post("/api/live-word-pool", (req, res) => {
+  updateLiveWordPool(req.body || {});
+  res.json({ ok: true, ...liveWordPool });
+});
+
+app.get("/api/live-word-pool", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json(liveWordPool);
+});
 
 const musicProfileSchema = {
   type: "object",
@@ -291,6 +357,7 @@ app.get("/api/health", (req, res) => {
     buildVersion: BUILD_VERSION,
     coreMode: "local-audio-generative-language",
     language: { configured: Boolean(client), model: LANGUAGE_MODEL, minimumIntervalMs: 45000, ...languageService.state },
+    soundCloud: { configured: true, mode: "browser-tab-audio-websocket", credentialsRequired: false },
     llmTokenUsage: recordUsage(),
     llmOptional: true,
     aiConfigured: Boolean(process.env.OPENAI_API_KEY),
@@ -351,7 +418,7 @@ app.post("/api/language-pool", async (req, res) => {
   }
 });
 
-// Periodic direct-audio (Music Flamingo) capture, called from js/main.js every ~30-45s of
+// Periodic direct-audio (Music Flamingo) capture, called from js/main.js every ~30s of
 // listening. A caption never becomes a display-ready word here: reviewCaption() classifies each
 // sentence (musical/cultural-or-historical/impression) and toObservations() turns the
 // structured or open-world claims into candidate-shaped observations at reduced, source-differentiated
@@ -360,28 +427,83 @@ app.post("/api/language-pool", async (req, res) => {
 // every other source goes through (js/semantic/semanticEngine.js's updateTemporalEvidence()). The
 // full `review` is still returned alongside `observations` for transparency/debugging, not as a
 // separate approval gate.
+const activeDeepAnalyses = new Map();
+
+function notifyFlamingoCancellation({ requestId, sessionId, trackEpoch }) {
+  // Fire-and-forget: the Python server handles this on a separate lightweight thread and its
+  // generation stopping criterion releases stale KV/activation memory at the next token.
+  fetch("http://localhost:5005/cancel", {
+    method: "POST",
+    headers: {
+      "Content-Length": "0",
+      "X-Music-Shower-Request-Id": requestId || "",
+      "X-Music-Shower-Session": sessionId || "",
+      "X-Music-Shower-Track-Epoch": String(trackEpoch ?? "")
+    }
+  }).catch(() => { /* the main request path reports server availability */ });
+}
+
 app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" }), async (req, res) => {
+  let requestState = null;
+  let deepAnalysisTimeout = null;
   try {
-    console.log(`[deep-analysis] received ${req.body.length} bytes, forwarding to Flamingo server (localhost:5005)...`);
-    const audioSha256 = crypto.createHash("sha256").update(req.body).digest("hex");
+    const receivedBytes = req.body.length;
+    let audioPayload = trimPcmWavToLastSeconds(req.body, 30);
+    const trimNote = audioPayload.length < receivedBytes
+      ? `, trimmed to latest 30s (${audioPayload.length} bytes)` : "";
+    // If an old client sent an oversized clip, do not retain both the original Express body and
+    // its trimmed copy for the full duration of a slow model generation.
+    req.body = null;
+    console.log(`[deep-analysis] received ${receivedBytes} bytes${trimNote}, forwarding to Flamingo server (localhost:5005)...`);
+    const audioSha256 = crypto.createHash("sha256").update(audioPayload).digest("hex");
     const observationId = `flam-${audioSha256.slice(0, 10)}-${Date.now()}`;
     const sessionId = String(req.get("X-Music-Shower-Session") || "").slice(0, 40) || null;
     const segmentId = String(req.get("X-Music-Shower-Segment") || "").slice(0, 40) || observationId;
     const trackEpoch = Number(req.get("X-Music-Shower-Track-Epoch") || 0);
     const requestId = String(req.get("X-Music-Shower-Request-Id") || observationId);
     const activeAudioMs = Math.max(0, Number(req.get("X-Music-Shower-Active-Ms")) || 0);
+    // Only the one value is forwarded; anything else is ignored rather than passed through.
+    const listenDepth = req.get("X-Music-Shower-Listen-Depth") === "first-impression"
+      ? "first-impression" : "";
+    // Word-pool generation is always blind. Local genre evidence is used only by the separate
+    // post-generation /api/compose-genre adjudicator below.
+
+    activeDeepAnalyses.get(sessionId)?.cancel("superseded");
+    const upstreamController = new AbortController();
+    let completed = false;
+    let cancellationSent = false;
+    const cancel = (reason = "cancelled") => {
+      if (completed || cancellationSent) return;
+      cancellationSent = true;
+      if (requestState) requestState.cancelReason = reason;
+      upstreamController.abort();
+      notifyFlamingoCancellation({ requestId, sessionId, trackEpoch });
+    };
+    requestState = { requestId, sessionId, cancel, cancelReason: null };
+    activeDeepAnalyses.set(sessionId, requestState);
+    res.once("close", () => {
+      if (!completed) cancel("browser-disconnected");
+    });
+    deepAnalysisTimeout = setTimeout(() => cancel("timeout"), 5 * 60 * 1000);
+
+    const flamingoHeaders = {
+      "Content-Type": "audio/wav", "Content-Length": audioPayload.length,
+      "X-Music-Shower-Session": sessionId || "",
+      "X-Music-Shower-Segment": segmentId,
+      "X-Music-Shower-Track-Epoch": String(trackEpoch),
+      "X-Music-Shower-Request-Id": requestId,
+      "X-Music-Shower-Active-Ms": String(Math.round(activeAudioMs))
+    };
+    if (listenDepth) flamingoHeaders["X-Music-Shower-Listen-Depth"] = listenDepth;
     const flamingoRes = await fetch("http://localhost:5005/analyze", {
       method: "POST",
-      headers: {
-        "Content-Type": "audio/wav", "Content-Length": req.body.length,
-        "X-Music-Shower-Session": sessionId || "",
-        "X-Music-Shower-Segment": segmentId,
-        "X-Music-Shower-Track-Epoch": String(trackEpoch),
-        "X-Music-Shower-Request-Id": requestId,
-        "X-Music-Shower-Active-Ms": String(Math.round(activeAudioMs))
-      },
-      body: req.body
+      headers: flamingoHeaders,
+      body: audioPayload,
+      signal: upstreamController.signal
     });
+    clearTimeout(deepAnalysisTimeout);
+    deepAnalysisTimeout = null;
+    audioPayload = null;
     if (!flamingoRes.ok) throw new Error("Flamingo server error: " + await flamingoRes.text());
     const flamingoData = await flamingoRes.json();
     const caption = flamingoData.caption || "";
@@ -391,77 +513,450 @@ app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" })
       continuity: flamingoData.continuity || null }, {});
     const observations = DirectAudioReview.toObservations(review, { trackEpoch, requestId });
     console.log(`[deep-analysis] id=${observationId} caption received (${caption.length} chars), ${observations.length} observation(s) extracted`);
+    completed = true;
     res.json({ ...review, observations, observationId, sessionId, segmentId, trackEpoch, requestId, activeAudioMs });
   } catch (error) {
-    console.error("[deep-analysis error] (is flamingo_server.py running on :5005?)", error.message);
-    res.status(500).json({ error: error.message });
+    const cancelled = error.name === "AbortError" || Boolean(requestState?.cancelReason);
+    if (cancelled) {
+      console.log(`[deep-analysis cancelled] id=${requestState?.requestId || "unknown"} reason=${requestState?.cancelReason || "aborted"}`);
+    } else {
+      console.error("[deep-analysis error] (is flamingo_server.py running on :5005?)", error.message);
+    }
+    if (!res.headersSent && !res.destroyed) {
+      res.status(cancelled ? 409 : 500).json(cancelled
+        ? { error: "Deep Listen request cancelled.", reason: requestState?.cancelReason || "aborted" }
+        : { error: error.message });
+    }
+  } finally {
+    if (deepAnalysisTimeout) clearTimeout(deepAnalysisTimeout);
+    if (requestState && activeDeepAnalyses.get(requestState.sessionId) === requestState) {
+      activeDeepAnalyses.delete(requestState.sessionId);
+    }
   }
 });
 
+const REALIZATION_BATCH_SIZE = 5;
+
+// The browser normally sends a canonical mono PCM WAV, but a stale tab from an older build can
+// still upload minutes of accumulated audio. Music Flamingo only consumes 30 seconds and would
+// otherwise keep hearing the stale beginning. Parse ordinary PCM WAV chunks and retain the latest
+// 30 seconds at the server boundary; unknown/non-PCM payloads pass through unchanged.
+function trimPcmWavToLastSeconds(input, maxSeconds = 30) {
+  if (!Buffer.isBuffer(input) || input.length < 44 || input.toString("ascii", 0, 4) !== "RIFF" ||
+      input.toString("ascii", 8, 12) !== "WAVE") return input;
+  let offset = 12;
+  let format = null;
+  let data = null;
+  while (offset + 8 <= input.length) {
+    const id = input.toString("ascii", offset, offset + 4);
+    const size = input.readUInt32LE(offset + 4);
+    const payloadAt = offset + 8;
+    if (payloadAt + size > input.length) return input;
+    if (id === "fmt " && size >= 16) {
+      format = {
+        encoding: input.readUInt16LE(payloadAt),
+        channels: input.readUInt16LE(payloadAt + 2),
+        sampleRate: input.readUInt32LE(payloadAt + 4),
+        blockAlign: input.readUInt16LE(payloadAt + 12),
+        bitsPerSample: input.readUInt16LE(payloadAt + 14)
+      };
+    } else if (id === "data") {
+      data = { headerAt: offset, payloadAt, size };
+      break;
+    }
+    offset = payloadAt + size + (size % 2);
+  }
+  if (!format || !data || format.encoding !== 1 || !format.sampleRate || !format.blockAlign ||
+      ![8, 16, 24, 32].includes(format.bitsPerSample) || format.channels < 1) return input;
+  const sampleFrames = Math.max(1, Math.floor(format.sampleRate * Math.max(1, Number(maxSeconds) || 30)));
+  const maxDataBytes = sampleFrames * format.blockAlign;
+  if (data.size <= maxDataBytes) return input;
+  const output = Buffer.allocUnsafe(data.payloadAt + maxDataBytes);
+  input.copy(output, 0, 0, data.payloadAt);
+  input.copy(output, data.payloadAt, data.payloadAt + data.size - maxDataBytes, data.payloadAt + data.size);
+  output.writeUInt32LE(maxDataBytes, data.headerAt + 4);
+  output.writeUInt32LE(output.length - 8, 4);
+  return output;
+}
+
+function normalizedRealizationConcepts(concepts = []) {
+  const seen = new Set();
+  const normalized = [];
+  for (const source of concepts) {
+    const text = String(typeof source === "string" ? source : source?.text || "").replace(/\s+/g, " ").trim().slice(0, 120);
+    if (!text) continue;
+    const category = String(typeof source === "object" ? source?.category || "association" : "association").toLowerCase();
+    const layer = String(typeof source === "object" ? source?.layer || "" : "").toUpperCase() ||
+      (["rhythm", "instrumentation", "performance", "arrangement", "production", "dynamics", "live"].includes(category) ? "FACT"
+        : ["scene", "era", "culture", "lineage", "genre"].includes(category) ? "CONTEXT"
+          : category === "mood" ? "IMPRESSION" : "AESTHETIC");
+    const key = `${category}:${text.toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    normalized.push({ id: `c${normalized.length}`, text, category, layer });
+  }
+  return normalized.slice(0, 40);
+}
+
+function realizationBatches(concepts = [], size = REALIZATION_BATCH_SIZE) {
+  const byLayer = new Map();
+  for (const concept of concepts) {
+    if (!byLayer.has(concept.layer)) byLayer.set(concept.layer, []);
+    byLayer.get(concept.layer).push(concept);
+  }
+  const batches = [];
+  for (const group of byLayer.values()) {
+    for (let i = 0; i < group.length; i += size) batches.push(group.slice(i, i + size));
+  }
+  return batches;
+}
+
+function fastRealizerMode(category) {
+  if (category === "association") return "aesthetic";
+  if (category === "mood") return "impression";
+  if (["scene", "era", "culture", "lineage"].includes(category)) return "context";
+  return category;
+}
+
+function buildRealizationPrompt(batch = []) {
+  const layer = batch[0]?.layer || "AESTHETIC";
+  const policy = layer === "FACT"
+    ? "Translate the audible claim precisely with standard Korean music terminology. Preserve every technical meaning; add no metaphor, mood, cause, or unheard detail."
+    : layer === "CONTEXT"
+      ? "Render it as a concise, qualified style/scene/era association. Do not turn a hypothesis into a proven origin, date, or authorship claim."
+      : layer === "IMPRESSION"
+        ? "Render the Music Flamingo impression faithfully as concise subjective Korean. Preserve its nuance without adding a new emotion, image, story, or musical claim."
+        : "Render the Music Flamingo aesthetic concept faithfully as concise Korean. Preserve its scope without adding a new aesthetic label, scene, image, story, or musical claim.";
+  return `You are Music Shower's Korean surface-language specialist. These concepts were produced by Music Flamingo after directly listening to audio.
+Layer: ${layer}
+Layer policy: ${policy}
+
+For every input item:
+- Produce 3 to 6 natural Korean alternatives, normally 2-10 words each.
+- Preserve every semantic atom in the source: subject/instrument, modifier, metre, relation, contrast, and mix position when present.
+- Never collapse a multi-part observation into one generic head noun (for example, a balanced drums-and-synths mix cannot become only "synth").
+- Keep alternatives genuinely distinct by varying Korean syntax and emphasis while preserving exactly the concept supplied by Music Flamingo.
+- Do not emit raw English-only phrases, JSON commentary, analysis, confidence, or reasoning.
+- Return exactly one JSON object shaped as {"items":[{"id":"c0","phrases":["...","..."]}]}.
+- Copy each input id exactly. Do not use the source text as a JSON key.
+
+Input items:
+${JSON.stringify(batch.map(({ id, text, category }) => ({ id, text, category })))}`;
+}
+
+function realizationSurfaceUnits(value) {
+  const compact = String(value || "").toLowerCase().replace(/[^a-z0-9가-힣]+/g, "");
+  const units = new Set();
+  for (let index = 0; index < compact.length - 1; index++) units.add(compact.slice(index, index + 2));
+  return units;
+}
+
+function realizationSurfaceSimilarity(left, right) {
+  const a = realizationSurfaceUnits(left), b = realizationSurfaceUnits(right);
+  if (!a.size || !b.size) return 0;
+  let shared = 0;
+  for (const unit of a) if (b.has(unit)) shared += 1;
+  return shared / Math.max(1, new Set([...a, ...b]).size);
+}
+
+function realizationSurfaceSkeleton(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣\s]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    // A genitive particle does not create a genuinely different screen expression:
+    // "깊은 밤의 공기" and "깊은 밤 공기" should occupy one rotation slot.
+    .map(token => token.length > 1 && token.endsWith("의") ? token.slice(0, -1) : token)
+    .filter(Boolean)
+    .join("");
+}
+
+function distinctRealizationFamily(values = [], limit = 6) {
+  const family = [];
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+    const phrase = value.replace(/\s+/g, " ").trim();
+    if (!phrase || phrase.length > 60 || !/[가-힣]/.test(phrase) || /[{}\[\]\r\n]/.test(phrase)) continue;
+    const skeleton = realizationSurfaceSkeleton(phrase);
+    if (family.some(existing => realizationSurfaceSkeleton(existing) === skeleton ||
+        realizationSurfaceSimilarity(existing, phrase) >= 0.68)) continue;
+    family.push(phrase);
+    if (family.length >= limit) break;
+  }
+  return family;
+}
+
+function parseRealizationBatch(content, batch = []) {
+  const parsed = typeof content === "string" ? JSON.parse(content) : content;
+  const byId = new Map(batch.map(item => [item.id, item]));
+  const output = [];
+  const accept = (item, values) => {
+    if (!item || !Array.isArray(values)) return;
+    const family = distinctRealizationFamily(values, 6);
+    if (family.length) output.push({ text: item.text, category: item.category, layer: item.layer, family });
+  };
+  if (Array.isArray(parsed?.items)) {
+    for (const result of parsed.items) accept(byId.get(String(result?.id || "")), result?.phrases || result?.family);
+  } else if (parsed && typeof parsed === "object") {
+    for (const item of batch) accept(item, parsed[item.id] || parsed[item.text]);
+  }
+  return output;
+}
+
+// Current reasoning-capable Chat Completions models reject the legacy `max_tokens` field and
+// explicitly require `max_completion_tokens`. Keep this in one exported helper so both direct
+// audio realization and open-world expansion cannot silently drift back to the incompatible
+// request shape.
+function chatCompletionBudget(maxCompletionTokens) {
+  return { max_completion_tokens: Math.max(1, Math.round(Number(maxCompletionTokens) || 1)) };
+}
+
 // Asynchronous LLM realization endpoint that converts Flamingo concepts into rich Korean
 // concept families while BYPASSING the ~45s regular language pool cooldown.
-app.post("/api/realize-direct-audio", async (req, res) => {
-  try {
-    const { concepts = [], sessionId = null, trackEpoch = 0 } = req.body || {};
+async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch = 0 } = {}, signal) {
     if (!Array.isArray(concepts) || !concepts.length) {
-      return res.json({ realizations: {}, trackEpoch });
+      return { realizations: {}, realizationItems: [], failures: [], trackEpoch };
     }
 
+    const normalized = normalizedRealizationConcepts(concepts);
     const realizations = {};
-    const unhandled = [];
+    const realizedByKey = new Map();
 
     // First, pass through fast zero-latency dictionary / rule realizer
-    for (const item of concepts) {
-      const text = typeof item === "string" ? item : item.text;
-      const category = typeof item === "object" ? item.category : "aesthetic";
-      if (!text) continue;
-      const fastFamily = DirectAudioRealizer.realize(text, category);
+    for (const item of normalized) {
+      const fastFamily = DirectAudioRealizer.realize(item.text, fastRealizerMode(item.category));
       if (fastFamily && fastFamily.length) {
-        realizations[text] = fastFamily;
-      } else {
-        unhandled.push({ text, category });
+        realizedByKey.set(item.id, { ...item, family: fastFamily });
       }
     }
 
-    // If client exists and there are concepts that could benefit from rich LLM expansion
-    if (client && concepts.length > 0) {
-      try {
-        const prompt = `You are Music Shower's direct audio language specialist.
-Convert the following music concepts (identified by Music Flamingo) into concise, natural, evocative Korean phrases suitable for a real-time synesthetic visualizer.
-Rules:
-- For each concept, produce 2 to 4 distinct Korean expressions (1-4 words each).
-- Make phrases musically accurate, sensory, and culturally resonant.
-- DO NOT invent generic poetry or unrelated scenery.
-- Return JSON mapping each concept exactly to an array of Korean strings.
-
-Concepts:
-${JSON.stringify(concepts.map(c => typeof c === "string" ? { text: c } : { text: c.text, category: c.category }))}`;
-
+    // Keep each response comfortably inside its budget. Layer grouping also lets FACT translation
+    // stay literal while AESTHETIC/IMPRESSION wording remains deliberately expressive.
+    const failures = [];
+    if (client && normalized.length > 0) {
+      const batches = realizationBatches(normalized);
+      const results = await Promise.allSettled(batches.map(async batch => {
         const response = await client.chat.completions.create({
           model: LANGUAGE_MODEL,
-          messages: [{ role: "user", content: prompt }],
+          messages: [{ role: "user", content: buildRealizationPrompt(batch) }],
           response_format: { type: "json_object" },
-          temperature: 0.7,
-          max_tokens: 800
-        });
+          // 5 concepts x up to 6 Korean phrases each, plus JSON scaffolding. The old 650 was sized
+          // for 4 phrases and would truncate (dropping whole items) now that more are requested.
+          ...chatCompletionBudget(950)
+        }, { signal, timeout: 45000, maxRetries: 0 });
         const content = response.choices?.[0]?.message?.content;
-        if (content) {
-          const parsed = JSON.parse(content);
-          for (const [k, v] of Object.entries(parsed)) {
-            if (Array.isArray(v) && v.length) {
-              realizations[k] = v.filter(s => typeof s === "string" && s.trim());
+        if (!content) throw new Error("empty realization response");
+        return parseRealizationBatch(content, batch);
+      }));
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          for (const item of result.value) {
+            const original = normalized.find(concept => concept.category === item.category && concept.text === item.text);
+            if (original) {
+              const fallbackFamily = realizedByKey.get(original.id)?.family || [];
+              const mergedFamily = distinctRealizationFamily([...item.family, ...fallbackFamily], 6);
+              realizedByKey.set(original.id, { ...original, family: mergedFamily.length ? mergedFamily : item.family });
             }
           }
+        } else {
+          const layer = batches[index]?.[0]?.layer || "UNKNOWN";
+          const message = String(result.reason?.message || result.reason || "unknown error").slice(0, 160);
+          failures.push({ layer, batchSize: batches[index]?.length || 0, message });
+          console.warn(`[realize-direct-audio] ${layer} batch failed, using fast fallback: ${message}`);
         }
-      } catch (llmErr) {
-        console.warn("[realize-direct-audio] LLM expansion failed, using fast realizer fallback:", llmErr.message);
-      }
+      });
     }
 
-    res.json({ realizations, trackEpoch, sessionId });
+    const realizationItems = [...realizedByKey.values()];
+    for (const item of realizationItems) realizations[item.text] = item.family;
+    return { realizations, realizationItems, failures, trackEpoch, sessionId,
+      batchCount: client ? realizationBatches(normalized).length : 0 };
+}
+
+app.post("/api/realize-direct-audio", async (req, res) => {
+  try {
+    res.json(await realizeDirectAudio(req.body || {}));
   } catch (err) {
     console.error("[realize-direct-audio error]", err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// CONTEXT is a collaboration. The fixed-label classifier and Music Flamingo hear the same audio
+// through completely different apparatus, and where they disagree the disagreement is itself
+// information. This reconciles the two READINGS -- it never listens, so it is not a third witness:
+// its output carries its own provenance and must never be counted as corroboration of either
+// input it was built from.
+//
+// No specimen genre names appear in this prompt. Showing examples to an open-vocabulary model
+// narrows what it is willing to say, which is the failure this whole pipeline exists to avoid.
+app.post("/api/compose-genre", async (req, res) => {
+  try {
+    const {
+      classifier = {}, deepListen = [], uncertainties = [],
+      localGenreHistory = [], blindFlamingoGenreHistory = [],
+      audibleObservations = [], signatureRelations = [],
+      flamingoIndependent = true, classifierIndependent = true,
+      listeningMode = "blind"
+    } = req.body || {};
+    const advisory = GenreAdvisory.sanitize(classifier);
+    const heard = (Array.isArray(deepListen) ? deepListen : [])
+      .map(item => ({
+        label: String(item?.label || "").replace(/\s+/g, " ").trim().slice(0, 64),
+        confidence: Math.max(0, Math.min(1, Number(item?.confidence) || 0))
+      }))
+      .filter(item => item.label).slice(0, 5);
+    if (!client || (!advisory && !heard.length)) return res.json({ composite: [], uncertainties: [] });
+
+    const lines = (items, label, score) => items.length
+      ? items.map(item => `  - ${item[label]} (${item[score].toFixed(2)})`).join("\n")
+      : "  (none)";
+    const classifierLines = lines(advisory?.candidates || [], "label", "score");
+    const heardLines = lines(heard, "label", "confidence");
+    const openQuestions = (Array.isArray(uncertainties) ? uncertainties : [])
+      .filter(item => typeof item === "string").slice(0, 5)
+      .map(item => `  - ${item.slice(0, 120)}`).join("\n");
+    const margin = (advisory?.uncertainty?.margin ?? 0).toFixed(3);
+    const entropy = (advisory?.uncertainty?.entropy ?? 1).toFixed(2);
+    const selfUncertain = advisory?.uncertainty?.uncertain ? ", self-reported UNCERTAIN" : "";
+    const advisoryIndependent = classifierIndependent !== false;
+    const flamingoMode = listeningMode === "assisted" ? "assisted" : "blind";
+    const flamingoIndependentFlag = flamingoIndependent !== false && flamingoMode === "blind";
+    const historyLine = (items, pick) => (Array.isArray(items) ? items : []).slice(-6)
+      .map(pick).filter(Boolean).map(line => `  - ${line}`).join("\n");
+    const localHistoryLines = historyLine(localGenreHistory, item => {
+      const top = item?.topK?.[0]?.label || item?.label;
+      return top ? `${top} raw=${Number(item.rawTopScore ?? item.topK?.[0]?.score ?? 0).toFixed(2)}` : "";
+    });
+    const flamingoHistoryLines = historyLine(blindFlamingoGenreHistory, item => {
+      const label = item?.hypotheses?.[0]?.label || item?.label;
+      return label ? `${label} mode=${item.listeningMode || "blind"} independent=${item.independent !== false}` : "";
+    });
+    const observationLines = [
+      ...(Array.isArray(audibleObservations) ? audibleObservations : []).slice(0, 6)
+        .map(item => `  - obs ${item?.id || ""} ${String(item?.text || "").slice(0, 80)}`),
+      ...(Array.isArray(signatureRelations) ? signatureRelations : []).slice(0, 4)
+        .map(item => `  - rel ${item?.id || ""} ${String(item?.text || "").slice(0, 80)}`)
+    ].filter(line => line.trim().length > 4).join("\n");
+
+    const prompt = [
+      "You are an evidence adjudicator. You did not hear the audio. Do not invent audible facts.",
+      "Independence is given as metadata. Never assume two readings are independent systems,",
+      "and never treat a fixed-label classifier as well calibrated.",
+      "",
+      `READING A — pretrained classifier with a FIXED label set (independent=${advisoryIndependent}).`,
+      "Treat this as fast broad genre evidence. It names the nearest trained label:",
+      classifierLines,
+      `Uncertainty diagnostics (not probabilities): margin ${margin}, entropy ${entropy}${selfUncertain}.`,
+      localHistoryLines ? `\nLocal patch history:\n${localHistoryLines}` : "",
+      "",
+      `READING B — Music Flamingo (listeningMode=${flamingoMode}, independent=${flamingoIndependentFlag}).`,
+      "Open vocabulary. If independent=false or listeningMode=assisted, this is correlated with A",
+      "and must not be counted as a second independent vote.",
+      heardLines,
+      flamingoHistoryLines ? `\nBlind Flamingo genre history:\n${flamingoHistoryLines}` : "",
+      observationLines ? `\nAudible observations and signature relations:\n${observationLines}` : "",
+      openQuestions ? `\nWhat B said it was unsure about:\n${openQuestions}` : "",
+      "",
+      'Reconcile them. Return strict JSON: {"composite": [...], "uncertainties": [...]}.',
+      'Each composite entry is {"label", "confidence", "relation", "reconciles", "evidenceRefs", "synthesized"}.',
+      "- label: the name for this music. Use whatever name is actually right, from either reading or",
+      "  from neither. You are not restricted to the labels above, and you must not invent one to",
+      "  fill space.",
+      '- relation: "agreement" when both independent readings point at the same thing; "specialization"',
+      "  when B names something narrower that A's labels are the surrounding territory of; \"conflict\"",
+      "  when they cannot both be true. If B is not independent, agreement is assisted, not two-system.",
+      "- reconciles: which labels from above this entry accounts for.",
+      "- evidenceRefs: ids or labels that support the entry.",
+      "- synthesized: true when the label was not uttered by A or B and you proposed it from evidence.",
+      "- confidence 0..1, reflecting how well the independent evidence actually supports this name.",
+      "  Do not raise confidence because an assisted reading repeated a classifier label.",
+      "Return at most 3 entries, fewer when the readings do not support more, and an empty array when",
+      "they cannot be reconciled at all -- say why in uncertainties instead.",
+      "uncertainties: short strings naming what stays unresolved between the two readings."
+    ].join("\n");
+
+    const response = await client.chat.completions.create({
+      model: LANGUAGE_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      ...chatCompletionBudget(420)
+    });
+    const parsed = JSON.parse(response.choices?.[0]?.message?.content || "{}");
+    const RELATIONS = new Set(["agreement", "specialization", "conflict"]);
+    const knownLabels = new Set([
+      ...(advisory?.candidates || []).map(item => item.label.toLowerCase()),
+      ...heard.map(item => item.label.toLowerCase())
+    ]);
+    const composite = (Array.isArray(parsed.composite) ? parsed.composite : []).slice(0, 3)
+      .map(item => {
+        const label = String(item?.label || "").replace(/\s+/g, " ").trim().slice(0, 64);
+        const synthesized = Boolean(item?.synthesized) || (label && !knownLabels.has(label.toLowerCase()));
+        return {
+          label,
+          confidence: Math.max(0, Math.min(1, Number(item?.confidence) || 0)),
+          relation: RELATIONS.has(item?.relation) ? item.relation : "agreement",
+          reconciles: (Array.isArray(item?.reconciles) ? item.reconciles : [])
+            .map(value => String(value || "").trim().slice(0, 64)).filter(Boolean).slice(0, 6),
+          evidenceRefs: (Array.isArray(item?.evidenceRefs) ? item.evidenceRefs : [])
+            .map(value => String(value || "").trim().slice(0, 64)).filter(Boolean).slice(0, 8),
+          synthesized,
+          independent: Boolean(advisoryIndependent && flamingoIndependentFlag && !synthesized)
+        };
+      })
+      .filter(item => item.label && GenreLabels.isPlausibleGenreLabel(item.label));
+    res.json({
+      composite,
+      uncertainties: (Array.isArray(parsed.uncertainties) ? parsed.uncertainties : [])
+        .filter(item => typeof item === "string" && item.trim())
+        .map(item => item.slice(0, 160)).slice(0, 5)
+    });
+  } catch (err) {
+    console.error("[compose-genre error]", err);
+    res.status(500).json({ error: err.message, composite: [], uncertainties: [] });
+  }
+});
+
+// World-knowledge concept expansion for a newly-discovered open-world genre/microgenre
+// (OpenWorldConceptRegistry.proposeExpansion). World knowledge only PROPOSES a small neighborhood
+// of candidate related concepts here -- it is the caller's registry + evidence fusion that decides
+// which of them ever become stable enough to surface, so this deliberately returns a short,
+// low-confidence list rather than an encyclopedia dump.
+app.post("/api/expand-concept", async (req, res) => {
+  try {
+    const { concept, conceptType = "genre" } = req.body || {};
+    const label = String(concept || "").trim();
+    if (!label) return res.status(400).json({ error: "A concept label is required." });
+    if (!client) return res.json({ expansions: {} });
+
+    const prompt = `You are a music knowledge specialist. For the ${conceptType} "${label}", propose a SMALL neighborhood of related concepts, only where you have genuine grounded knowledge -- leave a category as an empty array rather than guessing.
+Return strict JSON with these keys, each an array of 0-3 short phrases (a few words, no sentences):
+- scene: regional or subcultural scene(s) associated with it
+- lineage: closely related genres/microgenres it descends from or influenced
+- culture: broader cultural context (not a specific person, place or date)
+- productionTraits: characteristic production/instrumentation traits
+- aestheticAssociations: visual/sensory aesthetic associations
+Do not include the concept's own name in any list.`;
+
+    const response = await client.chat.completions.create({
+      model: LANGUAGE_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      ...chatCompletionBudget(400)
+    });
+    const content = response.choices?.[0]?.message?.content;
+    const parsed = content ? JSON.parse(content) : {};
+    const expansions = {};
+    for (const key of ["scene", "lineage", "culture", "productionTraits", "aestheticAssociations"]) {
+      if (Array.isArray(parsed[key])) {
+        expansions[key] = parsed[key].filter(v => typeof v === "string" && v.trim()).slice(0, 3);
+      }
+    }
+    res.json({ concept: label, conceptType, expansions });
+  } catch (err) {
+    console.error("[expand-concept error]", err);
+    res.status(500).json({ error: err.message, expansions: {} });
   }
 });
 
@@ -532,15 +1027,79 @@ app.get("/", (req, res) => {
 
 app.use(express.static(__dirname));
 
+function attachRealtimeAudioSocket(server, { analyze = analyzeStreamAudio, realize = realizeDirectAudio,
+  inferModels = inferStreamModels } = {}) {
+  const socketServer = new WebSocketServer({
+    server,
+    path: "/ws/music-shower",
+    maxPayload: 1024 * 1024
+  });
+  const configuredOrigins = new Set(
+    String(process.env.MUSIC_SHOWER_ALLOWED_ORIGINS || "")
+      .split(",")
+      .map(value => value.trim())
+      .filter(Boolean)
+  );
+
+  socketServer.on("connection", (socket, request) => {
+    const origin = String(request.headers.origin || "");
+    if (configuredOrigins.size && !configuredOrigins.has(origin)) {
+      socket.close(1008, "Origin is not allowed");
+      return;
+    }
+
+    const streamId = crypto.randomUUID();
+    const send = payload => {
+      if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(payload));
+    };
+    const session = new RealtimeMusicSession({ streamId, send, analyze, realize, inferModels });
+    send({ type: "ready", streamId, sampleRate: 16000, trackEpoch: session.trackEpoch,
+      poolSource: "music-shower-final", buildVersion: BUILD_VERSION });
+    socket.once("close", () => session.close());
+    socket.on("error", () => session.close());
+
+    socket.on("message", (data, isBinary) => {
+      if (!isBinary) {
+        let message = null;
+        try { message = JSON.parse(data.toString("utf8")); } catch { return; }
+        if (message?.type === "start") {
+          session.start(message);
+        } else if (message?.type === "track_changed" || message?.type === "playback") {
+          session.playback(message);
+        } else if (message?.type === "word_used") {
+          session.noteUsed(message);
+        } else if (message?.type === "ping") {
+          send({ type: "pong", at: Date.now() });
+        }
+        return;
+      }
+
+      const pcm = Buffer.isBuffer(data) ? data : Buffer.from(data);
+      if (!pcm.length || pcm.length % 4 !== 0) return;
+      const samples = new Float32Array(pcm.length / 4);
+      for (let index = 0; index < samples.length; index += 1) samples[index] = pcm.readFloatLE(index * 4);
+      session.push(samples);
+    });
+  });
+
+  return socketServer;
+}
+
 if (require.main === module) {
-  app.listen(PORT, () => {
+  const server = http.createServer(app);
+  attachRealtimeAudioSocket(server);
+  server.listen(PORT, () => {
     console.log(`AI Music Synesthesia running at http://localhost:${PORT}`);
     console.log(`AI configured: ${Boolean(process.env.OPENAI_API_KEY)}`);
     console.log(`AI model: ${MODEL} (${REASONING_EFFORT})`);
     console.log(`AI max output tokens: ${MAX_OUTPUT_TOKENS}`);
     console.log(`Language pool model: ${LANGUAGE_MODEL} | fast=${JSON.stringify(CallTuning.fast)} deep=${JSON.stringify(CallTuning.deep)}`);
+    console.log("SoundCloud mode: browser tab audio over WebSocket (no API key required)");
     console.log(`Build: ${BUILD_VERSION}`);
   });
 }
 
-module.exports = { app, createMusicAnalysisRequest, musicProfileSchema, BUILD_VERSION };
+module.exports = { app, createMusicAnalysisRequest, musicProfileSchema, BUILD_VERSION,
+  normalizedRealizationConcepts, realizationBatches, buildRealizationPrompt, parseRealizationBatch,
+  realizationSurfaceSimilarity, distinctRealizationFamily, chatCompletionBudget, trimPcmWavToLastSeconds,
+  normalizeLiveWordToken, updateLiveWordPool, attachRealtimeAudioSocket };

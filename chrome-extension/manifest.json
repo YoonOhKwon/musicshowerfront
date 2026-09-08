@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Music Shower · SoundCloud Tab Bridge",
+  "version": "1.8.0",
+  "description": "SoundCloud 탭의 오디오와 재생 이벤트를 로컬 Music Shower에 연결합니다.",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "tabs", "tabCapture", "storage", "offscreen", "scripting"],
+  "host_permissions": [
+    "https://soundcloud.com/*",
+    "https://www.soundcloud.com/*",
+    "https://m.soundcloud.com/*",
+    "https://on.soundcloud.com/*",
+    "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*",
+    "http://localhost:5173/*",
+    "http://127.0.0.1:5173/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "이 SoundCloud 탭을 Music Shower에 연결"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://soundcloud.com/*", "https://www.soundcloud.com/*", "https://m.soundcloud.com/*", "https://on.soundcloud.com/*"],
+      "js": ["soundcloud-page.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://soundcloud.com/*", "https://www.soundcloud.com/*", "https://m.soundcloud.com/*", "https://on.soundcloud.com/*"],
+      "js": ["soundcloud-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "http://127.0.0.1:3000/*",
+        "http://localhost:5173/*",
+        "http://127.0.0.1:5173/*"
+      ],
+      "js": ["music-shower-bridge.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

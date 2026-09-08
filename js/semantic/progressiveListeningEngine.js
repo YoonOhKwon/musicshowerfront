@@ -12,10 +12,16 @@
 //   - Temporarily elevates LIVE and FACT layers for "re-interpretation" without wiping track memory.
 //   - Allows interpretive layers to smoothly recover as evidence for the new section accumulates.
 //
-// FACT maintains a stable floor late in the song so sudden physical changes are always spoken.
+// FACT keeps an adaptive floor: prominent while the engine is learning, compact once several
+// independent interpretive layers are genuinely ready, and immediately prominent on change.
 
 const ProgressiveListening = (() => {
   const clamp = value => Math.min(1, Math.max(0, Number(value) || 0));
+  const conceptText = item => typeof item === "string" ? item
+    : String(item?.text || item?.label || "");
+  const conceptKey = item => conceptText(item).toLowerCase().replace(/[^a-z0-9가-힣]+/g, "");
+  const uniqueCount = values => new Set((Array.isArray(values) ? values : [])
+    .map(conceptKey).filter(Boolean)).size;
 
   class Engine {
     constructor(options = {}) {
@@ -51,7 +57,9 @@ const ProgressiveListening = (() => {
         contextRichness: 0,
         aestheticRichness: 0,
         impressionRichness: 0,
-        audibleRichness: 0
+        audibleRichness: 0,
+        packetCompleteness: 0,
+        duplicateRatio: 0
       };
       this.history = [];
     }
@@ -68,7 +76,6 @@ const ProgressiveListening = (() => {
         at = typeof maybeAt === "number" ? maybeAt : Date.now();
       }
 
-      this.deepListenEvidence.count += 1;
       this.deepListenEvidence.lastArrivalAt = at;
       this.deepListenEvidence.freshness = 1.0;
 
@@ -76,26 +83,37 @@ const ProgressiveListening = (() => {
         Array.isArray(packet.contextHypotheses) ||
         Array.isArray(packet.aestheticConcepts) ||
         Array.isArray(packet.impressions) ||
+        Array.isArray(packet.signatureRelations) ||
         Array.isArray(packet.audibleObservations);
 
       if (hasCategories) {
-        const genreCount = Array.isArray(packet.genreHypotheses) ? packet.genreHypotheses.length : 0;
-        const contextCount = Array.isArray(packet.contextHypotheses) ? packet.contextHypotheses.length : 0;
-        const aestheticCount = Array.isArray(packet.aestheticConcepts) ? packet.aestheticConcepts.length : 0;
-        const impressionCount = Array.isArray(packet.impressions) ? packet.impressions.length : 0;
-        const audibleCount = Array.isArray(packet.audibleObservations) ? packet.audibleObservations.length : 0;
+        const fields = ["genreHypotheses", "contextHypotheses", "aestheticConcepts", "impressions",
+          "signatureRelations", "audibleObservations"];
+        const rawCount = fields.reduce((sum, field) => sum + (Array.isArray(packet[field]) ? packet[field].length : 0), 0);
+        const counts = Object.fromEntries(fields.map(field => [field, uniqueCount(packet[field])]));
+        const uniqueTotal = Object.values(counts).reduce((sum, count) => sum + count, 0);
+        if (uniqueTotal > 0) this.deepListenEvidence.count += 1;
+        const genreCount = counts.genreHypotheses;
+        const contextCount = counts.contextHypotheses;
+        const aestheticCount = counts.aestheticConcepts;
+        const impressionCount = counts.impressions;
+        const audibleCount = counts.audibleObservations + counts.signatureRelations;
 
         this.deepListenEvidence.genreRichness = clamp(genreCount / 2);
         this.deepListenEvidence.contextRichness = clamp(contextCount / 2);
         this.deepListenEvidence.aestheticRichness = clamp(aestheticCount / 2);
         this.deepListenEvidence.impressionRichness = clamp(impressionCount / 2);
         this.deepListenEvidence.audibleRichness = clamp(audibleCount / 3);
+        this.deepListenEvidence.packetCompleteness = fields.filter(field => counts[field] > 0).length / fields.length;
+        this.deepListenEvidence.duplicateRatio = rawCount ? clamp((rawCount - uniqueTotal) / rawCount) : 0;
       } else {
-        this.deepListenEvidence.genreRichness = 1.0;
-        this.deepListenEvidence.contextRichness = 0.8;
-        this.deepListenEvidence.aestheticRichness = 1.0;
-        this.deepListenEvidence.impressionRichness = 0.8;
-        this.deepListenEvidence.audibleRichness = 1.0;
+        this.deepListenEvidence.genreRichness = 0;
+        this.deepListenEvidence.contextRichness = 0;
+        this.deepListenEvidence.aestheticRichness = 0;
+        this.deepListenEvidence.impressionRichness = 0;
+        this.deepListenEvidence.audibleRichness = 0;
+        this.deepListenEvidence.packetCompleteness = 0;
+        this.deepListenEvidence.duplicateRatio = 0;
       }
     }
 
@@ -187,48 +205,21 @@ const ProgressiveListening = (() => {
         ) * this.reinterpretation.factor;
       }
 
-      // 4. AESTHETIC READINESS: continuous multi-feature synthesis
-      const aestheticEvidence = state.aestheticEvidence || {};
-      const aestheticCount = Object.keys(aestheticEvidence).length +
-        (state.openWorldConcepts || []).filter(c => c.conceptType === "aesthetic").length;
-      const aestheticSupport = clamp(aestheticCount / 3);
-      const deepListenAestheticBoost = this.deepListenEvidence.count > 0 ? (0.2 + 0.8 * (this.deepListenEvidence.aestheticRichness ?? 0.5)) * this.deepListenEvidence.freshness : 0;
-      const aestheticTemporalRamp = clamp(observationSeconds / 30);
+      // 4. AESTHETIC READINESS: Flamingo aesthetic evidence only. Local genre/mood cannot open it.
+      const flamingoAesthetic = this.deepListenEvidence.aestheticRichness || 0;
+      const flamingoCoverage = clamp((this.deepListenEvidence.count || 0) / 2);
+      const flamingoFresh = this.deepListenEvidence.freshness || 0;
+      const aestheticSupport = flamingoAesthetic * flamingoCoverage * flamingoFresh;
+      this.readiness.aesthetic = aestheticSupport > 0
+        ? clamp(aestheticSupport) * this.reinterpretation.factor
+        : 0;
 
-      if (aestheticSupport === 0 && deepListenAestheticBoost === 0 && this.readiness.context < 0.2) {
-        this.readiness.aesthetic = 0;
-      } else {
-        this.readiness.aesthetic = clamp(
-          deepListenAestheticBoost * 0.45 +
-          aestheticSupport * 0.30 +
-          this.readiness.context * 0.20 +
-          aestheticTemporalRamp * 0.10
-        ) * this.reinterpretation.factor;
-      }
-
-      // 5. IMPRESSION READINESS: holistic emotional and sensory synthesis
-      const mood = state.moodDimensions || state.mood || {};
-      const localMood = state.mood?.local || state.mood || {};
-      const hasMood = (localMood.valence !== undefined && localMood.arousal !== undefined);
-      const impressionConcepts = (state.impressionConcepts?.length || 0) +
-        (state.openWorldConcepts || []).filter(c => c.conceptType === "impression").length;
-      const impressionSupport = clamp(impressionConcepts / 2);
-      const deepListenImpressionBoost = this.deepListenEvidence.count > 0 ? (0.2 + 0.8 * (this.deepListenEvidence.impressionRichness ?? 0.5)) * this.deepListenEvidence.freshness : 0;
-      const impressionTemporalRamp = clamp(observationSeconds / 35);
-
-      if (!hasMood && deepListenImpressionBoost === 0 && impressionSupport === 0) {
-        this.readiness.impression = 0;
-      } else if (observationSeconds < 3 && deepListenImpressionBoost === 0) {
-        this.readiness.impression = 0;
-      } else {
-        this.readiness.impression = clamp(
-          impressionSupport * 0.35 +
-          deepListenImpressionBoost * 0.35 +
-          this.readiness.aesthetic * 0.20 +
-          (hasMood ? 0.10 : 0) +
-          impressionTemporalRamp * 0.10
-        ) * this.reinterpretation.factor;
-      }
+      // 5. IMPRESSION READINESS: Flamingo impression evidence only.
+      const flamingoImpression = this.deepListenEvidence.impressionRichness || 0;
+      const impressionSupport = flamingoImpression * flamingoCoverage * flamingoFresh;
+      this.readiness.impression = impressionSupport > 0
+        ? clamp(impressionSupport) * this.reinterpretation.factor
+        : 0;
 
       return { ...this.readiness, reinterpretationFactor: this.reinterpretation.factor };
     }
@@ -247,14 +238,18 @@ const ProgressiveListening = (() => {
         return { LIVE: live, FACT: 1 - live, CONTEXT: 0, AESTHETIC: 0, IMPRESSION: 0 };
       }
 
-      // Scale shares according to readiness
+      // Scale shares according to readiness. The former permanent 30% FACT floor made a mature
+      // interpretation sound like a diagnostics panel forever. As context, aesthetic and
+      // impression evidence converge, the floor eases toward ~15% of the normalized mix while
+      // section changes still jump to the explicit 40% FACT re-interpretation profile above.
+      const interpretiveMaturity = clamp((this.readiness.context + this.readiness.aesthetic + this.readiness.impression) / 3);
       const liveShare = 0.06 + Math.max(0, 0.44 * (1 - this.readiness.fact));
-      const factFloor = 0.30; // FACT is always guaranteed space
-      const factShare = factFloor + Math.max(0, 0.20 * (1 - this.readiness.genre));
+      const factFloor = 0.30 - 0.11 * interpretiveMaturity;
+      const factShare = factFloor + Math.max(0, 0.20 * (1 - this.readiness.genre) * (1 - 0.65 * interpretiveMaturity));
 
-      const contextRaw = this.readiness.context * 0.22;
-      const aestheticRaw = this.readiness.aesthetic * 0.25;
-      const impressionRaw = this.readiness.impression * 0.25;
+      const contextRaw = this.readiness.context * (0.22 + 0.07 * interpretiveMaturity);
+      const aestheticRaw = this.readiness.aesthetic * (0.25 + 0.12 * interpretiveMaturity);
+      const impressionRaw = this.readiness.impression * (0.25 + 0.07 * interpretiveMaturity);
 
       const total = liveShare + factShare + contextRaw + aestheticRaw + impressionRaw;
 

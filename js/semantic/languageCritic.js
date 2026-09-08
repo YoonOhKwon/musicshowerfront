@@ -7,7 +7,7 @@ const LanguageCritic = (() => {
   const Genome = typeof PhraseGenome !== "undefined" ? PhraseGenome : require("./phraseGenome");
   const GENERIC = new Set(["빛", "파동", "잔광", "입자", "맥동", "흐름", "공간", "진동"]);
   const CLICHE_TERMS = ["과열된", "냉각된", "저중력", "무중력", "황홀한 압력", "분홍빛", "금속성 황홀", "분석 중", "재생해주세요"];
-  const AI_CLICHE_FAMILIES = new Set(["dreamlike", "neon-city", "light-glass", "space-reverb", "warmth"]);
+  const AI_CLICHE = /몽환|꿈결|네온|유리빛|잔광|부유/;
   const clamp = Facets.clamp;
   const textOf = value => typeof value === "object" ? value?.text : value;
   const normalize = text => Expressions.canonical(String(textOf(text) || "").replace(/\s+/g, " ").trim());
@@ -76,8 +76,8 @@ const LanguageCritic = (() => {
     const factLicense = Firewall.inspect(text, context.snapshot?.verifiedClaims || context.verifiedClaims);
     const unlicensedFact = (item.layer === "FACT" || item.layer === "LIVE") && !factLicense.licensed && !isDirectAudio;
     const aiCliche = item.source === "llm" && ["AESTHETIC", "IMPRESSION"].includes(item.layer) &&
-      AI_CLICHE_FAMILIES.has(semanticFamily) && independentEvidenceAxes < 2;
-    const aiClichePenalty = (AI_CLICHE_FAMILIES.has(semanticFamily) ? Math.min(0.24, recentFamilyCount * 0.1) : 0) +
+      AI_CLICHE.test(text) && independentEvidenceAxes < 2;
+    const aiClichePenalty = (AI_CLICHE.test(text) ? Math.min(0.24, recentFamilyCount * 0.1) : 0) +
       (aiCliche ? 0.5 : 0);
     if (mechanicalPhrase) specificity *= 0.45;
     const evidenceScore = evidence.evidenceScore || (relevant ? confidence * 0.82 : 0);

@@ -9,7 +9,6 @@ const SemanticCandidatePipeline = (() => {
   const Idioms = typeof MusicalIdioms !== "undefined" ? MusicalIdioms : require("./musicalIdiomEngine");
   const Layers = typeof LanguageLayerPolicy !== "undefined" ? LanguageLayerPolicy : require("./languageLayerPolicy");
   const Grammar = typeof RhythmicGrammar !== "undefined" ? RhythmicGrammar : require("./rhythmicGrammar");
-  const Impressions = typeof ImpressionSynthesizer !== "undefined" ? ImpressionSynthesizer : require("./impressionSynthesizer");
   const productionRules = Object.freeze([
     { id: "filter-sweep-display", path: "productionEvidence.filterSweep", min: 0.7 },
     { id: "sidechain-display", path: "productionEvidence.sidechain", min: 0.7 },
@@ -69,10 +68,15 @@ const SemanticCandidatePipeline = (() => {
     state.arrangementFacetCandidates = arrangement.candidates;
     state.primitives = Primitives.analyze(state);
     state.primitiveObservationCandidates = Observations.generate(state.primitives);
-    state.detectedIdioms = (idiomEngine || new Idioms.Engine()).evaluate(state.primitives, state.genre);
-    const impression = Impressions.evaluate(state);
-    state.impressionConcepts = impression.concepts;
-    state.impressionFacetCandidates = impression.candidates;
+    // Genre-conditioned wording in the legacy lexicon contains developer-authored genre names.
+    // Keep only genre-neutral idioms; model-owned genre output remains available separately in
+    // CONTEXT and never changes a local FACT label through a lookup table.
+    state.detectedIdioms = (idiomEngine || new Idioms.Engine()).evaluate(state.primitives, {});
+    // The local engine measures mood-related axes but does not turn them into subjective
+    // language. IMPRESSION belongs to Music Flamingo's direct-listening packet (and, later,
+    // an optional external interpreter fed by that packet).
+    state.impressionConcepts = [];
+    state.impressionFacetCandidates = [];
     const Composition = typeof LanguageComposition !== "undefined" ? LanguageComposition : require("./languageComposition");
     return Composition.apply(state);
   }

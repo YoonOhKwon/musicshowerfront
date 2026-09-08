@@ -1,0 +1,7 @@
+Loading Music Flamingo model (This will take a minute)...
+Music Flamingo quantization: NF4 4-bit; placement: audio-priority
+Music Flamingo device map: {"lm_head": 0, "model.audio_tower": 0, "model.language_model.embed_tokens": "cpu", "model.language_model.layers": 0, "model.language_model.norm": 0, "model.language_model.rotary_emb": 0, "model.multi_modal_projector": 0, "model.pos_emb": 0}
+CUDA after load: allocated=5.65 GiB, reserved=5.80 GiB
+Model loaded successfully. Starting server...
+[Music Flamingo] text context budget: 8192 tokens
+Flamingo server serving at port 5005

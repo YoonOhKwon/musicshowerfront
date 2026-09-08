@@ -17,6 +17,7 @@ class MusicShowerPcmCaptureProcessor extends AudioWorkletProcessor {
     this.lowAlpha = 1 - Math.exp(-2 * Math.PI * 250 / sampleRate);
     this.highAlpha = 1 - Math.exp(-2 * Math.PI * 4000 / sampleRate);
     this.bandSquares = { bass: 0, mid: 0, high: 0 };
+    this.stereo = { channels: 0, lrSum: 0, lSq: 0, rSq: 0, samples: 0 };
   }
 
   flush() {
@@ -26,6 +27,7 @@ class MusicShowerPcmCaptureProcessor extends AudioWorkletProcessor {
     const rms = Math.sqrt(this.energySum / Math.max(1, completed.length));
     const bands = Object.fromEntries(Object.entries(this.bandSquares).map(([key, value]) =>
       [key, Math.sqrt(value / Math.max(1, completed.length))]));
+    const stereo = this.stereoSnapshot();
     if (this.sharedHeader && this.sharedData && this.sharedCapacity) {
       Atomics.add(this.sharedHeader, 2, 1);
       let writeIndex = Atomics.load(this.sharedHeader, 0);
@@ -38,14 +40,27 @@ class MusicShowerPcmCaptureProcessor extends AudioWorkletProcessor {
         Atomics.load(this.sharedHeader, 1) + completed.length));
       Atomics.add(this.sharedHeader, 3, completed.length);
       Atomics.add(this.sharedHeader, 2, 1);
-      this.port.postMessage({ type: "metrics", blockSize: this.blockSize, rms, peak: this.peak, bands, processingMs: this.processingMs });
+      this.port.postMessage({ type: "metrics", blockSize: this.blockSize, rms, peak: this.peak, bands, processingMs: this.processingMs, stereo });
     } else {
-      this.port.postMessage({ type: "pcm", samples: completed, blockSize: this.blockSize, rms, peak: this.peak, bands, processingMs: this.processingMs }, [completed.buffer]);
+      this.port.postMessage({ type: "pcm", samples: completed, blockSize: this.blockSize, rms, peak: this.peak, bands, processingMs: this.processingMs, stereo }, [completed.buffer]);
     }
     this.energySum = 0;
     this.peak = 0;
     this.processingMs = 0;
     this.bandSquares = { bass: 0, mid: 0, high: 0 };
+    this.stereo = { channels: 0, lrSum: 0, lSq: 0, rSq: 0, samples: 0 };
+  }
+
+  stereoSnapshot() {
+    if (this.stereo.channels < 2 || this.stereo.samples < 32) {
+      return { available: false, reason: "mono_input", channels: this.stereo.channels || 1 };
+    }
+    const denom = Math.sqrt(this.stereo.lSq * this.stereo.rSq);
+    const correlation = denom > 1e-12 ? this.stereo.lrSum / denom : 1;
+    const mid = (this.stereo.lSq + this.stereo.rSq) * 0.5 + this.stereo.lrSum;
+    const side = (this.stereo.lSq + this.stereo.rSq) * 0.5 - this.stereo.lrSum;
+    const sideRatio = (mid + side) > 1e-12 ? Math.max(0, side) / (Math.abs(mid) + Math.abs(side)) : 0;
+    return { available: true, channels: this.stereo.channels, correlation, sideRatio, samples: this.stereo.samples };
   }
 
   process(inputs, outputs) {
@@ -53,10 +68,19 @@ class MusicShowerPcmCaptureProcessor extends AudioWorkletProcessor {
     const input = inputs[0];
     if (input?.length) {
       const length = input[0]?.length || 0;
+      this.stereo.channels = Math.max(this.stereo.channels, input.length);
       for (let index = 0; index < length; index++) {
         let mono = 0;
         for (let channel = 0; channel < input.length; channel++) {
           mono += input[channel][index] || 0;
+        }
+        if (input.length >= 2) {
+          const left = input[0][index] || 0;
+          const right = input[1][index] || 0;
+          this.stereo.lrSum += left * right;
+          this.stereo.lSq += left * left;
+          this.stereo.rSq += right * right;
+          this.stereo.samples += 1;
         }
         const sample = mono / input.length;
         this.block[this.offset++] = sample;

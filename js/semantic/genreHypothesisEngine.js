@@ -10,6 +10,10 @@ const GenreHypotheses = (() => {
   const unique = items => [...new Map(items.map(item => [normalize(item.genre || item.label), item])).values()];
   const evidenceFamily = item => ({
     "genre-classifier": "genreModel", classifierGenre: "genreModel",
+    // Music Flamingo listens to the recording itself and is a peer of the classifier head, not a
+    // nameless leftover falling through to a source-string split.
+    directAudio: "deepListen", "music-flamingo": "deepListen", deepListen: "deepListen",
+    directAudioEvidence: "deepListen",
     rhythmicGrammar: "rhythm", rhythm: "rhythm",
     productionEvidence: "production", production: "production",
     instrumentationEvidence: "instrumentation", instrumentation: "instrumentation",
@@ -73,6 +77,52 @@ const GenreHypotheses = (() => {
       evidence, contradictions: matched ? [] : contradictions };
   }
 
+  // Only values proposed in the packet's genre field may become genre identity. Scene and
+  // lineage observations remain valuable context, but their labels must never become the HUD's
+  // primary genre merely because they happen to have a short genre-like grammatical shape.
+  const GENRE_CONCEPT_TYPES = new Set(["genre", "microgenre"]);
+
+  // Does the classifier -- a completely separate model, trained on a fixed 400 styles -- point at
+  // the same music as this open-vocabulary name?
+  //
+  // There is no table of "Future Funk = City Pop + Nu Disco" here, and there must not be. The
+  // link comes from what the concept expansion actually learned about THIS name at runtime
+  // (its lineage/influence/hybrid relations) plus the parent/child hierarchy. A name nobody has
+  // written down anywhere can still be corroborated the moment its lineage is discovered.
+  function corroborateWithClassifier(concept, classifier = [], hierarchy = {}) {
+    const label = normalize(concept?.canonicalLabel);
+    const byName = new Map(classifier.map(item => [normalize(item.genre), item]));
+    const exact = byName.get(label) || null;
+    const related = new Map();
+    const consider = (value, weight) => {
+      const key = normalize(value);
+      if (!key || key === label) return;
+      const hit = byName.get(key);
+      if (hit) related.set(key, Math.max(related.get(key) || 0, weight));
+    };
+    // 1. Relations the world-knowledge expansion discovered for this very concept.
+    for (const relation of concept?.relatedLabels || []) {
+      const weight = ({ lineage: 1, hybrid: 1, subgenre: 0.9, influence: 0.75 })[relation.relationType] || 0.6;
+      consider(relation.label, weight * clamp(relation.confidence ?? 0.5) + 0.35);
+    }
+    // 2. Parent/child edges, which describe how names relate rather than which are allowed.
+    for (const [parent, children] of Object.entries(hierarchy?.children || {})) {
+      const childList = (children || []).map(normalize);
+      if (normalize(parent) === label) childList.forEach(child => consider(child, 0.8));
+      else if (childList.includes(label)) consider(parent, 0.7);
+    }
+    const matched = [...related.keys()].map(key => byName.get(key)).filter(Boolean);
+    if (exact) matched.unshift(exact);
+    // Two corroborating labels say more than one, but a third adds little -- this measures
+    // agreement, not vote count.
+    const strength = matched.length
+      ? Math.min(1, mean(matched.map(item => clamp(item.semanticConfidence))) *
+        (0.7 + Math.min(2, matched.length - 1) * 0.15) + (exact ? 0.15 : 0))
+      : 0;
+    return { matched, exact: Boolean(exact), strength,
+      bestClassifierConfidence: Math.max(0, ...matched.map(item => item.classifierConfidence || 0)) };
+  }
+
   function relationText(relation = {}) {
     if (relation.text) return relation.text;
     const label = relation.genre;
@@ -87,7 +137,8 @@ const GenreHypotheses = (() => {
       this.rules = rules;
       this.hierarchy = hierarchy;
       this.options = { switchMargin: 0.08, takeoverMs: 2500, minimumCoverage: 0.66,
-        minimumIndependentEvidence: 2, staleMs: 9000, ...options };
+        minimumIndependentEvidence: 2, initialPromotionMinConfidence: 0.50,
+        repeatedPromotionMinConfidence: 0.42, staleMs: 9000, ...options };
       this.reset();
     }
 
@@ -116,86 +167,92 @@ const GenreHypotheses = (() => {
         matchedEvidenceGroups: ["classifier"], supportingEvidence: [{ path: "classifierGenre.topK",
           value: item.classifierConfidence, label: item.genre, source: "genre-classifier" }], contradictingEvidence: [] }));
 
-      // Ingest open-world concept hypotheses from OpenWorldConceptRegistry or state
-      const openWorldItems = Array.isArray(state.openWorldConcepts)
+      // Ingest open-world concept hypotheses from OpenWorldConceptRegistry or state.
+      // Only genre-shaped concept types: `all({compact:true})` returns every type the registry
+      // holds, and an aesthetic like "ethereal soundscapes" can pass a label-shape check without
+      // ever having been proposed as a genre.
+      const openWorldItems = (Array.isArray(state.openWorldConcepts)
         ? state.openWorldConcepts
-        : (state.openWorldRegistry?.byType ? state.openWorldRegistry.byType("genre") : []);
+        : (state.openWorldRegistry?.byType ? state.openWorldRegistry.byType("genre") : []))
+        .filter(item => !item?.conceptType || GENRE_CONCEPT_TYPES.has(item.conceptType));
       for (const ow of openWorldItems) {
         if (!ow?.canonicalLabel || !GenreLabels.isPlausibleGenreLabel(ow.canonicalLabel)) continue;
         const confidence = clamp(ow.confidence ?? 0.6);
+        // Which evidence families stand behind this name? Blind Music Flamingo and the classifier
+        // are independent listeners. An assisted Flamingo call that was shown the classifier's
+        // shortlist is useful adjudication, but must be discounted as correlated evidence.
+        const corroboration = corroborateWithClassifier(ow, classifier, this.hierarchy);
+        // If Flamingo saw these classifier labels in its prompt, its repetition of a related name
+        // is assisted adjudication, not a second independent vote. A single assisted capture is
+        // therefore one evidence family. Re-hearing it in a distinct audio segment can add a
+        // cross-segment family, and a later blind Flamingo observation restores genuinely
+        // independent deep-listen + classifier corroboration.
+        const assistedOnly = Boolean(ow.conditionedOnClassifier && !ow.hasIndependentDeepListen);
+        const reportedFamilies = Array.isArray(ow.sources) && ow.sources.length
+          ? ow.sources.map(source => evidenceFamily({ source })) : ["deepListen"];
+        const families = assistedOnly
+          ? new Set([...reportedFamilies.filter(family => !["deepListen", "genreModel"].includes(family)), "assistedFusion"])
+          : new Set(reportedFamilies);
+        if (corroboration.matched.length && !assistedOnly) families.add("genreModel");
+        if (assistedOnly && (ow.temporalSupport || 1) >= 2) families.add("crossSegment");
+        const independentFamilies = [...families];
+        // A composite is a name no single source could have produced on its own: the classifier
+        // cannot say it (it is outside the 400 it was trained on) and Flamingo alone cannot
+        // corroborate it. When both point at it, that is the composite -- derived here, never
+        // read from a table of pre-approved genre names.
+        const composite = corroboration.matched.length > 0 && !corroboration.exact;
+        const corroborationBoost = assistedOnly
+          ? Math.min(0.08, corroboration.strength * 0.10)
+          : Math.min(0.22, corroboration.strength * 0.28);
+        const cap = assistedOnly
+          ? ((ow.temporalSupport || 1) >= 2 ? 0.84 : 0.76)
+          : (independentFamilies.length >= 2 ? 0.94 : 0.72);
         candidates.push({
           genre: ow.canonicalLabel,
-          semanticConfidence: confidence,
-          classifierConfidence: 0.5,
-          kind: "open-world",
+          semanticConfidence: Math.min(cap, clamp(confidence + corroborationBoost)),
+          classifierConfidence: corroboration.bestClassifierConfidence,
+          kind: composite ? (assistedOnly ? "assisted-composite" : "composite") : "open-world",
           openWorld: true,
+          composite,
+          conditionedOnClassifier: assistedOnly,
+          compositeOf: composite ? corroboration.matched.map(item => item.genre) : [],
           status: ow.status || "emerging",
           temporalSupport: ow.temporalSupport || 1,
-          evidenceCoverage: 0.75,
-          independentEvidenceCount: Math.max(1, ow.sources?.length || (ow.source ? 1 : 1)),
-          independentEvidenceFamilies: Array.isArray(ow.sources) ? ow.sources : ["openWorld"],
-          supportingEvidence: ow.supportingObservations || [],
+          evidenceCoverage: Math.min(1, independentFamilies.length / 3),
+          independentEvidenceCount: independentFamilies.length,
+          independentEvidenceFamilies: independentFamilies,
+          matchedEvidenceGroups: assistedOnly
+            ? ["assistedFusion", ...((ow.temporalSupport || 1) >= 2 ? ["crossSegment"] : [])]
+            : (composite ? ["deepListen", "classifier"] : ["deepListen"]),
+          supportingEvidence: [
+            ...(ow.supportingObservations || []),
+            ...corroboration.matched.map(item => ({ path: "classifierGenre.topK",
+              value: item.semanticConfidence, label: item.genre, source: "genre-classifier" }))
+          ],
           contradictingEvidence: ow.contradictions || []
         });
       }
 
+      // Genre NAMES come only from the two things that actually listen: the classifier model and
+      // Music Flamingo. There is no rule table here any more.
+      //
+      // What stood here was a hand-written list -- Future Funk, French House, Nu Disco, Jazz Rap,
+      // Electro Swing, Liquid DnB -- each with its own acoustic thresholds. It existed because the
+      // classifier is trained on a fixed 400 styles and cannot say "Future Funk" at all, so the
+      // gap was patched by naming six of them by hand. That is a closed world with extra steps:
+      // it works for exactly the six genres someone thought to write down, and every other
+      // composite in music is silently unreachable. Corroboration now happens per candidate in
+      // the open-world ingest above, against relations discovered at runtime, so a name nobody
+      // has written down is reachable the moment two independent listeners agree on it.
       const relations = [];
-      const rejectedHypotheses = [];
-      for (const rule of this.rules.rules || []) {
-        const groups = (rule.evidenceGroups || []).map(group => ({ id: group.id, weight: Number(group.weight) || 1,
-          required: group.required,
-          ...evaluateGroup(group, state, classifier) }));
-        const required = groups.filter(group => group.required !== false);
-        const matchedRequired = required.filter(group => group.matched);
-        const coverage = required.length ? matchedRequired.length / required.length : 0;
-        const independentFamilies = [...new Set(groups.filter(group => group.matched)
-          .flatMap(group => group.evidence.map(evidenceFamily)).filter(Boolean))];
-        const independent = independentFamilies.length;
-        const minIndependent = rule.minimumIndependentEvidence ?? this.options.minimumIndependentEvidence;
-        if (coverage < (rule.minimumCoverage ?? this.options.minimumCoverage) || independent < minIndependent) {
-          rejectedHypotheses.push({ genre: rule.genre, ruleId: rule.id, evidenceCoverage: coverage,
-            independentEvidenceCount: independent, independentEvidenceFamilies: independentFamilies,
-            reason: independent < minIndependent
-              ? "insufficient-independent-evidence" : "insufficient-evidence-coverage",
-            evidenceGroups: Object.fromEntries(groups.map(group => [group.id,
-              { matched: group.matched, score: group.score, required: group.required !== false }])),
-            contradictingEvidence: groups.flatMap(group => group.contradictions.map(item => ({ ...item, group: group.id }))) });
-          continue;
-        }
-        const matchedWeight = groups.filter(group => group.matched).reduce((sum, group) => sum + group.weight, 0);
-        const weightedScore = groups.filter(group => group.matched)
-          .reduce((sum, group) => sum + group.score * group.weight, 0) / Math.max(0.001, matchedWeight);
-        const semanticConfidence = clamp(weightedScore * (0.72 + coverage * 0.28) * (rule.confidenceScale || 1) +
-          Math.min(0.09, Math.max(0, independent - 1) * 0.03));
-        if (semanticConfidence < (rule.minimumConfidence ?? 0.52)) continue;
-        const supportingEvidence = groups.flatMap(group => group.evidence.map(item => ({ ...item, group: group.id })));
-        const contradictingEvidence = groups.flatMap(group => group.contradictions.map(item => ({ ...item, group: group.id })));
-        const hypothesis = { genre: rule.genre, semanticConfidence, classifierConfidence: Math.max(0,
-          ...classifier.filter(item => (rule.classifierLabels || []).map(normalize).includes(normalize(item.genre)))
-            .map(item => item.classifierConfidence)), kind: "composite", evidenceCoverage: coverage,
-          independentEvidenceCount: independent, independentEvidenceFamilies: independentFamilies,
-          evidenceGroups: Object.fromEntries(groups.map(group => [group.id,
-            { matched: group.matched, score: group.score, required: group.required !== false }])),
-          matchedEvidenceGroups: groups.filter(group => group.matched).map(group => group.id),
-          supportingEvidence, contradictingEvidence, ruleId: rule.id };
-        candidates.push(hypothesis);
-        for (const relation of rule.relations || []) {
-          const group = relation.requiresGroup && groups.find(item => item.id === relation.requiresGroup);
-          if (group && !group.matched) continue;
-          if (Array.isArray(relation.requiresAnyLabel)) {
-            const allowed = new Set(relation.requiresAnyLabel.map(normalize));
-            if (!classifier.some(item => allowed.has(normalize(item.genre)))) continue;
-          }
-          const confidence = clamp(semanticConfidence * (relation.confidenceScale || 0.82));
-          const category = relation.category || (relation.type === "lineage" ? "lineage" : "association");
-          relations.push(Facets.token(relationText(relation), category, confidence,
-            supportingEvidence.map(item => item.path === "classifierGenre.topK" ? "genreEvidence" : item.path).slice(0, 6), {
-              source: "genre-hypothesis", kind: "style", relationFamily: String(relation.type || "influence").toUpperCase(),
-              relationType: relation.type, relationTarget: relation.genre, relationScore: confidence,
-              hypothesisGenre: rule.genre
-            }));
-        }
-      }
+      const rejectedHypotheses = candidates
+        .filter(item => item.openWorld && item.independentEvidenceCount < 2 &&
+          clamp(item.semanticConfidence) < 0.5)
+        .map(item => ({ genre: item.genre, evidenceCoverage: item.evidenceCoverage,
+          independentEvidenceCount: item.independentEvidenceCount,
+          independentEvidenceFamilies: item.independentEvidenceFamilies,
+          reason: "insufficient-independent-evidence",
+          contradictingEvidence: item.contradictingEvidence || [] }));
 
       const ranked = unique(candidates).sort((a, b) => b.semanticConfidence - a.semanticConfidence);
       for (const item of ranked) {
@@ -212,8 +269,21 @@ const GenreHypotheses = (() => {
       }
       for (const [key, item] of this.history) if (at - item.lastSeenAt > this.options.staleMs * 3) this.history.delete(key);
 
+      // Keep weak one-off names in the hypothesis list for inspection, but do not let them become
+      // the track identity. This gate is label-agnostic: repetition or independent corroboration
+      // can promote any open-world name later without a genre catalog.
+      const promotionEligible = item => {
+        if (!item) return false;
+        const confidence = clamp(item.semanticConfidence);
+        if (item.kind === "classifier" && state.classifierGenre?.uncertain) return false;
+        if (confidence >= this.options.initialPromotionMinConfidence) return true;
+        const repeatedOrCorroborated = (item.temporalSupport || 0) >= 2 ||
+          (item.observations || 0) >= 2 || (item.independentEvidenceCount || 0) >= 2;
+        return repeatedOrCorroborated && confidence >= this.options.repeatedPromotionMinConfidence;
+      };
+
       let takeover = null;
-      const leader = ranked[0] || null;
+      const leader = ranked.find(promotionEligible) || null;
       if (!this.primary && leader) this.primary = leader.genre;
       const current = ranked.find(item => normalize(item.genre) === normalize(this.primary));
       if (leader && current && normalize(leader.genre) !== normalize(current.genre)) {
@@ -233,7 +303,9 @@ const GenreHypotheses = (() => {
         } else this.pending = null;
       } else if (leader && (!current || normalize(leader.genre) === normalize(current.genre))) this.pending = null;
 
-      const primary = ranked.find(item => normalize(item.genre) === normalize(this.primary)) || leader;
+      const primary = this.primary
+        ? ranked.find(item => normalize(item.genre) === normalize(this.primary)) || null
+        : null;
       const challengers = ranked.filter(item => normalize(item.genre) !== normalize(primary?.genre)).slice(0, 4);
       const children = new Set((this.hierarchy.children?.[primary?.genre] || []).map(normalize));
       const actualSubgenres = challengers.filter(item => children.has(normalize(item.genre)) && item.semanticConfidence >= 0.42)

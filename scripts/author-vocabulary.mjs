@@ -39,7 +39,8 @@ function convertBandToRange(axisName, band) {
   return { min: 0.5 };
 }
 const genreContextKnowledge = await readJson("data/genreContextKnowledge.json");
-const genreCompositions = await readJson("data/genreCompositions.json").catch(() => ({ rules: [] }));
+// data/genreCompositions.json is gone: genre names are no longer authored into a table.
+const genreCompositions = { rules: [] };
 const genreAliases = await readJson("data/genreAliases.json");
 const discogsModel = await readJson("models/music-shower/assets/discogs-effnet-bsdynamic-1.json");
 
@@ -210,7 +211,7 @@ async function runCompositions() {
   // internet uses but Discogs doesn't classify" -- that list itself takes human judgment). Reuses
   // whatever data/genreCompositions.json already covers as the default target set so a re-run
   // authors alternative rule variants for the same known gaps; pass --targets to override.
-  const targets = args.targets || genreCompositions.rules.map(rule => rule.text.replace(/\s*(?:계열|경향)$/, ""));
+  const targets = args.targets || [];
   const rules = [];
   for (const target of targets.slice(0, args.limit)) {
     process.stderr.write(`Authoring composition rule for [${target}] ...\n`);
@@ -316,7 +317,7 @@ async function runGenreContext() {
 
 const RUNNERS = { vocabulary: runVocabulary, "genre-context": runGenreContext, compositions: runCompositions };
 const DEFAULT_OUT_PATHS = { vocabulary: "data/aestheticVocabulary.generated.json",
-  "genre-context": "data/genreContextCandidates.generated.json", compositions: "data/genreCompositions.generated.json" };
+  "genre-context": "data/genreContextCandidates.generated.json", };
 
 async function main() {
   const runner = RUNNERS[args.target];

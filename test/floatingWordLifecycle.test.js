@@ -36,4 +36,8 @@ test("semantic pool and epoch changes have no stale-word removal path", () => {
   assert.doesNotMatch(source, /markStale|staleAt|staleFade|wordMaxLifetime/);
   assert.match(source, /resetFloatingSemanticVisuals/);
   assert.match(source, /floatingWords\.length\s*=\s*0/);
+  const semantic = fs.readFileSync(path.resolve(__dirname, "../js/semantic/semanticEngine.js"), "utf8");
+  const lifecycleCallbacks = semantic.slice(semantic.indexOf("if (trackLifecycleEngine)"), semantic.indexOf("const DirectContinuity"));
+  assert.doesNotMatch(lifecycleCallbacks, /resetFloatingSemanticVisuals/,
+    "track-scoped Flamingo resets must not erase words already visible on the canvas");
 });

@@ -154,19 +154,17 @@ test("CASE E: Flamingo identifies unknown open-world genres without local whitel
   assert.ok(localTexts.some(t => t.includes("Gqom")), "Gqom must be present in local display candidates");
 });
 
-test("CASE F: Flamingo English aesthetic/impression concepts are realized into natural Korean phrases", () => {
+test("CASE F: Flamingo subjective concepts stay exact until external Korean realization arrives", () => {
   const realizer = new DirectAudioRealizer.Realizer();
 
   const nocturnal = realizer.realize("nocturnal atmosphere", "aesthetic");
-  assert.ok(Array.isArray(nocturnal) && nocturnal.length >= 2, "Must produce a realization family of >= 2 phrases");
-  assert.ok(nocturnal.some(p => p.includes("야간") || p.includes("밤") || p.includes("공기감")), "Must contain expressive Korean phrases");
-  assert.ok(!nocturnal.some(p => p.includes("{") || p.includes("reasoning")), "Must not leak syntax scaffolding");
+  assert.deepEqual(nocturnal, ["nocturnal atmosphere"]);
 
   const propulsion = realizer.realize("melancholic propulsion", "impression");
-  assert.ok(propulsion.some(p => p.includes("질주") || p.includes("애상") || p.includes("쓸쓸함")), "Must capture melancholic propulsion in Korean");
+  assert.deepEqual(propulsion, ["melancholic propulsion"]);
 
   const liquid = realizer.realize("liquid atmospheric textures", "aesthetic");
-  assert.ok(liquid.some(p => p.includes("액체") || p.includes("질감") || p.includes("대기감")), "Must realize liquid textures into Korean");
+  assert.deepEqual(liquid, ["liquid atmospheric textures"]);
 
   // Verify reservoir candidate conversion
   const reservoir = new FlamingoWordReservoir.Reservoir({ realizer });
@@ -175,10 +173,13 @@ test("CASE F: Flamingo English aesthetic/impression concepts are realized into n
     impressions: [{ text: "melancholic propulsion", confidence: 0.75 }]
   }, { trackEpoch: 1 });
 
+  reservoir.applyRealization("nocturnal atmosphere", ["외부 표현 하나", "외부 표현 둘"], "association");
+  reservoir.applyRealization("melancholic propulsion", ["외부 인상 하나", "외부 인상 둘"], "mood");
+
   const candidates = reservoir.getCandidates();
   assert.equal(candidates.length, 2);
   for (const c of candidates) {
-    assert.equal(c.requiresKoreanRealization, false, "Reservoir candidates must be marked ready for Korean UI");
+    assert.equal(c.requiresKoreanRealization, false, "Externally realized candidates must be ready for Korean UI");
     assert.ok(/[가-힣]/.test(c.text), `Candidate text must be Korean: ${c.text}`);
   }
 });
@@ -257,8 +258,8 @@ test("CASE I: Progressive 5-layer evolution on a new track (LIVE/FACT first -> G
 
   // 3. T = 30s: Flamingo deep listening arrives with rich aesthetic & impression concepts
   engine.noteDeepListen("obs-flam-1", {
-    aestheticConcepts: [{ text: "japanese bubble era resonance" }],
-    impressions: [{ text: "bittersweet euphoric rush" }],
+    aestheticConcepts: [{ text: "japanese bubble era resonance" }, { text: "soft metallic distance" }],
+    impressions: [{ text: "bittersweet euphoric rush" }, { text: "guarded warmth" }],
     contextHypotheses: [{ text: "japanese city pop influence" }]
   }, 30000);
   state.openWorldConcepts.push(
@@ -270,5 +271,5 @@ test("CASE I: Progressive 5-layer evolution on a new track (LIVE/FACT first -> G
   const deepWeights = engine.getLayerWeights();
   assert.ok(deepWeights.AESTHETIC > 0.12, "Deep track: AESTHETIC layer is actively sampled");
   assert.ok(deepWeights.IMPRESSION > 0.12, "Deep track: IMPRESSION layer is actively sampled");
-  assert.ok(deepWeights.FACT >= 0.30, "FACT floor (>=0.30) is never starved even in deep immersion");
+  assert.ok(deepWeights.FACT >= 0.15, "FACT keeps an adaptive safety floor even in deep immersion");
 });

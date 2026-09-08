@@ -213,6 +213,53 @@ function averageVectorHistory(history) {
   return result.map(value => value / values.length);
 }
 
+function recentHistoryValues(history, limit = 28) {
+  const values = historyValues(history);
+  return values.length > limit ? values.slice(-limit) : values;
+}
+
+function recentMean(history, limit = 28) {
+  const values = recentHistoryValues(history, limit).map(Number).filter(Number.isFinite);
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function recentMeanVector(history, limit = 28) {
+  const values = recentHistoryValues(history, limit).filter(vector => Array.isArray(vector) && vector.length);
+  if (!values.length) return [];
+  const size = Math.min(...values.map(vector => vector.length));
+  return Array.from({ length: size }, (_, index) =>
+    values.reduce((sum, vector) => sum + (Number(vector[index]) || 0), 0) / values.length);
+}
+
+// Track boundaries need a short acoustic identity window, not the ~30s descriptive averages used
+// by the semantic engine. A long average blends Song A and Song B through a crossfade and can make
+// both sides look artificially alike. At the normal 85ms capture cadence, 28 frames is roughly
+// 2.4s: long enough to reject individual notes/drum hits, short enough to notice a streaming-site
+// track change before the old Flamingo pool is reused.
+function getTrackBoundaryAudioFeatures(windowFrames = 28) {
+  const bandMeans = Object.fromEntries(Object.entries(audioAnalysis.bandHistory)
+    .map(([name, history]) => [name, recentMean(history, windowFrames)]));
+  return {
+    centroid: recentMean(audioAnalysis.realtimeCentroidList, windowFrames),
+    flatness: recentMean(audioAnalysis.flatnessList, windowFrames),
+    rms: recentMean(audioAnalysis.rmsList, windowFrames),
+    // Identity comparison wants a smoothed window; GAP detection wants the opposite. The gap
+    // between two tracks on a streaming service is often under a second, and a 28-frame mean
+    // never drops far enough during one to read as silence -- the boundary between songs was
+    // being averaged away before anything could see it. Report the newest frames untouched.
+    instantRms: recentMean(audioAnalysis.rmsList, 2),
+    instantPeakRms: Math.max(0, ...recentHistoryValues(audioAnalysis.rmsList, 4)
+      .map(Number).filter(Number.isFinite), 0),
+    chroma: recentMeanVector(audioAnalysis.chromaHistory, windowFrames),
+    mfcc: recentMeanVector(audioAnalysis.mfccHistory, windowFrames),
+    bands: [
+      (bandMeans.subBass || 0) + (bandMeans.bass || 0),
+      (bandMeans.lowMid || 0) + (bandMeans.mid || 0),
+      (bandMeans.highMid || 0) + (bandMeans.brilliance || 0) + (bandMeans.air || 0)
+    ]
+  };
+}
+
 function vectorStdHistory(history, means) {
   const values = historyValues(history);
   if (!values.length || !means?.length) return [];

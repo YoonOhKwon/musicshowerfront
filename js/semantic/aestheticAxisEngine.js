@@ -52,9 +52,10 @@ const AestheticAxisEngine = (() => {
   }
 
   class Engine {
-    constructor(axesData = {}, regionsData = {}, { historyWindowMs = 20000 } = {}) {
+    constructor(axesData = {}, _unusedRegionsData = {}, { historyWindowMs = 20000 } = {}) {
       this.axes = axesData?.axes || {};
-      this.regions = Array.isArray(regionsData?.entries) ? regionsData.entries : [];
+      // No region vocabulary: this engine measures axes, it does not name them.
+      this.regions = [];
       // Trajectory memory: a short rolling history of past axis vectors, so evaluate() can also
       // report how each axis has moved over the trailing window ("nostalgia is deepening"), not
       // just where it currently sits. Bounded by both age and count so a long session never grows
@@ -104,52 +105,13 @@ const AestheticAxisEngine = (() => {
       return { axes, contributingPaths, genreMatch };
     }
 
-    // Vocabulary is data (data/aestheticRegions.json): each region names the axis combination it
-    // speaks for, so adding a new word never requires touching this code. A region MAY also
-    // require a `direction` ("rising"/"falling"/"stable") on one of its axes -- e.g. a
-    // "nostalgia is deepening" phrase -- which is matched against the `direction` map from
-    // trajectory() below; regions with no `direction` field are unaffected and work exactly as
-    // before (value-only).
-    // Section 4: the open layer is axis-based, not genre-based -- confidence here comes primarily
-    // from HOW WELL the measured axes clear their thresholds (averageMargin), never gated by
-    // genre confidence the way rule/relation candidates are. A confidently-known genre adds only
-    // a small bonus on top; an unconfirmed or uncertain genre must still let a strongly-evidenced
-    // region speak ("장르를 몰라도 인상 어휘는 나와야 한다").
-    matchRegions(axes, contributingPaths, genre = {}, direction = {}) {
-      const genreConfidence = genre?.uncertain ? 0 : (genre?.confidence ?? 0);
-      const genreBonus = genreConfidence >= 0.5 ? Math.min(0.15, (genreConfidence - 0.5) * 0.3) : 0;
-      const candidates = [];
-      for (const region of this.regions) {
-        const requires = region.requires || [];
-        if (!requires.length || !Facets.safeText(region.text, region.category)) continue;
-        const satisfied = requires.filter(req => {
-          const value = axes[req.axis];
-          if (typeof value !== "number" || value < (req.min ?? 0) || value > (req.max ?? 1)) return false;
-          if (req.direction && direction[req.axis] !== req.direction) return false;
-          return true;
-        });
-        const minAxes = Number.isFinite(region.minAxes) ? region.minAxes : requires.length;
-        if (satisfied.length < minAxes) continue;
-        const margins = satisfied.map(req => {
-          const min = req.min ?? 0, max = req.max ?? 1;
-          return clamp((axes[req.axis] - min) / Math.max(0.001, max - min));
-        });
-        const averageMargin = margins.reduce((sum, x) => sum + x, 0) / margins.length;
-        // Selectivity is an explicit, genre-independent gate on the margin itself (not folded
-        // into the confidence formula) -- a region barely clearing its min thresholds should not
-        // speak just because genre happens to be confident. This keeps candidate volume in check
-        // regardless of how the (separate) genre bonus below is tuned.
-        if (averageMargin < 0.35) continue;
-        const confidence = Math.min(0.84, clamp(0.4 + averageMargin * 0.4 + genreBonus));
-        if (confidence < 0.45) continue;
-        const anchorPaths = [...new Set(satisfied.flatMap(req => contributingPaths[req.axis] || []))];
-        candidates.push(Facets.token(region.text, region.category, confidence,
-          ["primaryGenre", ...anchorPaths].slice(0, 6),
-          { source: "aesthetic-axis", kind: "aesthetic", relationFamily: "AESTHETIC_ASSOCIATION",
-            relationScore: confidence, axes: satisfied.map(req => req.axis) }));
-      }
-      return candidates.slice(0, 14);
-    }
+    // matchRegions() lived here, turning the measured axis vector into words by looking the
+    // combination up in data/aestheticRegions.json -- 27 hand-authored Korean phrases. The axes
+    // themselves are real local measurement and stay; the NAMING is what has been removed, for
+    // the same reason the hardcoded genre rules were. AESTHETIC and IMPRESSION belong to Music
+    // Flamingo's direct listening, so a phrase reaches the screen because a listener said it,
+    // never because a feature vector cleared thresholds someone wrote down in advance.
+
 
     // Compares the current axis vector against the OLDEST sample still inside historyWindowMs,
     // so "delta" means "change over roughly the trailing window", not frame-to-frame jitter. If
@@ -193,8 +155,10 @@ const AestheticAxisEngine = (() => {
       const { axes, contributingPaths, genreMatch } = this.evaluateAxes(state, genre);
       const { delta, direction } = this.trajectory(axes, at);
       this.recordHistory(axes, at);
-      const candidates = this.matchRegions(axes, contributingPaths, genre, direction);
-      return { axes, contributingPaths, genreMatch, delta, direction, candidates, axisSignature: axisSignature(axes) };
+      // No candidates: the axis vector is evidence, not vocabulary. phrasePoolEngine's LLM gate
+      // and the replay reporting both read `axes`/`axisSignature`, which are unaffected.
+      return { axes, contributingPaths, genreMatch, delta, direction, candidates: [],
+        axisSignature: axisSignature(axes) };
     }
   }
 

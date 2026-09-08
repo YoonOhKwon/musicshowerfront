@@ -6,6 +6,11 @@
   <meta name="theme-color" content="#08080e">
   <link rel="icon" href="data:,">
   <title>Music Shower · Real-time Music Language</title>
+  <script>
+    if (new URLSearchParams(location.search).get("embed") === "controls") {
+      document.documentElement.classList.add("embedded-controls");
+    }
+  </script>
   <link rel="stylesheet" href="./style.css">
   <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/meyda@5.6.3/dist/web/meyda.min.js"></script>
@@ -34,10 +39,24 @@
       </select>
     </label>
     <div class="actions">
-      <button id="startButton" class="primaryButton">탭·시스템 오디오</button>
+      <button id="startButton" class="primaryButton">SoundCloud·탭 직접 공유</button>
       <button id="fileButton" class="secondaryButton">음원 파일 선택</button>
     </div>
-    <p class="hint">탭 오디오를 선택할 때 ‘오디오 공유’를 켜 주세요.</p>
+    <section class="soundCloudConnect" aria-labelledby="soundCloudConnectTitle">
+      <div class="soundCloudConnectHeading">
+        <span class="soundCloudMark" aria-hidden="true">☁</span>
+        <strong id="soundCloudConnectTitle">SoundCloud 탭 연결</strong>
+        <small id="soundCloudConfigStatus" data-state="checking">확장 프로그램 확인 중…</small>
+      </div>
+      <form id="soundCloudConnectForm" class="soundCloudForm">
+        <label class="srOnly" for="soundCloudUrl">SoundCloud 공개 트랙 URL</label>
+        <input id="soundCloudUrl" type="url" inputmode="url" autocomplete="url"
+          placeholder="https://soundcloud.com/artist/track" required>
+        <button id="soundCloudConnectButton" class="soundCloudButton" type="submit">SoundCloud 탭 열기</button>
+      </form>
+      <p>확장 연결이 멈추면 ‘SoundCloud 탭 직접 선택’을 눌러 Chrome 공유 창에서 곡이 재생 중인 탭을 선택하세요.</p>
+    </section>
+    <p class="hint">Chrome 공유 창에서 SoundCloud 탭을 고르고 반드시 ‘탭 오디오 공유’를 켜 주세요.</p>
     <p class="hint">생성형 모드는 오디오 대신 분석 요약만 전송합니다. L: 프롬프트·토큰 추적</p>
     <input id="audioFileInput" type="file" accept="audio/*" hidden>
   </main>
@@ -45,7 +64,31 @@
   <p id="audioStatus" class="audioStatus" data-state="info" aria-live="polite">
     입력 방식을 선택하세요.
   </p>
+  <button id="soundCloudAnalysisButton" class="soundCloudAnalysisButton" hidden>
+    SoundCloud 분석 시작
+  </button>
   <button id="stopButton" class="stopButton" hidden>분석 중지</button>
+
+  <aside id="soundCloudDock" class="soundCloudDock" aria-label="SoundCloud 재생 제어" hidden>
+    <img id="soundCloudArtwork" alt="" hidden>
+    <div class="soundCloudNowPlaying">
+      <span class="soundCloudSource">☁ SOUNDCLOUD</span>
+      <strong id="soundCloudTrackTitle">SoundCloud 트랙</strong>
+      <span id="soundCloudTrackArtist">SoundCloud</span>
+      <span id="soundCloudTimeline">0:00</span>
+      <a id="soundCloudTrackLink" href="https://soundcloud.com" target="_blank" rel="noopener">SoundCloud에서 듣기 ↗</a>
+    </div>
+    <div class="soundCloudTransport">
+      <button id="soundCloudToggleButton" type="button">일시정지</button>
+      <button id="soundCloudRestartButton" type="button">처음부터</button>
+      <button id="soundCloudDisconnectButton" type="button">연결 종료</button>
+    </div>
+    <form id="soundCloudChangeForm" class="soundCloudChangeForm">
+      <label class="srOnly" for="soundCloudChangeUrl">다른 SoundCloud 트랙 URL</label>
+      <input id="soundCloudChangeUrl" type="url" inputmode="url" autocomplete="url" placeholder="다른 트랙 URL" required>
+      <button type="submit">곡 변경</button>
+    </form>
+  </aside>
 
   <script src="./js/config.js"></script>
   <script src="./js/core/ringBuffer.js"></script>
@@ -60,6 +103,8 @@
   <script src="./js/audio/beatDetector.js"></script>
   <script src="./js/ml/audioPreprocessing.js"></script>
   <script src="./js/audio/sharedAudioRing.js"></script>
+  <script src="./js/audio/audibleAudioBuffer.js"></script>
+  <script src="./js/audio/soundCloudLifecycle.js"></script>
   <script src="./js/audio/audioEngine.js"></script>
   <script src="./js/ml/modelLoader.js"></script>
   <script src="./js/ml/genreClassifier.js"></script>
@@ -81,37 +126,41 @@
   <script src="./js/semantic/semanticChange.js"></script>
   <script src="./js/semantic/localLanguageModel.js"></script>
   <script src="./js/semantic/evidenceCompatibility.js"></script>
+  <script src="./js/semantic/semanticConceptCluster.js"></script>
   <script src="./js/semantic/phraseQuality.js"></script>
   <script src="./js/semantic/languageLayerPolicy.js"></script>
   <script src="./js/semantic/semanticFacets.js"></script>
   <script src="./js/semantic/semanticEvidence.js"></script>
   <script src="./js/semantic/instrumentationEventEngine.js"></script>
   <script src="./js/semantic/arrangementEngine.js"></script>
+  <script src="./js/semantic/productionEvidenceEngine.js"></script>
   <script src="./js/semantic/rhythmicGrammar.js"></script>
   <script src="./js/semantic/aestheticAxisEngine.js"></script>
   <script src="./js/semantic/aestheticEvidenceEngine.js"></script>
   <script src="./js/semantic/genreContextEngine.js"></script>
   <script src="./js/semantic/genreLabelShape.js"></script>
+  <script src="./js/semantic/genreAdvisory.js"></script>
   <script src="./js/semantic/genreHypothesisEngine.js"></script>
+  <script src="./js/semantic/genreEvidenceHistory.js"></script>
   <script src="./js/semantic/musicalPrimitiveEngine.js"></script>
   <script src="./js/semantic/musicalObservationEngine.js"></script>
   <script src="./js/semantic/musicalIdiomEngine.js"></script>
   <script src="./js/semantic/knowledgeConsistencyValidator.js"></script>
-  <script src="./js/semantic/impressionSynthesizer.js"></script>
   <script src="./js/semantic/verifiedClaimStore.js"></script>
   <script src="./js/semantic/factFirewall.js"></script>
   <script src="./js/semantic/contextFirewall.js"></script>
+  <script src="./js/semantic/materialRelationEngine.js"></script>
+  <script src="./js/semantic/localSurfaceRealizer.js"></script>
   <script src="./js/semantic/factComposer.js"></script>
   <script src="./js/semantic/liveEventGrammar.js"></script>
   <script src="./js/semantic/phraseGenome.js"></script>
-  <script src="./js/semantic/localGenerativeGrammar.js"></script>
   <script src="./js/semantic/contextLexicalExpansion.js"></script>
-  <script src="./js/semantic/aestheticConceptEngine.js"></script>
   <script src="./js/semantic/proposedContextKnowledge.js"></script>
   <script src="./js/semantic/vocabularyCoverage.js"></script>
   <script src="./js/semantic/languageComposition.js"></script>
   <script src="./js/semantic/semanticCandidatePipeline.js"></script>
   <script src="./js/semantic/evidenceFusionEngine.js"></script>
+  <script src="./js/semantic/evidenceAxis.js"></script>
   <script src="./js/semantic/temporalEvidenceEngine.js"></script>
   <script src="./js/semantic/semanticStateV2.js"></script>
   <script src="./js/semantic/semanticSnapshot.js"></script>
@@ -122,13 +171,16 @@
   <script src="./js/semantic/candidateReservoir.js"></script>
   <script src="./js/semantic/evidenceReservoir.js"></script>
   <script src="./js/semantic/songLanguageProfile.js"></script>
+  <script src="./js/semantic/wordPoolScheduler.js"></script>
   <script src="./js/semantic/phrasePoolEngine.js"></script>
   <script src="./js/semantic/languageInspector.js"></script>
+  <script src="./js/semantic/trackStatusInspector.js"></script>
   <script src="./js/semantic/openWorldConceptRegistry.js"></script>
   <script src="./js/semantic/progressiveListeningEngine.js"></script>
   <script src="./js/semantic/directAudioContinuity.js"></script>
   <script src="./js/semantic/directAudioRealizer.js"></script>
   <script src="./js/semantic/flamingoWordReservoir.js"></script>
+  <script src="./js/semantic/deepListenWindowScheduler.js"></script>
   <script src="./js/semantic/trackLifecycleEngine.js"></script>
   <script src="./js/semantic/semanticWordEngine.js"></script>
   <script src="./js/semantic/semanticEngine.js"></script>

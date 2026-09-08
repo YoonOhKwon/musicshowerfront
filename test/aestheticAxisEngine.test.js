@@ -4,7 +4,6 @@ const AestheticAxisEngine = require("../js/semantic/aestheticAxisEngine");
 const GenreContext = require("../js/semantic/genreContextEngine");
 const Grammar = require("../js/semantic/rhythmicGrammar");
 const aestheticAxes = require("../data/aestheticAxes.json");
-const aestheticRegions = require("../data/aestheticRegions.json");
 const genreContextKnowledge = require("../data/genreContextKnowledge.json");
 
 test("a missing component is excluded from the weighted average, never averaged in as 0", () => {
@@ -113,51 +112,8 @@ test("a genre-prior match reachable only through genre.relatedCandidates (not pr
   assert.ok(viaRelated.axes.urbanity > untabled.axes.urbanity);
 });
 
-test("region text is keyed to axis combinations, not genre identity: same genre, different production/mood values produce different words", () => {
-  const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
-  const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
-
-  // Same genre and genre-confidence throughout -- only the measured evidence differs.
-  const nostalgicDecayed = engine.evaluate({
-    moodDimensions: { warmth: 0.75, brightness: 0.3, valence: 0.6, aggression: 0.2 },
-    productionEvidence: { sampleBased: 0.8, distortion: 0.7 },
-    rhythmicGrammar: {}
-  }, genre);
-  const glossyUrban = engine.evaluate({
-    moodDimensions: { warmth: 0.3, brightness: 0.85, valence: 0.6, aggression: 0.2 },
-    productionEvidence: { filterSweep: 0.8, stereoWidth: 0.75, sidechain: 0.1, distortion: 0.05 },
-    rhythmicGrammar: { fourOnFloor: 0.8 }
-  }, genre);
-
-  const decayedTexts = nostalgicDecayed.candidates.map(c => c.text);
-  const urbanTexts = glossyUrban.candidates.map(c => c.text);
-  assert.ok(decayedTexts.length > 0, "decayed/nostalgic evidence should surface at least one region");
-  assert.ok(urbanTexts.length > 0, "glossy/urban evidence should surface at least one region");
-  assert.ok(decayedTexts.some(text => !urbanTexts.includes(text)),
-    `same genre, different evidence must not converge on identical wording; got ${JSON.stringify(decayedTexts)} vs ${JSON.stringify(urbanTexts)}`);
-  // The specific expected direction: decay-flavored evidence should not surface the urban/glossy
-  // 80s-style region, and vice versa.
-  assert.ok(!decayedTexts.includes("도시의 야경"));
-  assert.ok(!urbanTexts.includes("바스러진 테이프 소리"));
-});
-
-test("aesthetic-axis region candidates flow through genreContextEngine alongside rule/relation candidates", () => {
-  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
-  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
-  const result = engine.evaluate({
-    genre: { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false },
-    rhythmicGrammar: { fourOnFloor: 0.75, swing: 0.2 },
-    productionEvidence: { sampleBased: 0.8, filterSweep: 0.75, stereoWidth: 0.7 },
-    moodDimensions: { brightness: 0.8, warmth: 0.35, valence: 0.6, aggression: 0.2 },
-    instruments: [], expressionFeatures: {}
-  });
-  const axisCandidates = result.candidates.filter(item => item.source === "aesthetic-axis");
-  assert.ok(axisCandidates.length > 0, "a confidently-known genre with real glossy/urban evidence should surface at least one axis-based candidate");
-  for (const candidate of axisCandidates) assert.ok(candidate.anchors.length >= 2, "axis candidates must carry real evidence anchors");
-});
-
 test("genreContextEngine exposes axisSignature on its result when an axis engine is wired (section 5's runtime call gate reads this)", () => {
-  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
   const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
   const state = {
     genre: { primary: "City Pop", family: "Pop / Internet", confidence: 0.3, uncertain: true },
@@ -234,30 +190,6 @@ test("a null current or baseline value keeps delta/direction null, never fabrica
   assert.equal(result.direction.warmth, null);
 });
 
-test("a region barely clearing its min threshold does not fire just because genre confidence is high (selectivity is margin-based, not genre-based)", () => {
-  const engine = new AestheticAxisEngine.Engine({
-    axes: { warmth: { components: [{ path: "moodDimensions.warmth", weight: 1 }] } }
-  }, { entries: [{ text: "따뜻한 아날로그 온기", category: "association", requires: [{ axis: "warmth", min: 0.5 }], minAxes: 1 }] });
-  const genre = { primary: "City Pop", confidence: 0.9, uncertain: false };
-  assert.equal(engine.evaluate({ moodDimensions: { warmth: 0.55 } }, genre).candidates.length, 0,
-    "barely over the min threshold, even with a very confident genre, must not be enough");
-  assert.equal(engine.evaluate({ moodDimensions: { warmth: 0.8 } }, genre).candidates.length, 1,
-    "comfortably clearing the threshold should fire");
-});
-
-test("a region can require an axis direction (e.g. 'deepening nostalgia'), not just its current value", () => {
-  const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions, { historyWindowMs: 10000 });
-  const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
-  const t0 = 4_000_000;
-  const flatState = { moodDimensions: { warmth: 0.5, brightness: 0.4, valence: 0.5, aggression: 0.3 },
-    productionEvidence: { sampleBased: 0.75 }, rhythmicGrammar: {} };
-  const first = engine.evaluate(flatState, genre, t0);
-  assert.ok(!first.candidates.some(item => item.text === "짙어지는 향수"), "no baseline yet, direction-gated region must not fire");
-  const deepening = engine.evaluate({ ...flatState, moodDimensions: { ...flatState.moodDimensions, warmth: 1 } }, genre, t0 + 12000);
-  assert.ok(deepening.candidates.some(item => item.text === "짙어지는 향수"),
-    `expected the rising-nostalgia region once warmth clearly climbed; got ${JSON.stringify(deepening.candidates.map(c => c.text))}`);
-});
-
 test("axisSignature is deterministic regardless of key order, and distinguishes genuinely different axis territories", () => {
   const axes = { nostalgia: 0.8, warmth: 0.3 };
   assert.equal(AestheticAxisEngine.axisSignature(axes), AestheticAxisEngine.axisSignature({ warmth: 0.3, nostalgia: 0.8 }),
@@ -274,7 +206,7 @@ test("axisSignature treats a null axis as its own distinct band, never confusing
 });
 
 test("evaluate() exposes an axisSignature alongside its candidates, matching axisSignature() computed directly from the same axes", () => {
-  const engine = new AestheticAxisEngine.Engine(aestheticAxes, aestheticRegions);
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes);
   const genre = { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false };
   const result = engine.evaluate({ moodDimensions: { warmth: 0.7, brightness: 0.4 }, productionEvidence: { sampleBased: 0.6 } }, genre);
   assert.equal(result.axisSignature, AestheticAxisEngine.axisSignature(result.axes));
@@ -383,4 +315,52 @@ test("STEP 2: intimacy no longer silently reduces to warmth alone -- spaciousnes
   const spacious = engine.evaluateAxes({ moodDimensions: { warmth: 0.6, spaciousness: 0.9, aggression: 0.2 } }, genre);
   assert.ok(close.axes.intimacy > spacious.axes.intimacy,
     `same warmth, but low spaciousness must read as more intimate than high spaciousness (got ${close.axes.intimacy} vs ${spacious.axes.intimacy})`);
+});
+
+// The axis engine used to turn its measured vector into words by looking the combination up in
+// data/aestheticRegions.json -- 27 hand-authored Korean phrases, gated on thresholds someone
+// guessed in advance. Four tests here described that vocabulary's behaviour. The axes are real
+// local measurement and stay; the naming has been removed, because AESTHETIC and IMPRESSION
+// belong to Music Flamingo's direct listening.
+
+test("the axis engine measures, and names nothing", () => {
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes);
+  const result = engine.evaluate({
+    moodDimensions: { warmth: 0.75, brightness: 0.3, valence: 0.6, aggression: 0.2 },
+    productionEvidence: { sampleBased: 0.8, distortion: 0.7 },
+    rhythmicGrammar: {}
+  }, { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false });
+  assert.deepEqual(result.candidates, [],
+    "a feature vector clearing thresholds is evidence, never a phrase");
+  assert.ok(result.axes && Object.keys(result.axes).length > 0,
+    "the measurement itself must survive: phrasePoolEngine and replay reporting both read it");
+  assert.equal(typeof result.axisSignature, "string");
+});
+
+test("no vocabulary can be re-introduced through the constructor", () => {
+  const smuggled = { entries: [{ text: "밀수된 표현", category: "association",
+    requires: [{ axis: "nostalgia", min: 0 }], minAxes: 1 }] };
+  const engine = new AestheticAxisEngine.Engine(aestheticAxes, smuggled);
+  const result = engine.evaluate({
+    moodDimensions: { warmth: 0.75, brightness: 0.3, valence: 0.6, aggression: 0.2 },
+    productionEvidence: { sampleBased: 0.8, distortion: 0.7 }, rhythmicGrammar: {}
+  }, { primary: "City Pop", confidence: 0.85, uncertain: false });
+  assert.deepEqual(result.candidates, []);
+  assert.deepEqual(engine.regions, [], "the second argument is ignored, not merely unused by default");
+});
+
+test("genreContextEngine surfaces no local aesthetic phrasing, however strong the evidence", () => {
+  const axisEngine = new AestheticAxisEngine.Engine(aestheticAxes);
+  const engine = new GenreContext.Engine(genreContextKnowledge, axisEngine);
+  const result = engine.evaluate({
+    genre: { primary: "City Pop", family: "Pop / Internet", confidence: 0.85, uncertain: false },
+    rhythmicGrammar: { fourOnFloor: 0.75, swing: 0.2 },
+    productionEvidence: { sampleBased: 0.8, filterSweep: 0.75, stereoWidth: 0.7 },
+    moodDimensions: { brightness: 0.8, warmth: 0.35, valence: 0.6, aggression: 0.2 },
+    instruments: [], expressionFeatures: {}
+  });
+  assert.equal(result.candidates.filter((item) => item.source === "aesthetic-axis").length, 0);
+  // ...while still exposing the measurement the runtime LLM-call gate depends on.
+  assert.equal(typeof result.axisSignature, "string");
+  assert.ok(result.axes);
 });

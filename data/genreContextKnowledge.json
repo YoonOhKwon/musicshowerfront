@@ -84,34 +84,6 @@
               "min": 0.6
             }
           ]
-        },
-        {
-          "text": "Kawaii 미학",
-          "category": "association",
-          "requires": [
-            {
-              "path": "aestheticEvidence.kawaii",
-              "min": 0.8
-            },
-            {
-              "path": "moodDimensions.brightness",
-              "min": 0.55
-            }
-          ]
-        },
-        {
-          "text": "마법소녀 미학",
-          "category": "association",
-          "requires": [
-            {
-              "path": "aestheticEvidence.magicalGirl",
-              "min": 0.85
-            },
-            {
-              "path": "moodDimensions.brightness",
-              "min": 0.55
-            }
-          ]
         }
       ]
     },

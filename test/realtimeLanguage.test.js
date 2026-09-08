@@ -166,7 +166,9 @@ test("late same-epoch responses are rechecked against the current quiet passage"
   resolve(parseLanguageResponse(responseFixture()));
   await pending;
   assert.ok(!engine.snapshot().some(x => ["높은 음압", "격렬함"].includes(x.text)));
-  assert.ok(engine.snapshot().some(x => x.text === "차분함"));
+  assert.ok(engine.snapshot().some(x => x.text === "낮은 음압"));
+  assert.ok(!engine.snapshot().some(x => x.category === "mood" && x.source !== "directAudio"),
+    "a quiet local measurement must not be promoted into a local IMPRESSION");
 });
 
 test("responses older than 60 seconds cannot refresh enrichment or cache", async t => {

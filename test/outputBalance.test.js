@@ -82,18 +82,20 @@ test("artist relations receive a stronger repeat penalty than ordinary context",
   assert.ok(artistRepeat < eraRepeat);
 });
 
-test("cross-language aliases and suffix-only variants dedupe without merging distinct relations", () => {
-  assert.equal(Quality.conceptKey("Kawaii 미학"), Quality.conceptKey("카와이 미학"));
-  assert.equal(Quality.conceptKey({ text: "Future Funk", category: "genre", layer: "CONTEXT" }),
-    Quality.conceptKey({ text: "퓨처펑크", category: "genre", layer: "CONTEXT" }));
+test("suffix-only variants dedupe, while developer genre/aesthetic aliases do not", () => {
   assert.equal(Quality.conceptKey("버블기 도시 미학"), Quality.conceptKey("버블기 도시 미학 연상"));
   assert.equal(Quality.conceptKey({ text: "재즈 클럽 문화", category: "culture", layer: "CONTEXT" }),
     Quality.conceptKey({ text: "재즈 클럽 문화 연관", category: "culture", layer: "CONTEXT" }));
   assert.equal(Quality.conceptKey({ text: "재즈 소편성 씬", category: "scene", layer: "CONTEXT" }),
     Quality.conceptKey({ text: "재즈 소편성 씬 연관", category: "scene", layer: "CONTEXT" }));
+  assert.notEqual(Quality.conceptKey("Kawaii 미학"), Quality.conceptKey("카와이 미학"),
+    "cross-script aesthetic aliases are not a runtime identity table");
+  assert.notEqual(Quality.conceptKey({ text: "Future Funk", category: "genre", layer: "CONTEXT" }),
+    Quality.conceptKey({ text: "퓨처펑크", category: "genre", layer: "CONTEXT" }),
+    "genre romanization aliases are not a runtime identity table");
   assert.notEqual(Quality.conceptKey("House 계열"), Quality.conceptKey("House 문화"));
-  const pool = [{ text: "Kawaii 미학", category: "association", layer: "AESTHETIC", weight: 1 }];
-  assert.equal(Selection.choose(pool, [], () => 0, { active: ["카와이 미학"], observationSeconds: 30 }), undefined);
+  const pool = [{ text: "버블기 도시 미학", category: "association", layer: "AESTHETIC", weight: 1 }];
+  assert.equal(Selection.choose(pool, [], () => 0, { active: ["버블기 도시 미학 연상"], observationSeconds: 30 }), undefined);
   const literalAcrossFamilies = Manager.curate([
     { text: "Pirate Radio 문화", category: "scene", layer: "CONTEXT", relationFamily: "SCENE", confidence: .8 },
     { text: "Pirate Radio 문화", category: "culture", layer: "CONTEXT", relationFamily: "CULTURE", confidence: .79 }
