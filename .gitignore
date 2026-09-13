@@ -9,3 +9,5 @@ npm-debug.log*
 models/research/
 research-output/
 __pycache__/
+
+llm-usage.jsonl

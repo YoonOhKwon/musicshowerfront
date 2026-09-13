@@ -24,6 +24,9 @@ const SemanticFacetManager = (() => {
   function ownershipAllowed(candidate) {
     const item = Layers.decorate(candidate);
     if (forbiddenLocalSemanticSources.has(String(item.source || ""))) return false;
+    // Grounded association may write CONTEXT/AESTHETIC only, and only with cited evidence.
+    if (item.sourceFamily === "groundedAssociation") return Facets.isGroundedAssociation(item);
+    if (item.category === "imagery") return false;
     if (["AESTHETIC", "IMPRESSION"].includes(item.layer)) return isDirectAudio(item);
     // FACT/LIVE may come from local analysis or Music Flamingo. The general language model does
     // not listen to the audio and therefore cannot originate those layers.
@@ -70,7 +73,8 @@ const SemanticFacetManager = (() => {
       ...(state.impressionFacetCandidates || []), ...(state.composedFactCandidates || []),
       ...(state.liveEventCandidates || []), ...(state.aestheticConceptCandidates || []),
       ...(state.directAudioCandidates || []),
-      ...(state.flamingoReservoirCandidates || [])].slice(0, 160)).filter(ownershipAllowed);
+      ...(state.flamingoReservoirCandidates || []),
+      ...(state.groundedAssociationCandidates || [])].slice(0, 180)).filter(ownershipAllowed);
   }
   function local(state) {
     const stabilized = state.stateV2?.displayCandidates;
@@ -83,7 +87,7 @@ const SemanticFacetManager = (() => {
       const realizedKeys = new Set(reservoir.map(sourceIdentity));
       const stable = decorateAll(stabilized.slice(0, 120)).filter(item =>
         !isDirectAudio(item) || !realizedKeys.has(sourceIdentity(item)));
-      candidates = [...stable, ...reservoir].slice(0, 160);
+      candidates = [...stable, ...reservoir, ...decorateAll(state.groundedAssociationCandidates || [])].slice(0, 180);
     } else {
       candidates = base(state);
     }
@@ -134,7 +138,7 @@ const SemanticFacetManager = (() => {
       LIVE: ["live"],
       FACT: ["performance", "instrumentation", "rhythm", "production", "arrangement", "dynamics"],
       CONTEXT: ["genre", "lineage", "era", "scene", "culture", "association"],
-      AESTHETIC: ["association", "mood"], IMPRESSION: ["mood"]
+      AESTHETIC: ["association", "imagery", "mood"], IMPRESSION: ["mood"]
     };
     const cursor = Object.fromEntries(Facets.names.map(facet => [facet, 0]));
     for (let round = 0; round < 16 && selected.length < limit; round++) {

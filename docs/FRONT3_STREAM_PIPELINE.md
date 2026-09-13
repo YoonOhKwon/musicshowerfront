@@ -59,3 +59,24 @@ Flamingo·한국어 실현·최종 선별이 완료되는지 검사한다(두 �
 2026-09-09 로컬 브라우저 검증: 실제 테스트 음원으로 Flamingo 캡처 1회·개념 10개,
 한국어 AESTHETIC/IMPRESSION/FACT 및 실시간 최종 풀 15개 수신과 3D 단어 표시를 확인했다.
 SoundCloud 공유 권한 선택창 자체를 자동화한 검증은 아니다.
+
+## 근거 기반 연상 단어 (문화 · 시대 · 시각 이미지 · 미학)
+
+원칙은 `docs/SEMANTIC_OWNERSHIP.md`의 "근거 기반 외부 연상"을 따른다.
+
+1. Flamingo 프롬프트는 `styleCues`(시대·장면을 연상시키는 소리 특징 자체)를 받는다. 생성 한도는
+   1024토큰이다. 512토큰에서는 로그상 전체 청취 21회 중 14회가 JSON이 닫히기 전에 끊겼다.
+2. 캡처가 한국어로 실현된 뒤, 또는 장르 해상도 단계가 바뀔 때 `lib/groundedAssociation.js`가
+   외부 언어 모델을 한 번 호출한다. 입력은 장르 가설·분류기 예측·Flamingo 개념·스타일 단서뿐이며,
+   모든 단어는 근거 ID를 인용하고 서버가 검증한다.
+3. `analysis.association`에 해상도 단계, 호출·제안·채택·탈락 사유, 스타일 단서, 분류별 단어가 실린다.
+   front3 상태 패널이 분류별로 보여준다.
+4. 화면 풀에는 `family` 이상 구체성이고, 인용한 장르가 아직 현재 가설에 남아 있는 단어만 들어간다.
+   `MUSIC_SHOWER_ASSOCIATIONS_ON_SCREEN=0`이면 상태 패널에만 남는다. 토큰에는 `category`와
+   `textEn`이 실리고, front3의 "분류 이름 표시"를 켜면 단어 아래에 분류 이름이 표시된다.
+
+평가(2026-09-13, 트랙 4개 · 캡처 3회씩, `scripts/measure-word-diversity.cjs` →
+`scripts/evaluate-associations.cjs`): 근거 유효율 97–100%, 서로 다른 트랙 간 단어 겹침(Jaccard)
+0–0.04, 블라인드 LLM 범용성 점수(0=장르 특정, 1=어디에나 맞음)는 `family` 단어 0.12–0.32,
+`broad` 단어 0.58–0.71. 네 트랙 모두 분류기와 Flamingo가 같은 장르로 수렴하지 않아 `specific`
+단계에는 도달하지 않았다.

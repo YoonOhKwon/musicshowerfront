@@ -27,7 +27,8 @@ function state(primary, extra = {}) {
 }
 
 test("open schema exposes fourteen facets without adjective enums", () => {
-  assert.deepEqual(Object.keys(languageSchema.properties), Facets.names);
+  // imagery is written only by grounded association, never by the general language pool.
+  assert.deepEqual(Object.keys(languageSchema.properties), Facets.names.filter(name => name !== "imagery"));
   assert.equal(languageSchema.properties.mood.items.properties.text.enum, undefined);
   assert.equal(languageSchema.required.length, 14);
 });

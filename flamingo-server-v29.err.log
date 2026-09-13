@@ -1,0 +1,39 @@
+W0913 17:06:51.014000 33576 Lib\site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Loading weights:   0%|          | 0/830 [00:00<?, ?it/s]Loading weights:   7%|▋         | 59/830 [00:00<00:01, 586.69it/s]Loading weights:  18%|█▊        | 146/830 [00:00<00:00, 751.02it/s]Loading weights:  28%|██▊       | 234/830 [00:00<00:00, 799.94it/s]Loading weights:  39%|███▉      | 326/830 [00:00<00:00, 840.46it/s]Loading weights:  50%|████▉     | 414/830 [00:00<00:00, 853.22it/s]Loading weights:  60%|██████    | 500/830 [00:01<00:01, 288.77it/s]Loading weights:  68%|██████▊   | 561/830 [00:02<00:01, 153.18it/s]Loading weights:  73%|███████▎  | 604/830 [00:02<00:01, 117.96it/s]Loading weights:  77%|███████▋  | 636/830 [00:03<00:01, 103.08it/s]Loading weights:  80%|███████▉  | 660/830 [00:03<00:01, 95.39it/s] Loading weights:  82%|████████▏ | 679/830 [00:03<00:01, 90.97it/s]Loading weights:  84%|████████▎ | 694/830 [00:04<00:01, 89.54it/s]Loading weights:  85%|████████▌ | 707/830 [00:04<00:01, 81.96it/s]Loading weights:  87%|████████▋ | 718/830 [00:04<00:01, 81.57it/s]Loading weights:  88%|████████▊ | 728/830 [00:04<00:01, 76.09it/s]Loading weights:  89%|████████▉ | 737/830 [00:04<00:01, 70.05it/s]Loading weights:  90%|████████▉ | 745/830 [00:04<00:01, 65.02it/s]Loading weights:  91%|█████████ | 756/830 [00:05<00:01, 69.58it/s]Loading weights:  92%|█████████▏| 767/830 [00:05<00:00, 73.95it/s]Loading weights:  93%|█████████▎| 775/830 [00:05<00:00, 73.11it/s]Loading weights:  94%|█████████▍| 783/830 [00:05<00:00, 66.60it/s]Loading weights:  95%|█████████▌| 792/830 [00:05<00:00, 67.35it/s]Loading weights:  97%|█████████▋| 803/830 [00:05<00:00, 72.29it/s]Loading weights:  98%|█████████▊| 811/830 [00:05<00:00, 69.29it/s]Loading weights:  99%|█████████▊| 819/830 [00:06<00:00, 63.45it/s]Loading weights: 100%|██████████| 830/830 [00:06<00:00, 136.29it/s]
+Some parameters are on the meta device because they were offloaded to the cpu.
+127.0.0.1 - - [13/Sep/2026 17:06:58] "GET /health HTTP/1.1" 200 -
+[transformers] This is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (1200). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+127.0.0.1 - - [13/Sep/2026 17:07:09] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 17:07:10] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 17:07:10] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 17:07:42] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:08:13] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:09:15] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 17:09:22] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 17:09:22] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 17:09:22] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:10:07] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:10:48] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:12:02] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:13:14] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:14:27] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:15:16] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:16:32] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:17:45] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 17:17:46] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 17:17:46] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 17:19:00] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:19:27] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:20:13] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 17:20:29] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 17:20:29] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 17:20:29] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:21:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:22:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:23:35] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:24:46] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:25:58] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:27:10] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:28:26] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:29:31] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:30:18] "POST /analyze HTTP/1.1" 200 -

@@ -1,0 +1,61 @@
+W0913 17:33:03.109000 16532 Lib\site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Loading weights:   0%|          | 0/830 [00:00<?, ?it/s]Loading weights:   7%|▋         | 56/830 [00:00<00:01, 545.29it/s]Loading weights:  20%|██        | 166/830 [00:00<00:00, 862.66it/s]Loading weights:  32%|███▏      | 266/830 [00:00<00:00, 918.54it/s]Loading weights:  45%|████▌     | 376/830 [00:00<00:00, 984.11it/s]Loading weights:  58%|█████▊    | 483/830 [00:00<00:00, 1011.34it/s]Loading weights:  70%|███████   | 585/830 [00:02<00:01, 164.82it/s] Loading weights:  79%|███████▉  | 654/830 [00:03<00:01, 127.06it/s]Loading weights:  85%|████████▍ | 703/830 [00:03<00:01, 110.37it/s]Loading weights:  89%|████████▉ | 739/830 [00:04<00:00, 101.05it/s]Loading weights:  92%|█████████▏| 766/830 [00:04<00:00, 97.58it/s] Loading weights:  95%|█████████▍| 788/830 [00:04<00:00, 92.20it/s]Loading weights:  97%|█████████▋| 805/830 [00:05<00:00, 84.52it/s]Loading weights:  99%|█████████▊| 819/830 [00:05<00:00, 85.07it/s]Loading weights: 100%|██████████| 830/830 [00:05<00:00, 154.64it/s]
+Some parameters are on the meta device because they were offloaded to the cpu.
+127.0.0.1 - - [13/Sep/2026 17:33:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:33:40] "POST /analyze HTTP/1.1" 200 -
+[transformers] This is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (1200). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+127.0.0.1 - - [13/Sep/2026 17:35:14] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:37:17] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:39:35] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:40:57] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:42:50] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:44:48] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:46:59] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:49:04] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:51:01] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:53:10] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:55:08] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:57:20] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 17:59:31] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:01:02] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:03:10] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:03:38] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:05:47] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:08:01] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:10:15] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:10:45] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:11:11] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:13:20] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:14:20] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:14:20] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:14:20] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:16:11] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:17:22] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:17:23] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:17:23] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:17:56] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:17:57] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:17:57] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:18:38] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:20:25] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:20:26] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:20:26] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:20:26] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:20:26] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:22:37] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:23:09] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:25:59] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:26:45] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:26:46] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:26:46] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:34:51] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:36:57] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:39:38] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:39:50] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:39:51] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:39:51] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:42:10] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2026 18:42:31] "POST /cancel HTTP/1.1" 202 -
+127.0.0.1 - - [13/Sep/2026 18:42:39] code 409, message Inference superseded by a newer track or capture
+127.0.0.1 - - [13/Sep/2026 18:42:39] "POST /analyze HTTP/1.1" 409 -
+127.0.0.1 - - [13/Sep/2026 18:42:39] "POST /analyze HTTP/1.1" 200 -

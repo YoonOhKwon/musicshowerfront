@@ -1,0 +1,2130 @@
+Flamingo server listening at port 5005 (503 while the model loads)
+Loading Music Flamingo model (This will take a minute)...
+Music Flamingo quantization: NF4 4-bit; placement: audio-priority
+Music Flamingo device map: {"lm_head": 0, "model.audio_tower": 0, "model.language_model.embed_tokens": "cpu", "model.language_model.layers": 0, "model.language_model.norm": 0, "model.language_model.rotary_emb": 0, "model.multi_modal_projector": 0, "model.pos_emb": 0}
+CUDA after load: allocated=5.65 GiB, reserved=5.80 GiB
+Model loaded successfully. Starting server...
+[Music Flamingo] text context budget: 8192 tokens
+Flamingo server serving at port 5005
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'clear kick on every downbeat, snare on 2 and 4, hi-hats in 16th‑note subdivisions.'}, {'id': 2, 'text': 'synth bass with side‑chain compression', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'bass synth follows kick, ducking volume to create pumping effect.'}, {'id': 3, 'text': 'repetitive melodic loop', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'short synth phrase repeats every 4 bars, providing harmonic anchor.'}, {'id': 4, 'text': 'minimalistic drum pattern', 'category': 'rhythm', 'confidence': 0.8, 'reasoning': 'kick, snare, hi‑hat pattern stays constant throughout.'}, {'id': 5, 'text': 'clean, digital production', 'category': 'production', 'confidence': 0.8, 'reasoning': 'clear separation of elements, wide stereo imaging, subtle reverb on synths.'}], 'signatureRelations': [{'id': 1, 'text': 'kick and bass lock in phase', 'category': 'rhythm', 'confidence': 0.8, 'reasoning': 'kick and bass are side‑chained, so bass ducks on each kick, reinforcing the pulse.'}, {'id': 2, 'text': 'melodic loop repeats over static harmony', 'category': 'instrumentation', 'confidence': 0.7, 'reasoning': 'the same synth loop plays continuously, creating a loop‑based structure.'}, {'id': 3, 'text': 'steady hi‑hat subdivision', 'category': 'rhythm', 'confidence': 0.7, 'reasoning': 'hi‑hat pattern is consistent 16th‑note subdivision, adding forward motion.'}], 'styleCues': [{'id': 1, 'text': 'digital drum machine', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'kick, snare, and hi‑hat sounds are synthesized, not acoustic.'}, {'id': 2, 'text': 'synth bass with side‑chain', 'category': 'production', 'confidence': 0.7, 'reasoning': 'bass synth ducks under the kick, typical of modern EDM and trap production.'}], 'uncertainties': ['instrument identity ambiguous'], 'genreHypotheses': [{'label': 'electronic dance music', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'steady 4/4 beat, side‑chained bass, repetitive melodic loop are hallmark traits of EDM.'}, {'label': 'trap', 'confidence': 0.4, 'supportRefs': [2, 4], 'reasoning': 'side‑chained bass and minimalistic drum pattern are common in trap beats.'}], 'aestheticConcepts': [{'text': 'clean, digital aesthetic', 'confidence': 0.8, 'supportRefs': [5], 'reasoning': 'production emphasizes clarity and separation, typical of modern digital music.'}, {'text': 'loop‑based structure', 'confidence': 0.7, 'supportRefs': [3], 'reasoning': 'the track relies on a repeating melodic loop, a common loop‑based arrangement.'}], 'impressions': [{'text': 'energetic, forward‑driving', 'confidence': 0.6, 'supportRefs': [1, 4], 'reasoning': 'steady pulse and side‑chained bass create a sense of momentum and energy.'}, {'text': 'minimalist, repetitive', 'confidence': 0.5, 'supportRefs': [3], 'reasoning': 'the same melodic loop repeats throughout, giving a minimalist feel.'}], 'contextHypotheses': [{'text': 'modern digital production', 'category': 'scene', 'confidence': 0.8, 'supportRefs': [5], 'reasoning': 'clean, digital production style is characteristic of contemporary electronic music.'}, {'text': 'loop‑based arrangement', 'category': 'scene', 'confidence': 0.6, 'supportRefs': [3], 'reasoning': 'the track’s structure is built around a repeating loop, a common arrangement in EDM and trap.'}]}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "clear kick on every downbeat snare on 2 and 4 hi-hats in 16th‑note",
+      "id": "1"
+    },
+    {
+      "text": "synth bass with side‑chain compression",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "bass synth follows kick ducking volume to create pumping effect.",
+      "id": "2"
+    },
+    {
+      "text": "clean digital production",
+      "category": "production",
+      "confidence": 0.8,
+      "reasoningHints": "clear separation of elements wide stereo imaging subtle reverb on",
+      "id": "5"
+    },
+    {
+      "text": "repetitive melodic loop",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "short synth phrase repeats every 4 bars providing harmonic anchor.",
+      "id": "3"
+    },
+    {
+      "text": "minimalistic drum pattern",
+      "category": "rhythm",
+      "confidence": 0.8,
+      "reasoningHints": "kick snare hi‑hat pattern stays constant throughout.",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "kick and bass lock in phase",
+      "confidence": 0.8,
+      "reasoningHints": "kick and bass are side‑chained so bass ducks on each kick reinforcing",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "melodic loop repeats over static harmony",
+      "confidence": 0.7,
+      "reasoningHints": "the same synth loop plays continuously creating a loop‑based structure.",
+      "supportRefs": [],
+      "id": "2"
+    },
+    {
+      "text": "steady hi‑hat subdivision",
+      "confidence": 0.7,
+      "reasoningHints": "hi‑hat pattern is consistent 16th‑note subdivision adding forward",
+      "supportRefs": [],
+      "id": "3"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "digital drum machine",
+      "confidence": 0.8,
+      "reasoningHints": "kick snare and hi‑hat sounds are synthesized not acoustic.",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "synth bass with side‑chain",
+      "confidence": 0.7,
+      "reasoningHints": "bass synth ducks under the kick typical of modern EDM and trap",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrument identity ambiguous"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic dance music",
+      "confidence": 0.6,
+      "reasoningHints": "steady 4/4 beat side‑chained bass repetitive melodic loop are hallmark",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "trap",
+      "confidence": 0.4,
+      "reasoningHints": "side‑chained bass and minimalistic drum pattern are common in trap",
+      "supportRefs": [
+        "2",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "clean digital aesthetic",
+      "confidence": 0.8,
+      "reasoningHints": "production emphasizes clarity and separation typical of modern digital",
+      "supportRefs": [
+        "5"
+      ]
+    },
+    {
+      "text": "loop‑based structure",
+      "confidence": 0.7,
+      "reasoningHints": "the track relies on a repeating melodic loop a common loop‑based",
+      "supportRefs": [
+        "3"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "energetic forward‑driving",
+      "confidence": 0.6,
+      "reasoningHints": "steady pulse and side‑chained bass create a sense of momentum and",
+      "supportRefs": [
+        "1",
+        "4"
+      ]
+    },
+    {
+      "text": "minimalist repetitive",
+      "confidence": 0.5,
+      "reasoningHints": "the same melodic loop repeats throughout giving a minimalist feel.",
+      "supportRefs": [
+        "3"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "modern digital production",
+      "category": "scene",
+      "confidence": 0.8,
+      "reasoningHints": "clean digital production style is characteristic of contemporary",
+      "supportRefs": [
+        "5"
+      ]
+    },
+    {
+      "text": "loop‑based arrangement",
+      "category": "scene",
+      "confidence": 0.6,
+      "reasoningHints": "the track’s structure is built around a repeating loop a common",
+      "supportRefs": [
+        "3"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 18,
+    "acceptedConceptCount": 18,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 3,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 170.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+[Music Flamingo] input tokens=1980; generation budget=1024
+Running Flamingo structured deep-listening inference...
+Running Flamingo structured deep-listening inference (first impression)...
+Inference cancelled: superseded before inferenceProbe error: ConnectionAbortedError(10053, '현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다', None, 10053, None)
+
+Client already disconnected; 409 not delivered.Client already disconnected; 500 not delivered.
+
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental orchestral', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 2, 'text': 'rich harmonic texture', 'category': 'harmony', 'confidence': 0.95}, {'id': 3, 'text': 'dynamic crescendo', 'category': 'dynamics', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'orchestral texture', 'supportRefs': [1, 2], 'confidence': 0.95}], 'uncertainties': ['no clear genre label'], 'genreHypotheses': [{'label': 'orchestral', 'confidence': 0.75, 'supportRefs': [1, 2, 3]}, {'label': 'contemporary classical', 'confidence': 0.5, 'supportRefs': [1, 2, 3]}], 'aestheticConcepts': ['grand', 'evocative'], 'impressions': ['dramatic', 'emotional']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental orchestral",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "rich harmonic texture",
+      "category": "arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "sourceCategory": "harmony",
+      "id": "2"
+    },
+    {
+      "text": "dynamic crescendo",
+      "category": "dynamics",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "orchestral texture",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre label"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "orchestral",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3"
+      ],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "contemporary classical",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3"
+      ],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "grand",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "evocative",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "dramatic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "emotional",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 97.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': '4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'steady quarter‑note pulse with regular accent on beats 1 and 3.'}, {'id': 2, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'warm, resonant piano tone with natural sustain and slight room ambience.'}, {'id': 3, 'text': 'gentle dynamics', 'category': 'dynamics', 'confidence': 0.9, 'reasoning': 'consistent volume level with subtle dynamic shaping, no extreme peaks.'}, {'id': 4, 'text': 'simple chord progression', 'category': 'harmony', 'confidence': 0.9, 'reasoning': 'repeating sequence of major and minor triads, mostly diatonic, with occasional chromatic passing chords.'}, {'id': 5, 'text': 'no percussion', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'no drums, cymbals, or electronic percussion are audible.'}, {'id': 6, 'text': 'no vocals', 'category': 'vocals', 'confidence': 0.9, 'reasoning': 'no sung or spoken voice is present.'}], 'signatureRelations': [{'id': 1, 'text': 'piano and harmony interplay', 'category': 'relation', 'confidence': 0.9, 'reasoning': 'piano chords and melodic lines are tightly synchronized, creating a cohesive harmonic texture.'}, {'id': 2, 'text': 'harmonic rhythm', 'category': 'relation', 'confidence': 0.9, 'reasoning': 'chords change on each beat, giving a steady harmonic pulse that supports the 4/4 rhythm.'}], 'styleCues': [{'id': 1, 'text': 'acoustic piano', 'category': 'style cue', 'confidence': 0.9, 'reasoning': 'the warm, resonant piano tone and natural room ambience suggest a classical or contemporary acoustic setting.'}, {'id': 2, 'text': 'simple diatonic harmony', 'category': 'style cue', 'confidence': 0.9, 'reasoning': 'the use of major and minor triads with occasional chromatic passing chords points to a tonal, Western classical or pop‑ballad style.'}], 'uncertainties': ['no additional instruments', 'no electronic elements', 'no vocal style'], 'genreHypotheses': [{'label': 'acoustic ballad', 'confidence': 0.9, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the acoustic piano, gentle dynamics, and simple diatonic harmony are characteristic of an acoustic ballad genre.'}, {'label': 'contemporary classical', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the clean, unprocessed piano sound and steady 4/4 pulse align with contemporary classical or minimalist piano works.'}], 'aestheticConcepts': [{'text': 'intimate', 'confidence': 0.9, 'supportRefs': [2, 3], 'reasoning': 'the warm piano tone and consistent dynamics create an intimate listening experience.'}, {'text': 'reflective', 'confidence': 0.8, 'supportRefs': [4], 'reasoning': 'the simple, repeating chord progression and lack of rhythmic complexity evoke a reflective mood.'}], 'impressions': [{'text': 'calm', 'confidence': 0.9, 'supportRefs': [3], 'reasoning': 'the gentle dynamics and steady pulse convey a sense of calm and steadiness.'}, {'text': 'melancholic', 'confidence': 0.6, 'supportRefs': [4], 'reasoning': 'the minor chords within the progression add a subtle undercurrent of melancholy.'}], 'contextHypotheses': [{'text': 'solo piano performance', 'category': 'scene', 'confidence': 0.9, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the absence of other instruments and the focus on piano suggest a solo performance setting.'}, {'text': 'contemporary classical concert', 'category': 'scene', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the clean, unprocessed piano sound and steady 4/4 pulse
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "steady quarter‑note pulse with regular accent on beats 1 and 3.",
+      "id": "1"
+    },
+    {
+      "text": "acoustic piano",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "warm resonant piano tone with natural sustain and slight room ambience.",
+      "id": "2"
+    },
+    {
+      "text": "gentle dynamics",
+      "category": "dynamics",
+      "confidence": 0.9,
+      "reasoningHints": "consistent volume level with subtle dynamic shaping no extreme peaks.",
+      "id": "3"
+    },
+    {
+      "text": "simple chord progression",
+      "category": "arrangement",
+      "confidence": 0.9,
+      "reasoningHints": "repeating sequence of major and minor triads mostly diatonic with",
+      "sourceCategory": "harmony",
+      "id": "4"
+    },
+    {
+      "text": "no vocals",
+      "category": "performance",
+      "confidence": 0.9,
+      "reasoningHints": "no sung or spoken voice is present.",
+      "sourceCategory": "vocals",
+      "id": "6"
+    },
+    {
+      "text": "no percussion",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "no drums cymbals or electronic percussion are audible.",
+      "id": "5"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "piano and harmony interplay",
+      "confidence": 0.9,
+      "reasoningHints": "piano chords and melodic lines are tightly synchronized creating a",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "harmonic rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "chords change on each beat giving a steady harmonic pulse that supports",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "acoustic piano",
+      "confidence": 0.9,
+      "reasoningHints": "the warm resonant piano tone and natural room ambience suggest a",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "simple diatonic harmony",
+      "confidence": 0.9,
+      "reasoningHints": "the use of major and minor triads with occasional chromatic passing",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "no additional instruments",
+    "no electronic elements",
+    "no vocal style"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "acoustic ballad",
+      "confidence": 0.9,
+      "reasoningHints": "the acoustic piano gentle dynamics and simple diatonic harmony are",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "contemporary classical",
+      "confidence": 0.7,
+      "reasoningHints": "the clean unprocessed piano sound and steady 4/4 pulse align with",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "intimate",
+      "confidence": 0.9,
+      "reasoningHints": "the warm piano tone and consistent dynamics create an intimate listening",
+      "supportRefs": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "text": "reflective",
+      "confidence": 0.8,
+      "reasoningHints": "the simple repeating chord progression and lack of rhythmic complexity",
+      "supportRefs": [
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "calm",
+      "confidence": 0.9,
+      "reasoningHints": "the gentle dynamics and steady pulse convey a sense of calm and",
+      "supportRefs": [
+        "3"
+      ]
+    },
+    {
+      "text": "melancholic",
+      "confidence": 0.6,
+      "reasoningHints": "the minor chords within the progression add a subtle undercurrent of",
+      "supportRefs": [
+        "4"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "solo piano performance",
+      "category": "scene",
+      "confidence": 0.9,
+      "reasoningHints": "the absence of other instruments and the focus on piano suggest a solo",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "text": "contemporary classical concert",
+      "category": "scene",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 18,
+    "acceptedConceptCount": 18,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 6,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 173.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 7->5
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'No vocal track is present.'}, {'id': 2, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 3, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 4, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 5, 'text': 'acoustic guitar', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The guitar is clean, unprocessed, and played with a gentle, fingerstyle technique.'}, {'id': 6, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the primary harmonic instrument, playing arpeggiated and chordal figures.'}, {'id': 7, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass provides a warm, supportive foundation, often doubling the piano's left hand.'}, {'id': 8, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is mixed with natural reverb, emphasizing a soft brush or light stick pattern.'}, {'id': 9, 'text': 'acoustic guitar', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The guitar adds subtle texture, often playing open chords or gentle melodic fills.'}, {'id': 10, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the most prominent instrument, carrying the main melodic and harmonic material.'}, {'id': 11, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass is warm and resonant, reinforcing the harmonic root and providing a steady pulse.'}, {'id': 12, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with a natural, roomy sound, using soft brushes or light sticks to keep the dynamics gentle.'}, {'id': 13, 'text': 'acoustic guitar', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The guitar is clean and unprocessed, adding subtle harmonic color and occasional melodic embellishments.'}, {'id': 14, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the primary melodic and harmonic instrument, playing arpeggiated figures and chordal accompaniment.'}, {'id': 15, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass is warm, resonant, and acoustic, supporting the harmonic foundation with a steady, supportive pulse.'}, {'id': 16, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is mixed with natural reverb, emphasizing a soft brush or light stick pattern that keeps the dynamics gentle.'}, {'id': 17, 'text': 'acoustic guitar', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The guitar is clean and unprocessed, adding subtle texture and occasional melodic fills.'}, {'id': 18, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the most prominent instrument, carrying the main melodic and harmonic material.'}, {'id': 19, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "No vocal track is present.",
+      "id": "1"
+    },
+    {
+      "text": "acoustic piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The piano is the only clearly audible melodic and harmonic source.",
+      "id": "2"
+    },
+    {
+      "text": "acoustic bass",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The bass sound is warm resonant and acoustic not synthesized.",
+      "id": "3"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The drum kit is recorded with natural room ambience and a balanced mix",
+      "id": "4"
+    },
+    {
+      "text": "acoustic guitar",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The guitar is clean unprocessed and played with a gentle fingerstyle",
+      "id": "5"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 7,
+    "acceptedConceptCount": 5,
+    "duplicateOrRejectedCount": 2,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 146.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 19->4
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'No vocal track is present.'}, {'id': 2, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 3, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 4, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 5, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 6, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 7, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 8, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 9, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 10, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 11, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 12, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 13, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 14, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 15, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 16, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 17, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 18, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, not synthesized.'}, {'id': 19, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is recorded with natural room ambience and a balanced mix of kick, snare, and
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "No vocal track is present.",
+      "id": "1"
+    },
+    {
+      "text": "acoustic piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The piano is the only clearly audible melodic and harmonic source.",
+      "id": "2"
+    },
+    {
+      "text": "acoustic bass",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The bass sound is warm resonant and acoustic not synthesized.",
+      "id": "3"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The drum kit is recorded with natural room ambience and a balanced mix",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 19,
+    "acceptedConceptCount": 4,
+    "duplicateOrRejectedCount": 15,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 4,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 131.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 19->4
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'No vocal track is present.'}, {'id': 2, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 3, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, with a natural low‑frequency response.'}, {'id': 4, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is acoustic, with a natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 5, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 6, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, with a natural low‑frequency response.'}, {'id': 7, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is acoustic, with a natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 8, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 9, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, with a natural low‑frequency response.'}, {'id': 10, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is acoustic, with a natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 11, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 12, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, with a natural low‑frequency response.'}, {'id': 13, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is acoustic, with a natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 14, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 15, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, with a natural low‑frequency response.'}, {'id': 16, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The drum kit is acoustic, with a natural room ambience and a balanced mix of kick, snare, and cymbals.'}, {'id': 17, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The piano is the only clearly audible melodic and harmonic source.'}, {'id': 18, 'text': 'acoustic bass', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The bass sound is warm, resonant, and acoustic, with a natural low‑frequency response.'}, {'id': 19, 'text': 'acoustic drum kit', 'category
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "No vocal track is present.",
+      "id": "1"
+    },
+    {
+      "text": "acoustic piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The piano is the only clearly audible melodic and harmonic source.",
+      "id": "2"
+    },
+    {
+      "text": "acoustic bass",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The bass sound is warm resonant and acoustic with a natural",
+      "id": "3"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The drum kit is acoustic with a natural room ambience and a balanced mix",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [
+    "unrecognized audible category"
+  ],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 19,
+    "acceptedConceptCount": 4,
+    "duplicateOrRejectedCount": 15,
+    "quarantinedCount": 1,
+    "fieldCounts": {
+      "audibleObservations": 4,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 132.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'slow, steady pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'steady 4/4 feel with a relaxed tempo around 60–70 BPM, no syncopation or swing.'}, {'id': 2, 'text': 'rich, warm string ensemble', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'full, resonant string section with layered violins, violas, cellos and double basses, no electronic or percussive augmentation.'}, {'id': 3, 'text': 'gradual dynamic swell', 'category': 'dynamics', 'confidence': 0.8, 'reasoning': 'slow crescendo from a soft opening to a fuller, more resonant middle section, then tapering off.'}, {'id': 4, 'text': 'melancholic, minor‑toned harmony', 'category': 'harmony', 'confidence': 0.8, 'reasoning': 'predominantly minor‑mode chordal movement, with occasional modal shifts that deepen the somber atmosphere.'}, {'id': 5, 'text': 'sustained, legato phrasing', 'category': 'performance', 'confidence': 0.9, 'reasoning': 'smooth, legato bowing and vocal‑like melodic lines, emphasizing long, singing phrases.'}], 'signatureRelations': [{'id': 1, 'text': 'strings and voice intertwine', 'category': 'relation', 'confidence': 0.7, 'reasoning': 'the vocal line often mirrors or harmonizes with the string texture, creating a unified melodic contour.'}, {'id': 2, 'text': 'dynamic layering', 'category': 'relation', 'confidence': 0.6, 'reasoning': 'strings gradually add layers, building intensity before receding, mirroring the vocal dynamics.'}], 'styleCues': [{'id': 1, 'text': 'acoustic recording', 'category': 'production', 'confidence': 0.8, 'reasoning': 'natural room ambience, minimal processing, suggesting a live or studio capture without heavy compression or digital effects.'}, {'id': 2, 'text': 'classical orchestration', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'full string ensemble with no electronic or percussive elements, typical of chamber or orchestral works.'}], 'uncertainties': ['instrumentation ambiguity', 'tempo ambiguity'], 'genreHypotheses': [{'label': 'classical chamber music', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the ensemble, harmonic language, and expressive phrasing align with the classical chamber tradition.'}, {'label': 'contemporary classical', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the modern recording quality and subtle dynamic shaping suggest a contemporary classical approach.'}], 'aestheticConcepts': [{'text': 'intimate, reflective', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the slow tempo, minor tonality, and sustained string textures create a contemplative, introspective mood.'}, {'text': 'dramatic, melancholic', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the gradual dynamic swell and minor harmonic palette evoke a sense of yearning and emotional depth.'}], 'impressions': [{'text': 'solemn, mournful', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the overall atmosphere is one of quiet sorrow and reflective introspection.'}, {'text': 'subtle, nuanced', 'confidence': 0.5, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the piece moves gently, with delicate phrasing and a restrained dynamic range, suggesting a nuanced emotional landscape.'}], 'contextHypotheses': [{'text': 'late‑Romantic chamber work', 'category': 'scene', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'the expressive minor harmonies and gradual dynamic shaping recall late‑Romantic chamber compositions.'}, {'text': 'contemporary art music', 'category': 'scene', 'confidence': 
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "slow steady pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "steady 4/4 feel with a relaxed tempo around 60–70 BPM no syncopation or",
+      "id": "1"
+    },
+    {
+      "text": "rich warm string ensemble",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "full resonant string section with layered violins violas cellos and",
+      "id": "2"
+    },
+    {
+      "text": "gradual dynamic swell",
+      "category": "dynamics",
+      "confidence": 0.8,
+      "reasoningHints": "slow crescendo from a soft opening to a fuller more resonant middle",
+      "id": "3"
+    },
+    {
+      "text": "melancholic minor‑toned harmony",
+      "category": "arrangement",
+      "confidence": 0.8,
+      "reasoningHints": "predominantly minor‑mode chordal movement with occasional modal shifts",
+      "sourceCategory": "harmony",
+      "id": "4"
+    },
+    {
+      "text": "sustained legato phrasing",
+      "category": "performance",
+      "confidence": 0.9,
+      "reasoningHints": "smooth legato bowing and vocal‑like melodic lines emphasizing long",
+      "id": "5"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "strings and voice intertwine",
+      "confidence": 0.7,
+      "reasoningHints": "the vocal line often mirrors or harmonizes with the string texture",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "dynamic layering",
+      "confidence": 0.6,
+      "reasoningHints": "strings gradually add layers building intensity before receding",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "acoustic recording",
+      "confidence": 0.8,
+      "reasoningHints": "natural room ambience minimal processing suggesting a live or studio",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "classical orchestration",
+      "confidence": 0.9,
+      "reasoningHints": "full string ensemble with no electronic or percussive elements typical",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrumentation ambiguity",
+    "tempo ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "classical chamber music",
+      "confidence": 0.8,
+      "reasoningHints": "the ensemble harmonic language and expressive phrasing align with the",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "contemporary classical",
+      "confidence": 0.6,
+      "reasoningHints": "the modern recording quality and subtle dynamic shaping suggest a",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "intimate reflective",
+      "confidence": 0.7,
+      "reasoningHints": "the slow tempo minor tonality and sustained string textures create a",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "text": "dramatic melancholic",
+      "confidence": 0.6,
+      "reasoningHints": "the gradual dynamic swell and minor harmonic palette evoke a sense of",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "solemn mournful",
+      "confidence": 0.8,
+      "reasoningHints": "the overall atmosphere is one of quiet sorrow and reflective",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "text": "subtle nuanced",
+      "confidence": 0.5,
+      "reasoningHints": "the piece moves gently with delicate phrasing and a restrained dynamic",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "late‑Romantic chamber work",
+      "category": "scene",
+      "confidence": 0.6,
+      "reasoningHints": "the expressive minor harmonies and gradual dynamic shaping recall",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "text": "contemporary art music",
+      "category": "scene",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 17,
+    "acceptedConceptCount": 17,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 131.2s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 9->8
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'No vocal track is present.'}, {'id': 2, 'text': 'acoustic timbres', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'All sounds are produced by acoustic instruments, with no electronic processing audible.'}, {'id': 3, 'text': 'woodwind lead', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'A solo woodwind instrument carries the main melodic line throughout the piece.'}, {'id': 4, 'text': 'string accompaniment', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'A string ensemble provides harmonic support and rhythmic texture, often in a pizzicato or lightly bowed style.'}, {'id': 5, 'text': 'percussion accents', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'Sparse percussive elements appear intermittently, mainly to mark phrase boundaries or add subtle rhythmic color.'}, {'id': 6, 'text': 'dynamic contrast', 'category': 'dynamics', 'confidence': 0.95, 'reasoning': 'Volume levels shift from soft, intimate passages to moderately loud sections, creating a sense of ebb and flow.'}, {'id': 7, 'text': 'rubato phrasing', 'category': 'performance', 'confidence': 0.95, 'reasoning': 'The performer employs flexible tempo and expressive timing, especially in the woodwind line, giving the music a lyrical, singing quality.'}, {'id': 8, 'text': 'tonal harmony', 'category': 'harmony', 'confidence': 0.95, 'reasoning': 'The harmonic language is tonal, with clear major and minor triads and occasional seventh chords, suggesting a classical or folk‑derived idiom.'}, {'id': 9, 'text': 'moderate tempo', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'The piece moves at a moderate pace, neither too fast nor too slow, allowing the melodic and harmonic material to breathe.'}], 'signatureRelations': [{'id': 1, 'text': 'woodwind lead over string accompaniment', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The woodwind melody is supported by the strings, which provide harmonic and rhythmic grounding.'}, {'id': 2, 'text': 'percussion accents punctuate phrasing', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'Sparse percussive hits appear at phrase boundaries, emphasizing structural points without dominating the texture.'}], 'styleCues': [{'id': 1, 'text': 'acoustic chamber ensemble', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The ensemble consists of woodwind, strings, and light percussion, typical of a small chamber group.'}, {'id': 2, 'text': 'natural acoustic space', 'category': 'production', 'confidence': 0.95, 'reasoning': 'The recording captures the natural resonance of the instruments, with minimal artificial reverb or processing, suggesting a live or minimally processed studio setting.'}], 'uncertainties': ['instrumentation ambiguity', 'tempo ambiguity'], 'genreHypotheses': [{'label': 'classical chamber music', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4, 5, 6, 7, 8], 'reasoning': 'The piece features a woodwind lead, string accompaniment, and light percussion, all hallmarks of classical chamber repertoire.'}, {'label': 'folk chamber music', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4, 5, 6, 7, 8], 'reasoning': 'The tonal harmony, moderate tempo, and expressive rubato phrasing are common in folk chamber traditions.'}], 'aestheticConcepts': [{'text': 'intimate', 'confidence': 0.95, 'supportRefs': [6], 'reasoning': 'The dynamic contrast and expressive phrasing create a close, personal listening experience.'}, {'text': 'reflective', 'confidence': 0.95, 'supportRefs': [7], 'reasoning': 'The moderate tempo and tonal harmony evoke a contemplative, introspective mood.'}], 'im
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "No vocal track is present.",
+      "id": "1"
+    },
+    {
+      "text": "dynamic contrast",
+      "category": "dynamics",
+      "confidence": 0.95,
+      "reasoningHints": "Volume levels shift from soft intimate passages to moderately loud",
+      "id": "6"
+    },
+    {
+      "text": "rubato phrasing",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "The performer employs flexible tempo and expressive timing especially in",
+      "id": "7"
+    },
+    {
+      "text": "tonal harmony",
+      "category": "arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "The harmonic language is tonal with clear major and minor triads and",
+      "sourceCategory": "harmony",
+      "id": "8"
+    },
+    {
+      "text": "moderate tempo",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "The piece moves at a moderate pace neither too fast nor too slow",
+      "id": "9"
+    },
+    {
+      "text": "acoustic timbres",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "All sounds are produced by acoustic instruments with no electronic",
+      "id": "2"
+    },
+    {
+      "text": "woodwind lead",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "A solo woodwind instrument carries the main melodic line throughout the",
+      "id": "3"
+    },
+    {
+      "text": "string accompaniment",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "A string ensemble provides harmonic support and rhythmic texture often",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "woodwind lead over string accompaniment",
+      "confidence": 0.95,
+      "reasoningHints": "The woodwind melody is supported by the strings which provide harmonic",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "percussion accents punctuate phrasing",
+      "confidence": 0.95,
+      "reasoningHints": "Sparse percussive hits appear at phrase boundaries emphasizing",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "acoustic chamber ensemble",
+      "confidence": 0.95,
+      "reasoningHints": "The ensemble consists of woodwind strings and light percussion typical",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "natural acoustic space",
+      "confidence": 0.95,
+      "reasoningHints": "The recording captures the natural resonance of the instruments with",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrumentation ambiguity",
+    "tempo ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "classical chamber music",
+      "confidence": 0.95,
+      "reasoningHints": "The piece features a woodwind lead string accompaniment and light",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "folk chamber music",
+      "confidence": 0.7,
+      "reasoningHints": "The tonal harmony moderate tempo and expressive rubato phrasing are",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "intimate",
+      "confidence": 0.95,
+      "reasoningHints": "The dynamic contrast and expressive phrasing create a close personal",
+      "supportRefs": [
+        "6"
+      ]
+    },
+    {
+      "text": "reflective",
+      "confidence": 0.95,
+      "reasoningHints": "The moderate tempo and tonal harmony evoke a contemplative introspective",
+      "supportRefs": [
+        "7"
+      ]
+    }
+  ],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 17,
+    "acceptedConceptCount": 16,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 8,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 136.1s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 6->5
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'No vocal track is present.'}, {'id': 2, 'text': 'acoustic piano', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'The sound source is a single acoustic piano, with no additional instruments or electronic layers.'}, {'id': 3, 'text': 'rubato', 'category': 'performance', 'confidence': 0.95, 'reasoning': 'The performance employs rubato, with flexible tempo and expressive timing rather than a strict metronomic pulse.'}, {'id': 4, 'text': 'melancholic', 'category': 'mood', 'confidence': 0.95, 'reasoning': 'The overall emotional tone is somber and reflective, conveyed through the minor tonal center and expressive phrasing.'}, {'id': 5, 'text': 'complex chord progression', 'category': 'harmony', 'confidence': 0.95, 'reasoning': 'The harmonic content is rich and varied, moving through several chords that create tension and release.'}, {'id': 6, 'text': 'dynamic range', 'category': 'dynamics', 'confidence': 0.95, 'reasoning': 'The piece exhibits a wide dynamic range, with soft, intimate passages contrasting with louder, more forceful sections.'}], 'signatureRelations': [{'id': 1, 'text': 'piano and voice', 'category': 'relation', 'confidence': 0.95, 'reasoning': 'The piano and vocal line are tightly interwoven, with the piano often mirroring or responding to the vocal melody.'}, {'id': 2, 'text': 'rubato and phrasing', 'category': 'relation', 'confidence': 0.95, 'reasoning': 'Rubato is used to shape phrases, allowing the performer to stretch and compress time for expressive effect.'}], 'styleCues': [{'id': 1, 'text': 'classical piano', 'category': 'style', 'confidence': 0.95, 'reasoning': 'The performance style is reminiscent of classical piano repertoire, with a focus on expressive nuance and harmonic richness.'}, {'id': 2, 'text': 'acoustic recording', 'category': 'style', 'confidence': 0.95, 'reasoning': 'The recording quality is clean and natural, suggesting an acoustic setting rather than electronic processing.'}], 'uncertainties': ['instrumental genre', 'vocal timbre', 'tempo stability'], 'genreHypotheses': [{'label': 'classical piano', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'The piece is performed on a solo acoustic piano with expressive rubato, complex harmony, and dynamic contrast, all hallmarks of classical piano music.'}, {'label': 'contemporary classical', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'While rooted in classical technique, the piece also incorporates modern expressive freedoms and harmonic language, placing it within a contemporary classical context.'}], 'aestheticConcepts': [{'text': 'intimate', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'The performance creates a close, personal atmosphere, inviting the listener into a reflective inner space.'}, {'text': 'reflective', 'confidence': 0.95, 'supportRefs': [1, 3, 4, 5, 6], 'reasoning': 'The melancholic mood and expressive phrasing encourage contemplation and introspection.'}], 'impressions': [{'text': 'sadness', 'confidence': 0.95, 'supportRefs': [1, 3, 4, 5, 6], 'reasoning': 'The minor tonal center, slow tempo, and expressive dynamics all contribute to a feeling of sorrow and melancholy.'}, {'text': 'contemplation', 'confidence': 0.95, 'supportRefs': [1, 3, 4, 5, 6], 'reasoning': 'The piece invites the listener to pause and reflect, aligning with the contemplative mood.'}], 'contextHypotheses': [{'text': 'solo piano tradition', 'category': 'scene', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "No vocal track is present.",
+      "id": "1"
+    },
+    {
+      "text": "rubato",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "The performance employs rubato with flexible tempo and expressive timing",
+      "id": "3"
+    },
+    {
+      "text": "complex chord progression",
+      "category": "arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "The harmonic content is rich and varied moving through several chords",
+      "sourceCategory": "harmony",
+      "id": "5"
+    },
+    {
+      "text": "dynamic range",
+      "category": "dynamics",
+      "confidence": 0.95,
+      "reasoningHints": "The piece exhibits a wide dynamic range with soft intimate passages",
+      "id": "6"
+    },
+    {
+      "text": "acoustic piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "The sound source is a single acoustic piano with no additional",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "piano and voice",
+      "confidence": 0.95,
+      "reasoningHints": "The piano and vocal line are tightly interwoven with the piano often",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "rubato and phrasing",
+      "confidence": 0.95,
+      "reasoningHints": "Rubato is used to shape phrases allowing the performer to stretch and",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "classical piano",
+      "confidence": 0.95,
+      "reasoningHints": "The performance style is reminiscent of classical piano repertoire with",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "acoustic recording",
+      "confidence": 0.95,
+      "reasoningHints": "The recording quality is clean and natural suggesting an acoustic",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrumental genre",
+    "vocal timbre",
+    "tempo stability",
+    "unrecognized audible category"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "classical piano",
+      "confidence": 0.95,
+      "reasoningHints": "The piece is performed on a solo acoustic piano with expressive rubato",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "contemporary classical",
+      "confidence": 0.7,
+      "reasoningHints": "While rooted in classical technique the piece also incorporates modern",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "intimate",
+      "confidence": 0.95,
+      "reasoningHints": "The performance creates a close personal atmosphere inviting the",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "text": "reflective",
+      "confidence": 0.95,
+      "reasoningHints": "The melancholic mood and expressive phrasing encourage contemplation and",
+      "supportRefs": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sadness",
+      "confidence": 0.95,
+      "reasoningHints": "The minor tonal center slow tempo and expressive dynamics all contribute",
+      "supportRefs": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "text": "contemplation",
+      "confidence": 0.95,
+      "reasoningHints": "The piece invites the listener to pause and reflect aligning with the",
+      "supportRefs": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "solo piano tradition",
+      "category": "scene",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 17,
+    "acceptedConceptCount": 16,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 1,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 1,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 152.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1982; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental music', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 2, 'text': 'no vocals', 'category': 'performance', 'confidence': 0.95}, {'id': 3, 'text': 'slow tempo', 'category': 'rhythm', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'instrumental music', 'supportRefs': [1, 2], 'confidence': 0.95}], 'uncertainties': ['no clear genre', 'no clear instrumentation'], 'genreHypotheses': [{'label': 'instrumental', 'confidence': 0.95}, {'label': 'no genre', 'confidence': 0.05}], 'aestheticConcepts': ['solemn', 'contemplative'], 'impressions': ['sad', 'melancholic']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental music",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "no vocals",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "slow tempo",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "instrumental music",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre",
+    "no clear instrumentation"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "instrumental",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "no genre",
+      "confidence": 0.05,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "solemn",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "contemplative",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sad",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "melancholic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 44.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+Running Flamingo structured deep-listening inference...
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+[Music Flamingo] input tokens=1981; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental electronic', 'category': 'instrumentation', 'confidence': 0.7}, {'id': 2, 'text': 'steady 4/4 beat', 'category': 'rhythm', 'confidence': 0.8}, {'id': 3, 'text': 'synth bassline', 'category': 'instrumentation', 'confidence': 0.7}], 'signatureRelations': [{'id': 1, 'text': 'beat and bassline drive the track', 'supportRefs': [1, 2], 'confidence': 0.6}, {'id': 2, 'text': 'minimalist arrangement', 'supportRefs': [1, 3], 'confidence': 0.5}], 'uncertainties': ['no clear melodic lead', 'no vocal presence'], 'genreHypotheses': [{'label': 'electronic dance', 'confidence': 0.3}, {'label': 'ambient electronic', 'confidence': 0.3}], 'aestheticConcepts': ['driving rhythm', 'synthetic texture'], 'impressions': ['energetic', 'modern digital production']}, {'audible
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental electronic",
+      "category": "instrumentation",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "steady 4/4 beat",
+      "category": "rhythm",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "synth bassline",
+      "category": "instrumentation",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "beat and bassline drive the track",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "minimalist arrangement",
+      "confidence": 0.5,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "3"
+      ],
+      "id": "2"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear melodic lead",
+    "no vocal presence"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic dance",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "ambient electronic",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "driving rhythm",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "synthetic texture",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "energetic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "modern digital production",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 11,
+    "acceptedConceptCount": 11,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 2,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 38.0s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'driving electronic rhythm', 'category': 'rhythm', 'confidence': 0.95}, {'id': 2, 'text': 'bright synth lead', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 3, 'text': 'steady dance beat', 'category': 'rhythm', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'bright synth lead supports driving rhythm', 'supportRefs': [1, 2], 'confidence': 0.95}], 'uncertainties': ['no clear genre label', 'no vocal presence'], 'genreHypotheses': [{'label': 'electronic dance', 'confidence': 0.5}, {'label': 'synth-pop', 'confidence': 0.3}], 'aestheticConcepts': ['energetic', 'bright'], 'impressions': ['uplifting', 'forward-moving']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "driving electronic rhythm",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "bright synth lead",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "steady dance beat",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "bright synth lead supports driving rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre label",
+    "no vocal presence"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic dance",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "synth-pop",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "energetic",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "bright",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "uplifting",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "forward-moving",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 29.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady electronic beat', 'category': 'rhythm', 'confidence': 0.95}, {'id': 2, 'text': 'synth bassline', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 3, 'text': 'repetitive loop structure', 'category': 'arrangement', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'beat and bassline lock in tight sync', 'supportRefs': [1, 2], 'confidence': 0.85}], 'uncertainties': ['no clear melodic content', 'no vocal presence'], 'genreHypotheses': [{'label': 'electronic dance', 'confidence': 0.3}, {'label': 'minimal techno', 'confidence': 0.2}], 'aestheticConcepts': ['driving', 'hypnotic'], 'impressions': ['energetic', 'focused']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady electronic beat",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "synth bassline",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "repetitive loop structure",
+      "category": "arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "beat and bassline lock in tight sync",
+      "confidence": 0.85,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear melodic content",
+    "no vocal presence"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic dance",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "minimal techno",
+      "confidence": 0.2,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "driving",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "hypnotic",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "energetic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "focused",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 79.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'fast electronic rhythm', 'category': 'rhythm', 'confidence': 0.95}, {'id': 2, 'text': 'synth bassline', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 3, 'text': 'repetitive electronic loop', 'category': 'arrangement', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'loop-based structure', 'supportRefs': [1, 3], 'confidence': 0.85}], 'uncertainties': ['no clear genre label'], 'genreHypotheses': [{'label': 'electronic dance', 'confidence': 0.3}, {'label': 'experimental electronic', 'confidence': 0.2}], 'aestheticConcepts': ['driving energy'], 'impressions': ['energetic', 'hypnotic']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "fast electronic rhythm",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "synth bassline",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "repetitive electronic loop",
+      "category": "arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "loop-based structure",
+      "confidence": 0.85,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "3"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre label"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic dance",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "experimental electronic",
+      "confidence": 0.2,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "driving energy",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "energetic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "hypnotic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 9,
+    "acceptedConceptCount": 9,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 1,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 47.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'fast electronic drum pattern', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'steady 4/4 pulse with a driving kick and crisp hi-hats.'}, {'id': 2, 'text': 'bright synth lead melody', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'a high‑pitched, arpeggiated synth line that cuts through the mix.'}, {'id': 3, 'text': 'deep sub‑bass', 'category': 'instrumentation', 'confidence': 0.7, 'reasoning': 'a low‑frequency sine‑wave bass that underpins the groove.'}, {'id': 4, 'text': 'repetitive chord progression', 'category': 'harmony', 'confidence': 0.6, 'reasoning': 'a simple loop of major‑tonic chords that repeats every 8 bars.'}, {'id': 5, 'text': 'clean, polished production', 'category': 'production', 'confidence': 0.8, 'reasoning': 'tight compression on drums, bright EQ on synths, and a wide stereo image.'}], 'signatureRelations': [{'id': 1, 'text': 'drum and bass elements', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'the drum pattern and bass line are typical of drum‑and‑bass, though the tempo is slower than usual.'}, {'id': 2, 'text': 'synth lead and bass interaction', 'supportRefs': [2, 3], 'confidence': 0.6, 'reasoning': 'the synth lead often plays over the bass, creating a call‑and‑response feel.'}], 'styleCues': [{'id': 1, 'text': 'electronic drum programming', 'confidence': 0.8, 'supportRefs': [1]}, {'id': 2, 'text': 'synth arpeggiation', 'confidence': 0.7, 'supportRefs': [2]}, {'id': 3, 'text': 'sub‑bass emphasis', 'confidence': 0.6, 'supportRefs': [3]}, {'id': 4, 'text': 'repetitive harmonic loop', 'confidence': 0.5, 'supportRefs': [4]}], 'uncertainties': ['instrument source ambiguity'], 'genreHypotheses': [{'label': 'electronic dance music', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4]}, {'label': 'drum‑and‑bass', 'confidence': 0.6, 'supportRefs': [1, 3, 4]}], 'aestheticConcepts': [{'text': 'energetic and uplifting', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4]}, {'text': 'modern club sound', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4]}], 'impressions': [{'text': 'bright and forward‑moving', 'confidence': 0.8, 'supportRefs': [2, 3, 4]}, {'text': 'slightly tense due to minor‑toned bass', 'confidence': 0.5, 'supportRefs': [4]}], 'contextHypotheses': [{'text': 'contemporary electronic scene', 'category': 'scene', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4]}, {'text': 'late‑2010s to early‑2020s production style', 'category': 'era', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4]}]}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "fast electronic drum pattern",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "steady 4/4 pulse with a driving kick and crisp hi-hats.",
+      "id": "1"
+    },
+    {
+      "text": "bright synth lead melody",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "a high‑pitched arpeggiated synth line that cuts through the mix.",
+      "id": "2"
+    },
+    {
+      "text": "repetitive chord progression",
+      "category": "arrangement",
+      "confidence": 0.6,
+      "reasoningHints": "a simple loop of major‑tonic chords that repeats every 8 bars.",
+      "sourceCategory": "harmony",
+      "id": "4"
+    },
+    {
+      "text": "clean polished production",
+      "category": "production",
+      "confidence": 0.8,
+      "reasoningHints": "tight compression on drums bright EQ on synths and a wide stereo image.",
+      "id": "5"
+    },
+    {
+      "text": "deep sub‑bass",
+      "category": "instrumentation",
+      "confidence": 0.7,
+      "reasoningHints": "a low‑frequency sine‑wave bass that underpins the groove.",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum and bass elements",
+      "confidence": 0.7,
+      "reasoningHints": "the drum pattern and bass line are typical of drum‑and‑bass though the",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "synth lead and bass interaction",
+      "confidence": 0.6,
+      "reasoningHints": "the synth lead often plays over the bass creating a call‑and‑response",
+      "supportRefs": [
+        "2",
+        "3"
+      ],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "electronic drum programming",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "synth arpeggiation",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "supportRefs": [
+        "2"
+      ],
+      "id": "2"
+    },
+    {
+      "text": "sub‑bass emphasis",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": [
+        "3"
+      ],
+      "id": "3"
+    },
+    {
+      "text": "repetitive harmonic loop",
+      "confidence": 0.5,
+      "reasoningHints": "",
+      "supportRefs": [
+        "4"
+      ],
+      "id": "4"
+    }
+  ],
+  "uncertainties": [
+    "instrument source ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic dance music",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "drum‑and‑bass",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "3",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "energetic and uplifting",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "modern club sound",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "bright and forward‑moving",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "supportRefs": [
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "slightly tense due to minor‑toned bass",
+      "confidence": 0.5,
+      "reasoningHints": "",
+      "supportRefs": [
+        "4"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "contemporary electronic scene",
+      "category": "scene",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "late‑2010s to early‑2020s production style",
+      "category": "era",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 19,
+    "acceptedConceptCount": 19,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 4,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 131.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024

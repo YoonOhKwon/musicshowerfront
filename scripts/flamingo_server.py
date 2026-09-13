@@ -43,6 +43,44 @@ def load_flamingo_env():
 
 load_flamingo_env()
 
+PORT = 5005
+
+class ThreadedFlamingoServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+class LoadingHandler(http.server.BaseHTTPRequestHandler):
+    """Answers while the model loads, so callers see "loading" instead of a refused connection."""
+
+    def _loading(self):
+        try:
+            length = min(int(self.headers.get('Content-Length', 0) or 0), 30 * 1024 * 1024)
+            if length:
+                self.rfile.read(length)
+            body = json.dumps({"status": "loading"}).encode('utf-8')
+            self.send_response(503)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Retry-After', '10')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError, ValueError):
+            pass
+
+    do_GET = _loading
+    do_POST = _loading
+
+    def log_message(self, format, *args):
+        pass
+
+# Bind before the multi-minute model load. The same server switches to FlamingoHandler once the
+# model is ready: socketserver builds a new handler per request, so there is no port gap.
+HTTPD = None
+if __name__ == "__main__":
+    HTTPD = ThreadedFlamingoServer(("", PORT), LoadingHandler)
+    threading.Thread(target=HTTPD.serve_forever, name="flamingo-http", daemon=True).start()
+    print(f"Flamingo server listening at port {PORT} (503 while the model loads)", flush=True)
+
 print("Loading Music Flamingo model (This will take a minute)...")
 import torch
 from transformers import (
@@ -167,8 +205,14 @@ Never reorder them, and never spend the early fields on material that belongs to
    Each object has "id", "text", "supportRefs", "confidence", and "reasoningHints". supportRefs
    contains ids from audibleObservations. Report a relation only when the interaction itself is
    audible; do not merely list two features together.
-3. "uncertainties": a list of short strings naming unresolved sources, conflicts, or boundaries.
-4. "genreHypotheses": zero or more genre hypotheses. Each object has "label", "confidence",
+3. "styleCues": zero to four audible stylistic signifiers. Each object has "id", "text",
+   "confidence", and "supportRefs". A style cue is a sound source, production or sampling
+   technique, performance convention, or recording/mixing trait that listeners associate with a
+   particular period, place, scene, medium, or subculture. Name the audible trait itself in at or
+   under 8 words, not the period or scene it suggests; the association is drawn later from these
+   cues. Report only cues that are actually present and distinctive in this window.
+4. "uncertainties": a list of short strings naming unresolved sources, conflicts, or boundaries.
+5. "genreHypotheses": zero or more genre hypotheses. Each object has "label", "confidence",
    "supportRefs", and "reasoningHints". supportRefs contains ids from the evidence fields above.
    label MUST contain only a compact established or emerging genre, microgenre,
    or genre-like scene NAME.
@@ -179,14 +223,14 @@ Never reorder them, and never spend the early fields on material that belongs to
    drum sound, or mood adjective. Prefer a well-supported broad identity to a weakly inferred narrow
    subtype. Add a narrower name only when multiple discriminating musical cues support that added
    specificity. Zero labels is correct when the current segment does not support a genre identity.
-5. "aestheticConcepts": sensory, visual, material, or cultural aesthetic concepts when strongly
+6. "aestheticConcepts": sensory, visual, material, or cultural aesthetic concepts when strongly
    supported by the audio. Each object has "text", "confidence", "supportRefs", and
    "reasoningHints". These become AESTHETIC evidence. Do not fill predetermined aesthetic
    dimensions and do not paraphrase one concept merely to increase the count.
-6. "impressions": nuanced emotional listening impressions when strongly supported by the audio.
+7. "impressions": nuanced emotional listening impressions when strongly supported by the audio.
    Each object has "text", "confidence", "supportRefs", and "reasoningHints". These become subjective IMPRESSION
    evidence. Mixed or internally contrasting feelings are allowed when the audio supports them.
-7. "contextHypotheses": scene, era, culture, or lineage hypotheses when the audio supports them.
+8. "contextHypotheses": scene, era, culture, or lineage hypotheses when the audio supports them.
    Each object has "text", "category", "confidence", "supportRefs", and "reasoningHints"; category is one of
    scene, era, culture, lineage. These become qualified CONTEXT evidence, not factual recording origin.
 Use confidence from 0.0 to 1.0. Every "text" and "label" must stay at or under 8 words and under
@@ -256,7 +300,7 @@ def clean_value(v):
     # into a plain array item (e.g. audibleObservations) instead of a short phrase. Strip that
     # leaked confidence+reasoning prefix before the keyword-prefix check below can see it.
     clean = re.sub(r'^\d+(?:\.\d+)?\s*reasoning(?:hints)?\b\s*', '', clean, flags=re.I).strip()
-    if re.search(r'^(audibleObservations|signatureRelations|genreHypotheses|contextHypotheses|aestheticConcepts|impressions|uncertainties|reasoning|confidence)', clean, re.I):
+    if re.search(r'^(audibleObservations|signatureRelations|styleCues|genreHypotheses|contextHypotheses|aestheticConcepts|impressions|uncertainties|reasoning|confidence)', clean, re.I):
         return ""
     # A literal "reasoning"/"confidence" token surviving anywhere means this is still leaked
     # JSON scaffolding, not real observation text -- drop it rather than display it.
@@ -300,10 +344,56 @@ def plausible_genre_label(value):
         and not GENRE_SENTENCE_VERB.search(text)
         and not KOREAN_SENTENCE_ENDING.search(text))
 
+FACT_CATEGORIES = {"rhythm", "instrumentation", "performance", "arrangement", "production", "dynamics"}
+# Distinct audible observations kept per packet, after dedupe. At 5, a packet with eight distinct
+# observations (rhythm, brass, harmony, bass, drums, production, tempo, dynamics) lost three of them.
+AUDIBLE_OBSERVATION_LIMIT = 8
+STYLE_CUE_LIMIT = 4
+# The model names audible facets in its own words ("harmony", "bass motion", "drums"). Rejecting
+# those discarded real observations -- a walking bass line or a chord progression -- purely over a
+# field name. Route them onto the six display facets; the observation text itself is unchanged.
+FACT_CATEGORY_ALIASES = {
+    "instrument": "instrumentation", "instruments": "instrumentation", "timbre": "instrumentation",
+    "bass": "instrumentation", "bassline": "instrumentation", "sample": "instrumentation",
+    "vocal sample": "instrumentation", "vocal samples": "instrumentation", "vocal chop": "instrumentation",
+    "synth": "instrumentation", "synths": "instrumentation", "keys": "instrumentation",
+    "guitar": "instrumentation", "piano": "instrumentation", "brass": "instrumentation",
+    "vocal": "performance", "vocals": "performance", "voice": "performance", "singing": "performance",
+    "rap": "performance", "delivery": "performance", "phrasing": "performance",
+    "tempo": "rhythm", "groove": "rhythm", "drums": "rhythm", "drum": "rhythm", "percussion": "rhythm",
+    "beat": "rhythm", "meter": "rhythm", "pulse": "rhythm", "swing": "rhythm", "syncopation": "rhythm",
+    "harmony": "arrangement", "harmonic": "arrangement", "melody": "arrangement", "melodic": "arrangement",
+    "chords": "arrangement", "chord": "arrangement", "tonality": "arrangement", "key": "arrangement",
+    "structure": "arrangement", "form": "arrangement", "texture": "arrangement", "layering": "arrangement",
+    "motif": "arrangement", "counterpoint": "arrangement",
+    "mix": "production", "mixing": "production", "space": "production", "spatial": "production",
+    "stereo": "production", "reverb": "production", "effects": "production", "fx": "production",
+    "sound design": "production", "tone": "production", "mastering": "production", "filter": "production",
+    "energy": "dynamics", "intensity": "dynamics", "loudness": "dynamics", "build": "dynamics",
+    "dynamic": "dynamics",
+}
+
+def fact_category(raw):
+    """Canonical FACT facet for a model-written category, or "" when none applies."""
+    name = re.sub(r'[^a-z ]+', ' ', str(raw or "").lower()).strip()
+    name = re.sub(r'\s+', ' ', name)
+    if name in FACT_CATEGORIES:
+        return name
+    if name in FACT_CATEGORY_ALIASES:
+        return FACT_CATEGORY_ALIASES[name]
+    # Multi-word names ("bass motion", "vocal performance"): the first recognised word decides.
+    for word in name.split(" "):
+        if word in FACT_CATEGORIES:
+            return word
+        if word in FACT_CATEGORY_ALIASES:
+            return FACT_CATEGORY_ALIASES[word]
+    return ""
+
 def sanitize_packet(parsed):
     res = {
         "audibleObservations": [],
         "signatureRelations": [],
+        "styleCues": [],
         "uncertainties": [],
         "genreHypotheses": [],
         "aestheticConcepts": [],
@@ -358,7 +448,7 @@ def sanitize_packet(parsed):
                 unique[key] = item
         return [unique[key] for key in order]
 
-    def balanced_audible(items, limit=5):
+    def balanced_audible(items, limit=AUDIBLE_OBSERVATION_LIMIT):
         """Do not let one verbose facet consume every FACT slot."""
         remaining = list(items)
         selected = []
@@ -366,7 +456,7 @@ def sanitize_packet(parsed):
             used_this_round = set()
             next_remaining = []
             for item in remaining:
-                category = item.get("category", "")
+                category = item.get("sourceCategory") or item.get("category", "")
                 if category not in used_this_round and len(selected) < limit:
                     selected.append(item)
                     used_this_round.add(category)
@@ -375,8 +465,6 @@ def sanitize_packet(parsed):
             remaining = next_remaining
         return selected
 
-    valid_fact_categories = {"rhythm", "instrumentation", "performance", "arrangement", "production", "dynamics"}
-    fact_aliases = {"instrument": "instrumentation", "instruments": "instrumentation", "tempo": "rhythm"}
     audible_candidates = []
     incoming_audible = parsed.get("audibleObservations") or []
     raw_item_count += len(incoming_audible) if isinstance(incoming_audible, list) else 0
@@ -384,16 +472,18 @@ def sanitize_packet(parsed):
         raw = item if isinstance(item, str) else (item.get("text") if isinstance(item, dict) else "")
         c = clean_value(raw)
         if c:
-            category = str(item.get("category", "") if isinstance(item, dict) else "").lower()
-            category = fact_aliases.get(category, category)
-            if category not in valid_fact_categories:
+            raw_category = str(item.get("category", "") if isinstance(item, dict) else "").strip().lower()
+            category = fact_category(raw_category)
+            if not category:
                 quarantine.append("unrecognized audible category")
                 continue
             candidate = {"text": c, "category": category,
                 "confidence": confidence_of(item, 0.68), "reasoningHints": reasoning_of(item)}
+            if raw_category and raw_category != category:
+                candidate["sourceCategory"] = raw_category
             candidate["id"] = id_of(item) or f"f{len(audible_candidates) + 1}"
             audible_candidates.append(candidate)
-    res["audibleObservations"] = balanced_audible(dedupe(audible_candidates), 5)
+    res["audibleObservations"] = balanced_audible(dedupe(audible_candidates), AUDIBLE_OBSERVATION_LIMIT)
 
     incoming_relations = parsed.get("signatureRelations") or []
     raw_item_count += len(incoming_relations) if isinstance(incoming_relations, list) else 0
@@ -408,6 +498,22 @@ def sanitize_packet(parsed):
         candidate["id"] = id_of(item) or f"s{len(relation_candidates) + 1}"
         relation_candidates.append(candidate)
     res["signatureRelations"] = dedupe(relation_candidates)[:4]
+
+    # Audible period/scene signifiers. They are evidence for the later association stage, so they
+    # keep ids and support refs but never carry the association itself.
+    incoming_cues = parsed.get("styleCues") or []
+    raw_item_count += len(incoming_cues) if isinstance(incoming_cues, list) else 0
+    cue_candidates = []
+    for item in incoming_cues if isinstance(incoming_cues, list) else []:
+        raw = item if isinstance(item, str) else (item.get("text") if isinstance(item, dict) else "")
+        c = clean_value(raw)
+        if not c:
+            continue
+        candidate = {"text": c, "confidence": confidence_of(item, 0.6),
+            "reasoningHints": reasoning_of(item), "supportRefs": support_refs_of(item)}
+        candidate["id"] = id_of(item) or f"c{len(cue_candidates) + 1}"
+        cue_candidates.append(candidate)
+    res["styleCues"] = dedupe(cue_candidates)[:STYLE_CUE_LIMIT]
 
     incoming_genres = parsed.get("genreHypotheses") or []
     raw_item_count += len(incoming_genres) if isinstance(incoming_genres, list) else 0
@@ -484,7 +590,7 @@ def sanitize_packet(parsed):
     # model never wrote -- so the loss was invisible for as long as it kept happening.
     losses = []
     for key in ["aestheticConcepts", "impressions", "genreHypotheses", "contextHypotheses",
-                "signatureRelations",
+                "signatureRelations", "styleCues",
                 "audibleObservations", "uncertainties"]:
         incoming = parsed.get(key)
         before = len(incoming) if isinstance(incoming, list) else 0
@@ -497,14 +603,14 @@ def sanitize_packet(parsed):
         print(f"[Music Flamingo] NOTE: fewer items than the model sent: {', '.join(losses)}",
               flush=True)
 
-    accepted_count = sum(len(res[key]) for key in ["audibleObservations", "signatureRelations",
+    accepted_count = sum(len(res[key]) for key in ["audibleObservations", "signatureRelations", "styleCues",
         "genreHypotheses", "contextHypotheses", "aestheticConcepts", "impressions"])
     res["packetDiagnostics"] = {
         "rawItemCount": raw_item_count,
         "acceptedConceptCount": accepted_count,
         "duplicateOrRejectedCount": max(0, raw_item_count - accepted_count),
         "quarantinedCount": len(quarantine),
-        "fieldCounts": {key: len(res[key]) for key in ["audibleObservations", "signatureRelations",
+        "fieldCounts": {key: len(res[key]) for key in ["audibleObservations", "signatureRelations", "styleCues",
             "genreHypotheses", "contextHypotheses", "aestheticConcepts", "impressions"]}
     }
 
@@ -529,6 +635,38 @@ def load_object_literal(text):
         return None
     return value if isinstance(value, dict) else None
 
+def truncated_literal_repairs(text, attempts=200):
+    """Repaired prefixes of a packet cut off mid-generation, longest first.
+
+    Each candidate ends right after a complete string or closed bracket and then closes the
+    still-open brackets in reverse nesting order. Appending every "]" before every "}" (the old
+    repair) produced `]]}}` for `{"a": [{"b": [1`, so deeply nested packets lost every field.
+    """
+    stack = []
+    quote = None
+    escaped = False
+    boundaries = []
+    for index, char in enumerate(text):
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+                boundaries.append((index + 1, tuple(stack)))
+            continue
+        if char in "\"'":
+            quote = char
+        elif char in "[{":
+            stack.append("]" if char == "[" else "}")
+        elif char in "]}":
+            if stack:
+                stack.pop()
+            boundaries.append((index + 1, tuple(stack)))
+    for end, still_open in reversed(boundaries[-attempts:]):
+        yield text[:end].rstrip(" ,:\n\r\t") + "".join(reversed(still_open))
+
 def parse_deep_listen_packet(raw_text):
     text = raw_text.strip()
     json_candidate = text
@@ -549,20 +687,17 @@ def parse_deep_listen_packet(raw_text):
 
     # 2. Try partial repair (close unclosed brackets/braces from token truncation), in
     #    whichever of the two quoting styles the model used.
-    for cut in range(len(json_candidate), max(10, len(json_candidate) - 300), -1):
-        sub = json_candidate[:cut].rstrip(" ,\n\r\t")
-        open_b = sub.count("{") - sub.count("}")
-        open_k = sub.count("[") - sub.count("]")
-        fixed = sub + ("]" * max(0, open_k)) + ("}" * max(0, open_b))
+    for fixed in truncated_literal_repairs(json_candidate):
         parsed = load_object_literal(fixed)
         if isinstance(parsed, dict) and any(k in parsed for k in
                 ["aestheticConcepts", "impressions", "genreHypotheses", "contextHypotheses",
-                 "signatureRelations", "audibleObservations"]):
+                 "signatureRelations", "styleCues", "audibleObservations"]):
             return sanitize_packet(parsed)
 
     # 3. Regex key extraction from broken/truncated JSON
     audible = []
     relations = []
+    cues = []
     genres = []
     contexts = []
     aesthetics = []
@@ -583,6 +718,12 @@ def parse_deep_listen_packet(raw_text):
         for item in re.findall(r'"text"\s*:\s*"([^"\n]{2,120})"', relation_match.group(1)):
             c = clean_value(item)
             if c: relations.append({"text": c, "confidence": 0.55, "supportRefs": []})
+
+    cue_match = re.search(r'"styleCues"\s*:\s*\[(.*?)(\]|\Z)', text, re.DOTALL)
+    if cue_match:
+        for item in re.findall(r'"text"\s*:\s*"([^"\n]{2,120})"', cue_match.group(1)):
+            c = clean_value(item)
+            if c: cues.append({"text": c, "confidence": 0.5, "supportRefs": []})
 
     genre_match = re.search(r'"genreHypotheses"\s*:\s*\[(.*?)(\]|\Z)', text, re.DOTALL)
     if genre_match:
@@ -613,10 +754,11 @@ def parse_deep_listen_packet(raw_text):
             c = clean_value(item)
             if c: impressions.append({"text": c, "confidence": 0.55})
 
-    if any([audible, relations, genres, contexts, aesthetics, impressions]):
+    if any([audible, relations, cues, genres, contexts, aesthetics, impressions]):
         return {
             "audibleObservations": audible,
             "signatureRelations": relations,
+            "styleCues": cues,
             "uncertainties": recovery_uncertainties,
             "genreHypotheses": genres,
             "contextHypotheses": contexts,
@@ -665,7 +807,9 @@ def resolve_text_context_length(default=4096):
     return max(default, min(limit, 8192))
 
 MODEL_MAX_LENGTH = resolve_text_context_length()
-MAX_GENERATION_TOKENS = 512
+# At 512, 14 of 21 logged full passes (flamingo-server-v29.log) stopped before the JSON closed,
+# so the late fields -- aesthetics, impressions and every contextHypotheses entry -- never arrived.
+MAX_GENERATION_TOKENS = 1024
 # Enough for a small entry in every field. The full pass still gets the whole allowance.
 FIRST_IMPRESSION_TOKENS = 256
 print(f"[Music Flamingo] text context budget: {MODEL_MAX_LENGTH} tokens", flush=True)
@@ -804,7 +948,58 @@ class FlamingoHandler(http.server.BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
             print(f"Client already disconnected; {code} not delivered.", flush=True)
 
+    def do_GET(self):
+        if self.path != '/health':
+            self.send_error(404)
+            return
+        body = json.dumps({"status": "ready"}).encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def handle_probe(self):
+        """Research endpoint: run one arbitrary prompt over one WAV and return the raw text.
+
+        Used by scripts/probe-flamingo-listening.cjs to compare listening prompts and windows without
+        touching the word pipeline. Loopback clients only; nothing here reaches the word pool.
+        """
+        if self.client_address[0] not in ("127.0.0.1", "::1"):
+            self.send_error(403)
+            return
+        tmp_path = None
+        try:
+            import base64
+            prompt = base64.b64decode(self.headers.get('X-Probe-Prompt', '')).decode('utf-8')
+            budget = max(64, min(MAX_GENERATION_TOKENS, nonnegative_int(self.headers.get('X-Probe-Max-Tokens', '512'))))
+            content_length = int(self.headers.get('Content-Length', 0))
+            if not prompt or content_length <= 0 or content_length > 30 * 1024 * 1024:
+                self.send_error(400, "prompt and WAV body required")
+                return
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                tmp.write(self.rfile.read(content_length))
+                tmp_path = tmp.name
+            started = time.time()
+            with INFERENCE_LOCK:
+                text_out = run_inference(tmp_path, prompt, threading.Event(), budget)
+            body = json.dumps({"text": text_out, "seconds": round(time.time() - started, 1)}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except Exception as e:
+            print(f"Probe error: {e!r}", flush=True)
+            self.report_error(500, "probe failed")
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
     def do_POST(self):
+        if self.path == '/probe':
+            self.handle_probe()
+            return
         if self.path == '/cancel':
             request_id = clean_identity(self.headers.get('X-Music-Shower-Request-Id', ''))
             session_id = clean_identity(self.headers.get('X-Music-Shower-Session', ''))
@@ -898,11 +1093,11 @@ class FlamingoHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(404)
 
 if __name__ == "__main__":
-    PORT = 5005
-    class ThreadedFlamingoServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-        daemon_threads = True
-        allow_reuse_address = True
-
-    with ThreadedFlamingoServer(("", PORT), FlamingoHandler) as httpd:
-        print(f"Flamingo server serving at port {PORT}", flush=True)
-        httpd.serve_forever()
+    HTTPD.RequestHandlerClass = FlamingoHandler
+    print(f"Flamingo server serving at port {PORT}", flush=True)
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        HTTPD.shutdown()
+        HTTPD.server_close()

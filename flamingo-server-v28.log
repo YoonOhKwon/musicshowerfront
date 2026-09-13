@@ -1,0 +1,555 @@
+Flamingo server listening at port 5005 (503 while the model loads)
+Loading Music Flamingo model (This will take a minute)...
+Music Flamingo quantization: NF4 4-bit; placement: audio-priority
+Music Flamingo device map: {"lm_head": 0, "model.audio_tower": 0, "model.language_model.embed_tokens": "cpu", "model.language_model.layers": 0, "model.language_model.norm": 0, "model.language_model.rotary_emb": 0, "model.multi_modal_projector": 0, "model.pos_emb": 0}
+CUDA after load: allocated=5.65 GiB, reserved=5.80 GiB
+Model loaded successfully. Starting server...
+[Music Flamingo] text context budget: 8192 tokens
+Flamingo server serving at port 5005
+Running Flamingo structured deep-listening inference...
+Error: LibsndfileError(1, "Error opening 'C:\\\\Users\\\\yoono\\\\AppData\\\\Local\\\\Temp\\\\tmpieyhzl1n.wav': ")
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=762; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental music', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 2, 'text': 'steady 4/4 rhythm', 'category': 'rhythm', 'confidence': 0.95}, {'id': 3, 'text': 'simple drum pattern', 'category': 'rhythm', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'drum pattern supports steady rhythm', 'supportRefs': [2], 'confidence': 0.95}], 'uncertainties': ['no clear genre', 'no clear instrumentation beyond drums'], 'genreHypotheses': [{'label': 'instrumental', 'confidence': 0.95}, {'label': 'percussion-focused', 'confidence': 0.95}], 'aestheticConcepts': ['steady pulse', 'minimalist texture'], 'impressions': ['neutral mood', 'consistent energy']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental music",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "steady 4/4 rhythm",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "simple drum pattern",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum pattern supports steady rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "uncertainties": [
+    "no clear genre",
+    "no clear instrumentation beyond drums"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "instrumental",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "percussion-focused",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "steady pulse",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "minimalist texture",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "neutral mood",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "consistent energy",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 30.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1855; generation budget=512
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 6->5
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{"audibleObservations": [{"id": 1, "text": "steady 4/4 pulse", "category": "rhythm", "confidence": 0.9, "reasoning": "clear metronomic beat with consistent subdivision"}, {"id": 2, "text": "synth bass with long decay", "category": "instrumentation", "confidence": 0.8, "reasoning": "deep, sustained low-frequency tone that dominates the mix"}, {"id": 3, "text": "minimal drum machine clicks", "category": "instrumentation", "confidence": 0.6, "reasoning": "sparse percussive elements, mostly low‑pass filtered kicks and hi‑hat ticks"}, {"id": 4, "text": "repetitive chordal pad", "category": "instrumentation", "confidence": 0.7, "reasoning": "sustained synth chords that repeat in a loop"}, {"id": 5, "text": "no vocal presence", "category": "vocal", "confidence": 1.0, "reasoning": "no discernible singing or spoken words"}, {"id": 6, "text": "ambient reverb on all elements", "category": "production", "confidence": 0.9, "reasoning": "wide stereo imaging with long decay tails on most sounds"}], "signatureRelations": [{"id": 1, "text": "bass and synth pad lock in a single harmonic loop", "supportRefs": [2, 3, 4], "confidence": 0.8, "reasoning": "the bass note and the pad sustain the same root, creating a unified harmonic texture"}, {"id": 2, "text": "drum clicks accent the downbeat of each bar", "supportRefs": [3, 5], "confidence": 0.6, "reasoning": "the kick drum lands on the first beat of every 4‑beat measure, reinforcing the pulse"}], "uncertainties": ["no clear melodic line", "no vocal timbre"], "genreHypotheses": [{"label": "ambient electronic", "confidence": 0.7, "supportRefs": [1, 2, 4, 6], "reasoning": "the track relies on sustained synth textures, a slow tempo, and a focus on atmosphere rather than melody or rhythm complexity"}, {"label":
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear metronomic beat with consistent subdivision",
+      "id": "1"
+    },
+    {
+      "text": "synth bass with long decay",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "deep sustained low-frequency tone that dominates the mix",
+      "id": "2"
+    },
+    {
+      "text": "no vocal presence",
+      "category": "performance",
+      "confidence": 1.0,
+      "reasoningHints": "no discernible singing or spoken words",
+      "sourceCategory": "vocal",
+      "id": "5"
+    },
+    {
+      "text": "ambient reverb on all elements",
+      "category": "production",
+      "confidence": 0.9,
+      "reasoningHints": "wide stereo imaging with long decay tails on most sounds",
+      "id": "6"
+    },
+    {
+      "text": "minimal drum machine clicks",
+      "category": "instrumentation",
+      "confidence": 0.6,
+      "reasoningHints": "sparse percussive elements mostly low‑pass filtered kicks and hi‑hat",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "bass and synth pad lock in a single harmonic loop",
+      "confidence": 0.8,
+      "reasoningHints": "the bass note and the pad sustain the same root creating a unified",
+      "supportRefs": [
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "drum clicks accent the downbeat of each bar",
+      "confidence": 0.6,
+      "reasoningHints": "the kick drum lands on the first beat of every 4‑beat measure",
+      "supportRefs": [
+        "3",
+        "5"
+      ],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "no clear melodic line",
+    "no vocal timbre"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "ambient electronic",
+      "confidence": 0.7,
+      "reasoningHints": "the track relies on sustained synth textures a slow tempo and a focus on",
+      "supportRefs": [
+        "1",
+        "2",
+        "4",
+        "6"
+      ],
+      "id": "g1"
+    }
+  ],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 9,
+    "acceptedConceptCount": 8,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "genreHypotheses": 1,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 54.0s. Packet parsed: ['audibleObservations', 'signatureRelations', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1856; generation budget=512
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{"audibleObservations": [{"id": 1, "text": "steady 4/4 pulse", "category": "rhythm", "confidence": 0.9, "reasoning": "clear downbeat on each beat, consistent subdivision of 4", "uncertainties": [], "genreHypotheses": [], "aestheticConcepts": [], "impressions": [], "contextHypotheses": []}, {"id": 2, "text": "synthesized bassline", "category": "instrumentation", "confidence": 0.8, "reasoning": "low‑mid frequency synth with a simple repeating pattern", "uncertainties": [], "genreHypotheses": [], "aestheticConcepts": [], "impressions": []}, {"id": 3, "text": "repetitive melodic loop", "category": "instrumentation", "confidence": 0.7, "reasoning": "short melodic phrase repeated with slight variation", "uncertainties": [], "genreHypotheses": [], "aestheticConcepts": [], "impressions": []}], "signatureRelations": [], "uncertainties": ["synthesized bassline", "repetitive melodic loop"], "genreHypotheses": [], "aestheticConcepts": [], "impressions": [], "contextHypotheses": []}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat consistent subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "synthesized bassline",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "low‑mid frequency synth with a simple repeating pattern",
+      "id": "2"
+    },
+    {
+      "text": "repetitive melodic loop",
+      "category": "instrumentation",
+      "confidence": 0.7,
+      "reasoningHints": "short melodic phrase repeated with slight variation",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [],
+  "uncertainties": [
+    "synthesized bassline",
+    "repetitive melodic loop"
+  ],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 3,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 30.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1856; generation budget=512
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 11->5
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear, consistent downbeat on every beat'}, {'id': 2, 'text': 'bright brass timbre', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'trumpet and trombone lead melody with clean, resonant tone'}, {'id': 3, 'text': 'simple major harmony', 'category': 'harmony', 'confidence': 0.9, 'reasoning': 'major chordal movement with no dissonance'}, {'id': 4, 'text': 'steady bass line', 'category': 'bass', 'confidence': 0.9, 'reasoning': 'clear, rhythmic bass note on each beat'}, {'id': 5, 'text': 'steady drum pattern', 'category': 'drums', 'confidence': 0.9, 'reasoning': 'clear, consistent kick and snare on each beat'}, {'id': 6, 'text': 'bright, clean production', 'category': 'production', 'confidence': 0.9, 'reasoning': 'minimal processing, wide stereo image, balanced levels'}, {'id': 7, 'text': 'steady tempo', 'category': 'tempo', 'confidence': 0.9, 'reasoning': 'consistent beat throughout the segment'}, {'id': 8, 'text': 'steady dynamics', 'category': 'dynamics', 'confidence': 0.9, 'reasoning': 'no noticeable volume changes'}, {'id': 9, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear, consistent downbeat on every beat'}, {'id': 10, 'text': 'bright brass timbre', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'trumpet and trombone lead melody with clean, resonant tone'}, {'id': 11, 'text': 'simple major harmony', 'category': 'harmony', 'confidence': 0.9, 'reasoning': 'major chordal movement with no dissonance'}, {'id': 12, 'text': 'steady bass line
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear consistent downbeat on every beat",
+      "id": "1"
+    },
+    {
+      "text": "bright brass timbre",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "trumpet and trombone lead melody with clean resonant tone",
+      "id": "2"
+    },
+    {
+      "text": "simple major harmony",
+      "category": "arrangement",
+      "confidence": 0.9,
+      "reasoningHints": "major chordal movement with no dissonance",
+      "sourceCategory": "harmony",
+      "id": "3"
+    },
+    {
+      "text": "steady bass line",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "clear rhythmic bass note on each beat",
+      "sourceCategory": "bass",
+      "id": "4"
+    },
+    {
+      "text": "steady drum pattern",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear consistent kick and snare on each beat",
+      "sourceCategory": "drums",
+      "id": "5"
+    }
+  ],
+  "signatureRelations": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 11,
+    "acceptedConceptCount": 5,
+    "duplicateOrRejectedCount": 6,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 53.1s. Packet parsed: ['audibleObservations', 'signatureRelations', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'percussive rhythm', 'category': 'rhythm', 'confidence': 0.95}, {'id': 2, 'text': 'synth bassline', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 3, 'text': 'vocal sample', 'category': 'performance', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'percussion and bassline interplay', 'supportRefs': [1, 2], 'confidence': 0.85}, {'id': 2, 'text': 'vocal sample as rhythmic element', 'supportRefs': [3], 'confidence': 0.75}], 'uncertainties': ['no clear genre label', 'no clear tempo or time signature'], 'genreHypotheses': [{'label': 'electronic', 'confidence': 0.5}, {'label': 'experimental', 'confidence': 0.3}], 'aestheticConcepts': ['minimalist texture', 'loop-based structure'], 'impressions': ['cool, detached atmosphere', 'hypnotic
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "percussive rhythm",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "synth bassline",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "vocal sample",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "percussion and bassline interplay",
+      "confidence": 0.85,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "vocal sample as rhythmic element",
+      "confidence": 0.75,
+      "reasoningHints": "",
+      "supportRefs": [
+        "3"
+      ],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "no clear genre label",
+    "no clear tempo or time signature"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "experimental",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "minimalist texture",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "loop-based structure",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "cool detached atmosphere",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 1
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 28.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1855; generation budget=512
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 8->4
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{"audibleObservations": [ {"id": 1, "text": "electronic drum machine", "category": "rhythm", "confidence": 0.9, "reasoning": "steady 4/4 pulse with quantized kick/snare pattern"}, {"id": 2, "text": "synth bass", "category": "instrumentation", "confidence": 0.9, "reasoning": "deep, sustained low‑end tone with side‑chain compression to the kick"}, {"id": 3, "text": "synth pads", "category": "instrumentation", "confidence": 0.9, "reasoning": "wide, atmospheric chords that fill the stereo field"}, {"id": 4, "text": "vocal samples", "category": "instrumentation", "confidence": 0.9, "reasoning": "short, processed snippets used as rhythmic or textural accents"}, {"id": 5, "text": "electronic drum machine", "category": "rhythm", "confidence": 0.9, "reasoning": "steady 4/4 pulse with quantized kick/snare pattern"}, {"id": 6, "text": "synth bass", "category": "instrumentation", "confidence": 0.9, "reasoning": "deep, sustained low‑end tone with side‑chain compression to the kick"}, {"id": 7, "text": "synth pads", "category": "instrumentation", "confidence": 0.9, "reasoning": "wide, atmospheric chords that fill the stereo field"}, {"id": 8, "text": "vocal samples", "category": "instrumentation", "confidence": 0.9, "reasoning": "short, processed snippets used as rhythmic or textural accents"}], "signatureRelations": [ {"id": 1, "text": "drum machine and synth bass lock in a tight groove", "supportRefs": [1, 2], "confidence": 0.8, "reasoning": "the kick and bass follow the same rhythmic pattern, reinforcing the pulse"}, {"id": 2, "text": "synth pads provide harmonic backdrop", "supportRefs": [3], "confidence": 0.8, "reasoning": "the pads sustain chords that outline the tonal center without active melodic movement"}, {"id": 3,
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "electronic drum machine",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "steady 4/4 pulse with quantized kick/snare pattern",
+      "id": "1"
+    },
+    {
+      "text": "synth bass",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "deep sustained low‑end tone with side‑chain compression to the kick",
+      "id": "2"
+    },
+    {
+      "text": "synth pads",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "wide atmospheric chords that fill the stereo field",
+      "id": "3"
+    },
+    {
+      "text": "vocal samples",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "short processed snippets used as rhythmic or textural accents",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum machine and synth bass lock in a tight groove",
+      "confidence": 0.8,
+      "reasoningHints": "the kick and bass follow the same rhythmic pattern reinforcing the pulse",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "synth pads provide harmonic backdrop",
+      "confidence": 0.8,
+      "reasoningHints": "the pads sustain chords that outline the tonal center without active",
+      "supportRefs": [
+        "3"
+      ],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 6,
+    "duplicateOrRejectedCount": 4,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 4,
+      "signatureRelations": 2,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 65.7s. Packet parsed: ['audibleObservations', 'signatureRelations', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1856; generation budget=512

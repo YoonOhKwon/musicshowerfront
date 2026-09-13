@@ -10,7 +10,7 @@ const LanguageLayerPolicy = (() => {
     rhythm: "FACT", instrumentation: "FACT", performance: "FACT", arrangement: "FACT",
     production: "FACT", dynamics: "FACT",
     genre: "CONTEXT", lineage: "CONTEXT", era: "CONTEXT", scene: "CONTEXT", culture: "CONTEXT",
-    association: "AESTHETIC", mood: "IMPRESSION"
+    association: "AESTHETIC", imagery: "AESTHETIC", mood: "IMPRESSION"
   });
   const evidenceRoots = Object.freeze({
     // Includes both the raw grammar/evidence objects (rhythmicGrammar, productionEvidence, ...)

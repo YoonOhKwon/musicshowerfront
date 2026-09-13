@@ -47,9 +47,11 @@ test("a generation budget that fell below the full allowance announces itself", 
 test("the packet schema is evidence-first and protects recording-specific relations", () => {
   const prompt = source.split('PROMPT = """')[1].split('""".strip()')[0];
   const order = [...prompt.matchAll(/^\s*\d+\.\s+"(\w+)"/gm)].map((match) => match[1]);
-  assert.deepEqual(order, ["audibleObservations", "signatureRelations", "uncertainties",
+  assert.deepEqual(order, ["audibleObservations", "signatureRelations", "styleCues", "uncertainties",
     "genreHypotheses", "aestheticConcepts", "impressions", "contextHypotheses"],
     "audible evidence and uncertainty must precede interpretation");
+  const cues = prompt.split('"styleCues"')[1].split('"uncertainties"')[0];
+  assert.match(cues, /Name the audible trait itself/, "style cues report sound, not the scene they suggest");
 });
 
 test("Flamingo prompt contains no semantic examples that can leak into the listening report", () => {
@@ -97,8 +99,8 @@ test("broken-JSON recovery reads text VALUES, never the JSON key names", () => {
     'matching every quoted string harvested "text", "category" and "rhythm" as concepts');
   const textValue = String.raw`re.findall(r'"text"\s*:\s*"([^"\n]{2,120})"'`;
   const occurrences = recovery.split(textValue).length - 1;
-  assert.equal(occurrences, 5,
-    'audible, signature, context, aesthetic and impression recovery must all read the "text" value');
+  assert.equal(occurrences, 6,
+    'audible, signature, style cue, context, aesthetic and impression recovery must all read the "text" value');
 });
 
 test("a concept too long to keep is cut between words, never through one", () => {
@@ -192,7 +194,8 @@ test("a first impression spends its small budget on evidence-first provisional l
 test("sanitizer deduplicates before field caps and quarantines schema mismatches", () => {
   const sanitizer = source.split("def sanitize_packet")[1].split("\ndef ")[0];
   assert.match(sanitizer, /def dedupe\(items/);
-  assert.match(sanitizer, /balanced_audible\(dedupe\(audible_candidates\), 5\)/);
+  assert.match(sanitizer, /balanced_audible\(dedupe\(audible_candidates\), AUDIBLE_OBSERVATION_LIMIT\)/);
+  assert.match(source, /^AUDIBLE_OBSERVATION_LIMIT = 8$/m);
   assert.doesNotMatch(sanitizer, /parsed\.get\("audibleObservations"\).*\[:5\]/);
   assert.match(sanitizer, /unrecognized audible category/);
   assert.match(sanitizer, /misfiled genre claim/);

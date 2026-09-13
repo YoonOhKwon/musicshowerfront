@@ -1,8 +1,9 @@
 // Shared, open semantic contract. Vocabulary is not the evidence boundary.
 const SemanticFacets = (() => {
   const Layers = typeof LanguageLayerPolicy !== "undefined" ? LanguageLayerPolicy : require("./languageLayerPolicy");
-  const names = ["genre", "lineage", "rhythm", "instrumentation", "performance", "arrangement", "production", "dynamics", "mood", "era", "scene", "culture", "association", "live"];
-  const contextual = new Set(["lineage", "era", "scene", "culture", "association"]);
+  // "imagery" (concrete visual images) is written only by grounded association; see SEMANTIC_OWNERSHIP.md.
+  const names = ["genre", "lineage", "rhythm", "instrumentation", "performance", "arrangement", "production", "dynamics", "mood", "era", "scene", "culture", "association", "imagery", "live"];
+  const contextual = new Set(["lineage", "era", "scene", "culture", "association", "imagery"]);
   const volatile = new Set(["rhythm", "instrumentation", "performance", "arrangement", "production", "live", "dynamics"]);
   const clamp = x => Math.min(1, Math.max(0, Number(x) || 0));
   const empty = () => Object.fromEntries(names.map(name => [name, []]));
@@ -85,13 +86,20 @@ const SemanticFacets = (() => {
     era: ["genreContextEvidence", "primaryGenre", "genreEvidence", "productionEvidence", "production", "instrumentation", "directAudioEvidence"],
     scene: ["genreContextEvidence", "primaryGenre", "genreEvidence", "rhythmicGrammar", "rhythm", "production", "instrumentation", "directAudioEvidence"],
     culture: ["genreContextEvidence", "primaryGenre", "genreEvidence", "productionEvidence", "instrumentation", "moodDimensions", "directAudioEvidence"],
-    association: ["genreContextEvidence", "primaryGenre", "genreEvidence", "instrumentation", "productionEvidence", "production", "moodDimensions", "directAudioEvidence"]
+    association: ["genreContextEvidence", "primaryGenre", "genreEvidence", "instrumentation", "productionEvidence", "production", "moodDimensions", "directAudioEvidence"],
+    imagery: ["genreContextEvidence", "primaryGenre", "genreEvidence", "instrumentation", "productionEvidence", "production", "moodDimensions", "directAudioEvidence"]
   };
+  function isGroundedAssociation(item) {
+    return item?.sourceFamily === "groundedAssociation" && Array.isArray(item.associationAnchors) &&
+      item.associationAnchors.length > 0 && ["CONTEXT", "AESTHETIC"].includes(item.layer);
+  }
   function support(candidate, context = {}) {
     const snapshot = context.snapshot || {}, normalized = Layers.decorate(candidate);
     const category = normalized.category, anchors = normalized.anchors || [];
+    // A grounded association was already validated server-side against listening-model evidence ids,
+    // so it is held to the same evidence standard as the listening model it cites.
     const isDirectAudio = normalized.sourceFamily === "directAudio" || normalized.source === "directAudio" ||
-      anchors.some(path => String(path).startsWith("directAudioEvidence"));
+      anchors.some(path => String(path).startsWith("directAudioEvidence")) || isGroundedAssociation(normalized);
     const values = anchors.map(path => read(snapshot, path));
     const hasSnapshot = Object.keys(snapshot).length > 0;
     const invalidAnchors = hasSnapshot ? values.filter(value => !meaningful(value)).length : 0;
@@ -214,6 +222,7 @@ const SemanticFacets = (() => {
     return Layers.decorate({ text, category, confidence: clamp(confidence), weight: clamp(confidence), anchors,
       kind: contextual.has(category) ? "style" : "descriptor", role: "none", ...extra });
   }
-  return { names, contextual, volatile, empty, read, meaningful, safeText, support, token, clamp, setApprovedCoreTerms };
+  return { names, contextual, volatile, empty, read, meaningful, safeText, support, token, clamp, setApprovedCoreTerms,
+    isGroundedAssociation };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = SemanticFacets;

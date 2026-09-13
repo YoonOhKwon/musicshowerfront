@@ -8,6 +8,9 @@ const { WebSocketServer, WebSocket } = require("ws");
 const { RealtimeMusicSession } = require("./lib/realtimeMusicSession");
 const { analyzeStreamAudio } = require("./lib/streamDeepAnalysis");
 const { inferStreamModels } = require("./lib/streamModelService");
+const { createEnglishSurfaceTranslator } = require("./lib/englishSurface");
+const { createGroundedAssociator } = require("./lib/groundedAssociation");
+const { createUsageLedger } = require("./lib/usageLedger");
 const { createLanguageService, emptyTokenUsage, CALL_TUNING: CallTuning } = require("./lib/languageService");
 const DirectAudioReview = require("./lib/directAudioReview");
 const DirectAudioRealizer = require("./lib/directAudioRealizer");
@@ -26,8 +29,15 @@ const client = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 const LANGUAGE_MODEL = process.env.OPENAI_LANGUAGE_MODEL || MODEL;
+// Every OpenAI call is written to the usage ledger (llm-usage.jsonl) tagged with its purpose.
+const usageLedger = createUsageLedger();
+const englishSurfaces = createEnglishSurfaceTranslator({ client: usageLedger.clientFor(client, "english-surface"),
+  model: LANGUAGE_MODEL });
+const groundedAssociations = createGroundedAssociator({ client: usageLedger.clientFor(client, "grounded-association"),
+  model: LANGUAGE_MODEL });
+const realizationClient = usageLedger.clientFor(client, "korean-realization");
 const languageService = createLanguageService({
-  client, model: LANGUAGE_MODEL,
+  client: usageLedger.clientFor(client, "language-pool"), model: LANGUAGE_MODEL,
   reasoningEffort: process.env.OPENAI_LANGUAGE_REASONING_EFFORT || "medium",
   onUsage: usage => recordUsage(usage)
 });
@@ -737,7 +747,7 @@ async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch 
     if (client && normalized.length > 0) {
       const batches = realizationBatches(normalized);
       const results = await Promise.allSettled(batches.map(async batch => {
-        const response = await client.chat.completions.create({
+        const response = await realizationClient.chat.completions.create({
           model: LANGUAGE_MODEL,
           messages: [{ role: "user", content: buildRealizationPrompt(batch) }],
           response_format: { type: "json_object" },
@@ -877,7 +887,7 @@ app.post("/api/compose-genre", async (req, res) => {
       "uncertainties: short strings naming what stays unresolved between the two readings."
     ].join("\n");
 
-    const response = await client.chat.completions.create({
+    const response = await usageLedger.clientFor(client, "genre-composition").chat.completions.create({
       model: LANGUAGE_MODEL,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
@@ -939,7 +949,7 @@ Return strict JSON with these keys, each an array of 0-3 short phrases (a few wo
 - aestheticAssociations: visual/sensory aesthetic associations
 Do not include the concept's own name in any list.`;
 
-    const response = await client.chat.completions.create({
+    const response = await usageLedger.clientFor(client, "concept-expansion").chat.completions.create({
       model: LANGUAGE_MODEL,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
@@ -971,7 +981,7 @@ app.post("/api/music-analysis", async (req, res) => {
     }
 
     const startedAt = Date.now();
-    const response = await client.responses.create(createMusicAnalysisRequest(featurePacket));
+    const response = await usageLedger.clientFor(client, "music-analysis").responses.create(createMusicAnalysisRequest(featurePacket));
 
     if (response.status !== "completed" || !response.output_text) {
       const reason = response.incomplete_details?.reason || response.error?.code || "unknown";
@@ -1028,7 +1038,8 @@ app.get("/", (req, res) => {
 app.use(express.static(__dirname));
 
 function attachRealtimeAudioSocket(server, { analyze = analyzeStreamAudio, realize = realizeDirectAudio,
-  inferModels = inferStreamModels } = {}) {
+  inferModels = inferStreamModels, translate = englishSurfaces.translate, associate = groundedAssociations.associate,
+  associationsOnScreen = process.env.MUSIC_SHOWER_ASSOCIATIONS_ON_SCREEN !== "0" } = {}) {
   const socketServer = new WebSocketServer({
     server,
     path: "/ws/music-shower",
@@ -1052,7 +1063,8 @@ function attachRealtimeAudioSocket(server, { analyze = analyzeStreamAudio, reali
     const send = payload => {
       if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(payload));
     };
-    const session = new RealtimeMusicSession({ streamId, send, analyze, realize, inferModels });
+    const session = new RealtimeMusicSession({ streamId, send, analyze, realize, inferModels, translate, associate,
+      associationsOnScreen });
     send({ type: "ready", streamId, sampleRate: 16000, trackEpoch: session.trackEpoch,
       poolSource: "music-shower-final", buildVersion: BUILD_VERSION });
     socket.once("close", () => session.close());
@@ -1066,6 +1078,8 @@ function attachRealtimeAudioSocket(server, { analyze = analyzeStreamAudio, reali
           session.start(message);
         } else if (message?.type === "track_changed" || message?.type === "playback") {
           session.playback(message);
+        } else if (message?.type === "word_language") {
+          session.setWordLanguage(message.language);
         } else if (message?.type === "word_used") {
           session.noteUsed(message);
         } else if (message?.type === "ping") {

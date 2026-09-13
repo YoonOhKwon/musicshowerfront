@@ -19,12 +19,33 @@
 |---|---|---|
 | FACT | 로컬 DSP/MIR/사전학습 분석 모델, Music Flamingo | 일반 언어 모델의 독자적 추측 |
 | LIVE | 로컬 변화·이벤트 분석, Music Flamingo | 정적 수치의 변화 위장, 일반 언어 모델의 독자적 추측 |
-| CONTEXT | 사전학습 로컬 장르 분류기, Music Flamingo, 두 기록을 받는 외부 판정 모델 | 프로젝트 장르 등록부·별칭표·조합표·장르별 문구표 |
-| AESTHETIC | Music Flamingo가 낸 개념과 그 개념만 보존하는 외부 번역·표현 변환 | 로컬 축 규칙, 로컬 문구 사전, 일반 언어 풀 |
+| CONTEXT | 사전학습 로컬 장르 분류기, Music Flamingo, 두 기록을 받는 외부 판정 모델, 근거 기반 외부 연상(`groundedAssociation`, 문화·시대) | 프로젝트 장르 등록부·별칭표·조합표·장르별 문구표 |
+| AESTHETIC | Music Flamingo가 낸 개념과 그 개념만 보존하는 외부 번역·표현 변환, 근거 기반 외부 연상(`groundedAssociation`, 시각 이미지·미학) | 로컬 축 규칙, 로컬 문구 사전, 근거 ID가 없는 일반 언어 풀 |
 | IMPRESSION | Music Flamingo가 낸 인상과 그 인상만 보존하는 외부 번역·표현 변환 | 로컬 분위기 규칙, 로컬 문구 사전, 일반 언어 풀 |
 
 한국어 표현 변환은 새로운 의미 생성으로 취급하지 않지만, 원본 Flamingo 개념의 범위를
 넓히거나 장르·감정·장면을 추가해서는 안 된다.
+
+## 근거 기반 외부 연상 (`groundedAssociation`)
+
+외부 언어 모델은 소리를 듣지 않지만 장르·장면·시대에 대한 문화 지식을 가진다. 이 지식은
+청취 모델이 낸 근거에 묶일 때만 화면 후보가 될 수 있다(`lib/groundedAssociation.js`).
+
+1. 입력은 근거 목록뿐이다: 융합 장르 가설(G), 분류기 예측(K), Flamingo 개념(F),
+   Flamingo 스타일 단서(C). 각 항목에는 호출마다 새로 붙인 ID가 있다.
+2. 모든 연상 단어는 근거 ID를 1개 이상 인용한다. 서버는 존재하지 않는 ID를 인용한 단어를 버린다.
+   - 문화(`culture`)·시대(`era`) → CONTEXT: 확신도 0.35 이상인 장르 근거(G/K)와 청취 근거(F/C)를
+     모두 인용해야 한다.
+   - 시각 이미지(`imagery`)·미학(`association`) → AESTHETIC: 청취 근거(F/C)를 인용해야 한다.
+3. 단어의 구체성은 장르 확신도로 제한한다(해상도 단계). 코드는 장르 이름을 보지 않는다.
+   - `broad`: 장르 미확정. 문화·시대 단어를 만들지 않는다.
+   - `family`: 장르 계열 수준까지.
+   - `specific`: 확신도 0.55 이상이고 독립 청취자 2개 이상 또는 캡처 2회 이상이 뒷받침할 때만.
+4. 특정 녹음의 장소·날짜·작품·아티스트·샘플 출처를 사실로 주장하지 않는다.
+5. 코드와 프롬프트에 장르명·장면명·문화 단어 목록이나 예시 단어를 두지 않는다.
+6. 흔한 AI 표현(네온·몽환 등)은 근거에 확신도 0.55 이상인 장르가 있을 때만 통과한다.
+7. 근거 ID가 없는 일반 언어 풀의 AESTHETIC/IMPRESSION 출력은 지금처럼 차단한다.
+   IMPRESSION은 여전히 Music Flamingo만 만든다.
 
 ## 장르 처리
 
@@ -49,5 +70,6 @@
   화면 후보에서 차단한다.
 - 정적 `evidence-gated-prior`, `genre-relation` 출력도 화면 후보에서 차단한다.
 - 일반 언어 풀의 FACT/LIVE/AESTHETIC/IMPRESSION 출력은 마지막 공통 게이트에서 차단한다.
+- `groundedAssociation`은 CONTEXT/AESTHETIC 층이고 근거가 1개 이상일 때만 마지막 게이트를 통과한다.
 - Music Flamingo의 FACT/LIVE/AESTHETIC/IMPRESSION은 허용하며 직접 청취 출처를 유지한다.
 

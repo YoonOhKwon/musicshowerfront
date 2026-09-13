@@ -19,7 +19,39 @@
     : (typeof require === "function" ? (() => { try { return require("./semanticConceptCluster"); } catch { return null; } })() : null);
   const FACT_FACETS = new Set(["rhythm", "instrumentation", "performance", "arrangement", "production", "dynamics", "live"]);
   const CONTEXT_FACETS = new Set(["scene", "era", "culture", "lineage"]);
-  const FACET_ALIASES = Object.freeze({ instrument: "instrumentation", instruments: "instrumentation", tempo: "rhythm" });
+  // Mirrors FACT_CATEGORY_ALIASES in scripts/flamingo_server.py: the model names audible facets in
+  // its own words ("harmony", "bass motion"); route them onto display facets instead of dropping them.
+  const FACET_ALIASES = Object.freeze({
+    instrument: "instrumentation", instruments: "instrumentation", timbre: "instrumentation",
+    bass: "instrumentation", bassline: "instrumentation", sample: "instrumentation",
+    "vocal sample": "instrumentation", "vocal samples": "instrumentation", "vocal chop": "instrumentation",
+    synth: "instrumentation", synths: "instrumentation", keys: "instrumentation",
+    guitar: "instrumentation", piano: "instrumentation", brass: "instrumentation",
+    vocal: "performance", vocals: "performance", voice: "performance", singing: "performance",
+    rap: "performance", delivery: "performance", phrasing: "performance",
+    tempo: "rhythm", groove: "rhythm", drums: "rhythm", drum: "rhythm", percussion: "rhythm",
+    beat: "rhythm", meter: "rhythm", pulse: "rhythm", swing: "rhythm", syncopation: "rhythm",
+    harmony: "arrangement", harmonic: "arrangement", melody: "arrangement", melodic: "arrangement",
+    chords: "arrangement", chord: "arrangement", tonality: "arrangement", key: "arrangement",
+    structure: "arrangement", form: "arrangement", texture: "arrangement", layering: "arrangement",
+    motif: "arrangement", counterpoint: "arrangement",
+    mix: "production", mixing: "production", space: "production", spatial: "production",
+    stereo: "production", reverb: "production", effects: "production", fx: "production",
+    "sound design": "production", tone: "production", mastering: "production", filter: "production",
+    energy: "dynamics", intensity: "dynamics", loudness: "dynamics", build: "dynamics", dynamic: "dynamics"
+  });
+
+  // Canonical FACT facet for a model-written category, or null when none applies.
+  function factFacetFor(rawCategory) {
+    const name = String(rawCategory || "").toLowerCase().replace(/[^a-z ]+/g, " ").replace(/\s+/g, " ").trim();
+    if (FACT_FACETS.has(name)) return name;
+    if (FACET_ALIASES[name]) return FACET_ALIASES[name];
+    for (const word of name.split(" ")) {
+      if (FACT_FACETS.has(word)) return word;
+      if (FACET_ALIASES[word]) return FACET_ALIASES[word];
+    }
+    return null;
+  }
 
   function normalizeText(text) {
     return Realizer ? Realizer.normalizeKey(text) : String(text || "").toLowerCase().trim();
@@ -29,8 +61,8 @@
   // taxonomy. Mixing the two namespaces caused every non-genre reservoir candidate to be dropped.
   function facetForPacketItem(packetKey, rawItem = {}, text = "") {
     const rawCategory = typeof rawItem === "object" && rawItem ? rawItem.category : "";
-    const requested = FACET_ALIASES[String(rawCategory || "").toLowerCase()] || String(rawCategory || "").toLowerCase();
-    if (packetKey === "audibleObservations") return FACT_FACETS.has(requested) ? requested : null;
+    const requested = String(rawCategory || "").toLowerCase();
+    if (packetKey === "audibleObservations") return factFacetFor(requested);
     if (packetKey === "signatureRelations") return "arrangement";
     if (packetKey === "genreHypotheses") {
       if (!GenreLabels || GenreLabels.isPlausibleGenreLabel(text)) return "genre";
@@ -556,6 +588,7 @@
     Reservoir,
     defaultReservoir,
     facetForPacketItem,
+    factFacetFor,
     conceptKeyFor,
     packetConceptCount,
     packetFromObservations,

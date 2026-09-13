@@ -8,6 +8,9 @@ const LanguageCritic = (() => {
   const GENERIC = new Set(["빛", "파동", "잔광", "입자", "맥동", "흐름", "공간", "진동"]);
   const CLICHE_TERMS = ["과열된", "냉각된", "저중력", "무중력", "황홀한 압력", "분홍빛", "금속성 황홀", "분석 중", "재생해주세요"];
   const AI_CLICHE = /몽환|꿈결|네온|유리빛|잔광|부유/;
+  // Grounded words may be written in Latin script, so the same stock imagery is matched in English too.
+  const GROUNDED_CLICHE = /몽환|꿈결|네온|유리빛|잔광|부유|\bneon\b|\bdreamy\b|\bethereal\b/i;
+  const GROUNDED_CLICHE_GENRE_CONFIDENCE = 0.55;
   const clamp = Facets.clamp;
   const textOf = value => typeof value === "object" ? value?.text : value;
   const normalize = text => Expressions.canonical(String(textOf(text) || "").replace(/\s+/g, " ").trim());
@@ -32,8 +35,9 @@ const LanguageCritic = (() => {
     const item = Layers.decorate({ ...(typeof candidate === "object" ? candidate : {}), text, category },
       { snapshot: context.snapshot });
     const anchors = item.anchors;
+    const grounded = Facets.isGroundedAssociation(item);
     const isDirectAudio = item.sourceFamily === "directAudio" || item.source === "directAudio" ||
-      item.resolutionMomentum === true || anchors.some(a => String(a).startsWith("directAudioEvidence"));
+      item.resolutionMomentum === true || anchors.some(a => String(a).startsWith("directAudioEvidence")) || grounded;
     const knownVocabulary = Expressions.vocabulary[category]?.includes(text);
     const eligible = context.eligibleTexts;
     let relevant = isDirectAudio || (eligible ? eligible.some(item => semanticKey(item) === semanticKey(text)) : Boolean(knownVocabulary || category === "genre"));
@@ -75,8 +79,12 @@ const LanguageCritic = (() => {
     const factPoetry = item.layer === "FACT" && /향수|낭만|애상|낙관주의|부유감|미학|감성/.test(text);
     const factLicense = Firewall.inspect(text, context.snapshot?.verifiedClaims || context.verifiedClaims);
     const unlicensedFact = (item.layer === "FACT" || item.layer === "LIVE") && !factLicense.licensed && !isDirectAudio;
-    const aiCliche = item.source === "llm" && ["AESTHETIC", "IMPRESSION"].includes(item.layer) &&
-      AI_CLICHE.test(text) && independentEvidenceAxes < 2;
+    // Grounded association: stock imagery (e.g. neon) is legitimate only when the cited evidence
+    // includes a confident genre; otherwise it is the generic AI poetry this filter exists for.
+    const aiCliche = (item.source === "llm" && ["AESTHETIC", "IMPRESSION"].includes(item.layer) &&
+      AI_CLICHE.test(text) && independentEvidenceAxes < 2) ||
+      (grounded && GROUNDED_CLICHE.test(`${text} ${item.textEn || ""}`) &&
+        !(Number(item.genreConfidence) >= GROUNDED_CLICHE_GENRE_CONFIDENCE));
     const aiClichePenalty = (AI_CLICHE.test(text) ? Math.min(0.24, recentFamilyCount * 0.1) : 0) +
       (aiCliche ? 0.5 : 0);
     if (mechanicalPhrase) specificity *= 0.45;
