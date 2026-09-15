@@ -83,7 +83,8 @@ window.addEventListener("message", event => {
   chrome.runtime.sendMessage({
     type: "MUSIC_SHOWER_SOUNDCLOUD_COMMAND",
     command: event.data.command,
-    url: event.data.url || null
+    url: event.data.url || null,
+    positionMs: Number.isFinite(event.data.positionMs) ? event.data.positionMs : null
   }).catch(() => {});
 });
 })();

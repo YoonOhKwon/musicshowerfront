@@ -11,3 +11,4 @@ research-output/
 __pycache__/
 
 llm-usage.jsonl
+.cache/

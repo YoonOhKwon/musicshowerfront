@@ -9,7 +9,7 @@ const {
 } = require("../server");
 
 test("server exposes a build identifier for stale-process diagnosis", () => {
-  assert.equal(BUILD_VERSION, "2026.09.09.front3-model-pool-v36");
+  assert.equal(BUILD_VERSION, "2026.09.13.token-mode-v37");
 });
 
 test("Sol request keeps medium reasoning and an explicit reusable prompt prefix", () => {

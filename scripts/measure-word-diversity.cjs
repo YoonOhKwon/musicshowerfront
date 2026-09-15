@@ -25,12 +25,14 @@ const TIMEOUT_MS = Number(option("timeout", 20 * 60)) * 1000;
 const OUT = option("out", "");
 // "en" asks the backend for English surfaces too, like front3's English word mode.
 const LANGUAGE = option("language", "ko");
+// The backend defaults to "free" (no OpenAI calls); measurements of language quality and token use need "token".
+const TOKEN_MODE = option("token-mode", "token");
 // --realtime N streams N seconds at playback speed instead of pausing for each capture.
 const REALTIME_SECONDS = Number(option("realtime", 0));
 // Seconds to wait after the last capture so a pending association call can publish.
 const SETTLE_MS = Number(option("settle", 3)) * 1000;
 const SAMPLE_RATE = 16000;
-const BUSY = new Set(["analyzing", "realizing"]);
+const BUSY = new Set(["analyzing", "realizing", "forensic"]);
 
 async function loadPcm() {
   const { default: decode } = await import("audio-decode");
@@ -109,7 +111,7 @@ async function main() {
     const message = JSON.parse(data);
     if (message.type === "ready") {
       trackEpoch = message.trackEpoch || 1;
-      socket.send(JSON.stringify({ type: "start", sampleRate: SAMPLE_RATE, channels: 1, format: "f32le" }));
+      socket.send(JSON.stringify({ type: "start", sampleRate: SAMPLE_RATE, channels: 1, format: "f32le", tokenMode: TOKEN_MODE }));
       socket.send(JSON.stringify({ type: "word_language", language: LANGUAGE }));
     }
     if (message.type === "started") stream().catch(error => { errors.push(String(error)); finish("stream error"); });
@@ -150,7 +152,7 @@ async function main() {
         flamingoConceptsAfterCapture.push([...current].filter(text => !seenFlamingo.has(text)).length);
         seenFlamingo = current;
       }
-      if (!REALTIME_SECONDS && attempts() >= CAPTURES && analysis.status !== "analyzing") {
+      if (!REALTIME_SECONDS && attempts() >= CAPTURES && !BUSY.has(analysis.status)) {
         await sleep(SETTLE_MS); // let the final realization and association publish
         for (let waited = 0; analysis.association?.pending && waited < 90000; waited += 500) await sleep(500);
         return finish("done");

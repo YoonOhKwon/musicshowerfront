@@ -16,7 +16,8 @@ chrome.runtime.onMessage.addListener(message => {
       source: "music-shower-extension",
       type: "COMMAND",
       command: message.command,
-      url: message.url || null
+      url: message.url || null,
+      positionMs: Number.isFinite(message.positionMs) ? message.positionMs : null
     }, location.origin);
   }
 });

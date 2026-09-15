@@ -1,0 +1,2719 @@
+Flamingo server listening at port 5005 (503 while the model loads)
+Loading Music Flamingo model (This will take a minute)...
+Music Flamingo quantization: NF4 4-bit; placement: audio-priority
+Music Flamingo device map: {"lm_head": 0, "model.audio_tower": 0, "model.language_model.embed_tokens": "cpu", "model.language_model.layers": 0, "model.language_model.norm": 0, "model.language_model.rotary_emb": 0, "model.multi_modal_projector": 0, "model.pos_emb": 0}
+CUDA after load: allocated=5.65 GiB, reserved=5.80 GiB
+Model loaded successfully. Starting server...
+[Music Flamingo] text context budget: 8192 tokens
+Flamingo server serving at port 5005
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'female vocal', 'category': 'vocal', 'confidence': 0.95}, {'id': 2, 'text': 'electronic beat', 'category': 'rhythm', 'confidence': 0.95}, {'id': 3, 'text': 'synth bass', 'category': 'instrumentation', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'beat and bass drive the track', 'supportRefs': [1, 2], 'confidence': 0.85}], 'uncertainties': ['no clear genre label', 'no explicit tempo or time signature'], 'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.3}, {'label': 'indie electronic', 'confidence': 0.3}], 'aestheticConcepts': ['modern digital production', 'cool, detached atmosphere'], 'impressions': ['detached, cool', 'slightly melancholic']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "female vocal",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "sourceCategory": "vocal",
+      "id": "1"
+    },
+    {
+      "text": "electronic beat",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "synth bass",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "beat and bass drive the track",
+      "confidence": 0.85,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre label",
+    "no explicit tempo or time signature"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic pop",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "indie electronic",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "modern digital production",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "cool detached atmosphere",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "detached cool",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "slightly melancholic",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 32.9s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'synth bass with sidechain', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'low‑end electronic bass that ducks under the kick drum', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'bass and kick lock in sync', 'supportRefs': [1, 2], 'confidence': 0.8, 'reasoning': 'the bass note and kick drum hit together on each downbeat, creating a tight groove'}, {'id': 2, 'text': 'vocal melody follows chord changes', 'supportRefs': [3], 'confidence': 0.7, 'reasoning': 'the vocal line moves stepwise and lands on chord tones, reinforcing the harmonic movement'}],
+'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'the combination of a steady 4/4 beat, synth bass, and melodic vocal line is typical of contemporary electronic pop productions'}, {'label': 'dance‑pop', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'the track’s upbeat tempo and clear rhythmic pulse suggest a dance‑oriented pop style'}],
+'aestheticConcepts': [{'text': 'bright, polished production', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'the mix is clean with a wide stereo image and crisp high‑frequency sheen'}, {'text': 'modern digital aesthetic', 'confidence': 0.7, 'supportRefs': [1, 2], 'reasoning': 'the sound design relies on electronic timbres and side‑chain compression, giving it a contemporary digital feel'}],
+'contextHypotheses': [{'text': 'contemporary pop scene', 'category': 'scene', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'the track’s structure and production align with current mainstream pop trends'}, {'text': 'late‑2010s to early‑2020s electronic pop', 'category': 'era', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'the polished synth textures and side‑chain technique are characteristic of pop music from that period'}],
+'impressions': [{'text': 'energetic and uplifting', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'the steady beat and bright production create a forward‑moving, positive vibe'}, {'text': 'slightly melancholic undertone', 'confidence': 0.5, 'supportRefs': [3], 'reasoning': 'the minor‑key chord progression and vocal delivery add a hint of wistfulness to the otherwise upbeat feel'}],
+'uncertainties': ['instrumentation details', 'exact genre label']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "synth bass with sidechain",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "low‑end electronic bass that ducks under the kick drum",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 119.4s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental electronic', 'category': 'instrumentation', 'confidence': 0.7}, {'id': 2, 'text': 'steady 4/4 beat', 'category': 'rhythm', 'confidence': 0.8}, {'id': 3, 'text': 'repetitive synth loop', 'category': 'arrangement', 'confidence': 0.6}], 'signatureRelations': [{'id': 1, 'text': 'beat and synth loop', 'supportRefs': [1, 2], 'confidence': 0.5}], 'uncertainties': ['no clear genre label', 'no vocal presence'], 'genreHypotheses': [{'label': 'electronic', 'confidence': 0.3}, {'label': 'ambient', 'confidence': 0.2}], 'aestheticConcepts': ['minimalist', 'loop-based'], 'impressions': ['calm', 'steady']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental electronic",
+      "category": "instrumentation",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "steady 4/4 beat",
+      "category": "rhythm",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "repetitive synth loop",
+      "category": "arrangement",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "beat and synth loop",
+      "confidence": 0.5,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre label",
+    "no vocal presence"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "ambient",
+      "confidence": 0.2,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "minimalist",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "loop-based",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "calm",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "steady",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 42.1s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'female vocal', 'category': 'vocal', 'confidence': 0.95}, {'id': 2, 'text': 'electronic beat', 'category': 'rhythm', 'confidence': 0.95}, {'id': 3, 'text': 'synth bass', 'category': 'instrumentation', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'beat and bass drive the track', 'supportRefs': [1, 2], 'confidence': 0.85}, {'id': 2, 'text': 'vocal sits atop the electronic foundation', 'supportRefs': [1, 2], 'confidence': 0.85}], 'uncertainties': ['no clear genre label', 'no explicit tempo or time signature'], 'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.3}, {'label': 'indie electronic', 'confidence': 0.3}], 'aestheticConcepts': ['melancholic atmosphere', 'reflective mood'], 'impressions': ['sadness', 'long
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "female vocal",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "sourceCategory": "vocal",
+      "id": "1"
+    },
+    {
+      "text": "electronic beat",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "synth bass",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "beat and bass drive the track",
+      "confidence": 0.85,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "vocal sits atop the electronic foundation",
+      "confidence": 0.85,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "2"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre label",
+    "no explicit tempo or time signature"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic pop",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "indie electronic",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "melancholic atmosphere",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "reflective mood",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sadness",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 10,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 2,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 1
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 51.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'synth bass with sidechain', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'low‑end electronic bass that ducks under the kick drum', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'bass and kick lock in sync', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'the bass follows the kick drum rhythmically, creating a tight groove'}, {'id': 2, 'text': 'synth pads sustain under vocal lines', 'supportRefs': [1], 'confidence': 0.6, 'reasoning': 'soft pad chords hold for several beats, providing harmonic backdrop'}, {'id': 3, 'text': 'vocal melody leads over simple chord', 'supportRefs': [1], 'confidence': 0.5, 'reasoning': 'the female voice carries the main melodic contour while the chord changes support it'}],
+'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.7, 'supportRefs': [1, 2], 'reasoning': 'steady electronic beat, synth bass, and pop‑style vocal delivery'}, {'label': 'dance‑pop', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'the track is built for danceability with a clear 4/4 groove and a catchy vocal hook'}],
+'aestheticConcepts': [{'text': 'bright, polished production', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'the mix is clean and glossy, with the kick and bass clearly separated and the vocals sitting on top'}, {'text': 'modern pop sheen', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'the overall sound is crisp, with digital effects and a wide stereo image'}],
+'contextHypotheses': [{'text': 'contemporary pop', 'category': 'scene', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'the production style and vocal approach are typical of current mainstream pop music'}, {'text': 'dance‑floor ready', 'category': 'scene', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'the steady beat and synth bass make the track suitable for club or party settings'}],
+'impressions': [{'text': 'energetic and upbeat', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'the tempo and rhythmic drive create a lively, forward‑moving feel'}, {'text': 'bright and optimistic', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'the major‑key‑like chord movement and polished production give a positive vibe'}],
+'uncertainties': ['instrumentation details beyond synth bass and pads', 'vocal timbre not fully described', 'genre label not fully confirmed']},
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "synth bass with sidechain",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "low‑end electronic bass that ducks under the kick drum",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 131.9s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'electronic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'punchy kick, crisp snare, tight hi-hats, all synthesized', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing the pulse', 'uncertainties': []},
+{'styleCues': [{'id': 1, 'text': 'synthetic drum sound', 'confidence': 0.6, 'supportRefs': [2], 'reasoning': 'electronic drum kit with a clean, processed timbre', 'uncertainties': []},
+{'uncertainties': ['instrumentation ambiguity'], 'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'steady 4/4 beat, electronic drums, simple harmonic texture', 'uncertainties': []},
+{'aestheticConcepts': [{'text': 'modern digital production', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'clean, precise drum programming, minimal organic elements', 'uncertainties': []},
+{'impressions': [{'text': 'energetic, forward-moving', 'confidence': 0.7, 'supportRefs': [1], 'reasoning': 'steady pulse and punchy drums create a sense of motion', 'uncertainties': []},
+{'contextHypotheses': [{'text': 'contemporary pop production', 'category': 'scene', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'electronic drum kit and steady beat are typical of modern pop and electronic pop tracks', 'uncertainties': []}]}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "electronic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "punchy kick crisp snare tight hi-hats all synthesized",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 64.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'clear four-beat pattern with consistent accent on beats 1 and 3.'}, {'id': 2, 'text': 'synthetic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'electronic kick, snare, and hi-hat sounds with tight envelope and no acoustic bleed.'}, {'id': 3, 'text': 'bright synth lead', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'high‑frequency, saw‑tooth‑like timbre playing melodic hooks.'}, {'id': 4, 'text': 'sub‑bass synth', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'deep, rounded low‑end that follows the root of the chord progression.'}, {'id': 5, 'text': 'clean vocal processing', 'category': 'vocal', 'confidence': 0.95, 'reasoning': 'minimal reverb and delay, preserving clarity and articulation.'}], 'signatureRelations': [{'id': 1, 'text': 'drum and bass elements', 'supportRefs': [1, 2], 'confidence': 0.8, 'reasoning': 'the drum pattern and bass line are typical of drum‑and‑bass, with a fast‑paced, syncopated rhythm.'}, {'id': 2, 'text': 'synth‑lead melody', 'supportRefs': [3, 4], 'confidence': 0.8, 'reasoning': 'the bright synth lead carries the main melodic hook, a hallmark of drum‑and‑bass and some EDM sub‑genres.'}], 'styleCues': [{'id': 1, 'text': 'electronic production', 'confidence': 0.9, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the track is built on electronic drums, synth bass, and a lead synth, all processed with modern digital effects.'}], 'uncertainties': ['instrumentation ambiguity'], 'genreHypotheses': [{'label': 'drum‑and‑bass', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the fast, syncopated drum pattern, sub‑bass emphasis, and bright synth lead are characteristic of drum‑and‑bass.'}, {'label': 'EDM', 'confidence': 0.5, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the electronic drum kit, synth bass, and lead synth are common in EDM sub‑genres.'}], 'aestheticConcepts': [{'text': 'energetic', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the track maintains a high‑energy level throughout, driven by the relentless drum rhythm and bright synth lead.'}, {'text': 'modern club', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the production style and instrumentation are typical of contemporary club music.'}], 'impressions': [{'text': 'exciting', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the fast tempo, driving rhythm, and bright synth lead create a sense of excitement and forward momentum.'}, {'text': 'contemporary', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the electronic drum kit and synth sounds are characteristic of modern, post‑2000 club music.'}], 'contextHypotheses': [{'text': 'club setting', 'category': 'scene', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the track’s high energy, fast tempo, and club‑oriented production suggest it is intended for dance‑floor environments.'}, {'text': 'contemporary electronic scene', 'category': 'culture', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the use of electronic drums, synth bass, and lead synth places the track within the modern electronic music culture.'}]
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "clear four-beat pattern with consistent accent on beats 1 and 3.",
+      "id": "1"
+    },
+    {
+      "text": "synthetic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "electronic kick snare and hi-hat sounds with tight envelope and no",
+      "id": "2"
+    },
+    {
+      "text": "clean vocal processing",
+      "category": "performance",
+      "confidence": 0.95,
+      "reasoningHints": "minimal reverb and delay preserving clarity and articulation.",
+      "sourceCategory": "vocal",
+      "id": "5"
+    },
+    {
+      "text": "bright synth lead",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "high‑frequency saw‑tooth‑like timbre playing melodic hooks.",
+      "id": "3"
+    },
+    {
+      "text": "sub‑bass synth",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "deep rounded low‑end that follows the root of the chord progression.",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum and bass elements",
+      "confidence": 0.8,
+      "reasoningHints": "the drum pattern and bass line are typical of drum‑and‑bass with a",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "synth‑lead melody",
+      "confidence": 0.8,
+      "reasoningHints": "the bright synth lead carries the main melodic hook a hallmark of",
+      "supportRefs": [
+        "3",
+        "4"
+      ],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "electronic production",
+      "confidence": 0.9,
+      "reasoningHints": "the track is built on electronic drums synth bass and a lead synth all",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "1"
+    }
+  ],
+  "uncertainties": [
+    "instrumentation ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "drum‑and‑bass",
+      "confidence": 0.7,
+      "reasoningHints": "the fast syncopated drum pattern sub‑bass emphasis and bright synth lead",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "EDM",
+      "confidence": 0.5,
+      "reasoningHints": "the electronic drum kit synth bass and lead synth are common in EDM",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "energetic",
+      "confidence": 0.8,
+      "reasoningHints": "the track maintains a high‑energy level throughout driven by the",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "modern club",
+      "confidence": 0.6,
+      "reasoningHints": "the production style and instrumentation are typical of contemporary",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "exciting",
+      "confidence": 0.7,
+      "reasoningHints": "the fast tempo driving rhythm and bright synth lead create a sense of",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "contemporary",
+      "confidence": 0.6,
+      "reasoningHints": "the electronic drum kit and synth sounds are characteristic of modern",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "club setting",
+      "category": "scene",
+      "confidence": 0.8,
+      "reasoningHints": "the track’s high energy fast tempo and club‑oriented production suggest",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "contemporary electronic scene",
+      "category": "culture",
+      "confidence": 0.6,
+      "reasoningHints": "the use of electronic drums synth bass and lead synth places the track",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 16,
+    "acceptedConceptCount": 16,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 1,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 132.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: contextHypotheses 2->1
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'clear, consistent downbeat on every beat, no swing or syncopation.'}, {'id': 2, 'text': 'bright synth lead', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'a single, high‑frequency synth voice carries the main melodic hook.'}, {'id': 3, 'text': 'simple electronic drum kit', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'kick, snare, hi‑hat pattern typical of modern electronic pop.'}, {'id': 4, 'text': 'clean bass synth', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'sub‑bass line follows root notes of the chord progression.'}, {'id': 5, 'text': 'repetitive chord loop', 'category': 'harmony', 'confidence': 0.95, 'reasoning': 'a four‑chord loop repeats throughout, giving a stable harmonic foundation.'}, {'id': 6, 'text': 'consistent volume', 'category': 'dynamics', 'confidence': 0.95, 'reasoning': 'no noticeable dynamic shifts; level stays steady.'}], 'signatureRelations': [{'id': 1, 'text': 'synth lead and bass lock in unison', 'category': 'relation', 'confidence': 0.95, 'reasoning': 'the bass synth often mirrors the melodic contour of the synth lead, reinforcing the hook.'}, {'id': 2, 'text': 'drum pattern underpins the loop', 'category': 'relation', 'confidence': 0.95, 'reasoning': 'the drum kit provides a steady 4/4 groove that supports the repeating chord progression.'}], 'styleCues': [{'id': 1, 'text': 'digital synth timbre', 'category': 'style cue', 'confidence': 0.95, 'reasoning': 'the bright, clean synth sound is characteristic of contemporary electronic pop production.'}, {'id': 2, 'text': 'minimalist arrangement', 'category': 'style cue', 'confidence': 0.95, 'reasoning': 'the track relies on a simple loop of synth, bass, and drums without additional layers, suggesting a minimalist aesthetic.'}], 'uncertainties': ['instrument source ambiguity'], 'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the combination of a steady 4/4 beat, bright synth lead, clean bass, and repetitive chord loop is typical of modern electronic pop.'}, {'label': 'minimal electronic', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the track’s sparse arrangement and consistent volume level align with minimalist electronic styles.'}], 'aestheticConcepts': [{'text': 'bright and clean', 'confidence': 0.95, 'supportRefs': [2, 3], 'reasoning': 'the synth lead’s timbre is crisp and high‑frequency, contributing to a clean, polished sound.'}, {'text': 'steady and predictable', 'confidence': 0.95, 'supportRefs': [1, 6], 'reasoning': 'the unvarying volume and regular pulse create a sense of stability and predictability.'}], 'impressions': [{'text': 'energetic and upbeat', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the fast tempo, bright synth, and driving drum pattern together convey an upbeat, lively mood.'}, {'text': 'simple and accessible', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the track’s minimal arrangement and repetitive structure make it easy to follow and enjoy.'}], 'contextHypotheses': [{'text': 'contemporary digital production', 'category': 'scene', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4, 5, 6], 'reasoning': 'the digital synth sound and clean mixing suggest a production style common in 2020s electronic pop.'}, {'text': 'pop‑oriented songwriting', 'category': 'genre', 'confidence':
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "clear consistent downbeat on every beat no swing or syncopation.",
+      "id": "1"
+    },
+    {
+      "text": "bright synth lead",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "a single high‑frequency synth voice carries the main melodic hook.",
+      "id": "2"
+    },
+    {
+      "text": "repetitive chord loop",
+      "category": "arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "a four‑chord loop repeats throughout giving a stable harmonic",
+      "sourceCategory": "harmony",
+      "id": "5"
+    },
+    {
+      "text": "consistent volume",
+      "category": "dynamics",
+      "confidence": 0.95,
+      "reasoningHints": "no noticeable dynamic shifts level stays steady.",
+      "id": "6"
+    },
+    {
+      "text": "simple electronic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "kick snare hi‑hat pattern typical of modern electronic pop.",
+      "id": "3"
+    },
+    {
+      "text": "clean bass synth",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "sub‑bass line follows root notes of the chord progression.",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "synth lead and bass lock in unison",
+      "confidence": 0.95,
+      "reasoningHints": "the bass synth often mirrors the melodic contour of the synth lead",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "drum pattern underpins the loop",
+      "confidence": 0.95,
+      "reasoningHints": "the drum kit provides a steady 4/4 groove that supports the repeating",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "digital synth timbre",
+      "confidence": 0.95,
+      "reasoningHints": "the bright clean synth sound is characteristic of contemporary",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "minimalist arrangement",
+      "confidence": 0.95,
+      "reasoningHints": "the track relies on a simple loop of synth bass and drums without",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrument source ambiguity",
+    "unrecognized context category"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic pop",
+      "confidence": 0.95,
+      "reasoningHints": "the combination of a steady 4/4 beat bright synth lead clean bass and",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "minimal electronic",
+      "confidence": 0.8,
+      "reasoningHints": "the track’s sparse arrangement and consistent volume level align with",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "bright and clean",
+      "confidence": 0.95,
+      "reasoningHints": "the synth lead’s timbre is crisp and high‑frequency contributing to a",
+      "supportRefs": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "text": "steady and predictable",
+      "confidence": 0.95,
+      "reasoningHints": "the unvarying volume and regular pulse create a sense of stability and",
+      "supportRefs": [
+        "1",
+        "6"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "energetic and upbeat",
+      "confidence": 0.7,
+      "reasoningHints": "the fast tempo bright synth and driving drum pattern together convey an",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "simple and accessible",
+      "confidence": 0.8,
+      "reasoningHints": "the track’s minimal arrangement and repetitive structure make it easy to",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "contemporary digital production",
+      "category": "scene",
+      "confidence": 0.95,
+      "reasoningHints": "the digital synth sound and clean mixing suggest a production style",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 18,
+    "acceptedConceptCount": 17,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 1,
+    "fieldCounts": {
+      "audibleObservations": 6,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 1,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 131.2s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'fast 4/4 electronic drum beat', 'category': 'rhythm', 'confidence': 0.95, 'reasoning': 'steady pulse with a strong kick on every downbeat and a crisp snare on the backbeat.'}, {'id': 2, 'text': 'bright synth lead melody', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'a high‑pitched, digital‑sounding synth line that carries the main melodic hook.'}, {'id': 3, 'text': 'driving synth bassline', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'a pulsating, side‑chain‑compressed bass synth that locks with the kick drum.'}, {'id': 4, 'text': 'layered electronic percussion', 'category': 'instrumentation', 'confidence': 0.95, 'reasoning': 'additional percussive elements such as hi‑hats and claps that add rhythmic texture.'}, {'id': 5, 'text': 'clean, polished production', 'category': 'production', 'confidence': 0.95, 'reasoning': 'clear separation of elements, wide stereo imaging, and a glossy mastering style typical of modern electronic pop.'}], 'signatureRelations': [{'id': 1, 'text': 'drum and bass elements', 'supportRefs': [1, 2, 3, 4], 'confidence': 0.95, 'reasoning': 'the drum pattern and bassline work together to create a driving, dance‑floor‑ready groove.'}, {'id': 2, 'text': 'synth lead and bass interplay', 'supportRefs': [2, 3], 'confidence': 0.95, 'reasoning': 'the bright synth lead often plays in unison or counterpoint with the bass, reinforcing the melodic hook.'}], 'styleCues': [{'id': 1, 'text': 'digital synth timbres', 'confidence': 0.95, 'reasoning': 'the use of bright, digital‑sounding synths is a hallmark of contemporary electronic pop.'}, {'id': 2, 'text': 'side‑chain compression on bass', 'confidence': 0.95, 'reasoning': 'the bass is ducked by the kick drum, creating the classic pumping effect common in EDM and pop dance tracks.'}], 'uncertainties': ['instrumentation ambiguity'], 'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the combination of a fast 4/4 beat, bright synth lead, driving bass, and polished production aligns with the conventions of modern electronic pop.'}, {'label': 'dance‑pop', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the track’s energetic rhythm, catchy synth hook, and clean production are typical of dance‑pop music.'}], 'aestheticConcepts': [{'text': 'energetic, uplifting', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the fast tempo, bright timbres, and driving rhythm create a sense of forward momentum and positivity.'}, {'text': 'modern, digital aesthetic', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the use of digital synths and side‑chain compression gives the track a contemporary, club‑ready sound.'}], 'impressions': [{'text': 'happy, optimistic', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the major‑key‑like harmonic feel, bright timbres, and steady, upbeat rhythm convey a positive, feel‑good mood.'}], 'contextHypotheses': [{'text': 'contemporary pop scene', 'category': 'scene', 'confidence': 0.95, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the track’s production style, synth palette, and danceable groove are characteristic of current mainstream electronic pop and dance‑pop releases.'}, {'text': 'late‑2010s to early‑2020s pop', 'category': 'era', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the polished sound, side‑
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "fast 4/4 electronic drum beat",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "steady pulse with a strong kick on every downbeat and a crisp snare on",
+      "id": "1"
+    },
+    {
+      "text": "bright synth lead melody",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "a high‑pitched digital‑sounding synth line that carries the main melodic",
+      "id": "2"
+    },
+    {
+      "text": "clean polished production",
+      "category": "production",
+      "confidence": 0.95,
+      "reasoningHints": "clear separation of elements wide stereo imaging and a glossy mastering",
+      "id": "5"
+    },
+    {
+      "text": "driving synth bassline",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "a pulsating side‑chain‑compressed bass synth that locks with the kick",
+      "id": "3"
+    },
+    {
+      "text": "layered electronic percussion",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "additional percussive elements such as hi‑hats and claps that add",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum and bass elements",
+      "confidence": 0.95,
+      "reasoningHints": "the drum pattern and bassline work together to create a driving",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "1"
+    },
+    {
+      "text": "synth lead and bass interplay",
+      "confidence": 0.95,
+      "reasoningHints": "the bright synth lead often plays in unison or counterpoint with the",
+      "supportRefs": [
+        "2",
+        "3"
+      ],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "digital synth timbres",
+      "confidence": 0.95,
+      "reasoningHints": "the use of bright digital‑sounding synths is a hallmark of contemporary",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "side‑chain compression on bass",
+      "confidence": 0.95,
+      "reasoningHints": "the bass is ducked by the kick drum creating the classic pumping effect",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrumentation ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic pop",
+      "confidence": 0.95,
+      "reasoningHints": "the combination of a fast 4/4 beat bright synth lead driving bass and",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "dance‑pop",
+      "confidence": 0.8,
+      "reasoningHints": "the track’s energetic rhythm catchy synth hook and clean production are",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "energetic uplifting",
+      "confidence": 0.95,
+      "reasoningHints": "the fast tempo bright timbres and driving rhythm create a sense of",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "modern digital aesthetic",
+      "confidence": 0.95,
+      "reasoningHints": "the use of digital synths and side‑chain compression gives the track a",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "happy optimistic",
+      "confidence": 0.95,
+      "reasoningHints": "the major‑key‑like harmonic feel bright timbres and steady upbeat rhythm",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "contemporary pop scene",
+      "category": "scene",
+      "confidence": 0.95,
+      "reasoningHints": "the track’s production style synth palette and danceable groove are",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "late‑2010s to early‑2020s pop",
+      "category": "era",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 16,
+    "acceptedConceptCount": 16,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 1
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 125.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental piano', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 2, 'text': 'slow tempo', 'category': 'rhythm', 'confidence': 0.95}, {'id': 3, 'text': 'soft dynamics', 'category': 'dynamics', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'piano solo', 'supportRefs': 1, 'confidence': 0.95}, {'id': 2, 'text': 'minimal accompaniment', 'supportRefs': 1, 'confidence': 0.95}], 'uncertainties': ['no vocals', 'no explicit genre cue'], 'genreHypotheses': [{'label': 'contemporary classical', 'confidence': 0.3}, {'label': 'minimalist piano', 'confidence': 0.3}], 'aestheticConcepts': ['melancholic', 'reflective'], 'impressions': ['calm', 'introspective']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "slow tempo",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "soft dynamics",
+      "category": "dynamics",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "piano solo",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "minimal accompaniment",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no vocals",
+    "no explicit genre cue"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "contemporary classical",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "minimalist piano",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "melancholic",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "reflective",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "calm",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "introspective",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 11,
+    "acceptedConceptCount": 11,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 2,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 39.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'slow, steady pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'the beat is regular and unvarying, with a clear 4/4 feel.'}, {'id': 2, 'text': 'minimalist drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'the drum pattern is simple, using a basic kick, snare, and hi‑hat pattern without complex fills.'}, {'id': 3, 'text': 'warm, sustained bass', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'the bass provides a continuous low‑frequency foundation, often playing long notes that outline the harmony.'}, {'id': 4, 'text': 'sparse piano chords', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'the piano plays simple, open‑voiced chords that reinforce the harmonic progression without elaborate melodic lines.'}, {'id': 5, 'text': 'dry, close‑mic vocal', 'category': 'vocal performance', 'confidence': 0.9, 'reasoning': 'the male voice is recorded dry, with little reverb or delay, giving an intimate, direct presence.'}], 'signatureRelations': [{'id': 1, 'text': 'drum and bass lock in', 'category': 'rhythm', 'confidence': 0.7, 'reasoning': 'the drum pattern and bass line move together in a tight, unison groove, emphasizing the pulse.'}, {'id': 2, 'text': 'bass underpins piano chords', 'category': 'harmony', 'confidence': 0.8, 'reasoning': 'the bass notes follow the piano chords, reinforcing the harmonic structure.'}, {'id': 3, 'text': 'vocal sits atop the mix', 'category': 'vocal placement', 'confidence': 0.9, 'reasoning': 'the vocal is placed prominently in the front of the mix, with the other instruments supporting it.'}], 'styleCues': [{'id': 1, 'text': 'minimalist arrangement', 'category': 'arrangement', 'confidence': 0.6, 'reasoning': 'the instrumentation is sparse, focusing on a few core elements without dense layering.'}, {'id': 2, 'text': 'dry vocal production', 'category': 'production', 'confidence': 0.7, 'reasoning': 'the vocal is recorded with minimal processing, giving a raw, unpolished feel.'}], 'uncertainties': ['instrumentation ambiguity', 'genre ambiguity'], 'genreHypotheses': [{'label': 'ambient pop', 'confidence': 0.4, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the slow tempo, sparse arrangement, and intimate vocal style are typical of ambient‑pop aesthetics.'}, {'label': 'lo‑fi indie', 'confidence': 0.3, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the dry vocal, minimal production, and simple harmonic language align with lo‑fi indie sensibilities.'}], 'aestheticConcepts': [{'text': 'intimate', 'confidence': 0.8, 'supportRefs': [5], 'reasoning': 'the dry vocal and close‑mic technique create a sense of personal closeness.'}, {'text': 'minimalist', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the arrangement is stripped down, focusing on a few core elements without ornamentation.'}], 'impressions': [{'text': 'melancholic', 'confidence': 0.5, 'supportRefs': [3, 4], 'reasoning': 'the warm bass and minor‑toned piano chords contribute to a somber mood.'}, {'text': 'introspective', 'confidence': 0.6, 'supportRefs': [5], 'reasoning': 'the intimate vocal delivery and sparse texture suggest personal reflection.'}], 'contextHypotheses': [{'text': 'contemporary indie', 'category': 'scene', 'confidence': 0.4, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the minimalist approach and dry vocal style are characteristic of modern indie music.'}, {'text': 'late‑2010s bedroom pop', 'category': 'era', 'confidence': 0.3, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the lo‑fi aesthetic and intimate production align with the bedroom‑
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "slow steady pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "the beat is regular and unvarying with a clear 4/4 feel.",
+      "id": "1"
+    },
+    {
+      "text": "minimalist drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "the drum pattern is simple using a basic kick snare and hi‑hat pattern",
+      "id": "2"
+    },
+    {
+      "text": "dry close‑mic vocal",
+      "category": "performance",
+      "confidence": 0.9,
+      "reasoningHints": "the male voice is recorded dry with little reverb or delay giving an",
+      "sourceCategory": "vocal performance",
+      "id": "5"
+    },
+    {
+      "text": "warm sustained bass",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "the bass provides a continuous low‑frequency foundation often playing",
+      "id": "3"
+    },
+    {
+      "text": "sparse piano chords",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "the piano plays simple open‑voiced chords that reinforce the harmonic",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum and bass lock in",
+      "confidence": 0.7,
+      "reasoningHints": "the drum pattern and bass line move together in a tight unison groove",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "bass underpins piano chords",
+      "confidence": 0.8,
+      "reasoningHints": "the bass notes follow the piano chords reinforcing the harmonic",
+      "supportRefs": [],
+      "id": "2"
+    },
+    {
+      "text": "vocal sits atop the mix",
+      "confidence": 0.9,
+      "reasoningHints": "the vocal is placed prominently in the front of the mix with the other",
+      "supportRefs": [],
+      "id": "3"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "minimalist arrangement",
+      "confidence": 0.6,
+      "reasoningHints": "the instrumentation is sparse focusing on a few core elements without",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "dry vocal production",
+      "confidence": 0.7,
+      "reasoningHints": "the vocal is recorded with minimal processing giving a raw unpolished",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrumentation ambiguity",
+    "genre ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "ambient pop",
+      "confidence": 0.4,
+      "reasoningHints": "the slow tempo sparse arrangement and intimate vocal style are typical",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "lo‑fi indie",
+      "confidence": 0.3,
+      "reasoningHints": "the dry vocal minimal production and simple harmonic language align with",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "intimate",
+      "confidence": 0.8,
+      "reasoningHints": "the dry vocal and close‑mic technique create a sense of personal",
+      "supportRefs": [
+        "5"
+      ]
+    },
+    {
+      "text": "minimalist",
+      "confidence": 0.7,
+      "reasoningHints": "the arrangement is stripped down focusing on a few core elements without",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "melancholic",
+      "confidence": 0.5,
+      "reasoningHints": "the warm bass and minor‑toned piano chords contribute to a somber mood.",
+      "supportRefs": [
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "introspective",
+      "confidence": 0.6,
+      "reasoningHints": "the intimate vocal delivery and sparse texture suggest personal",
+      "supportRefs": [
+        "5"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "contemporary indie",
+      "category": "scene",
+      "confidence": 0.4,
+      "reasoningHints": "the minimalist approach and dry vocal style are characteristic of modern",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "late‑2010s bedroom pop",
+      "category": "era",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 18,
+    "acceptedConceptCount": 18,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 3,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 142.3s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'snare, kick, hi-hat, and cymbals with natural room ambience', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing the pulse'}, {'id': 2, 'text': 'vocal melody rides over the groove', 'supportRefs': [1, 2], 'confidence': 0.6, 'reasoning': 'melodic line is rhythmically aligned with the drum pattern'}],
+'genreHypotheses': [{'label': 'K-Pop ballad', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'ballad tempo, emotive vocal delivery, and typical K-Pop production style'}, {'label': 'ballad', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'slow tempo, melodic focus, and emotional vocal performance'}],
+'aestheticConcepts': [{'text': 'melancholic', 'confidence': 0.7, 'supportRefs': [1, 2], 'reasoning': 'minor‑toned harmonic content, slow pace, and expressive vocal phrasing'}, {'text': 'introspective', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'lyrical delivery and harmonic mood suggest personal reflection'}],
+'contextHypotheses': [{'text': 'contemporary Korean pop', 'category': 'scene', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'production style, vocal technique, and overall arrangement are typical of modern K‑pop ballads'}, {'text': 'ballad genre', 'category': 'genre', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'slow tempo, melodic focus, and emotional vocal performance are hallmarks of ballads'}],
+'uncertainties': ['instrumentation details', 'exact genre label']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "snare kick hi-hat and cymbals with natural room ambience",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 94.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'snare, kick, hi-hat, and cymbals with natural room ambience', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing pulse'}, {'id': 2, 'text': 'vocal melody rides over steady rhythm', 'supportRefs': [1], 'confidence': 0.6, 'reasoning': 'melodic line stays within a narrow range, emphasizing rhythm over harmony'}],
+'genreHypotheses': [{'label': 'K-Pop ballad', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'steady 4/4 pulse, acoustic drums, and a clear vocal melody are typical of K-Pop ballads'}, {'label': 'acoustic pop', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'acoustic drum kit and simple harmonic backdrop suggest an acoustic pop style'}],
+'aestheticConcepts': [{'text': 'intimate', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'minimalist arrangement and clear vocal delivery create a close, personal atmosphere'}, {'text': 'melancholic', 'confidence': 0.3, 'supportRefs': [1], 'reasoning': 'the vocal tone and melodic contour convey a sense of sadness'}],
+'contextHypotheses': [{'text': 'contemporary Korean pop', 'category': 'scene', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'the overall style and instrumentation align with modern K-Pop ballads'}, {'text': 'acoustic production', 'category': 'production', 'confidence': 0.6, 'supportRefs': [2], 'reasoning': 'the use of an acoustic drum kit and clear vocal suggests a more organic, less electronic production approach'}],
+'uncertainties': ['instrumentation ambiguity', 'genre classification ambiguity']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "snare kick hi-hat and cymbals with natural room ambience",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 69.4s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 8->4
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{"audibleObservations": [{"id": 1, "text": "acoustic drum kit", "category": "rhythm", "confidence": 0.9, "reasoning": "steady 4/4 pulse with a natural swing feel, typical of live band settings"}, {"id": 2, "text": "electric bass guitar", "category": "bass", "confidence": 0.9, "reasoning": "warm, round low end that locks with the kick drum in a classic rock groove"}, {"id": 3, "text": "electric guitar", "category": "instrumentation", "confidence": 0.9, "reasoning": "clean, slightly overdriven tone playing rhythmic chord stabs and melodic fills"}, {"id": 4, "text": "male lead vocals", "category": "vocals", "confidence": 0.9, "reasoning": "clear, mid-range timbre with a conversational delivery, no heavy processing"}, {"id": 5, "text": "acoustic drum kit", "category": "rhythm", "confidence": 0.9, "reasoning": "steady 4/4 pulse with a natural swing feel, typical of live band settings"}, {"id": 6, "text": "electric bass guitar", "category": "bass", "confidence": 0.9, "reasoning": "warm, round low end that locks with the kick drum in a classic rock groove"}, {"id": 7, "text": "electric guitar", "category": "instrumentation", "confidence": 0.9, "reasoning": "clean, slightly overdriven tone playing rhythmic chord stabs and melodic fills"}, {"id": 8, "text": "male lead vocals", "category": "vocals", "confidence": 0.9, "reasoning": "clear, mid-range timbre with a conversational delivery, no heavy processing"}], "signatureRelations": [{"id": 1, "text": "drum and bass lock", "supportRefs": [1, 2], "confidence": 0.8, "reasoning": "the kick and bass drum play in unison, reinforcing the groove"}, {"id": 2, "text": "guitar and bass interplay", "supportRefs": [3, 2], "confidence": 0.7, "reasoning": "the guitar chords accent the downbeats while the bass fills the space between", "category": "instrumentation"}], "styleCues": [{"id": 1, "text": "live band recording", "confidence": 0.9, "supportRefs": [1, 2, 3, 4], "reasoning": "the raw, unprocessed sound and natural room ambience suggest a live performance"}, {"id": 2, "text": "minimal electronic elements", "confidence": 0.6, "supportRefs": [1, 2], "reasoning": "no synthetic textures or programmed drums are audible"}], "uncertainties": ["instrumentation ambiguity"], "genreHypotheses": [{"label": "rock", "confidence": 0.8, "supportRefs": [1, 2, 3, 4], "reasoning": "the combination of drum kit, bass, electric guitar, and male vocals is typical of rock music"}], "aestheticConcepts": [{"text": "organic and intimate", "confidence": 0.8, "supportRefs": [1, 2, 3, 4], "reasoning": "the live recording captures the natural dynamics and slight imperfections of a band playing together"}, {"text": "conversational storytelling", "confidence": 0.6, "supportRefs": [4], "reasoning": "the vocal delivery is direct and narrative, as if the singer is speaking to the listener"}], "impressions": [{"text": "reflective and earnest", "confidence": 0.7, "supportRefs": [4], "reasoning": "the lyrical tone, when present, feels personal and sincere"}], "contextHypotheses": [{"text": "live performance", "confidence": 0.9, "supportRefs": [1, 2, 3, 4], "reasoning": "the presence of natural room ambience and the unpolished mix point to a live setting"}], "signatureRelations": [{"id": 1, "text": "drum and bass lock", "supportRefs": [1, 2], "confidence": 0.8, "reasoning": "the kick and bass drum play in unison, reinforcing the groove"}], "styleCues": [{"id": 1, "text": "live band recording", "confidence": 0.9
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "acoustic drum kit",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "steady 4/4 pulse with a natural swing feel typical of live band settings",
+      "id": "1"
+    },
+    {
+      "text": "electric bass guitar",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "warm round low end that locks with the kick drum in a classic rock",
+      "sourceCategory": "bass",
+      "id": "2"
+    },
+    {
+      "text": "electric guitar",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "clean slightly overdriven tone playing rhythmic chord stabs and melodic",
+      "id": "3"
+    },
+    {
+      "text": "male lead vocals",
+      "category": "performance",
+      "confidence": 0.9,
+      "reasoningHints": "clear mid-range timbre with a conversational delivery no heavy",
+      "sourceCategory": "vocals",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drum and bass lock",
+      "confidence": 0.8,
+      "reasoningHints": "the kick and bass drum play in unison reinforcing the groove",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "live band recording",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "1"
+    }
+  ],
+  "uncertainties": [
+    "instrumentation ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "rock",
+      "confidence": 0.8,
+      "reasoningHints": "the combination of drum kit bass electric guitar and male vocals is",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "organic and intimate",
+      "confidence": 0.8,
+      "reasoningHints": "the live recording captures the natural dynamics and slight",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "conversational storytelling",
+      "confidence": 0.6,
+      "reasoningHints": "the vocal delivery is direct and narrative as if the singer is speaking",
+      "supportRefs": [
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "reflective and earnest",
+      "confidence": 0.7,
+      "reasoningHints": "the lyrical tone when present feels personal and sincere",
+      "supportRefs": [
+        "4"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "live performance",
+      "category": "scene",
+      "confidence": 0.9,
+      "reasoningHints": "the presence of natural room ambience and the unpolished mix point to a",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 15,
+    "acceptedConceptCount": 11,
+    "duplicateOrRejectedCount": 4,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 4,
+      "signatureRelations": 1,
+      "styleCues": 1,
+      "genreHypotheses": 1,
+      "contextHypotheses": 1,
+      "aestheticConcepts": 2,
+      "impressions": 1
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 105.1s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'snare, kick, hi-hat, and toms with natural room ambience', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing pulse'}, {'id': 2, 'text': 'vocal melody rides over steady rhythm', 'supportRefs': [1], 'confidence': 0.6, 'reasoning': 'melodic line stays within a narrow range, emphasizing rhythm over harmony'}],
+'genreHypotheses': [{'label': 'Korean pop ballad', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'slow tempo, emotive vocal delivery, simple harmonic backdrop typical of Korean pop ballads'}],
+'aestheticConcepts': [{'text': 'melancholic', 'confidence': 0.5, 'supportRefs': [1], 'reasoning': 'minor‑toned melodic contour and subdued dynamics create a wistful atmosphere'}, {'text': 'intimate', 'confidence': 0.7, 'supportRefs': [2], 'reasoning': 'minimal instrumentation and close‑mic vocal treatment give a personal feel'}],
+'contextHypotheses': [{'text': 'contemporary Korean pop', 'category': 'scene', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'stylistic traits align with modern Korean pop ballads, though exact era is unclear'}],
+'uncertainties': ['instrumentation details', 'exact genre label']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "snare kick hi-hat and toms with natural room ambience",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 50.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'slow, steady pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'the beat is a simple 4/4 pulse with a relaxed tempo, no syncopation or swing.'}, {'id': 2, 'text': 'warm, resonant bass', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'a deep, rounded bass tone that underpins the harmony and provides a solid foundation.'}, {'id': 3, 'text': 'minimal percussion', 'category': 'instrumentation', 'confidence': 0.7, 'reasoning': 'only a soft, brushed drum sound is audible, keeping the texture sparse.'}, {'id': 4, 'text': 'sustained synth pad', 'category': 'instrumentation', 'confidence': 0.6, 'reasoning': 'a soft, atmospheric pad holds long chords, filling the background with a gentle wash.'}, {'id': 5, 'text': 'vocal line', 'category': 'performance', 'confidence': 0.9, 'reasoning': 'a single, expressive male voice carries the melody with a clear, unprocessed timbre.'}], 'signatureRelations': [{'id': 1, 'text': 'bass and pad lock in harmony', 'category': 'relation', 'confidence': 0.8, 'reasoning': 'the bass follows the pad’s chord changes, reinforcing the harmonic movement.'}, {'id': 2, 'text': 'vocal melody over pad', 'category': 'relation', 'confidence': 0.9, 'reasoning': 'the vocal line sits atop the pad, creating a clear melodic focus.'}], 'styleCues': [{'id': 1, 'text': 'minimalist arrangement', 'category': 'style', 'confidence': 0.7, 'reasoning': 'the sparse instrumentation and slow tempo suggest a minimalist aesthetic.'}, {'id': 2, 'text': 'warm analog texture', 'category': 'style', 'confidence': 0.6, 'reasoning': 'the warm, rounded bass and pad sound imply an analog or vintage production style.'}], 'uncertainties': ['instrument identity ambiguous'], 'genreHypotheses': [{'label': 'ambient pop', 'confidence': 0.4, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the combination of a slow, steady pulse, warm bass, sustained pad, and expressive vocal line is typical of ambient pop, which often blends electronic textures with intimate vocal delivery.'}, {'label': 'lo-fi indie', 'confidence': 0.3, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the minimalist arrangement and warm analog feel align with lo-fi indie aesthetics, which favor simplicity and emotional directness.'}], 'aestheticConcepts': [{'text': 'introspective', 'confidence': 0.8, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the slow tempo, warm timbres, and expressive vocal convey a reflective, inward-looking mood.'}, {'text': 'melancholic', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the minor‑toned harmonic backdrop and the emotive vocal delivery suggest a melancholic atmosphere.'}], 'impressions': [{'text': 'sadness', 'confidence': 0.7, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the overall mood is one of sorrow and contemplation, reinforced by the slow pace and expressive vocal.'}, {'text': 'longing', 'confidence': 0.5, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the sustained pad and warm bass create a sense of yearning, while the vocal line carries a plaintive quality.'}], 'contextHypotheses': [{'text': 'late‑2010s indie', 'category': 'scene', 'confidence': 0.4, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the minimalist production and intimate vocal style are characteristic of the late‑2010s indie scene, which often embraced lo‑fi aesthetics and emotional directness.'}, {'text': 'ambient pop revival', 'category': 'scene', 'confidence': 0.3, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the blend of ambient textures with pop‑song structure points to a revival of ambient pop that gained traction in the late 
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "slow steady pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "the beat is a simple 4/4 pulse with a relaxed tempo no syncopation or",
+      "id": "1"
+    },
+    {
+      "text": "warm resonant bass",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "a deep rounded bass tone that underpins the harmony and provides a solid",
+      "id": "2"
+    },
+    {
+      "text": "vocal line",
+      "category": "performance",
+      "confidence": 0.9,
+      "reasoningHints": "a single expressive male voice carries the melody with a clear",
+      "id": "5"
+    },
+    {
+      "text": "minimal percussion",
+      "category": "instrumentation",
+      "confidence": 0.7,
+      "reasoningHints": "only a soft brushed drum sound is audible keeping the texture sparse.",
+      "id": "3"
+    },
+    {
+      "text": "sustained synth pad",
+      "category": "instrumentation",
+      "confidence": 0.6,
+      "reasoningHints": "a soft atmospheric pad holds long chords filling the background with a",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "bass and pad lock in harmony",
+      "confidence": 0.8,
+      "reasoningHints": "the bass follows the pad’s chord changes reinforcing the harmonic",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "vocal melody over pad",
+      "confidence": 0.9,
+      "reasoningHints": "the vocal line sits atop the pad creating a clear melodic focus.",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "minimalist arrangement",
+      "confidence": 0.7,
+      "reasoningHints": "the sparse instrumentation and slow tempo suggest a minimalist",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "warm analog texture",
+      "confidence": 0.6,
+      "reasoningHints": "the warm rounded bass and pad sound imply an analog or vintage",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrument identity ambiguous"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "ambient pop",
+      "confidence": 0.4,
+      "reasoningHints": "the combination of a slow steady pulse warm bass sustained pad and",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "lo-fi indie",
+      "confidence": 0.3,
+      "reasoningHints": "the minimalist arrangement and warm analog feel align with lo-fi indie",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "introspective",
+      "confidence": 0.8,
+      "reasoningHints": "the slow tempo warm timbres and expressive vocal convey a reflective",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "melancholic",
+      "confidence": 0.6,
+      "reasoningHints": "the minor‑toned harmonic backdrop and the emotive vocal delivery suggest",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sadness",
+      "confidence": 0.7,
+      "reasoningHints": "the overall mood is one of sorrow and contemplation reinforced by the",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "longing",
+      "confidence": 0.5,
+      "reasoningHints": "the sustained pad and warm bass create a sense of yearning while the",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "late‑2010s indie",
+      "category": "scene",
+      "confidence": 0.4,
+      "reasoningHints": "the minimalist production and intimate vocal style are characteristic of",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "text": "ambient pop revival",
+      "category": "scene",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 17,
+    "acceptedConceptCount": 17,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 104.8s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'Rhythmic pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'A steady 4/4 pulse is audible, with a consistent kick on each downbeat and a snare accent on the backbeat.'}, {'id': 2, 'text': 'Acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'The drum sound is organic, with a natural room ambience and no obvious electronic processing.'}, {'id': 3, 'text': 'Clean electric guitar', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'A clean, slightly overdriven electric guitar plays arpeggiated chords and melodic lines, with a warm, unprocessed tone.'}, {'id': 4, 'text': 'Bass guitar', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'A warm, round bass guitar underpins the harmony, providing a solid low‑end foundation.'}, {'id': 5, 'text': 'Male lead vocal', 'category': 'vocal', 'confidence': 0.9, 'reasoning': 'A male vocalist delivers the melody with a clear, expressive timbre, using clean singing without distortion or harshness.'}, {'id': 6, 'text': 'Harmonic progression', 'category': 'harmony', 'confidence': 0.7, 'reasoning': 'The chord sequence moves through a mix of major and minor colors, creating a bittersweet, reflective atmosphere.'}, {'id': 7, 'text': 'Dynamic range', 'category': 'dynamics', 'confidence': 0.6, 'reasoning': 'The track exhibits a moderate dynamic range, with softer verses that build into slightly louder choruses, but no extreme peaks or drops.'}], 'signatureRelations': [{'id': 1, 'text': 'Drum and bass interplay', 'category': 'rhythm', 'confidence': 0.8, 'reasoning': 'The drum pattern and bass line lock together, reinforcing the 4/4 pulse and providing a solid groove.'}, {'id': 2, 'text': 'Guitar and vocal harmony', 'category': 'instrumentation', 'confidence': 0.7, 'reasoning': 'The clean electric guitar and male vocal often move in parallel thirds or sixths, creating a warm harmonic blend.'}, {'id': 3, 'text': 'Bass and guitar counterpoint', 'category': 'instrumentation', 'confidence': 0.6, 'reasoning': 'The bass guitar and guitar parts sometimes play complementary lines, with the bass outlining the root and the guitar adding melodic embellishments.'}], 'styleCues': [{'id': 1, 'text': 'Acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'The drum sound is organic, with a natural room ambience and no obvious electronic processing.'}, {'id': 2, 'text': 'Clean electric guitar', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'A clean, slightly overdriven electric guitar plays arpeggiated chords and melodic lines, with a warm, unprocessed tone.'}, {'id': 3, 'text': 'Bass guitar', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'A warm, round bass guitar underpins the harmony, providing a solid low‑end foundation.'}, {'id': 4, 'text': 'Male lead vocal', 'category': 'vocal', 'confidence': 0.9, 'reasoning': 'A male vocalist delivers the melody with a clear, expressive timbre, using clean singing without distortion or harshness.'}], 'uncertainties': ['Ambiguous genre label', 'Uncertain production style'], 'genreHypotheses': [{'label': 'Indie rock', 'confidence': 0.6, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'The combination of acoustic drum kit, clean electric guitar, bass guitar, and male lead vocal is typical of indie rock arrangements.'}, {'label': 'Alternative rock', 'confidence': 0.4, 'supportRefs': [1, 2, 3, 4, 5], 'reasoning': 'The track’s moderate dynamic range and reflective mood align with alternative rock sensibilities.'}], 'aestheticConcepts': [{'text': 'Reflective', 'confidence': 0.8, 'supportRefs': [6], 'reasoning': 'The harmonic progression and vocal delivery convey a contempl
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "Rhythmic pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "A steady 4/4 pulse is audible with a consistent kick on each downbeat",
+      "id": "1"
+    },
+    {
+      "text": "Acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "The drum sound is organic with a natural room ambience and no obvious",
+      "id": "2"
+    },
+    {
+      "text": "Male lead vocal",
+      "category": "performance",
+      "confidence": 0.9,
+      "reasoningHints": "A male vocalist delivers the melody with a clear expressive timbre using",
+      "sourceCategory": "vocal",
+      "id": "5"
+    },
+    {
+      "text": "Harmonic progression",
+      "category": "arrangement",
+      "confidence": 0.7,
+      "reasoningHints": "The chord sequence moves through a mix of major and minor colors",
+      "sourceCategory": "harmony",
+      "id": "6"
+    },
+    {
+      "text": "Dynamic range",
+      "category": "dynamics",
+      "confidence": 0.6,
+      "reasoningHints": "The track exhibits a moderate dynamic range with softer verses that",
+      "id": "7"
+    },
+    {
+      "text": "Clean electric guitar",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "A clean slightly overdriven electric guitar plays arpeggiated chords and",
+      "id": "3"
+    },
+    {
+      "text": "Bass guitar",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "A warm round bass guitar underpins the harmony providing a solid low‑end",
+      "id": "4"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "Drum and bass interplay",
+      "confidence": 0.8,
+      "reasoningHints": "The drum pattern and bass line lock together reinforcing the 4/4 pulse",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "Guitar and vocal harmony",
+      "confidence": 0.7,
+      "reasoningHints": "The clean electric guitar and male vocal often move in parallel thirds",
+      "supportRefs": [],
+      "id": "2"
+    },
+    {
+      "text": "Bass and guitar counterpoint",
+      "confidence": 0.6,
+      "reasoningHints": "The bass guitar and guitar parts sometimes play complementary lines with",
+      "supportRefs": [],
+      "id": "3"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "Acoustic drum kit",
+      "confidence": 0.8,
+      "reasoningHints": "The drum sound is organic with a natural room ambience and no obvious",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "Clean electric guitar",
+      "confidence": 0.9,
+      "reasoningHints": "A clean slightly overdriven electric guitar plays arpeggiated chords and",
+      "supportRefs": [],
+      "id": "2"
+    },
+    {
+      "text": "Bass guitar",
+      "confidence": 0.8,
+      "reasoningHints": "A warm round bass guitar underpins the harmony providing a solid low‑end",
+      "supportRefs": [],
+      "id": "3"
+    },
+    {
+      "text": "Male lead vocal",
+      "confidence": 0.9,
+      "reasoningHints": "A male vocalist delivers the melody with a clear expressive timbre using",
+      "supportRefs": [],
+      "id": "4"
+    }
+  ],
+  "uncertainties": [
+    "Ambiguous genre label",
+    "Uncertain production style"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "Indie rock",
+      "confidence": 0.6,
+      "reasoningHints": "The combination of acoustic drum kit clean electric guitar bass guitar",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "Alternative rock",
+      "confidence": 0.4,
+      "reasoningHints": "The track’s moderate dynamic range and reflective mood align with",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "Reflective",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "supportRefs": [
+        "6"
+      ]
+    }
+  ],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 17,
+    "acceptedConceptCount": 17,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 7,
+      "signatureRelations": 3,
+      "styleCues": 4,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 1,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 102.0s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'snare, kick, hi-hat, and cymbals with natural room ambience', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing pulse'}, {'id': 2, 'text': 'vocal melody follows chord changes', 'supportRefs': [1], 'confidence': 0.6, 'reasoning': 'melodic contour aligns with harmonic shifts'}],
+'genreHypotheses': [{'label': 'K-Pop', 'confidence': 0.4, 'supportRefs': [1, 2], 'reasoning': 'common K-Pop arrangement of drums, bass, and melodic vocals'}, {'label': 'Indie Pop', 'confidence': 0.3, 'supportRefs': [1], 'reasoning': 'acoustic drum kit and melodic vocal style typical of indie pop'}],
+'aestheticConcepts': [{'text': 'energetic', 'confidence': 0.8, 'supportRefs': [1], 'reasoning': 'fast tempo and driving rhythm create forward momentum'}, {'text': 'bright', 'confidence': 0.6, 'supportRefs': [2], 'reasoning': 'major tonal center and clean production give a luminous feel'}],
+'contextHypotheses': [{'text': 'contemporary Korean pop', 'category': 'scene', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'steady 4/4 beat, acoustic drums, and melodic vocal line are hallmarks of modern K-Pop arrangements'}, {'text': 'late 2010s indie pop', 'category': 'era', 'confidence': 0.4, 'supportRefs': [1], 'reasoning': 'acoustic drum sound and melodic vocal style are typical of indie pop from that period'}],
+'uncertainties': ['instrumentation ambiguity', 'genre ambiguity']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "snare kick hi-hat and cymbals with natural room ambience",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 55.1s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'slow tempo', 'category': 'rhythm', 'confidence': 0.7}, {'id': 2, 'text': 'solo piano', 'category': 'instrumentation', 'confidence': 0.9}, {'id': 3, 'text': 'soft dynamics', 'category': 'dynamics', 'confidence': 0.8}], 'signatureRelations': [{'id': 1, 'text': 'piano solo', 'supportRefs': 1, 'confidence': 0.9}, {'id': 2, 'text': 'minimal accompaniment', 'supportRefs': 1, 'confidence': 0.8}], 'uncertainties': ['no clear genre', 'no vocal style'], 'genreHypotheses': [{'label': 'contemporary classical', 'confidence': 0.3}, {'label': 'minimalist piano', 'confidence': 0.4}], 'aestheticConcepts': ['melancholic', 'introspective'], 'impressions': ['sadness', 'quiet reflection']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "slow tempo",
+      "category": "rhythm",
+      "confidence": 0.7,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "solo piano",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "",
+      "id": "2"
+    },
+    {
+      "text": "soft dynamics",
+      "category": "dynamics",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "piano solo",
+      "confidence": 0.9,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "minimal accompaniment",
+      "confidence": 0.8,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no clear genre",
+    "no vocal style"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "contemporary classical",
+      "confidence": 0.3,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "minimalist piano",
+      "confidence": 0.4,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "melancholic",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "introspective",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sadness",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "quiet reflection",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 11,
+    "acceptedConceptCount": 11,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 3,
+      "signatureRelations": 2,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 30.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'snare, kick, hi-hat, and cymbals with natural room ambience', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing pulse'}, {'id': 2, 'text': 'vocal melody rides over steady rhythm', 'supportRefs': [1], 'confidence': 0.6, 'reasoning': 'melodic line stays within a narrow range, emphasizing rhythm over harmony'}],
+'genreHypotheses': [{'label': 'K-Pop ballad', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'steady 4/4 pulse, acoustic drums, and a clear vocal melody are typical of K-Pop ballads'}, {'label': 'acoustic pop', 'confidence': 0.3, 'supportRefs': [1, 2], 'reasoning': 'acoustic drum kit and simple harmonic backdrop suggest an acoustic pop style'}],
+'aestheticConcepts': [{'text': 'melancholic', 'confidence': 0.4, 'supportRefs': [1], 'reasoning': 'slow tempo and minor‑toned melodic contour create a wistful atmosphere'}, {'text': 'reflective', 'confidence': 0.6, 'supportRefs': [1], 'reasoning': 'steady rhythm and sparse arrangement invite introspection'}],
+'contextHypotheses': [{'text': 'contemporary Korean pop', 'category': 'scene', 'confidence': 0.3, 'supportRefs': [1, 2], 'reasoning': 'acoustic drum sound and clear vocal line are common in modern Korean pop productions'}, {'text': 'ballad era', 'category': 'era', 'confidence': 0.2, 'supportRefs': [1], 'reasoning': 'steady 4/4 pulse and simple arrangement are typical of ballad songs from the 2010s'}],
+'uncertainties': ['instrumentation ambiguity', 'genre ambiguity']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "snare kick hi-hat and cymbals with natural room ambience",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 80.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'steady 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'clear downbeat on each beat, regular subdivision of 4', 'uncertainties': []},
+ {'id': 2, 'text': 'acoustic drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'snare, kick, hi-hat, and cymbals with natural room ambience', 'uncertainties': []},
+{'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'supportRefs': [1, 2], 'confidence': 0.7, 'reasoning': 'bass follows drum rhythm, reinforcing pulse'}, {'id': 2, 'text': 'bass and guitar play in unison', 'supportRefs': [1, 3], 'confidence': 0.6, 'reasoning': 'bass and electric guitar often play the same melodic line, creating a thick low-mid texture'}],
+'genreHypotheses': [{'label': 'rock', 'confidence': 0.6, 'supportRefs': [1, 2, 3], 'reasoning': 'steady 4/4 beat, acoustic drums, electric guitar and bass together form a classic rock band setup'}, {'label': 'alternative rock', 'confidence': 0.4, 'supportRefs': [1, 2, 3], 'reasoning': 'the groove is straightforward but the guitar tone and production are slightly looser than mainstream pop rock, hinting at alternative sensibilities'}],
+'aestheticConcepts': [{'text': 'raw and unpolished', 'confidence': 0.5, 'supportRefs': [1, 2], 'reasoning': 'minimal processing, natural room reverb, and a slightly gritty mix give the track a DIY feel'}, {'text': 'energetic and driving', 'confidence': 0.8, 'supportRefs': [1], 'reasoning': 'the consistent pulse and tight rhythm section create forward momentum'}],
+'contextHypotheses': [{'text': 'live band performance', 'category': 'scene', 'confidence': 0.7, 'supportRefs': [1, 2], 'reasoning': 'the acoustic drum sound and natural room ambience suggest a live recording environment'}, {'text': 'mid-2000s indie rock scene', 'category': 'era', 'confidence': 0.3, 'supportRefs': [1, 2, 3], 'reasoning': 'the combination of a classic rock band setup with a slightly looser production style is typical of indie rock bands emerging in the mid-2000s'}],
+'impressions': [{'text': 'energetic and raw', 'confidence': 0.8, 'supportRefs': [1, 2], 'reasoning': 'the steady beat, driving bass, and unpolished mix together convey a sense of immediacy and intensity'}, {'text': 'slightly melancholic undertone', 'confidence': 0.5, 'supportRefs': [3], 'reasoning': 'the minor tonal center and the slightly gritty guitar tone give the track a hint of introspection beneath the energetic surface'}],
+'uncertainties': ['instrumentation details not fully confirmed', 'genre label not fully confirmed']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "steady 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "clear downbeat on each beat regular subdivision of 4",
+      "id": "1"
+    },
+    {
+      "text": "acoustic drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "snare kick hi-hat and cymbals with natural room ambience",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [],
+  "styleCues": [],
+  "uncertainties": [],
+  "genreHypotheses": [],
+  "aestheticConcepts": [],
+  "impressions": [],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 3,
+    "acceptedConceptCount": 2,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 0,
+      "styleCues": 0,
+      "genreHypotheses": 0,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 0,
+      "impressions": 0
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 80.5s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1981; generation budget=1024
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'driving 4/4 pulse', 'category': 'rhythm', 'confidence': 0.9, 'reasoning': 'steady quarter‑note pulse with consistent subdivision, no swing or syncopation.'}, {'id': 2, 'text': 'tight, punchy drum kit', 'category': 'instrumentation', 'confidence': 0.8, 'reasoning': 'kick, snare, hi‑hat and cymbals all present with clear attack and short decay.'}, {'id': 3, 'text': 'prominent, melodic bass line', 'category': 'instrumentation', 'confidence': 0.9, 'reasoning': 'bass guitar or synth bass carries the main melodic contour, often playing eighth‑note patterns.'}, {'id': 4, 'text': 'clean, polished production', 'category': 'production', 'confidence': 0.8, 'reasoning': 'minimal distortion, balanced EQ, and moderate compression give a clear, modern sound.'}, {'id': 5, 'text': 'dynamic build‑up', 'category': 'dynamics', 'confidence': 0.7, 'reasoning': 'volume rises gradually from a soft intro to a louder main section, then tapers off.'}], 'signatureRelations': [{'id': 1, 'text': 'drums and bass lock in tight groove', 'category': 'rhythm', 'confidence': 0.8, 'reasoning': 'kick and snare accentuate the downbeat while the bass reinforces the pulse.'}, {'id': 2, 'text': 'bass and lead vocal interact melodically', 'category': 'instrumentation', 'confidence': 0.7, 'reasoning': 'bass line mirrors or counterpoints the vocal melody, creating a call‑and‑response feel.'}], 'styleCues': [{'id': 1, 'text': 'electronic‑style drum programming', 'category': 'production', 'confidence': 0.6, 'reasoning': 'drum sounds are synthesized or heavily processed, giving a crisp, modern timbre.'}, {'id': 2, 'text': 'clean, polished mix', 'category': 'production', 'confidence': 0.8, 'reasoning': 'clear separation of elements, balanced stereo field, and subtle reverb on vocals.'}], 'uncertainties': ['instrument identity ambiguity'], 'genreHypotheses': [{'label': 'electronic pop', 'confidence': 0.5, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'driving 4/4 beat, melodic bass, clean production, and dynamic build‑up are typical of contemporary electronic pop.'}, {'label': 'indie electronic', 'confidence': 0.3, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the polished sound and melodic bass line are common in indie electronic tracks that blend pop sensibility with electronic textures.'}], 'aestheticConcepts': [{'text': 'modern, sleek', 'confidence': 0.7, 'supportRefs': [4], 'reasoning': 'the clean production and balanced mix give a contemporary, high‑fidelity aesthetic.'}, {'text': 'energetic, forward‑moving', 'confidence': 0.6, 'supportRefs': [1, 2], 'reasoning': 'the steady 4/4 pulse and dynamic build‑up create a sense of momentum and drive.'}], 'impressions': [{'text': 'confident, upbeat', 'confidence': 0.8, 'supportRefs': [1, 2, 3], 'reasoning': 'the consistent rhythm, melodic bass, and dynamic rise convey a feeling of self‑assured optimism.'}], 'contextHypotheses': [{'text': 'contemporary pop production', 'category': 'scene', 'confidence': 0.7, 'supportRefs': [1, 2, 4], 'reasoning': 'the clean, polished mix and electronic‑style drums are characteristic of modern pop productions.'}, {'text': 'indie electronic aesthetic', 'category': 'culture', 'confidence': 0.5, 'supportRefs': [1, 2, 3, 4], 'reasoning': 'the combination of pop‑like structure with electronic textures aligns with the indie electronic scene that values both accessibility and experimental sound design.'}]
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "driving 4/4 pulse",
+      "category": "rhythm",
+      "confidence": 0.9,
+      "reasoningHints": "steady quarter‑note pulse with consistent subdivision no swing or",
+      "id": "1"
+    },
+    {
+      "text": "tight punchy drum kit",
+      "category": "instrumentation",
+      "confidence": 0.8,
+      "reasoningHints": "kick snare hi‑hat and cymbals all present with clear attack and short",
+      "id": "2"
+    },
+    {
+      "text": "clean polished production",
+      "category": "production",
+      "confidence": 0.8,
+      "reasoningHints": "minimal distortion balanced EQ and moderate compression give a clear",
+      "id": "4"
+    },
+    {
+      "text": "dynamic build‑up",
+      "category": "dynamics",
+      "confidence": 0.7,
+      "reasoningHints": "volume rises gradually from a soft intro to a louder main section then",
+      "id": "5"
+    },
+    {
+      "text": "prominent melodic bass line",
+      "category": "instrumentation",
+      "confidence": 0.9,
+      "reasoningHints": "bass guitar or synth bass carries the main melodic contour often playing",
+      "id": "3"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "drums and bass lock in tight groove",
+      "confidence": 0.8,
+      "reasoningHints": "kick and snare accentuate the downbeat while the bass reinforces the",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "bass and lead vocal interact melodically",
+      "confidence": 0.7,
+      "reasoningHints": "bass line mirrors or counterpoints the vocal melody creating a",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "styleCues": [
+    {
+      "text": "electronic‑style drum programming",
+      "confidence": 0.6,
+      "reasoningHints": "drum sounds are synthesized or heavily processed giving a crisp modern",
+      "supportRefs": [],
+      "id": "1"
+    },
+    {
+      "text": "clean polished mix",
+      "confidence": 0.8,
+      "reasoningHints": "clear separation of elements balanced stereo field and subtle reverb on",
+      "supportRefs": [],
+      "id": "2"
+    }
+  ],
+  "uncertainties": [
+    "instrument identity ambiguity"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "electronic pop",
+      "confidence": 0.5,
+      "reasoningHints": "driving 4/4 beat melodic bass clean production and dynamic build‑up are",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g1"
+    },
+    {
+      "label": "indie electronic",
+      "confidence": 0.3,
+      "reasoningHints": "the polished sound and melodic bass line are common in indie electronic",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "id": "g2"
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "modern sleek",
+      "confidence": 0.7,
+      "reasoningHints": "the clean production and balanced mix give a contemporary high‑fidelity",
+      "supportRefs": [
+        "4"
+      ]
+    },
+    {
+      "text": "energetic forward‑moving",
+      "confidence": 0.6,
+      "reasoningHints": "the steady 4/4 pulse and dynamic build‑up create a sense of momentum and",
+      "supportRefs": [
+        "1",
+        "2"
+      ]
+    }
+  ],
+  "impressions": [
+    {
+      "text": "confident upbeat",
+      "confidence": 0.8,
+      "reasoningHints": "the consistent rhythm melodic bass and dynamic rise convey a feeling of",
+      "supportRefs": [
+        "1",
+        "2",
+        "3"
+      ]
+    }
+  ],
+  "contextHypotheses": [
+    {
+      "text": "contemporary pop production",
+      "category": "scene",
+      "confidence": 0.7,
+      "reasoningHints": "the clean polished mix and electronic‑style drums are characteristic of",
+      "supportRefs": [
+        "1",
+        "2",
+        "4"
+      ]
+    },
+    {
+      "text": "indie electronic aesthetic",
+      "category": "culture",
+      "confidence": 0.5,
+      "reasoningHints": "the combination of pop‑like structure with electronic textures aligns",
+      "supportRefs": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "packetDiagnostics": {
+    "rawItemCount": 16,
+    "acceptedConceptCount": 16,
+    "duplicateOrRejectedCount": 0,
+    "quarantinedCount": 0,
+    "fieldCounts": {
+      "audibleObservations": 5,
+      "signatureRelations": 2,
+      "styleCues": 2,
+      "genreHypotheses": 2,
+      "contextHypotheses": 2,
+      "aestheticConcepts": 2,
+      "impressions": 1
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 97.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental piano', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 2, 'text': 'slow tempo', 'category': 'rhythm', 'confidence': 0.95}, {'id': 3, 'text': 'melancholic mood', 'category': 'aestheticConcepts', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'piano as sole instrument', 'supportRefs': [1, 2], 'confidence': 0.95}], 'uncertainties': ['no vocals', 'no explicit genre label'], 'genreHypotheses': [{'label': 'instrumental piano', 'confidence': 0.75, 'supportRefs': [1, 2]}, {'label': 'ambient piano', 'confidence': 0.5, 'supportRefs': [3]}], 'aestheticConcepts': ['melancholic', 'reflective'], 'impressions': ['sadness', 'introspection']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "slow tempo",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "piano as sole instrument",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no vocals",
+    "no explicit genre label",
+    "unrecognized audible category"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "instrumental piano",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "ambient piano",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [
+        "3"
+      ],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "melancholic",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "reflective",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sadness",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "introspection",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 9,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 1,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 26.6s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256

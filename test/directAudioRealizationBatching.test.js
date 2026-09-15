@@ -31,14 +31,24 @@ test('direct-audio chat paths do not pin an unsupported custom temperature', () 
   assert.doesNotMatch(directAudioSection, /temperature\s*:/);
 });
 
-test('Korean realization groups by layer and caps every request at five concepts', () => {
+test('Korean realization mixes layers in one request of at most twelve concepts, ordered by layer', () => {
   const concepts = normalizedRealizationConcepts([
-    ...Array.from({ length: 7 }, (_, index) => ({ text: `audible ${index}`, category: 'production', layer: 'FACT' })),
-    ...Array.from({ length: 6 }, (_, index) => ({ text: `aesthetic ${index}`, category: 'association', layer: 'AESTHETIC' }))
+    ...Array.from({ length: 3 }, (_, index) => ({ text: `aesthetic ${index}`, category: 'association', layer: 'AESTHETIC' })),
+    ...Array.from({ length: 5 }, (_, index) => ({ text: `audible ${index}`, category: 'production', layer: 'FACT' })),
+    ...Array.from({ length: 2 }, (_, index) => ({ text: `scene ${index}`, category: 'scene', layer: 'CONTEXT' }))
   ]);
   const batches = realizationBatches(concepts);
-  assert.deepEqual(batches.map(batch => batch.length), [5, 2, 5, 1]);
-  assert.ok(batches.every(batch => new Set(batch.map(item => item.layer)).size === 1));
+  assert.equal(batches.length, 1, 'a typical capture is one call, not one call per layer');
+  assert.deepEqual(batches[0].map(item => item.layer), [...Array(5).fill('FACT'), 'CONTEXT', 'CONTEXT', ...Array(3).fill('AESTHETIC')]);
+  const many = normalizedRealizationConcepts(Array.from({ length: 21 }, (_, index) => ({ text: `audible ${index}`, category: 'production', layer: 'FACT' })));
+  assert.deepEqual(realizationBatches(many).map(batch => batch.length), [12, 9]);
+
+  const prompt = buildRealizationPrompt(batches[0]);
+  assert.match(prompt, /Apply that layer's policy to that item only/);
+  assert.match(prompt, /- FACT: .*add no metaphor/);
+  assert.match(prompt, /- AESTHETIC: .*without adding a new aesthetic label/);
+  assert.doesNotMatch(prompt, /- IMPRESSION:/, 'only the policies of layers present in the batch');
+  assert.match(prompt, /"layer":"CONTEXT","text":"scene 0"/);
 });
 
 test('FACT realization stays literal and subjective realization cannot add new meaning', () => {

@@ -3,7 +3,6 @@ const crypto = require("crypto");
 const http = require("http");
 const express = require("express");
 const cors = require("cors");
-const OpenAI = require("openai");
 const { WebSocketServer, WebSocket } = require("ws");
 const { RealtimeMusicSession } = require("./lib/realtimeMusicSession");
 const { analyzeStreamAudio } = require("./lib/streamDeepAnalysis");
@@ -11,6 +10,7 @@ const { inferStreamModels } = require("./lib/streamModelService");
 const { createEnglishSurfaceTranslator } = require("./lib/englishSurface");
 const { createGroundedAssociator } = require("./lib/groundedAssociation");
 const { createUsageLedger } = require("./lib/usageLedger");
+const { createLlmProviders } = require("./lib/llmProviders");
 const { createLanguageService, emptyTokenUsage, CALL_TUNING: CallTuning } = require("./lib/languageService");
 const DirectAudioReview = require("./lib/directAudioReview");
 const DirectAudioRealizer = require("./lib/directAudioRealizer");
@@ -21,26 +21,43 @@ require("dotenv").config({ quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BUILD_VERSION = "2026.09.09.front3-model-pool-v36";
+const BUILD_VERSION = "2026.09.13.token-mode-v37";
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-sol";
 const REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || "medium";
 const MAX_OUTPUT_TOKENS = Math.max(256, Number(process.env.OPENAI_MAX_OUTPUT_TOKENS) || 10000);
-const client = process.env.OPENAI_API_KEY
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  : null;
 const LANGUAGE_MODEL = process.env.OPENAI_LANGUAGE_MODEL || MODEL;
-// Every OpenAI call is written to the usage ledger (llm-usage.jsonl) tagged with its purpose.
+const CACHE_DIR = process.env.NODE_TEST_CONTEXT ? null : path.join(__dirname, ".cache");
+// Token (API) mode can be answered by OpenAI (paid) or Gemini (free tier). The client chooses per
+// audio connection; HTTP endpoints accept an llmProvider field. Keys never leave the server.
+const llmProviders = createLlmProviders({ cacheDir: CACHE_DIR, openaiModel: LANGUAGE_MODEL });
+// Every language-model call is written to the usage ledger (llm-usage.jsonl) tagged with its
+// purpose and provider.
 const usageLedger = createUsageLedger();
-const englishSurfaces = createEnglishSurfaceTranslator({ client: usageLedger.clientFor(client, "english-surface"),
-  model: LANGUAGE_MODEL });
-const groundedAssociations = createGroundedAssociator({ client: usageLedger.clientFor(client, "grounded-association"),
-  model: LANGUAGE_MODEL });
-const realizationClient = usageLedger.clientFor(client, "korean-realization");
-const languageService = createLanguageService({
-  client: usageLedger.clientFor(client, "language-pool"), model: LANGUAGE_MODEL,
-  reasoningEffort: process.env.OPENAI_LANGUAGE_REASONING_EFFORT || "medium",
-  onUsage: usage => recordUsage(usage)
-});
+// Translations do not depend on the provider, so both providers share one cache.
+const englishSurfaceCache = new Map();
+
+function createProviderServices(id) {
+  const provider = llmProviders.get(id);
+  const client = provider.client;
+  const model = id === "openai" ? LANGUAGE_MODEL : provider.models[0];
+  return {
+    id, client, model,
+    clientFor: purpose => usageLedger.clientFor(client, purpose, id),
+    englishSurfaces: createEnglishSurfaceTranslator({ client: usageLedger.clientFor(client, "english-surface", id),
+      model, cache: englishSurfaceCache, cacheFile: CACHE_DIR ? path.join(CACHE_DIR, "english-surfaces.json") : null }),
+    groundedAssociations: createGroundedAssociator({ client: usageLedger.clientFor(client, "grounded-association", id), model }),
+    realizationClient: usageLedger.clientFor(client, "korean-realization", id),
+    languageService: createLanguageService({
+      client: usageLedger.clientFor(client, "language-pool", id), model,
+      reasoningEffort: process.env.OPENAI_LANGUAGE_REASONING_EFFORT || "medium",
+      onUsage: usage => recordUsage(usage)
+    })
+  };
+}
+const providerServices = Object.fromEntries(llmProviders.ids.map(id => [id, createProviderServices(id)]));
+const servicesFor = id => providerServices[llmProviders.resolve(id)];
+const requestProvider = req => req.body?.llmProvider || req.query?.llmProvider || req.get?.("x-llm-provider");
+const languageService = servicesFor(llmProviders.defaultId).languageService;
 
 app.use((req, res, next) => {
   // Enables SharedArrayBuffer on supporting browsers. `credentialless` keeps
@@ -366,7 +383,10 @@ app.get("/api/health", (req, res) => {
     service: "Music Shower V2",
     buildVersion: BUILD_VERSION,
     coreMode: "local-audio-generative-language",
-    language: { configured: Boolean(client), model: LANGUAGE_MODEL, minimumIntervalMs: 45000, ...languageService.state },
+    language: { configured: llmProviders.isConfigured(llmProviders.defaultId), model: servicesFor(llmProviders.defaultId).model,
+      minimumIntervalMs: 45000, ...languageService.state },
+    llmProviders: llmProviders.describe(),
+    defaultLlmProvider: llmProviders.defaultId,
     soundCloud: { configured: true, mode: "browser-tab-audio-websocket", credentialsRequired: false },
     llmTokenUsage: recordUsage(),
     llmOptional: true,
@@ -389,7 +409,7 @@ app.post("/api/language-pool", async (req, res) => {
   // fails, and the failure path is exactly where it used to be missing.
   const inputTokenEstimate = Math.round(JSON.stringify(req.body || {}).length / 3.4);
   try {
-    const result = await languageService.generate(req.body);
+    const result = await servicesFor(requestProvider(req)).languageService.generate(req.body);
     const meta = result.meta || {};
     console.log(`[language-pool] id=${requestId} epoch=${semanticEpoch} reason=${reason} callMode=${meta.callMode || "cache"} ` +
       `model=${meta.model || LANGUAGE_MODEL} inputTokenEstimate=${inputTokenEstimate} ` +
@@ -545,7 +565,10 @@ app.post("/api/deep-analysis", express.raw({ type: "audio/wav", limit: "30mb" })
   }
 });
 
-const REALIZATION_BATCH_SIZE = 5;
+// Every batch repeats the whole realization prompt, so a capture split into 4-5 batches of five paid
+// for that prompt 4-5 times (llm-usage.jsonl, 2026-09-13). Twelve concepts per batch keeps one or two
+// calls per capture and still leaves room in the completion budget below.
+const REALIZATION_BATCH_SIZE = 12;
 
 // The browser normally sends a canonical mono PCM WAV, but a stale tab from an older build can
 // still upload minutes of accumulated audio. Music Flamingo only consumes 30 seconds and would
@@ -608,16 +631,16 @@ function normalizedRealizationConcepts(concepts = []) {
   return normalized.slice(0, 40);
 }
 
+// Layers share one request: each item carries its layer and the prompt states every present layer's
+// policy. Splitting by layer cost ~4 calls per capture even at twelve concepts per batch, because a
+// capture spans FACT, CONTEXT, AESTHETIC and IMPRESSION (llm-usage.jsonl, 2026-09-13). Items stay
+// ordered by layer so a batch boundary rarely splits one.
 function realizationBatches(concepts = [], size = REALIZATION_BATCH_SIZE) {
-  const byLayer = new Map();
-  for (const concept of concepts) {
-    if (!byLayer.has(concept.layer)) byLayer.set(concept.layer, []);
-    byLayer.get(concept.layer).push(concept);
-  }
+  const order = ["FACT", "LIVE", "CONTEXT", "AESTHETIC", "IMPRESSION"];
+  const rank = layer => (order.indexOf(layer) + 1) || order.length + 1;
+  const sorted = [...concepts].sort((a, b) => rank(a.layer) - rank(b.layer));
   const batches = [];
-  for (const group of byLayer.values()) {
-    for (let i = 0; i < group.length; i += size) batches.push(group.slice(i, i + size));
-  }
+  for (let i = 0; i < sorted.length; i += size) batches.push(sorted.slice(i, i + size));
   return batches;
 }
 
@@ -628,18 +651,21 @@ function fastRealizerMode(category) {
   return category;
 }
 
+const REALIZATION_LAYER_POLICIES = {
+  FACT: "Translate the audible claim precisely with standard Korean music terminology. Preserve every technical meaning; add no metaphor, mood, cause, or unheard detail.",
+  CONTEXT: "Render it as a concise, qualified style/scene/era association. Do not turn a hypothesis into a proven origin, date, or authorship claim.",
+  IMPRESSION: "Render the Music Flamingo impression faithfully as concise subjective Korean. Preserve its nuance without adding a new emotion, image, story, or musical claim.",
+  AESTHETIC: "Render the Music Flamingo aesthetic concept faithfully as concise Korean. Preserve its scope without adding a new aesthetic label, scene, image, story, or musical claim."
+};
+const realizationPolicyLayer = layer => layer === "LIVE" ? "FACT" : REALIZATION_LAYER_POLICIES[layer] ? layer : "AESTHETIC";
+
 function buildRealizationPrompt(batch = []) {
-  const layer = batch[0]?.layer || "AESTHETIC";
-  const policy = layer === "FACT"
-    ? "Translate the audible claim precisely with standard Korean music terminology. Preserve every technical meaning; add no metaphor, mood, cause, or unheard detail."
-    : layer === "CONTEXT"
-      ? "Render it as a concise, qualified style/scene/era association. Do not turn a hypothesis into a proven origin, date, or authorship claim."
-      : layer === "IMPRESSION"
-        ? "Render the Music Flamingo impression faithfully as concise subjective Korean. Preserve its nuance without adding a new emotion, image, story, or musical claim."
-        : "Render the Music Flamingo aesthetic concept faithfully as concise Korean. Preserve its scope without adding a new aesthetic label, scene, image, story, or musical claim.";
+  const layers = [...new Set(batch.map(item => realizationPolicyLayer(item.layer)))];
+  const policies = (layers.length ? layers : ["AESTHETIC"]).map(layer => `- ${layer}: ${REALIZATION_LAYER_POLICIES[layer]}`).join("\n");
   return `You are Music Shower's Korean surface-language specialist. These concepts were produced by Music Flamingo after directly listening to audio.
-Layer: ${layer}
-Layer policy: ${policy}
+Each item has a layer. Apply that layer's policy to that item only; never carry the freedom of one layer into another.
+Layer policies:
+${policies}
 
 For every input item:
 - Produce 3 to 6 natural Korean alternatives, normally 2-10 words each.
@@ -651,7 +677,7 @@ For every input item:
 - Copy each input id exactly. Do not use the source text as a JSON key.
 
 Input items:
-${JSON.stringify(batch.map(({ id, text, category }) => ({ id, text, category })))}`;
+${JSON.stringify(batch.map(({ id, text, category, layer }) => ({ id, layer: realizationPolicyLayer(layer), text, category })))}`;
 }
 
 function realizationSurfaceUnits(value) {
@@ -724,7 +750,8 @@ function chatCompletionBudget(maxCompletionTokens) {
 
 // Asynchronous LLM realization endpoint that converts Flamingo concepts into rich Korean
 // concept families while BYPASSING the ~45s regular language pool cooldown.
-async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch = 0 } = {}, signal) {
+async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch = 0, provider = null } = {}, signal) {
+    const services = servicesFor(provider);
     if (!Array.isArray(concepts) || !concepts.length) {
       return { realizations: {}, realizationItems: [], failures: [], trackEpoch };
     }
@@ -744,16 +771,17 @@ async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch 
     // Keep each response comfortably inside its budget. Layer grouping also lets FACT translation
     // stay literal while AESTHETIC/IMPRESSION wording remains deliberately expressive.
     const failures = [];
-    if (client && normalized.length > 0) {
+    if (services.client && normalized.length > 0) {
       const batches = realizationBatches(normalized);
       const results = await Promise.allSettled(batches.map(async batch => {
-        const response = await realizationClient.chat.completions.create({
-          model: LANGUAGE_MODEL,
+        const response = await services.realizationClient.chat.completions.create({
+          model: services.model,
           messages: [{ role: "user", content: buildRealizationPrompt(batch) }],
           response_format: { type: "json_object" },
-          // 5 concepts x up to 6 Korean phrases each, plus JSON scaffolding. The old 650 was sized
-          // for 4 phrases and would truncate (dropping whole items) now that more are requested.
-          ...chatCompletionBudget(950)
+          // 12 concepts x up to 6 Korean phrases each, plus JSON scaffolding and a little reasoning.
+          // At the default effort 47% of this purpose's output tokens were reasoning.
+          reasoning_effort: "low",
+          ...chatCompletionBudget(2600)
         }, { signal, timeout: 45000, maxRetries: 0 });
         const content = response.choices?.[0]?.message?.content;
         if (!content) throw new Error("empty realization response");
@@ -770,7 +798,7 @@ async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch 
             }
           }
         } else {
-          const layer = batches[index]?.[0]?.layer || "UNKNOWN";
+          const layer = [...new Set((batches[index] || []).map(item => item.layer))].join("+") || "UNKNOWN";
           const message = String(result.reason?.message || result.reason || "unknown error").slice(0, 160);
           failures.push({ layer, batchSize: batches[index]?.length || 0, message });
           console.warn(`[realize-direct-audio] ${layer} batch failed, using fast fallback: ${message}`);
@@ -781,12 +809,12 @@ async function realizeDirectAudio({ concepts = [], sessionId = null, trackEpoch 
     const realizationItems = [...realizedByKey.values()];
     for (const item of realizationItems) realizations[item.text] = item.family;
     return { realizations, realizationItems, failures, trackEpoch, sessionId,
-      batchCount: client ? realizationBatches(normalized).length : 0 };
+      batchCount: services.client ? realizationBatches(normalized).length : 0 };
 }
 
 app.post("/api/realize-direct-audio", async (req, res) => {
   try {
-    res.json(await realizeDirectAudio(req.body || {}));
+    res.json(await realizeDirectAudio({ ...(req.body || {}), provider: requestProvider(req) }));
   } catch (err) {
     console.error("[realize-direct-audio error]", err);
     res.status(500).json({ error: err.message });
@@ -817,7 +845,8 @@ app.post("/api/compose-genre", async (req, res) => {
         confidence: Math.max(0, Math.min(1, Number(item?.confidence) || 0))
       }))
       .filter(item => item.label).slice(0, 5);
-    if (!client || (!advisory && !heard.length)) return res.json({ composite: [], uncertainties: [] });
+    const services = servicesFor(requestProvider(req));
+    if (!services.client || (!advisory && !heard.length)) return res.json({ composite: [], uncertainties: [] });
 
     const lines = (items, label, score) => items.length
       ? items.map(item => `  - ${item[label]} (${item[score].toFixed(2)})`).join("\n")
@@ -887,8 +916,8 @@ app.post("/api/compose-genre", async (req, res) => {
       "uncertainties: short strings naming what stays unresolved between the two readings."
     ].join("\n");
 
-    const response = await usageLedger.clientFor(client, "genre-composition").chat.completions.create({
-      model: LANGUAGE_MODEL,
+    const response = await services.clientFor("genre-composition").chat.completions.create({
+      model: services.model,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       ...chatCompletionBudget(420)
@@ -938,7 +967,8 @@ app.post("/api/expand-concept", async (req, res) => {
     const { concept, conceptType = "genre" } = req.body || {};
     const label = String(concept || "").trim();
     if (!label) return res.status(400).json({ error: "A concept label is required." });
-    if (!client) return res.json({ expansions: {} });
+    const services = servicesFor(requestProvider(req));
+    if (!services.client) return res.json({ expansions: {} });
 
     const prompt = `You are a music knowledge specialist. For the ${conceptType} "${label}", propose a SMALL neighborhood of related concepts, only where you have genuine grounded knowledge -- leave a category as an empty array rather than guessing.
 Return strict JSON with these keys, each an array of 0-3 short phrases (a few words, no sentences):
@@ -949,8 +979,8 @@ Return strict JSON with these keys, each an array of 0-3 short phrases (a few wo
 - aestheticAssociations: visual/sensory aesthetic associations
 Do not include the concept's own name in any list.`;
 
-    const response = await usageLedger.clientFor(client, "concept-expansion").chat.completions.create({
-      model: LANGUAGE_MODEL,
+    const response = await services.clientFor("concept-expansion").chat.completions.create({
+      model: services.model,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       ...chatCompletionBudget(400)
@@ -976,12 +1006,13 @@ app.post("/api/music-analysis", async (req, res) => {
     if (!featurePacket?.audio || !featurePacket?.rhythm) {
       return res.status(400).json({ error: "A complete featurePacket is required." });
     }
-    if (!client) {
-      return res.status(503).json({ error: "Optional OpenAI enrichment is not configured." });
+    const services = servicesFor(requestProvider(req));
+    if (!services.client) {
+      return res.status(503).json({ error: "Optional language-model enrichment is not configured." });
     }
 
     const startedAt = Date.now();
-    const response = await usageLedger.clientFor(client, "music-analysis").responses.create(createMusicAnalysisRequest(featurePacket));
+    const response = await services.clientFor("music-analysis").responses.create(createMusicAnalysisRequest(featurePacket));
 
     if (response.status !== "completed" || !response.output_text) {
       const reason = response.incomplete_details?.reason || response.error?.code || "unknown";
@@ -1038,8 +1069,11 @@ app.get("/", (req, res) => {
 app.use(express.static(__dirname));
 
 function attachRealtimeAudioSocket(server, { analyze = analyzeStreamAudio, realize = realizeDirectAudio,
-  inferModels = inferStreamModels, translate = englishSurfaces.translate, associate = groundedAssociations.associate,
-  associationsOnScreen = process.env.MUSIC_SHOWER_ASSOCIATIONS_ON_SCREEN !== "0" } = {}) {
+  inferModels = inferStreamModels,
+  translate = (args, signal, provider) => servicesFor(provider).englishSurfaces.translate(args, signal),
+  associate = (args, signal, provider) => servicesFor(provider).groundedAssociations.associate(args, signal),
+  associationsOnScreen = process.env.MUSIC_SHOWER_ASSOCIATIONS_ON_SCREEN !== "0",
+  forensicListening = process.env.MUSIC_SHOWER_FORENSIC_LISTENING !== "0" } = {}) {
   const socketServer = new WebSocketServer({
     server,
     path: "/ws/music-shower",
@@ -1063,9 +1097,16 @@ function attachRealtimeAudioSocket(server, { analyze = analyzeStreamAudio, reali
     const send = payload => {
       if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(payload));
     };
-    const session = new RealtimeMusicSession({ streamId, send, analyze, realize, inferModels, translate, associate,
-      associationsOnScreen });
+    // Language-model hooks follow the provider this connection chose in its start message.
+    const session = new RealtimeMusicSession({ streamId, send, analyze, inferModels, associationsOnScreen, forensicListening,
+      realize: (args, signal) => realize({ ...args, provider: session.llmProvider }, signal),
+      translate: translate && ((args, signal) => translate(args, signal, session.llmProvider)),
+      associate: associate && ((args, signal) => associate(args, signal, session.llmProvider)),
+      llmProviders: llmProviders.ids.filter(id => llmProviders.isConfigured(id)),
+      defaultLlmProvider: llmProviders.defaultId });
     send({ type: "ready", streamId, sampleRate: 16000, trackEpoch: session.trackEpoch,
+      tokenModeControl: true, tokenModes: ["free", "token"], defaultTokenMode: "free",
+      llmProviders: llmProviders.describe(), defaultLlmProvider: llmProviders.defaultId,
       poolSource: "music-shower-final", buildVersion: BUILD_VERSION });
     socket.once("close", () => session.close());
     socket.on("error", () => session.close());
@@ -1105,6 +1146,11 @@ if (require.main === module) {
   server.listen(PORT, () => {
     console.log(`AI Music Synesthesia running at http://localhost:${PORT}`);
     console.log(`AI configured: ${Boolean(process.env.OPENAI_API_KEY)}`);
+    for (const provider of llmProviders.describe()) {
+      console.log(`LLM provider ${provider.id}: ${provider.configured ? `configured (${provider.model})` : "no key"}` +
+        (provider.freeTier ? ` · pacing ${provider.freeTier.rpm}/min, ${provider.freeTier.rpd}/day (used today ${provider.freeTier.usedToday})` : ""));
+    }
+    console.log(`Default LLM provider: ${llmProviders.defaultId}`);
     console.log(`AI model: ${MODEL} (${REASONING_EFFORT})`);
     console.log(`AI max output tokens: ${MAX_OUTPUT_TOKENS}`);
     console.log(`Language pool model: ${LANGUAGE_MODEL} | fast=${JSON.stringify(CallTuning.fast)} deep=${JSON.stringify(CallTuning.deep)}`);

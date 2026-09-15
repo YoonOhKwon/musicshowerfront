@@ -1,0 +1,159 @@
+Flamingo server listening at port 5005 (503 while the model loads)
+Loading Music Flamingo model (This will take a minute)...
+Music Flamingo quantization: NF4 4-bit; placement: audio-priority
+Music Flamingo device map: {"lm_head": 0, "model.audio_tower": 0, "model.language_model.embed_tokens": "cpu", "model.language_model.layers": 0, "model.language_model.norm": 0, "model.language_model.rotary_emb": 0, "model.multi_modal_projector": 0, "model.pos_emb": 0}
+CUDA after load: allocated=5.65 GiB, reserved=5.80 GiB
+Model loaded successfully. Starting server...
+[Music Flamingo] text context budget: 8192 tokens
+Flamingo server serving at port 5005
+[Music Flamingo] input tokens=1032; generation budget=320
+Running Flamingo structured deep-listening inference (first impression)...
+[Music Flamingo] input tokens=738; generation budget=256
+[Music Flamingo] NOTE: fewer items than the model sent: audibleObservations 3->2
+
+[Music Flamingo] RAW MODEL RESPONSE (max 6000 chars)
+{'audibleObservations': [{'id': 1, 'text': 'instrumental piano', 'category': 'instrumentation', 'confidence': 0.95}, {'id': 2, 'text': 'slow tempo', 'category': 'rhythm', 'confidence': 0.95}, {'id': 3, 'text': 'melancholic mood', 'category': 'aestheticConcepts', 'confidence': 0.95}], 'signatureRelations': [{'id': 1, 'text': 'piano as sole instrument', 'supportRefs': [1, 2], 'confidence': 0.95}], 'uncertainties': ['no vocals', 'no explicit genre label'], 'genreHypotheses': [{'label': 'instrumental piano ballad', 'confidence': 0.5}, {'label': 'ambient piano', 'confidence': 0.5}], 'aestheticConcepts': ['melancholy', 'introspective'], 'impressions': ['sadness', 'calmness']}
+[Music Flamingo] SANITIZED PACKET SENT TO MUSIC SHOWER (max 6000 chars)
+{
+  "audibleObservations": [
+    {
+      "text": "instrumental piano",
+      "category": "instrumentation",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "1"
+    },
+    {
+      "text": "slow tempo",
+      "category": "rhythm",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "id": "2"
+    }
+  ],
+  "signatureRelations": [
+    {
+      "text": "piano as sole instrument",
+      "confidence": 0.95,
+      "reasoningHints": "",
+      "supportRefs": [
+        "1",
+        "2"
+      ],
+      "id": "1"
+    }
+  ],
+  "styleCues": [],
+  "uncertainties": [
+    "no vocals",
+    "no explicit genre label",
+    "unrecognized audible category"
+  ],
+  "genreHypotheses": [
+    {
+      "label": "instrumental piano ballad",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g1",
+      "provisional": true
+    },
+    {
+      "label": "ambient piano",
+      "confidence": 0.48,
+      "reasoningHints": "",
+      "supportRefs": [],
+      "id": "g2",
+      "provisional": true
+    }
+  ],
+  "aestheticConcepts": [
+    {
+      "text": "melancholy",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "introspective",
+      "confidence": 0.62,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "impressions": [
+    {
+      "text": "sadness",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    },
+    {
+      "text": "calmness",
+      "confidence": 0.6,
+      "reasoningHints": "",
+      "supportRefs": []
+    }
+  ],
+  "contextHypotheses": [],
+  "packetDiagnostics": {
+    "rawItemCount": 10,
+    "acceptedConceptCount": 9,
+    "duplicateOrRejectedCount": 1,
+    "quarantinedCount": 1,
+    "fieldCounts": {
+      "audibleObservations": 2,
+      "signatureRelations": 1,
+      "styleCues": 0,
+      "genreHypotheses": 2,
+      "contextHypotheses": 0,
+      "aestheticConcepts": 2,
+      "impressions": 2
+    }
+  }
+}
+[Music Flamingo] END PACKET
+
+Inference complete in 37.0s. Packet parsed: ['audibleObservations', 'signatureRelations', 'styleCues', 'uncertainties', 'genreHypotheses', 'aestheticConcepts', 'impressions', 'contextHypotheses', 'packetDiagnostics']
+[Music Flamingo] input tokens=1032; generation budget=320
+Running Flamingo forensic listening...
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] FORENSIC RESPONSE (21.7s)
+1. No, all parts are performed or programmed for this track.
+2. Yes, there are vocals. They are in Korean, delivered in a calm, slightly melancholic, conversational style, with a natural timbre and no obvious pitch‑shifting, time‑stretching, chopping, or filtering.
+3. No, there is no phrase or bar that repeats identically as a loop.
+4. No, there is no audible processing on the main loop or groove.
+5. No, all source material sounds contemporary and matches the production style.
+[Music Flamingo] FORENSIC ANSWERS [{"key": "sampled", "answer": "no", "cue": "all parts are performed or programmed for this track."}, {"key": "vocals", "answer": "yes", "cue": "there are vocals. They are in Korean, delivered in a calm, slightly melancholic, conversational style, with a natural timbre and no obvious pitch‑shifting"}, {"key": "loop", "answer": "no", "cue": "there is no phrase or bar that repeats identically as a loop."}, {"key": "processing", "answer": "no", "cue": "there is no audible processing on the main loop or groove."}, {"key": "sourcePeriod", "answer": "no", "cue": "all source material sounds contemporary and matches the production style."}]
+[Music Flamingo] input tokens=1032; generation budget=320
+Running Flamingo structured deep-listening inference...
+[Music Flamingo] input tokens=1980; generation budget=1024
+Inference cancelled: superseded during generation
+Client already disconnected; 409 not delivered.
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1032; generation budget=320
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1001; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600
+[Music Flamingo] input tokens=1015; generation budget=600

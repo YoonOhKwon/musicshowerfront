@@ -262,6 +262,77 @@ Do not add reasoning, examples, or paraphrases. Vocabulary is open. Every phrase
 words and 60 characters. Use lower confidence to express the short listen's uncertainty. Output JSON only.
 """.strip()
 
+# Forensic listening: questions about how the recording was made. In the prompt probe
+# (scripts/probe-flamingo-listening.cjs) the structured JSON listen never mentioned sampling on
+# sample-based tracks, while these questions surfaced looped, pitch-shifted vocal samples from an
+# older source -- and answered "no" to every question on a live brass recording. Keep the wording
+# exactly as probed: adding an answer format ("start with yes, no or unsure, at most 20 words")
+# collapsed nearly every answer to "No, all parts are performed or programmed", on the same windows
+# where this wording found the samples. No genre, scene or example vocabulary appears here.
+FORENSIC_PROMPT = """
+Answer each question from what you hear in this audio. For every answer name the audible cue, and answer "unsure" when the audio does not decide it.
+1. Is any part taken from a pre-existing recording (a sample or loop) rather than performed or programmed for this track? Which parts?
+2. Are there vocals? If so, what language, and are they pitch-shifted, time-stretched, chopped, or filtered?
+3. Does a phrase or bar repeat identically as a loop?
+4. What processing is audible on the main loop or groove (for example filtering, sidechain pumping, saturation, bit reduction)?
+5. What period does the recording and production character of any source material suggest, separately from the newer production around it?
+""".strip()
+FORENSIC_KEYS = ["sampled", "vocals", "loop", "processing", "sourcePeriod"]
+# Polarity of a descriptive answer to the two yes/no production questions. These words restate the
+# question itself (was material sampled/looped, does a bar repeat); they are not musical vocabulary.
+FORENSIC_NEGATION = re.compile(r"\b(no|not|none|nothing|never|without)\b|n't\b|\bentirely (performed|programmed|original)", re.I)
+FORENSIC_STATEMENTS = {
+    "sampled": re.compile(r"\b(sampl\w*|loop\w*|pre-existing|taken from|lifted from)\b", re.I),
+    "loop": re.compile(r"\b(repeat\w*|loop\w*)\b", re.I),
+}
+
+def parse_forensic_answers(text):
+    """One {key, answer, cue} per numbered answer; answer is yes, no or unsure.
+
+    A leading "Yes"/"No" decides the answer. The model often answers the sampling and loop
+    questions descriptively instead ("The track is built around a looped vocal sample ..."); for
+    those two yes/no questions the first sentence decides: a negation means no, a statement of the
+    asked-about property means yes (marked inferred). Anything else, and the open questions 4 and 5,
+    is "unsure": the text is kept as a cue but never counted as agreement.
+    """
+    answers = {}
+    for line in str(text or "").splitlines():
+        match = re.match(r'^\s*([1-5])\s*[.):-]\s*(.+)$', line)
+        if not match:
+            continue
+        key = FORENSIC_KEYS[int(match.group(1)) - 1]
+        if key in answers:
+            continue
+        body = re.sub(r'\s+', ' ', match.group(2)).strip()
+        polarity = re.match(r'^(yes|no|unsure)\b[\s:,.;-]*', body, re.I)
+        answer = polarity.group(1).lower() if polarity else "unsure"
+        cue = trim_to_word_boundary(body[polarity.end():] if polarity else body, 160)
+        entry = {"key": key, "answer": answer, "cue": cue}
+        if not polarity and key in FORENSIC_STATEMENTS:
+            first = re.split(r'(?<=[.;])\s', body, maxsplit=1)[0]
+            if FORENSIC_NEGATION.search(first):
+                entry.update(answer="no", inferred=True)
+            elif FORENSIC_STATEMENTS[key].search(first):
+                entry.update(answer="yes", inferred=True)
+        answers[key] = entry
+    return [answers[key] for key in FORENSIC_KEYS if key in answers]
+
+def repetition_detected(text, tail_chars=900, min_unit=48, repeats=3):
+    """True when generation has fallen into a loop.
+
+    Digits are normalized first: the degenerate outputs seen so far repeat a shape with changing
+    numbers ("0:00-0:02, 0:04-0:06, ...") or re-emit whole observation objects with new ids. JSON keys
+    and punctuation are stripped too: a well-formed packet repeats `"category": ..., "confidence": 0.9`
+    scaffolding on every item, which is not a loop.
+    """
+    content = re.sub(r'["\']\w+["\']\s*:', ' ', str(text or ''))
+    content = re.sub(r'[\[\]{}"\',]+', ' ', content)
+    tail = re.sub(r'\s+', ' ', re.sub(r'\d', '#', content))[-tail_chars:]
+    for unit in range(min_unit, len(tail) // repeats + 1):
+        if tail.count(tail[-unit:]) >= repeats:
+            return True
+    return False
+
 def clean_identity(value):
     return re.sub(r'[^A-Za-z0-9_.:-]', '', str(value or ''))[:40]
 
@@ -812,6 +883,8 @@ MODEL_MAX_LENGTH = resolve_text_context_length()
 MAX_GENERATION_TOKENS = 1024
 # Enough for a small entry in every field. The full pass still gets the whole allowance.
 FIRST_IMPRESSION_TOKENS = 256
+# Five answers of one or two sentences (the probe answers were 540-930 characters).
+FORENSIC_TOKENS = 400
 print(f"[Music Flamingo] text context budget: {MODEL_MAX_LENGTH} tokens", flush=True)
 
 class CancelledInference(Exception):
@@ -827,6 +900,23 @@ class CancelWhenSuperseded(StoppingCriteria):
             (input_ids.shape[0],), self.cancel_event.is_set(),
             device=input_ids.device, dtype=torch.bool,
         )
+
+class StopOnRepetition(StoppingCriteria):
+    """Ends generation that has degenerated into a repeating loop (see repetition_detected)."""
+    CHECK_EVERY = 16
+
+    def __init__(self, prompt_length):
+        self.prompt_length = prompt_length
+        self.steps = 0
+        self.triggered = False
+
+    def __call__(self, input_ids, scores, **kwargs):
+        self.steps += 1
+        if not self.triggered and self.steps % self.CHECK_EVERY == 0:
+            tail = input_ids[0, max(self.prompt_length, input_ids.shape[1] - 320):]
+            text = processor.tokenizer.decode(tail, skip_special_tokens=True)
+            self.triggered = repetition_detected(text)
+        return torch.full((input_ids.shape[0],), self.triggered, device=input_ids.device, dtype=torch.bool)
 
 def register_inference(request_id, session_id, track_epoch):
     cancel_event = threading.Event()
@@ -914,15 +1004,18 @@ def run_inference(tmp_path, listen_prompt, cancel_event, budget_cap=None):
                 " Expect a truncated packet -- shorten the prompt or the prior-segment memory.",
                 flush=True,
             )
+        repetition = StopOnRepetition(input_token_count)
         with torch.inference_mode():
             output = model.generate(
                 **inputs,
                 max_new_tokens=generation_budget,
                 do_sample=False,
-                stopping_criteria=StoppingCriteriaList([CancelWhenSuperseded(cancel_event)]),
+                stopping_criteria=StoppingCriteriaList([CancelWhenSuperseded(cancel_event), repetition]),
             )
         if cancel_event.is_set():
             raise CancelledInference("superseded during generation")
+        if repetition.triggered:
+            print(f"[Music Flamingo] stopped a repeating generation after {repetition.steps} tokens", flush=True)
 
         generated = output[:, inputs.input_ids.shape[1]:]
         return processor.batch_decode(generated, skip_special_tokens=True)[0]
@@ -1033,14 +1126,35 @@ class FlamingoHandler(http.server.BaseHTTPRequestHandler):
                 # Every word-pool listen is independent and blind. Local classifier evidence is
                 # reconciled later by /api/compose-genre; it never enters this generation prompt.
                 independent_listen = True
-                first_impression = self.headers.get('X-Music-Shower-Listen-Depth', '') == 'first-impression'
+                listen_depth = self.headers.get('X-Music-Shower-Listen-Depth', '')
+                first_impression = listen_depth == 'first-impression'
                 listen_prompt, prior_segment_count = build_blind_listen_prompt(
                     active_audio_ms, first_impression)
                 with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                     tmp.write(audio_data)
                     tmp_path = tmp.name
                 audio_data = None
-                
+
+                if listen_depth == 'forensic':
+                    print("Running Flamingo forensic listening...", flush=True)
+                    start_t = time.time()
+                    with INFERENCE_LOCK:
+                        text_out = run_inference(tmp_path, FORENSIC_PROMPT, cancel_event, FORENSIC_TOKENS)
+                    answers = parse_forensic_answers(text_out)
+                    print(f"[Music Flamingo] FORENSIC RESPONSE ({time.time()-start_t:.1f}s)\n{text_out[:2000]}\n"
+                          f"[Music Flamingo] FORENSIC ANSWERS {json.dumps(answers, ensure_ascii=False)}", flush=True)
+                    body = json.dumps({"forensics": answers, "caption": text_out,
+                        "continuity": {"sessionId": session_id or None, "segmentId": segment_id or None,
+                            "trackEpoch": track_epoch, "requestId": request_id or None,
+                            "activeAudioMs": active_audio_ms, "listenDepth": "forensic",
+                            "listeningMode": "independent", "independent": True}}).encode('utf-8')
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.send_header('Content-Length', str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+
                 print("Running Flamingo structured deep-listening inference"
                       + (" (first impression)" if first_impression else "") + "...", flush=True)
                 start_t = time.time()

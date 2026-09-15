@@ -79,5 +79,65 @@ class FactCategoryTest(unittest.TestCase):
         self.assertIn("tight drum kit groove", [item["text"] for item in packet["audibleObservations"]])
 
 
+
+repetition_detected = scope["repetition_detected"]
+parse_forensic_answers = scope["parse_forensic_answers"]
+
+
+class RepetitionGuardTest(unittest.TestCase):
+    def test_degenerate_loops_are_detected(self):
+        timestamps = "1. Yes, the vocal sample appears at " + ", ".join(
+            f"{m}:{s:02d}-{m}:{s + 2:02d}" for m in range(4) for s in range(0, 56, 4))
+        self.assertTrue(repetition_detected(timestamps))
+        chords = "The progression cycles through " + " → ".join(["A♭6", "C♯maj7"] * 40)
+        self.assertTrue(repetition_detected(chords))
+        items = ", ".join(json.dumps({"id": i, "text": ["acoustic piano", "acoustic bass", "acoustic drum kit"][i % 3],
+            "category": "instrumentation", "confidence": 0.95,
+            "reasoning": ["the only melodic source", "warm resonant and acoustic", "natural room ambience"][i % 3]})
+            for i in range(12))
+        self.assertTrue(repetition_detected('{"audibleObservations": [' + items))
+
+    def test_well_formed_packet_scaffolding_is_not_a_loop(self):
+        observations = [("steady 4/4 pulse", "rhythm", "clear downbeat every bar"),
+                        ("bright brass timbre", "instrumentation", "trumpet and trombone lead"),
+                        ("walking bass line", "bass", "quarter-note bass outlines chords"),
+                        ("light drum swing", "drums", "brushes and ride cymbal"),
+                        ("call-and-response phrasing", "arrangement", "horns answer the piano"),
+                        ("warm room reverb", "production", "natural ambience on the ensemble")]
+        packet = json.dumps({"audibleObservations": [{"id": i, "text": t, "category": c, "confidence": 0.9,
+            "reasoning": r, "uncertainties": [], "genreHypotheses": [], "aestheticConcepts": []}
+            for i, (t, c, r) in enumerate(observations)]})
+        self.assertFalse(any(repetition_detected(packet[:n]) for n in range(100, len(packet), 32)))
+
+
+class ForensicAnswerTest(unittest.TestCase):
+    def test_answers_are_keyed_by_question_and_polarity(self):
+        text = ("1. yes: chopped vocal phrase repeats exactly from an older recording\n"
+                "2. Yes, female vocals, pitch-shifted up\n"
+                "3. no: bars vary\n"
+                "The loop is filtered.\n"
+                "4. The main loop is filtered and side-chained.\n"
+                "5. unsure: source period is not clear\n"
+                "1. no: duplicate line is ignored")
+        answers = parse_forensic_answers(text)
+        self.assertEqual([(a["key"], a["answer"]) for a in answers],
+                         [("sampled", "yes"), ("vocals", "yes"), ("loop", "no"), ("processing", "unsure"),
+                          ("sourcePeriod", "unsure")])
+        self.assertEqual(answers[1]["cue"], "female vocals, pitch-shifted up")
+        self.assertEqual(answers[3]["cue"], "The main loop is filtered and side-chained.")
+
+    def test_descriptive_sampling_and_loop_answers_are_inferred_from_the_first_sentence(self):
+        answers = parse_forensic_answers(
+            "1. The track is built around a looped vocal sample. It is not live.\n"
+            "2. The vocals are in Japanese.\n"
+            "3. There is no phrase that repeats identically.\n"
+            "4. The main loop is filtered.")
+        self.assertEqual([(a["key"], a["answer"], a.get("inferred", False)) for a in answers],
+                         [("sampled", "yes", True), ("vocals", "unsure", False), ("loop", "no", True),
+                          ("processing", "unsure", False)])
+        self.assertEqual(answers[0]["cue"], "The track is built around a looped vocal sample. It is not live.")
+        self.assertEqual(parse_forensic_answers("1. The track is entirely performed for this piece.")[0]["answer"], "no")
+
+
 if __name__ == "__main__":
     unittest.main()

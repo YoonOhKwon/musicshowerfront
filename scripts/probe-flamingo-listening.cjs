@@ -12,11 +12,13 @@ const { pcmToWav } = require("../lib/streamDeepAnalysis");
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
-const valueArgs = new Set(["--out", "--control", "--start"].flatMap(flag => { const i = args.indexOf(flag); return i >= 0 ? [i, i + 1] : []; }));
+const valueArgs = new Set(["--out", "--control", "--start", "--only"].flatMap(flag => { const i = args.indexOf(flag); return i >= 0 ? [i, i + 1] : []; }));
 const tracks = args.filter((arg, index) => !valueArgs.has(index) && !arg.startsWith("--"));
 const control = option("control", "");
 const START_SECONDS = Number(option("start", 45));
 const OUT = option("out", "probe.json");
+// --only ID limits the run to one variant (e.g. the production forensic prompt).
+const ONLY = option("only", "");
 
 const productionSource = require("node:fs").readFileSync(path.join(__dirname, "flamingo_server.py"), "utf8");
 const CURRENT_PROMPT = productionSource.split('PROMPT = """')[1].split('""".strip()')[0].trim() +
@@ -31,14 +33,18 @@ const FORENSICS = `Answer each question from what you hear in this audio. For ev
 4. What processing is audible on the main loop or groove (for example filtering, sidechain pumping, saturation, bit reduction)?
 5. What period does the recording and production character of any source material suggest, separately from the newer production around it?`;
 
+const PRODUCTION_FORENSIC = productionSource.split('FORENSIC_PROMPT = """')[1].split('""".strip()')[0].trim();
 const VARIANTS = [
+  { id: "F-forensic-production-30s", prompt: PRODUCTION_FORENSIC, seconds: 30, maxTokens: 320 },
   { id: "A-json-current-30s", prompt: CURRENT_PROMPT, seconds: 30, maxTokens: 1024 },
   { id: "B-rich-caption-30s", prompt: RICH_CAPTION, seconds: 30, maxTokens: 700 },
   { id: "C-forensics-30s", prompt: FORENSICS, seconds: 30, maxTokens: 600 },
+  { id: "G-forensics-soft-30s", prompt: FORENSICS.replace("answer \"unsure\" when the audio does not decide it.",
+    "answer \"unsure\" when the audio does not decide it. Begin each answer with its number and yes, no, or unsure."), seconds: 30, maxTokens: 600 },
   { id: "D-forensics-90s", prompt: FORENSICS, seconds: 90, maxTokens: 600 },
   { id: "E-rich-caption-90s", prompt: RICH_CAPTION, seconds: 90, maxTokens: 700 }
 ];
-const CONTROL_VARIANTS = new Set(["A-json-current-30s", "C-forensics-30s", "D-forensics-90s"]);
+const CONTROL_VARIANTS = new Set(["A-json-current-30s", "C-forensics-30s", "D-forensics-90s", "F-forensic-production-30s", "G-forensics-soft-30s"]);
 const TALLY = { sampling: /\bsampl|\bloop|chopp|\bchop/i, pitchOrTime: /pitch|time-stretch|stretched|sped[- ]up|chipmunk/i,
   processing: /filter|sidechain|pump|saturat|bit[- ]?crush|lo-?fi/i, language: /japanese|english|korean|language/i,
   era: /\b(?:19|20)?[5-9]0s\b|eighties|seventies|nineties|decade/i };
@@ -51,17 +57,30 @@ async function mono16k(file) {
   return resampleWindowedSinc(mono, audio.sampleRate, 16000);
 }
 
-async function probe(wav, variant) {
-  const response = await fetch("http://127.0.0.1:5005/probe", { method: "POST", body: wav, headers: {
-    "Content-Type": "audio/wav", "X-Probe-Prompt": Buffer.from(variant.prompt, "utf8").toString("base64"),
-    "X-Probe-Max-Tokens": String(variant.maxTokens) } });
-  if (!response.ok) throw new Error(`probe HTTP ${response.status}`);
-  return response.json();
+// Plain http without a response deadline: a probe waits behind any live /analyze call for the single
+// inference lock, which can exceed fetch's 300-second header timeout.
+function probe(wav, variant) {
+  return new Promise((resolve, reject) => {
+    const request = require("node:http").request({ host: "127.0.0.1", port: 5005, path: "/probe", method: "POST",
+      headers: { "Content-Type": "audio/wav", "Content-Length": wav.length,
+        "X-Probe-Prompt": Buffer.from(variant.prompt, "utf8").toString("base64"),
+        "X-Probe-Max-Tokens": String(variant.maxTokens) } }, response => {
+      const chunks = [];
+      response.on("data", chunk => chunks.push(chunk));
+      response.on("end", () => {
+        if (response.statusCode !== 200) return reject(new Error(`probe HTTP ${response.statusCode}`));
+        resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+      });
+    });
+    request.on("error", reject);
+    request.end(wav);
+  });
 }
 
 async function main() {
-  const inputs = [...tracks.map(file => ({ file, variants: VARIANTS })),
-    ...(control ? [{ file: path.join(__dirname, `../test/fixtures/audio/${control}.mp3`), variants: VARIANTS.filter(v => CONTROL_VARIANTS.has(v.id)) }] : [])];
+  const chosen = ONLY ? VARIANTS.filter(variant => variant.id === ONLY) : VARIANTS;
+  const inputs = [...tracks.map(file => ({ file, variants: chosen })),
+    ...(control ? [{ file: path.join(__dirname, `../test/fixtures/audio/${control}.mp3`), variants: chosen.filter(v => CONTROL_VARIANTS.has(v.id)) }] : [])];
   const results = [];
   for (const input of inputs) {
     const pcm = await mono16k(input.file);

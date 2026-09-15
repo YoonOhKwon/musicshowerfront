@@ -41,6 +41,25 @@ async function connection() {
   return (await chrome.storage.session.get(CONNECTION_KEY))[CONNECTION_KEY] || null;
 }
 
+const METADATA_SOURCE_KEY = "musicShowerSoundCloudMetadataSource";
+
+async function metadataSourceTabId() {
+  return (await chrome.storage.session.get(METADATA_SOURCE_KEY))[METADATA_SOURCE_KEY] || null;
+}
+
+// Without a connection, the tab that is playing owns the player; a paused tab only reports
+// when no other SoundCloud tab has claimed it.
+async function claimMetadataSource(tabId, event) {
+  const current = await metadataSourceTabId();
+  if (current === tabId) return true;
+  if (current && event?.transport !== "playing") {
+    const currentTab = await chrome.tabs.get(current).catch(() => null);
+    if (currentTab && isSoundCloudUrl(currentTab.url)) return false;
+  }
+  await chrome.storage.session.set({ [METADATA_SOURCE_KEY]: tabId });
+  return true;
+}
+
 async function setBadge(tabId, text, color) {
   await chrome.action.setBadgeBackgroundColor({ tabId, color });
   await chrome.action.setBadgeText({ tabId, text });
@@ -286,7 +305,7 @@ async function connectSoundCloudTab(clickedTab) {
 chrome.action.onClicked.addListener(connectSoundCloudTab);
 
 async function resetExtensionState() {
-  await chrome.storage.session.remove(CONNECTION_KEY);
+  await chrome.storage.session.remove([CONNECTION_KEY, METADATA_SOURCE_KEY]);
   await closeOffscreenDocument();
   const tabs = await chrome.tabs.query({});
   await Promise.all(tabs.filter(tab => tab.id).map(async tab => {
@@ -351,18 +370,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         answer: message.answer
       }, 5);
     } else if (message?.type === "MUSIC_SHOWER_SOUNDCLOUD_EVENT") {
-      if (!state || sender.tab?.id !== state.sourceTabId) return;
-      await chrome.tabs.sendMessage(state.consumerTabId, {
+      if (state) {
+        if (sender.tab?.id !== state.sourceTabId) return;
+        await chrome.tabs.sendMessage(state.consumerTabId, {
+          type: "MUSIC_SHOWER_SOUNDCLOUD_EVENT",
+          event: message.event
+        });
+        return;
+      }
+      // No icon-click connection: the page may be capturing the tab itself (tab sharing),
+      // so the playing SoundCloud tab still reports its track to every Music Shower tab.
+      if (!sender.tab?.id || !await claimMetadataSource(sender.tab.id, message.event)) return;
+      const consumers = await chrome.tabs.query({ url: MUSIC_SHOWER_URLS });
+      await Promise.all(consumers.filter(tab => tab.id).map(tab => chrome.tabs.sendMessage(tab.id, {
         type: "MUSIC_SHOWER_SOUNDCLOUD_EVENT",
         event: message.event
-      });
+      }).catch(() => {})));
     } else if (message?.type === "MUSIC_SHOWER_SOUNDCLOUD_COMMAND") {
-      if (!state || sender.tab?.id !== state.consumerTabId) return;
-      await chrome.tabs.sendMessage(state.sourceTabId, {
+      const command = {
         type: "MUSIC_SHOWER_SOUNDCLOUD_COMMAND",
         command: message.command,
-        url: message.url || null
-      });
+        url: message.url || null,
+        positionMs: Number.isFinite(message.positionMs) ? message.positionMs : null
+      };
+      if (state) {
+        if (sender.tab?.id !== state.consumerTabId) return;
+        await chrome.tabs.sendMessage(state.sourceTabId, command);
+        return;
+      }
+      if (message.command === "REQUEST_SNAPSHOT") {
+        // Ask every SoundCloud tab; the playing one (or the current owner) claims the player.
+        const tabs = (await chrome.tabs.query({})).filter(tab => tab.id && isSoundCloudUrl(tab.url));
+        await Promise.all(tabs.map(tab => chrome.tabs.sendMessage(tab.id, command).catch(() => {})));
+        return;
+      }
+      const sourceTabId = await metadataSourceTabId();
+      if (sourceTabId) await chrome.tabs.sendMessage(sourceTabId, command).catch(() => {});
     } else if (message?.type === "MUSIC_SHOWER_ATTACH_RESULT") {
       if (!state || sender.tab?.id !== state.consumerTabId || message.connectionId !== state.connectionId) return;
       if (!message.ok) {
@@ -416,6 +459,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // `ended` event reports MUSIC_SHOWER_CONNECTION_CLOSED instead.
 
 chrome.tabs.onRemoved.addListener(async tabId => {
+  if (await metadataSourceTabId() === tabId) {
+    await chrome.storage.session.remove(METADATA_SOURCE_KEY);
+    const consumers = await chrome.tabs.query({ url: MUSIC_SHOWER_URLS });
+    await Promise.all(consumers.filter(tab => tab.id).map(tab => chrome.tabs.sendMessage(tab.id, {
+      type: "MUSIC_SHOWER_SOUNDCLOUD_EVENT",
+      event: { type: "CLOSED", observedAt: Date.now() }
+    }).catch(() => {})));
+  }
   const state = await connection();
   if (!state || (tabId !== state.sourceTabId && tabId !== state.consumerTabId)) return;
   const otherTabId = tabId === state.sourceTabId ? state.consumerTabId : state.sourceTabId;

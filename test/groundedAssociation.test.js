@@ -76,7 +76,7 @@ test("a realized capture triggers one validated association call whose words rea
     } });
   const messages = [];
   session.send = message => messages.push(message);
-  session.start();
+  session.start({ tokenMode: "token" });
   t.after(() => session.close());
   for (let i = 0; i < 13; i++) { session.push(tone()); await settle(); }
   for (let i = 0; i < 6; i++) await settle();
@@ -112,7 +112,7 @@ test("with associations on screen, grounded words join the pool with category an
   const session = new RealtimeMusicSession({ streamId: "session-screen", send: () => {}, associationsOnScreen: true,
     analyze: async () => ({ observationId: "o", structuredPacket: { aestheticConcepts: [{ text: "porous midnight glass", confidence: 0.8 }] } }),
     realize: async () => ({ realizationItems: [{ text: "porous midnight glass", category: "association", family: ["다공성 심야 유리"] }] }) });
-  session.start();
+  session.start({ tokenMode: "token" });
   t.after(() => session.close());
   for (let i = 0; i < 13; i++) { session.push(tone()); await settle(); }
   for (let i = 0; i < 5; i++) await settle();

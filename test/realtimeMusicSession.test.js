@@ -17,7 +17,7 @@ function create(options = {}) {
   const session = new RealtimeMusicSession({ streamId: "session-a", send: message => messages.push(message),
     analyze: async capture => { captures.push(capture); return { structuredPacket: packet, observationId: "capture-a" }; },
     realize: async () => translation, ...options });
-  session.start();
+  session.start({ tokenMode: "token" });
   return { session, messages, captures };
 }
 

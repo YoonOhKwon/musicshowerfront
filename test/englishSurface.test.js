@@ -46,7 +46,7 @@ test("the shared translator only calls the model for uncached Korean phrases", a
 
 function create(translate) {
   const messages = [], translated = [];
-  const session = new RealtimeMusicSession({ streamId: "session-en", send: message => messages.push(message),
+  const session = new RealtimeMusicSession({ streamId: "session-en", send: message => messages.push(message), englishBatchMs: 0,
     analyze: async () => ({ structuredPacket: { aestheticConcepts: [{ text: "porous midnight glass", confidence: 0.8 }] },
       observationId: "capture-en" }),
     realize: async () => ({ realizationItems: [{ text: "porous midnight glass", category: "association",
@@ -55,7 +55,7 @@ function create(translate) {
       translated.push(items.map(item => item.text));
       return translate(items);
     } });
-  session.start();
+  session.start({ tokenMode: "token" });
   return { session, messages, translated };
 }
 
@@ -85,4 +85,24 @@ test("a failed translation is not retried on every publish", async t => {
   await settle();
   assert.equal(translated.length, 1);
   assert.ok(session.englishRetryAt > Date.now());
+});
+
+test("new untranslated phrases are collected for a few seconds and translated in one call", async t => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const batches = [];
+  const session = new RealtimeMusicSession({ streamId: "session-batch", send: () => {},
+    analyze: async () => ({ structuredPacket: {}, observationId: "o" }), realize: async () => ({ realizationItems: [] }),
+    translate: async ({ items }) => { batches.push(items.map(item => item.text));
+      return { translations: Object.fromEntries(items.map(item => [item.text, "english"])) }; } });
+  session.start({ tokenMode: "token" });
+  t.after(() => session.close());
+  session.setWordLanguage("en");
+  session.tokens = [{ text: "첫 문구", layer: "FACT" }];
+  session.publish(true);
+  session.tokens = [...session.tokens, { text: "둘째 문구", layer: "FACT" }, { text: "셋째 문구", layer: "FACT" }];
+  session.publish(true);
+  assert.equal(batches.length, 0, "nothing is sent before the batch window closes");
+  t.mock.timers.tick(4000);
+  await settle();
+  assert.deepEqual(batches, [["첫 문구", "둘째 문구", "셋째 문구"]]);
 });
