@@ -11,6 +11,7 @@ const { createEnglishSurfaceTranslator } = require("./lib/englishSurface");
 const { createGroundedAssociator } = require("./lib/groundedAssociation");
 const { createUsageLedger } = require("./lib/usageLedger");
 const { createLlmProviders } = require("./lib/llmProviders");
+const { mountNowPlayingRoutes } = require("./lib/windowsNowPlaying");
 const { createLanguageService, emptyTokenUsage, CALL_TUNING: CallTuning } = require("./lib/languageService");
 const DirectAudioReview = require("./lib/directAudioReview");
 const DirectAudioRealizer = require("./lib/directAudioRealizer");
@@ -1061,6 +1062,9 @@ app.post("/api/music-analysis", async (req, res) => {
     });
   }
 });
+
+// Windows "now playing": the browser tab's track without an extension (see lib/windowsNowPlaying.js).
+mountNowPlayingRoutes(app);
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));

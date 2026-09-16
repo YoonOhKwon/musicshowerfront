@@ -1,0 +1,206 @@
+*** Begin Patch
+*** Update File: C:/Users/yoono/Downloads/front3/src/main.js
+@@
+ import { bindChromeKeys } from "./ui/chromeKeys.js";
++import { createY2kBackdrop, mountY2kTaskbar } from "./ui/y2kDesktop.js";
++import "./ui/y2kDesktop.css";
+@@
+ const showroom = createShowroom(scene);
++const y2kBackdrop = createY2kBackdrop(scene, showroom);
+@@
+ bindChromeKeys({
+   panel: document.querySelector(".chrome.panel"),
+   player: document.querySelector("#soundcloud-player"),
+   telemetry,
+ });
++const disposeTaskbar = mountY2kTaskbar();
++if (import.meta.hot) import.meta.hot.dispose(() => { disposeTaskbar(); y2kBackdrop.dispose(); });
+@@
+-  scene.background.set(room.background);
+-  scene.fog.color.set(room.background);
+   showroom.materials.wall.color.set(room.wall);
+@@
+   showroom.materials.floor.color.set(room.floorTint);
++  y2kBackdrop.apply();
+*** Add File: C:/Users/yoono/Downloads/front3/src/ui/y2kDesktop.js
++import * as THREE from "three";
++
++// One tiny texture supplies the sky and the cylindrical room's vertical colour wash.
++// It is created once, outside the render loop, and survives changes of design look.
++export function createY2kBackdrop(scene, showroom) {
++  const canvas = document.createElement("canvas");
++  canvas.width = 2;
++  canvas.height = 256;
++  const context = canvas.getContext("2d");
++  const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
++  gradient.addColorStop(0, "#aaebfa");
++  gradient.addColorStop(0.42, "#9cc7f6");
++  gradient.addColorStop(1, "#a395e8");
++  context.fillStyle = gradient;
++  context.fillRect(0, 0, canvas.width, canvas.height);
++  const sky = new THREE.CanvasTexture(canvas);
++  sky.colorSpace = THREE.SRGBColorSpace;
++  return {
++    apply() {
++      scene.background = sky;
++      scene.fog?.color.set(0xa395e8);
++      const { wall, rib, dome } = showroom.materials;
++      if (wall.map !== sky) { wall.map = sky; wall.needsUpdate = true; }
++      wall.color.set(0xffffff);
++      rib.color.set(0xc0dbf7);
++      dome.color.set(0xaaebfa);
++    },
++    dispose() { sky.dispose(); },
++  };
++}
++
++export function mountY2kTaskbar() {
++  const panel = document.querySelector(".chrome.panel");
++  const player = document.querySelector("#soundcloud-player");
++  const title = document.querySelector("#soundcloud-player-title");
++  panel.id ||= "viewer-controls";
++  const bar = document.createElement("nav");
++  bar.className = "y2k-taskbar";
++  bar.setAttribute("aria-label", "Music Shower 작업표시줄");
++  bar.innerHTML = `
++    <button type="button" class="y2k-start" aria-label="음악 연결 열기" aria-controls="${panel.id}">
++      <span class="y2k-window-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
++      <strong>Let's ride</strong>
++    </button>
++    <span class="y2k-grip" aria-hidden="true"></span>
++    <button type="button" class="y2k-track" aria-label="SoundCloud 플레이어 표시 전환" aria-controls="soundcloud-player" aria-pressed="true">
++      <span class="y2k-sunset" aria-hidden="true"></span><span class="y2k-track-name">SoundCloud</span>
++    </button>
++    <button type="button" class="y2k-settings" aria-label="설정 창 표시 전환" aria-controls="${panel.id}" aria-pressed="true">
++      <span class="y2k-settings-icon" aria-hidden="true">▤</span><span>설정</span>
++    </button>
++    <span class="y2k-taskbar-space" aria-hidden="true"></span>
++    <div class="y2k-tray"><span class="y2k-spark" aria-hidden="true">✧</span><time class="y2k-clock"></time></div>`;
++  document.querySelector("#app").append(bar);
++  const start = bar.querySelector(".y2k-start");
++  const track = bar.querySelector(".y2k-track");
++  const settings = bar.querySelector(".y2k-settings");
++  const clock = bar.querySelector(".y2k-clock");
++  const trackName = bar.querySelector(".y2k-track-name");
++  const sync = () => {
++    track.setAttribute("aria-pressed", String(!player.hidden));
++    settings.setAttribute("aria-pressed", String(!panel.hidden));
++    trackName.textContent = title?.textContent?.trim() || "SoundCloud";
++    track.title = trackName.textContent;
++  };
++  start.addEventListener("click", () => {
++    panel.hidden = false;
++    const audioTab = panel.querySelector('[data-tab="audio"]');
++    audioTab?.click();
++    document.querySelector("#token-mode")?.focus();
++  });
++  track.addEventListener("click", () => { player.hidden = !player.hidden; sync(); });
++  settings.addEventListener("click", () => { panel.hidden = !panel.hidden; sync(); });
++  // H / P shortcuts and incoming song metadata also update the taskbar state.
++  const observer = new MutationObserver(sync);
++  observer.observe(panel, { attributes: true, attributeFilter: ["hidden"] });
++  observer.observe(player, { attributes: true, attributeFilter: ["hidden"] });
++  if (title) observer.observe(title, { childList: true, characterData: true, subtree: true });
++  const updateClock = () => {
++    const now = new Date();
++    clock.textContent = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
++    clock.dateTime = now.toISOString();
++    clock.title = now.toLocaleDateString("ko-KR", { dateStyle: "full" });
++  };
++  updateClock();
++  sync();
++  const timer = window.setInterval(updateClock, 1000);
++  return () => { clearInterval(timer); observer.disconnect(); bar.remove(); };
++}
+*** Add File: C:/Users/yoono/Downloads/front3/src/ui/y2kDesktop.css
++:root {
++  --taskbar-height: calc(38px + env(safe-area-inset-bottom, 0px));
++  --blush: #8274c5;
++}
++
++html, body, #app { background: linear-gradient(#aaebfa, #9cc7f6 42%, #a395e8); }
++.loader { background: linear-gradient(#aaebfa, #9cc7f6 42%, #a395e8); }
++
++.y2k-taskbar {
++  position: fixed;
++  inset: auto 0 0;
++  z-index: 10;
++  display: flex;
++  align-items: center;
++  gap: 5px;
++  height: var(--taskbar-height);
++  padding: 4px 5px calc(3px + env(safe-area-inset-bottom, 0px));
++  border-top: 2px solid #f8f8f8;
++  box-shadow: 0 -1px 0 #777, inset 0 1px 0 #dfdfdf;
++  background: #c3c3c3;
++  color: #171717;
++  font: 12px/1 Tahoma, Arial, "Noto Sans KR", sans-serif;
++  user-select: none;
++}
++.y2k-taskbar button {
++  display: flex;
++  align-items: center;
++  justify-content: flex-start;
++  gap: 7px;
++  width: auto;
++  min-width: 0;
++  height: 27px;
++  margin: 0;
++  padding: 2px 9px;
++  border: 1px solid;
++  border-color: #fff #404040 #404040 #fff;
++  border-radius: 0;
++  box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #858585;
++  background: #c3c3c3;
++  color: #171717;
++  font: inherit;
++  letter-spacing: 0;
++  white-space: nowrap;
++  cursor: pointer;
++}
++.y2k-taskbar button:active, .y2k-taskbar button[aria-pressed="true"] {
++  border-color: #484848 #fff #fff #484848;
++  box-shadow: inset 1px 1px 0 #858585;
++  background: #dbdbdb;
++}
++.y2k-taskbar button:focus-visible { outline: 1px dotted #111; outline-offset: -5px; }
++.y2k-taskbar .y2k-start { flex-shrink: 0; padding-inline: 7px 10px; }
++.y2k-window-icon {
++  display: grid;
++  grid-template-columns: repeat(2, 7px);
++  grid-template-rows: repeat(2, 7px);
++  gap: 1px;
++  transform: skewY(-10deg);
++  filter: drop-shadow(1px 1px 0 #666);
++}
++.y2k-window-icon i { background: #7ae5fc; border-top: 1px solid #e4ffff; }
++.y2k-window-icon i:nth-child(2) { background: #a798e5; }
++.y2k-window-icon i:nth-child(3) { background: #597bd0; }
++.y2k-window-icon i:nth-child(4) { background: #e68ed3; }
++.y2k-grip { flex: 0 0 5px; height: 25px; border-left: 2px solid #fff; border-right: 2px solid #888; margin-inline: 1px 3px; }
++.y2k-taskbar .y2k-track { flex: 0 1 215px; }
++.y2k-track-name { overflow: hidden; text-overflow: ellipsis; }
++.y2k-sunset { flex: 0 0 17px; height: 12px; border-radius: 14px 14px 0 0; background: linear-gradient(#fa20b4, #ff68d4 65%, #c099f3); box-shadow: 0 1px 1px #878787; }
++.y2k-taskbar .y2k-settings { flex-shrink: 0; }
++.y2k-settings-icon { font-size: 19px; color: #586bc0; text-shadow: 1px 1px #fff; }
++.y2k-taskbar-space { flex: 1; }
++.y2k-tray { display: flex; flex-shrink: 0; align-items: center; gap: 10px; height: 27px; padding: 0 10px; border: 1px solid; border-color: #858585 #fff #fff #858585; }
++.y2k-spark { font-size: 22px; color: #6c7838; text-shadow: 1px 1px #f5ffb1; }
++.y2k-clock { min-width: 60px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: center; }
++
++.soundcloud-player { bottom: calc(var(--taskbar-height) + 20px); }
++.panel { max-height: calc(100dvh - var(--taskbar-height) - 56px); }
++#ms-telemetry { bottom: calc(var(--taskbar-height) + 88px); }
++@media (max-width: 760px) {
++  .panel { bottom: calc(var(--taskbar-height) + 12px); max-height: 38dvh; }
++  .soundcloud-player { bottom: calc(38dvh + var(--taskbar-height) + 24px); }
++}
++@media (max-width: 480px) {
++  .y2k-taskbar { gap: 3px; }
++  .y2k-taskbar .y2k-track { flex: 1; padding-inline: 5px; }
++  .y2k-taskbar .y2k-settings { padding-inline: 6px; }
++  .y2k-settings > span:last-child, .y2k-taskbar-space, .y2k-spark { display: none; }
++  .y2k-tray { padding-inline: 5px; }
++  .y2k-grip { margin-inline: 0; }
++}
+*** End Patch

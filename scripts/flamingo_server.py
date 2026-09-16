@@ -227,6 +227,12 @@ Never reorder them, and never spend the early fields on material that belongs to
    supported by the audio. Each object has "text", "confidence", "supportRefs", and
    "reasoningHints". These become AESTHETIC evidence. Do not fill predetermined aesthetic
    dimensions and do not paraphrase one concept merely to increase the count.
+   Consider named internet micro-aesthetics, including -core names, alongside sensory descriptions.
+   When a name captures the combination of audible traits more precisely than generic adjectives,
+   use that compact name as text in its usual spelling. Cite complementary audible supportRefs;
+   one mood adjective alone is insufficient. These are aesthetic associations, not genre or origin
+   facts. Do not invent names by attaching -core, list alternatives in one item, or fill a quota.
+   Keep different supported interpretations distinct; no preferred name or fixed vocabulary.
 7. "impressions": nuanced emotional listening impressions when strongly supported by the audio.
    Each object has "text", "confidence", "supportRefs", and "reasoningHints". These become subjective IMPRESSION
    evidence. Mixed or internally contrasting feelings are allowed when the audio supports them.
@@ -256,7 +262,10 @@ Send exactly one compact JSON object with these fields in order:
 4. "genreHypotheses": 0-1 provisional genre names only if the audio already supports one.
    Each object has "label", "confidence", "supportRefs". Keep confidence low. Zero labels is
    correct. A first impression must not lock track-level identity.
-5. "aestheticConcepts": 0-2 sensory concepts strongly supported by the sound.
+5. "aestheticConcepts": 0-2 sensory concepts or named internet micro-aesthetics, including -core
+   names, supported by complementary audible traits. Use the name's usual spelling as "text",
+   with "confidence" and "supportRefs". A named aesthetic is a provisional association, not a
+   genre fact. Do not invent suffix names or force an aesthetic onto an ambiguous short clip.
 6. "impressions": 0-2 emotional impressions strongly supported by the sound.
 Do not add reasoning, examples, or paraphrases. Vocabulary is open. Every phrase is at most 8
 words and 60 characters. Use lower confidence to express the short listen's uncertainty. Output JSON only.

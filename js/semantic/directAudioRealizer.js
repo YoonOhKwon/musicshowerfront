@@ -172,6 +172,14 @@
     return clean;
   }
 
+  // Surface syntax only, never evidence that this aesthetic fits the audio. An already
+  // model-proposed compact name may be displayed without translating it into generic prose.
+  // Requiring a stem avoids ordinary words such as "score" and the bare suffix "core".
+  function isCoreAestheticName(text, category) {
+    return ["association", "aesthetic"].includes(category) && typeof text === "string" &&
+      /^(?:[a-z]{3,}(?:-core|core)|[가-힣]{2,}코어)$/i.test(text.trim());
+  }
+
   // Composes natural Korean phrase variations from English tokens
   function composeKoreanFamily(normKey, category) {
     const tokens = normKey.split(" ").filter(Boolean);
@@ -248,6 +256,8 @@
         return [text];
       }
 
+      if (isCoreAestheticName(text, category)) return [text];
+
       const key = normalizeKey(text);
       if (this.cache.has(key) && (this.externallyRealized.has(key) ||
           !["aesthetic", "impression", "context", "genre", "microgenre"].includes(category))) {
@@ -318,6 +328,7 @@
     realizeExternalConcept: (text, category) => defaultRealizer.realize(text, category),
     normalizeKey,
     cleanPhrase,
+    isCoreAestheticName,
     KNOWN_EXPRESSIONS
   };
 });

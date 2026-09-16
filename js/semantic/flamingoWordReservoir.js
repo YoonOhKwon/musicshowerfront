@@ -464,7 +464,8 @@
           volatilityWeight: effectiveWeight,
           // An unknown English phrase is an honest temporary placeholder in the reservoir, not
           // finished UI copy. It remains hidden until the asynchronous Korean family arrives.
-          requiresKoreanRealization: entry.category !== "genre" && !/[가-힣]/.test(displayText),
+          requiresKoreanRealization: entry.category !== "genre" && !/[가-힣]/.test(displayText) &&
+            !Realizer?.isCoreAestheticName(displayText, entry.category),
           isDirectAudio: true,
           trackEpoch: this.trackEpoch,
           observationIds: [...entry.observationIds],
@@ -498,7 +499,11 @@
         : [...this.conceptRegistry.entries()].filter(([, entry]) => entry.normalizedText === normalizedText);
       if (!entries.length) return false;
       for (const [conceptKey, entry] of entries) {
-        entry.family = koreanFamily;
+        // Named aesthetics are finished display names, not untranslated prose. Retain the
+        // original alongside translated surfaces so expansion cannot erase the model's label.
+        entry.family = Realizer?.isCoreAestheticName(entry.canonicalText, entry.category)
+          ? [...new Set([entry.canonicalText, ...koreanFamily])].slice(0, this.maxFamilySize)
+          : koreanFamily;
         this.rotationIndexes.set(conceptKey, 0);
       }
       return true;
